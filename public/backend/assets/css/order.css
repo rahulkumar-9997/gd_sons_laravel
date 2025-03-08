@@ -1,0 +1,33 @@
+#accordionExample fieldset, .webadmin-card-body fieldset, .customer-order-panel fieldset {
+    padding: 10px 16px;
+    border: #f7d10a 1px solid;
+}
+#accordionExample legend, .accordion-body .webadmin-card-body legend, .customer-order-panel legend {
+    background-color: #0e8d44;
+    color: white;
+    padding: 3px 10px;
+    width: auto;
+    border-radius: 4px;
+    font-size: 16px;
+    float: none;
+}
+#accordionExample legend, .webadmin-card-body legend {
+    margin-bottom: 2px;
+}
+
+#accordionExample .accordion-body p, .webadmin-card-body p {
+    margin-bottom: 2px;
+}
+#accordionExample fieldset.order-details{
+    border: none;
+}
+#accordionExample .order_id {
+    font-size: 18px;
+    font-weight: bold;
+}
+#accordionExample .order_date {
+    font-size: 15px;
+    font-weight: bold;
+    margin-left: 10px;
+    color: #313b5e;
+}

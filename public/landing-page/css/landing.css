@@ -1,0 +1,168 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display&family=Redressed&family=Rowdies:wght@300;400;700&display=swap');
+body {
+    font-family: "Public Sans", sans-serif;
+    position: relative;
+    font-size: 14px;
+    color: #222;
+    margin: 0;
+    background-color: #fff;
+    -webkit-transition: all .3s ease-in-out;
+    transition: all .3s ease-in-out;
+    padding-right: 0 !important
+}
+h1, h2, h3, h4, h5, h6{
+    font-family: "Public Sans", sans-serif;
+}
+.landing-page-logo {
+    background: #f8471d;
+    box-shadow: 0px 0px 0 rgba(0, 0, 0, .44);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    padding: 10px 10px 10px 10px;
+}
+
+.container-md.landing-container {
+    max-width: 910px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.aligncenter-landing {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.landing-page-logo .gd-logo {
+    font-family: 'Playfair Display', serif;
+    margin-top: 4px;
+    font-weight: 600;
+    font-size: 40px;
+    color: #ffffff;
+}
+
+.visit-btn-section,
+.social-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.visit-btn-section .uagb-buttons-repeater {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: box-shadow .2s ease;
+}
+
+.visit-btn-section .btn-web {
+    padding-top: 16px;
+    padding-right: 31px;
+    padding-bottom: 16px;
+    padding-left: 31px;
+    border-radius: 16px;
+}
+
+.visit-btn-section .btn-web svg {
+    width: 18px;
+    height: 18px;
+    fill: #fff;
+}
+
+.visit-btn-section .btn-web span {
+    margin-right: 8px;
+}
+
+.social-links ul {
+    padding: 0;
+    margin: 0;
+}
+
+.social-links li {
+    background-color: #f8471d;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease-in-out;
+}
+
+.social-links li a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+}
+
+.social-links li:hover {
+    background-color: #212529;
+    transform: scale(1.1);
+}
+.product-button .btn-common {
+    color: #212529;
+    padding: 5px 0 5px 0;
+    line-height: 22px;
+}
+
+.social-links li:hover a {
+    color: #fff;
+}
+.image-holder img{
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    width: auto;
+    position: absolute;
+    margin: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-width: 100%;
+    max-height: 100%;
+
+}
+.categories .image-holder{
+    width: 100%;
+    height: 300px;
+    -o-object-fit: contain;
+    object-fit: cover;
+    -webkit-transition: all .3s ease-in-out;
+    transition: all .3s ease-in-out;
+}
+.categories .image-border{
+    /* border: 1px solid rgba(74, 85, 104, .3);*/
+    border-radius: 5px; 
+    box-shadow: 0px 0px 10px 0px #1010101c;
+    padding: 0px;
+}
+.image-zoom-effect:hover .image-holder img{
+    border-radius: 5px;
+}
+.categories .lading-heading{
+    font-size: 30px;
+    line-height: 32px;
+    margin-bottom: 0px;
+    margin-top: 0px;
+
+}
+@media (max-width: 767px) {
+    .landing-page-logo .gd-logo{
+        font-size: 30px;
+    }
+    .landing-page-logo{
+        padding: 10px 10px 10px 10px;
+
+    }
+    .categories .col-6{
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+    .categories .image-holder{
+        height: 200px;
+    }
+}

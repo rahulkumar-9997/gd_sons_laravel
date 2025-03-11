@@ -30,7 +30,7 @@ $secondImage = $product->images->get(1);
                     @endif
 
                 </a>
-                <ul class="product-option">
+                <!--<ul class="product-option">
                     <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
                         <a href="javascript:void(0)" data-url="{{route('quick.view')}}" data-product-id="{{$product->id}}" class="quick-view">
                         <i data-feather="eye"></i>
@@ -62,7 +62,7 @@ $secondImage = $product->images->get(1);
                     </li>
 
                     @endif
-                </ul>
+                </ul>-->
             </div>
         </div>
         <div class="product-footer">
@@ -79,13 +79,15 @@ $secondImage = $product->images->get(1);
                         @php
                             $final_offer_rate = $product->offer_rate;
                             if($groupCategory){
-                                $group_categoty_percentage = $groupCategory->group_category_percentage;
+                                $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
                                 $purchase_rate = $product->purchase_rate;
-                                $offer_rate = $product->offer_rate;
-                                $percent_discount = 100/$group_categoty_percentage;
-                                $final_offer_rate =
-                                $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
-                                $final_offer_rate = floor($final_offer_rate);
+                                if ($group_categoty_percentage > 0) { 
+                                    $offer_rate = $product->offer_rate;
+                                    $percent_discount = 100/$group_categoty_percentage;
+                                    $final_offer_rate =
+                                    $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
+                                    $final_offer_rate = floor($final_offer_rate);
+                                }
                             }
                         @endphp
                         <span class="theme-color">Rs. {{$final_offer_rate}}</span>

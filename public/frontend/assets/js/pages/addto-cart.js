@@ -26,6 +26,13 @@ $(document).ready(function () {
                 if (response.success) {
                     $('#cartItem').html(response.cartItems);
                     feather.replace();
+                    $("#cart-items").css({
+                        "opacity": "1",
+                        "visibility": "visible"
+                    });
+                    setTimeout(function () {
+                        $("#cart-items").removeAttr("style");
+                    }, 20000);
                     showNotificationAll("success", "", response.message);
                 }else{
                     showNotificationAll("danger", "", response.message);

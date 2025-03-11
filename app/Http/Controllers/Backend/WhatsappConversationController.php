@@ -56,7 +56,7 @@ class WhatsappConversationController extends Controller
 
     public function store(Request $request){
         $request->validate([
-            'mobile_number' => 'required|string|max:15',
+           'mobile_number' => 'required|string|max:15|unique:whats_app_conversation,mobile_number',
             'name' => 'nullable|string|max:255',
             'conversation_message' => 'required|string',
         ]);
@@ -65,28 +65,7 @@ class WhatsappConversationController extends Controller
             'name' => $request->name,
             'conversation_message' => $request->conversation_message,
         ]);
-        $apiData = [
-            "apiKey" => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY",
-            "campaignName" => "Confirm_Product_Enquiry_Admin",
-            "destination" => $request->mobile_number,
-            "userName" => "Girdhar Das and Sons",
-            "templateParams" => [
-                $request->name,
-                $request->conversation_message
-            ],
-            "source" => "new-landing-page form",
-            "media" => new \stdClass(),
-            "buttons" => [],
-            "carouselCards" => [],
-            "location" => new \stdClass(),
-            "paramsFallbackValue" => [
-                "FirstName" => "User"
-            ]
-        ];
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json'
-        ])->post('https://backend.aisensy.com/campaign/t1/api/v2', $apiData);
-    
+        $response = $this->sendWhatsappMessage($request->mobile_number, $request->name, $request->conversation_message);
         if ($response->successful()) {
             $WhatsappConversation = WhatsappConversation::orderBy('id', 'desc')->get();
     
@@ -147,7 +126,7 @@ class WhatsappConversationController extends Controller
 
     public function update(Request $request, $id){
         $request->validate([
-            'mobile_number' => 'required|string|max:15|unique:whats_app_conversation,mobile_number,' . $id,
+            'mobile_number' => 'required|string|max:15|unique:whats_app_conversation,mobile_number,'.$id,
             'name' => 'nullable|string|max:255',
             'conversation_message' => 'required|string',
         ]);
@@ -164,12 +143,39 @@ class WhatsappConversationController extends Controller
             'name' => $request->name,
             'conversation_message' => $request->conversation_message,
         ]);
+        $response = $this->sendWhatsappMessage($request->mobile_number, $request->name, $request->conversation_message);
         $WhatsappConversation = WhatsappConversation::orderBy('id', 'desc')->get();
         return response()->json([
             'status' => 'success',
             'message' => 'Conversation updated successfully.',
             'conversationContent' => view('backend.manage-whatsapp.manage-whatsapp-conversation.partials.ajax-conversation-list', compact('WhatsappConversation'))->render(),
         ]);
+    }
+
+    private function sendWhatsappMessage($mobileNumber, $name, $message){
+        $name = !empty($name) ? $name : $mobileNumber;
+        $apiData = [
+            "apiKey" => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY",
+            "campaignName" => "Confirm_Product_Enquiry_Admin",
+            "destination" => $mobileNumber,
+            "userName" => "Girdhar Das and Sons",
+            "templateParams" => [
+                $name,
+                $message
+            ],
+            "source" => "new-landing-page form",
+            "media" => new \stdClass(),
+            "buttons" => [],
+            "carouselCards" => [],
+            "location" => new \stdClass(),
+            "paramsFallbackValue" => [
+                "FirstName" => "User"
+            ]
+        ];
+
+        return Http::withHeaders([
+            'Content-Type' => 'application/json'
+        ])->post('https://backend.aisensy.com/campaign/t1/api/v2', $apiData);
     }
 
     public function destroy($id){

@@ -309,12 +309,14 @@
                                         $final_offer_rate = $popular_product_row->offer_rate;
                                         $mrp = $popular_product_row->mrp;
                                         if ($groupCategory && $popular_product_row->offer_rate !== null) {
-                                            $group_categoty_percentage = $groupCategory->group_category_percentage;
-                                            $purchase_rate = $popular_product_row->purchase_rate;
-                                            $offer_rate = $popular_product_row->offer_rate;
-                                            $percent_discount = 100 / $group_categoty_percentage;
-                                            $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
-                                            $final_offer_rate = floor($final_offer_rate);
+                                            $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                            if ($group_categoty_percentage > 0) {
+                                                $purchase_rate = $popular_product_row->purchase_rate;
+                                                $offer_rate = $popular_product_row->offer_rate;
+                                                $percent_discount = 100 / $group_categoty_percentage;
+                                                $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
+                                                $final_offer_rate = floor($final_offer_rate);
+                                            }
                                         }
                                     @endphp
                                     @php
@@ -418,12 +420,14 @@
                                     $mrp = $trending_products_row->mrp;
 
                                     if ($groupCategory && $trending_products_row->offer_rate !== null) {
-                                        $group_categoty_percentage = $groupCategory->group_category_percentage;
-                                        $purchase_rate = $trending_products_row->purchase_rate;
-                                        $offer_rate = $trending_products_row->offer_rate;
-                                        $percent_discount = 100 / $group_categoty_percentage;
-                                        $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
-                                        $final_offer_rate = floor($final_offer_rate);
+                                        $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                        if ($group_categoty_percentage > 0) {
+                                            $purchase_rate = $trending_products_row->purchase_rate;
+                                            $offer_rate = $trending_products_row->offer_rate;
+                                            $percent_discount = 100 / $group_categoty_percentage;
+                                            $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
+                                            $final_offer_rate = floor($final_offer_rate);
+                                        }
                                     }
                                     $discountPercentage = ($mrp > 0) ? round(((($mrp - $final_offer_rate) / $mrp) * 100), 2) : 0;
                                 @endphp

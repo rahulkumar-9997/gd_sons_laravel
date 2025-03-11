@@ -93,6 +93,11 @@
                                                             <span class="success-bg">
                                                                 {{ $orderItem->order_id }}
                                                             </span>
+                                                            @if($orderItem->pick_up_status =='pick_up_store')
+                                                                <span class="success-warning">
+                                                                    Please Item Pickup Our Shop.
+                                                                </span>
+                                                            @endif
                                                         </h4>
                                                         
                                                         <h6 class="text-content">

@@ -22,12 +22,14 @@
             $mrp = $product->mrp;
 
             if ($groupCategory && $product->offer_rate !== null) {
-                $group_categoty_percentage = $groupCategory->group_category_percentage;
-                $purchase_rate = $product->purchase_rate;
-                $offer_rate = $product->offer_rate;
-                $percent_discount = 100 / $group_categoty_percentage;
-                $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
-                $final_offer_rate = floor($final_offer_rate); 
+                $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                if ($group_categoty_percentage > 0) {
+                    $purchase_rate = $product->purchase_rate;
+                    $offer_rate = $product->offer_rate;
+                    $percent_discount = 100 / $group_categoty_percentage;
+                    $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
+                    $final_offer_rate = floor($final_offer_rate); 
+                }
             }
             $discountPercentage = ($mrp > 0) ? round(((($mrp - $final_offer_rate) / $mrp) * 100), 2) : 0;
         @endphp

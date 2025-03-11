@@ -16,12 +16,7 @@ class SharedDataComposer
         if (is_null(self::$cachedCategories)) {
             self::$cachedCategories = Category::orderBy('id', 'desc')->get();
         }
-        /*$blog_for_footer_and_header = BlogCategory::with('blogs')
-            ->where('status', 1)
-            ->has('blogs') 
-            ->orderBy('title')
-            ->get();
-        */
+        
         if (is_null(self::$cachedBlogCategories)) {
             self::$cachedBlogCategories = BlogCategory::withCount('blogs')
                 ->where('status', 1)

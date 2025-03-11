@@ -18,6 +18,7 @@ $(document).ready(function () {
          }
       });
    });
+
    /**add new customer  */
    $(document).on('click', 'a[data-addCustomer-popup="true"]', function () {
       var title = $(this).data('title');
@@ -184,14 +185,14 @@ $(document).ready(function () {
 
 function updateCustomerGroup(selectElement) {
    var customerId = selectElement.id.split('-')[1];
-   var groupCategoryId = selectElement.value;
+   var groupId = selectElement.value;
    var url = selectElement.dataset.url;
    $.ajax({
       url: url,
       method: 'POST',
       data: {
          customer_id: customerId,
-         group_category_id: groupCategoryId,
+         group_id: groupId,
          _token: $('meta[name="csrf-token"]').attr('content'),
       },
       success: function (response) {

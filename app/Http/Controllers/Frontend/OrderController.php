@@ -33,24 +33,29 @@ class OrderController extends Controller
 {
     public function checkOutFormSubmit(Request $request){
         $addressExists = isset($request->customer_address_id) && $request->customer_address_id != '';
-        //Log::info('Checkout Data in: ', ['checkout_data' =>  $request->all()]);
-        if ($addressExists) {
-            Log::info('Calling storeOrderAfterPayment come order if');
-            $validatedData = $request->validate([
-                'customer_address_id' => 'required|exists:addresses,id',
-                'same_ship_bill_address' => 'nullable|boolean',
-            ] + $this->getBillingValidation());
-        } else {
-            Log::info('Calling storeOrderAfterPayment come order else');
-            $validatedData = $request->validate([
-                'ship_full_name' => 'required|string|max:255',
-                'ship_phone_number' => 'required|digits:10',
-                'ship_country' => 'required',
-                'ship_full_address' => 'required',
-                'ship_city_name' => 'required|string',
-                'ship_state' => 'required',
-                'ship_pin_code' => 'required|digits:6',
-            ] + $this->getBillingValidation());
+        if($request->pick_up_status == 'pick_up_store'){
+
+        }
+        else{
+            //Log::info('Checkout Data in: ', ['checkout_data' =>  $request->all()]);
+            if ($addressExists) {
+                Log::info('Calling storeOrderAfterPayment come order if');
+                $validatedData = $request->validate([
+                    'customer_address_id' => 'required|exists:addresses,id',
+                    'same_ship_bill_address' => 'nullable|boolean',
+                ] + $this->getBillingValidation());
+            } else {
+                Log::info('Calling storeOrderAfterPayment come order else');
+                $validatedData = $request->validate([
+                    'ship_full_name' => 'required|string|max:255',
+                    'ship_phone_number' => 'required|digits:10',
+                    'ship_country' => 'required',
+                    'ship_full_address' => 'required',
+                    'ship_city_name' => 'required|string',
+                    'ship_state' => 'required',
+                    'ship_pin_code' => 'required|digits:6',
+                ] + $this->getBillingValidation());
+            }
         }
         $cartItems = [];
         $cartProductIds = $request->input('product_id', []);
@@ -198,68 +203,73 @@ class OrderController extends Controller
         DB::beginTransaction();
         try {
             /* Determine the shipping address ID */
-            if (isset($checkoutData['customer_address_id']) && $checkoutData['customer_address_id'] !== null) {
-                /* Add the new shipping address to the 'shipping_addresses' table */
-                $customerAddressId = $checkoutData['customer_address_id'];
-                $customer_address = Address::where('id', $customerAddressId)
-                ->where('customer_id', $customerId)
-                ->first();
-                $shippingAddress = ShippingAddress::create([
-                    'customer_id' => $customerId,
-                    'full_name' => $customer_address->name,
-                    'phone_number' =>$customer_address->phone_number,
-                    'email_id' => null,
-                    'country' => $customer_address->country,
-                    'full_address' => $customer_address->address,
-                    'apartment' => $customer_address->apartment ?? null,
-                    'city_name' => $customer_address->city,
-                    'state' => $customer_address->state,
-                    'pin_code' => $customer_address->zip_code,
-                ]);
-                $shippingAddressId = $shippingAddress->id;
-            }else {
-                $address = Address::create([
-                    'customer_id' => $customerId,
-                    'name' => $checkoutData['ship_full_name'],
-                    'phone_number' => $checkoutData['ship_phone_number'],
-                    'country' => $checkoutData['ship_country'],
-                    'address' => $checkoutData['ship_full_address'],
-                    'apartment' => $checkoutData['ship_apartment'] ?? null,
-                    'city' => $checkoutData['ship_city_name'],
-                    'state' => $checkoutData['ship_state'],
-                    'zip_code' => $checkoutData['ship_pin_code'],
-                ]);
-                /* Add the new shipping address to the 'shipping_addresses' table */
-                $shippingAddress = ShippingAddress::create([
-                    'customer_id' => $customerId,
-                    'full_name' => $checkoutData['ship_full_name'],
-                    'phone_number' => $checkoutData['ship_phone_number'],
-                    'email_id' => $checkoutData['email_id'] ?? null,
-                    'country' => $checkoutData['ship_country'],
-                    'full_address' => $checkoutData['ship_full_address'],
-                    'apartment' => $checkoutData['ship_apartment'] ?? null,
-                    'city_name' => $checkoutData['ship_city_name'],
-                    'state' => $checkoutData['ship_state'],
-                    'pin_code' => $checkoutData['ship_pin_code'],
-                ]);
-                $shippingAddressId = $shippingAddress->id;
-            }            
-            /* Determine the billing address ID */
-            if ($checkoutData['same_ship_bill_address'] == 1) {
-                $billingAddress = BillingAddress::create([
-                    'customer_id' => $customerId,
-                    'full_name' => $checkoutData['bill_full_name'],
-                    'phone_number' => $checkoutData['bill_phone_number'],
-                    'email_id' => $checkoutData['email_id'] ?? null,
-                    'country' => $checkoutData['bill_country'],
-                    'full_address' => $checkoutData['bill_full_address'],
-                    'apartment' => $checkoutData['bill_apartment'] ?? null,
-                    'city_name' => $checkoutData['bill_city_name'],
-                    'state' => $checkoutData['bill_state'],
-                    'pin_code' => $checkoutData['bill_pin_code'],
-                ]);
-                $billingAddressId = $billingAddress->id;
-            } else {
+            if($checkoutData['pick_up_status'] == 'pick_up_online'){
+                if (isset($checkoutData['customer_address_id']) && $checkoutData['customer_address_id'] !== null) {
+                    /* Add the new shipping address to the 'shipping_addresses' table */
+                    $customerAddressId = $checkoutData['customer_address_id'];
+                    $customer_address = Address::where('id', $customerAddressId)
+                    ->where('customer_id', $customerId)
+                    ->first();
+                    $shippingAddress = ShippingAddress::create([
+                        'customer_id' => $customerId,
+                        'full_name' => $customer_address->name,
+                        'phone_number' =>$customer_address->phone_number,
+                        'email_id' => null,
+                        'country' => $customer_address->country,
+                        'full_address' => $customer_address->address,
+                        'apartment' => $customer_address->apartment ?? null,
+                        'city_name' => $customer_address->city,
+                        'state' => $customer_address->state,
+                        'pin_code' => $customer_address->zip_code,
+                    ]);
+                    $shippingAddressId = $shippingAddress->id;
+                }else {
+                    $address = Address::create([
+                        'customer_id' => $customerId,
+                        'name' => $checkoutData['ship_full_name'],
+                        'phone_number' => $checkoutData['ship_phone_number'],
+                        'country' => $checkoutData['ship_country'],
+                        'address' => $checkoutData['ship_full_address'],
+                        'apartment' => $checkoutData['ship_apartment'] ?? null,
+                        'city' => $checkoutData['ship_city_name'],
+                        'state' => $checkoutData['ship_state'],
+                        'zip_code' => $checkoutData['ship_pin_code'],
+                    ]);
+                    /* Add the new shipping address to the 'shipping_addresses' table */
+                    $shippingAddress = ShippingAddress::create([
+                        'customer_id' => $customerId,
+                        'full_name' => $checkoutData['ship_full_name'],
+                        'phone_number' => $checkoutData['ship_phone_number'],
+                        'email_id' => $checkoutData['email_id'] ?? null,
+                        'country' => $checkoutData['ship_country'],
+                        'full_address' => $checkoutData['ship_full_address'],
+                        'apartment' => $checkoutData['ship_apartment'] ?? null,
+                        'city_name' => $checkoutData['ship_city_name'],
+                        'state' => $checkoutData['ship_state'],
+                        'pin_code' => $checkoutData['ship_pin_code'],
+                    ]);
+                    $shippingAddressId = $shippingAddress->id;
+                }            
+                /* Determine the billing address ID */
+                if ($checkoutData['same_ship_bill_address'] == 1) {
+                    $billingAddress = BillingAddress::create([
+                        'customer_id' => $customerId,
+                        'full_name' => $checkoutData['bill_full_name'],
+                        'phone_number' => $checkoutData['bill_phone_number'],
+                        'email_id' => $checkoutData['email_id'] ?? null,
+                        'country' => $checkoutData['bill_country'],
+                        'full_address' => $checkoutData['bill_full_address'],
+                        'apartment' => $checkoutData['bill_apartment'] ?? null,
+                        'city_name' => $checkoutData['bill_city_name'],
+                        'state' => $checkoutData['bill_state'],
+                        'pin_code' => $checkoutData['bill_pin_code'],
+                    ]);
+                    $billingAddressId = $billingAddress->id;
+                } else {
+                    $billingAddressId = null;
+                }
+            }else{
+                $shippingAddressId = null;
                 $billingAddressId = null;
             }
             /* Generate unique 10-digit serial number for order_id */
@@ -275,6 +285,7 @@ class OrderController extends Controller
                 'grand_total_amount' =>  $checkoutData['grand_total_amount'],
                 'payment_mode' => $checkoutData['payment_type'],
                 'payment_received' => true,
+                'pick_up_status' => $checkoutData['pick_up_status'],
                 'customer_id' => $customerId,
                 'shipping_address_id' => $shippingAddressId,
                 'billing_address_id' => $billingAddressId,
@@ -465,6 +476,38 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Something went wrong !']);
         }
+    }
+
+    public function orderParameter(){
+        $customerId = auth('customer')->id();
+        $customer_address = Address::where('customer_id', $customerId)->get();
+        $carts = Cart::where('customer_id', $customerId)
+            ->with(['product' => function ($query) {
+                $query->with(['category', 'images'])
+                    ->leftJoin('inventories', function ($join) {
+                        $join->on('products.id', '=', 'inventories.product_id')
+                            ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+                    })
+                    ->select('products.*', 'inventories.mrp', 'inventories.purchase_rate', 'inventories.offer_rate', 'inventories.sku');
+            }])
+            ->get();
+        return view('frontend.pages.checkout-param-page', compact('carts'));
+    }
+
+    public function pickUpStore(){
+        $customerId = auth('customer')->id();
+        $customer_address = Address::where('customer_id', $customerId)->get();
+        $carts = Cart::where('customer_id', $customerId)
+            ->with(['product' => function ($query) {
+                $query->with(['category', 'images'])
+                    ->leftJoin('inventories', function ($join) {
+                        $join->on('products.id', '=', 'inventories.product_id')
+                            ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+                    })
+                    ->select('products.*', 'inventories.mrp', 'inventories.purchase_rate', 'inventories.offer_rate', 'inventories.sku');
+            }])
+            ->get();
+        return view('frontend.pages.pick-up-store-page', compact('carts'));
     }
 
 }

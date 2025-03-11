@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
         // Store Cart Data Singleton
         $this->app->singleton('customerGroupCategory', function () {
             $customer = Auth::guard('customer')->user();
-            return $customer ? $customer->groupCategory()->with('groups')->first() : null;
+            return $customer ? $customer->load(['customerGroup', 'groupCategory']) : null;
         });
 
         // Store Cart Data Singleton
@@ -99,6 +99,8 @@ class AppServiceProvider extends ServiceProvider
                 'frontend.pages.partials.ajax-checkout-form',
                 'frontend.pages.cart',
                 'frontend.pages.customer.wishlist.index',
+                'frontend.pages.checkout-param-page',
+                'frontend.pages.pick-up-store-page',
             ],
             CustomerGroupCategoryComposer::class
         );

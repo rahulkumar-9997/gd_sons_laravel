@@ -64,6 +64,10 @@ Route::group(['prefix' => 'account'], function() {
 	Route::get('/login/google', [CustomerLoginController::class, 'redirectToGoogle'])->name('google.login');
 	Route::get('/login/google/callback', [CustomerLoginController::class, 'handleGoogleCallback']);
 });
+Route::group(['middleware' => ['auth.customer']], function() {
+    Route::get('/user-notifications', [CustomerLoginController::class, 'getNotifications']);
+    Route::post('/notifications/{id}/read', [CustomerLoginController::class, 'markAsRead']);
+});
 Route::middleware([TrackVisitor::class])->group(function () {
     Route::get('/', [FrontendController::class, 'home'])->name('home');
     Route::get('kitchen-catalog/{category}/{attribute}/{value}', [FrontendController::class, 'showProductCatalog'])->name('kitchen.catalog');
@@ -87,8 +91,8 @@ Route::middleware([TrackVisitor::class])->group(function () {
 
     
     Route::group(['middleware' => ['auth.customer']], function() {
-        Route::get('/user-notifications', [CustomerLoginController::class, 'getNotifications']);
-        Route::post('/notifications/{id}/read', [CustomerLoginController::class, 'markAsRead']);
+        //Route::get('/user-notifications', [CustomerLoginController::class, 'getNotifications']);
+        //Route::post('/notifications/{id}/read', [CustomerLoginController::class, 'markAsRead']);
         Route::get('myaccount', [CustomerController::class, 'myaccount'])->name('myaccount');
         Route::Post('customer-logout', [CustomerLoginController::class, 'CustomerLogout'])->name('customer.logout');
         Route::post('upload-profile', [CustomerController::class, 'uploadProfileImg'])->name('upload.profile');
@@ -117,7 +121,8 @@ Route::middleware([TrackVisitor::class])->group(function () {
             Route::get('/address/{id}/edit', [CustomerController::class, 'CustomerAddressEdit'])->name('address.edit');
             Route::post('/address/{id}/update', [CustomerController::class, 'CustomerAddressUpdate'])->name('address.update');
             Route::delete('/address/{customer_id}/{address_id}', [CustomerController::class, 'CustomerAddressRemove'])->name('address.remove');
-
+            Route::get('order-param', [OrderController::class, 'orderParameter'])->name('order-param');
+            Route::get('pick-up-store', [OrderController::class, 'pickUpStore'])->name('pick-up-store');
         });
     });
 });

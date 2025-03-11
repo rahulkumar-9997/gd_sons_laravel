@@ -176,50 +176,16 @@
                                     </tr>
                                 </tbody>
                             </table>
-
-                            <table class="dilivery-table" align="center" border="0" cellpadding="0" cellspacing="0" width="100%"
-                                style="padding: 20px 32px;width: 100%; background-color:
-                                #f7f7f7;">
-                                <tbody>
-                                    <tr>
-                                        <td
-                                            style="    text-align: left;padding-right: 28px;border-right: 2px solid rgba(217, 217, 217, 0.5);">
-                                            <div class="title title-2" style="text-align: left;">
-                                                <h2 style="font-size: 16px;font-weight: 700;margin: 0 0 12px;">Shipping address</h2>
-                                                <p
-                                                    style="font-size: 14px;margin: 0;line-height: 1.5;color: #939393;font-weight: 500;">
-                                                    
-                                                    {{ $order->shippingAddress->full_name }}
-                                                    <br>
-                                                    {{ $order->shippingAddress->phone_number }}
-                                                    <br>
-                                                    {{ $order->shippingAddress->full_address }}
-                                                    <br>
-                                                    {{ $order->shippingAddress->city_name }}, {{ $order->shippingAddress->state }} {{ $order->shippingAddress->pin_code }}
-                                                </p>
-                                            </div>
-                                        </td>
-                                        @if($order->billingAddress)
-                                            <td style="text-align: left;padding-left: 32px;">
+                            @if($order->shippingAddress)
+                                <table class="dilivery-table" align="center" border="0" cellpadding="0" cellspacing="0" width="100%"
+                                    style="padding: 20px 32px;width: 100%; background-color:
+                                    #f7f7f7;">
+                                    <tbody>
+                                        <tr>
+                                            <td
+                                                style="    text-align: left;padding-right: 28px;border-right: 2px solid rgba(217, 217, 217, 0.5);">
                                                 <div class="title title-2" style="text-align: left;">
-                                                    <h2 style="font-size: 16px;font-weight: 700;margin: 0 0 12px;">Billing address</h2>
-                                                    <p
-                                                        style="font-size: 14px;margin: 0;line-height: 1.5;color:#939393;font-weight: 500;">
-                                                        
-                                                        {{ $order->billingAddress->full_name }}
-                                                        <br>
-                                                        {{ $order->billingAddress->phone_number }}
-                                                        <br>
-                                                        {{ $order->billingAddress->full_address }}
-                                                        <br>
-                                                        {{ $order->billingAddress->city_name }}, {{ $order->billingAddress->state }} {{ $order->billingAddress->pin_code }}
-                                                    </p>
-                                                </div>
-                                            </td>
-                                        @else
-                                            <td style="text-align: left;padding-left: 32px;">
-                                                <div class="title title-2" style="text-align: left;">
-                                                    <h2 style="font-size: 16px;font-weight: 700;margin: 0 0 12px;">Billing address</h2>
+                                                    <h2 style="font-size: 16px;font-weight: 700;margin: 0 0 12px;">Shipping address</h2>
                                                     <p
                                                         style="font-size: 14px;margin: 0;line-height: 1.5;color: #939393;font-weight: 500;">
                                                         
@@ -233,10 +199,45 @@
                                                     </p>
                                                 </div>
                                             </td>
-                                        @endif
-                                    </tr>
-                                </tbody>
-                            </table>
+                                            @if($order->billingAddress)
+                                                <td style="text-align: left;padding-left: 32px;">
+                                                    <div class="title title-2" style="text-align: left;">
+                                                        <h2 style="font-size: 16px;font-weight: 700;margin: 0 0 12px;">Billing address</h2>
+                                                        <p
+                                                            style="font-size: 14px;margin: 0;line-height: 1.5;color:#939393;font-weight: 500;">
+                                                            
+                                                            {{ $order->billingAddress->full_name }}
+                                                            <br>
+                                                            {{ $order->billingAddress->phone_number }}
+                                                            <br>
+                                                            {{ $order->billingAddress->full_address }}
+                                                            <br>
+                                                            {{ $order->billingAddress->city_name }}, {{ $order->billingAddress->state }} {{ $order->billingAddress->pin_code }}
+                                                        </p>
+                                                    </div>
+                                                </td>
+                                            @else
+                                                <td style="text-align: left;padding-left: 32px;">
+                                                    <div class="title title-2" style="text-align: left;">
+                                                        <h2 style="font-size: 16px;font-weight: 700;margin: 0 0 12px;">Billing address</h2>
+                                                        <p
+                                                            style="font-size: 14px;margin: 0;line-height: 1.5;color: #939393;font-weight: 500;">
+                                                            
+                                                            {{ $order->shippingAddress->full_name }}
+                                                            <br>
+                                                            {{ $order->shippingAddress->phone_number }}
+                                                            <br>
+                                                            {{ $order->shippingAddress->full_address }}
+                                                            <br>
+                                                            {{ $order->shippingAddress->city_name }}, {{ $order->shippingAddress->state }} {{ $order->shippingAddress->pin_code }}
+                                                        </p>
+                                                    </div>
+                                                </td>
+                                            @endif
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            @endif
 
                             <table class="shipping-table" align="center" border="0" cellpadding="0" cellspacing="0" width="100%"
                                 style="padding: 0 27px;">

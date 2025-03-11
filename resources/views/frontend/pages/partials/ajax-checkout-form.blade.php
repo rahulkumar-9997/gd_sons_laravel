@@ -14,6 +14,7 @@ if (auth('customer')->check()) {
 @endphp
 <form action="{{route('checkout.submit')}}" method="POST" accept-charset="UTF-8" enctype="multipart/form-data" id="checkoutFormSubmit">
     @csrf
+    <input type="hidden" name="pick_up_status" value="pick_up_online">
     <div class="row g-sm-4 g-3">
         <div class="col-lg-8">
             <div class="left-sidebar-checkout">
@@ -410,13 +411,15 @@ if (auth('customer')->check()) {
                         if($cart->product->offer_rate){
                             $final_offer_rate = $cart->product->offer_rate;
                             if($groupCategory){
-                                $group_categoty_percentage = $groupCategory->group_category_percentage;
-                                $purchase_rate = $cart->product->purchase_rate;
-                                $offer_rate = $cart->product->offer_rate;
-                                $percent_discount = 100/$group_categoty_percentage;
-                                $final_offer_rate =
-                                $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
-                                $final_offer_rate = floor($final_offer_rate);
+                                $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                if ($group_categoty_percentage > 0) {
+                                    $purchase_rate = $cart->product->purchase_rate;
+                                    $offer_rate = $cart->product->offer_rate;
+                                    $percent_discount = 100/$group_categoty_percentage;
+                                    $final_offer_rate =
+                                    $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
+                                    $final_offer_rate = floor($final_offer_rate);
+                                }
                             }
                             $totalPrice = $final_offer_rate * $cart->quantity;
                             $subtotal += $totalPrice;

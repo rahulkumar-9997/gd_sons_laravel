@@ -1,21 +1,15 @@
 <!--Sticky user-->
-@if (auth('customer')->check())
+@if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory))
    @php
-      $customer = auth('customer')->user();
-      $customerId = $customer->id;
-      $customerName = $customer->name;
-      $groupName = '';
-
-      $groupCategoryName = $groupCategory ? $groupCategory->name : '';
-      $groupNames = $groupCategory && $groupCategory->groups->isNotEmpty() 
-    ? $groupCategory->groups->first()->name 
-    : '';
+      $groupNames ='';
+      $customer = $groupCategory->name;
+      $groupNames = $groupCategory->customerGroup->name;
    @endphp
    <div class="sticky-user">
       <div class="user-name">
          <a href="{{ route('myaccount') }}">
             <h5>
-                  {!! $customerName !!} 
+                  {!! $customer !!} 
                   
                   @if($groupNames)
                      <span> - {{ $groupNames }}</span>

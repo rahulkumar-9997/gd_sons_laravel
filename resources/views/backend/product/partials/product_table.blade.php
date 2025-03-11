@@ -37,7 +37,7 @@
                             <span>No images.</span>
                         @endif
                         <br>
-                        <a href="javascript:void(0)" data-ajax-image-popup="true" data-size="md" data-title="Upload Image ({{ $product->title }})" data-url="{{route('products.modal-image-form')}}" data-bs-toggle="tooltip" data-pid="{{$product->id}}" data-bs-original-title="Upload Image">
+                        <a href="javascript:void(0)" data-ajax-image-popup="true" data-size="lg" data-title="Upload Image ({{ $product->title }})" data-url="{{route('products.modal-image-form')}}" data-bs-toggle="tooltip" data-pid="{{$product->id}}" data-bs-original-title="Upload Image">
                             <span class="badge bg-primary">
                                 Upload Image
                             </span>

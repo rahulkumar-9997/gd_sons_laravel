@@ -45001,7 +45001,7 @@ body.rtl .question-answer li .question-box .link-dislike-box {
 }
 
 .product-section .right-box-contain .buy-box {
-    display: -webkit-box;
+    /* display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
     -ms-flex-wrap: nowrap;
@@ -45012,11 +45012,11 @@ body.rtl .question-answer li .question-box .link-dislike-box {
     align-items: center;
     margin-top: 20px;
     border-bottom: 1px solid #ececec;
-    padding-bottom: 10px;
+    padding-bottom: 10px; */
     /*rahul add */
-    border-top: 1px solid #ececec;
-    padding-top: 10px;
-    justify-content: center;
+    /* border-top: 1px solid #ececec; */
+    padding-top: 15px;
+    /* justify-content: center; */
 }
 
 .product-section .right-box-contain .buy-box .team-box {

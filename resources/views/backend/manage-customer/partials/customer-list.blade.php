@@ -49,8 +49,8 @@
                                         @if ($category->groups->isNotEmpty())
                                             @foreach ($category->groups as $group)
                                                 <option 
-                                                    value="{{ $category->id }}"
-                                                    {{ $customer_list_row->group_category_id == $category->id ? 'selected' : '' }}>
+                                                    value="{{ $group->id }}"
+                                                    {{ $customer_list_row->group_id == $group->id ? 'selected' : '' }}>
                                                     {{ $group->name }} - {{ $category->group_category_percentage }}%
                                                 </option>
                                             @endforeach

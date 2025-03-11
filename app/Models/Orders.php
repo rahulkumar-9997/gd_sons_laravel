@@ -16,6 +16,7 @@ class Orders extends Model
         'grand_total_amount',
         'payment_mode',
         'payment_received',
+        'pick_up_status',
         'customer_id',
         'shipping_address_id',
         'billing_address_id',

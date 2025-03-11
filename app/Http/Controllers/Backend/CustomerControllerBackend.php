@@ -106,11 +106,11 @@ class CustomerControllerBackend extends Controller
         try {
             $validated = $request->validate([
                 'customer_id' => 'required|exists:customers,id',
-                'group_category_id' => 'nullable|exists:groups_categories,id',
+                'group_id' => 'nullable|exists:groups,id',
             ]);
 
             $customer = Customer::findOrFail($validated['customer_id']);
-            $customer->group_category_id = $validated['group_category_id'];
+            $customer->group_id = $validated['group_id'];
             $customer->save();
 
             return response()->json([

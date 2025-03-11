@@ -9,6 +9,7 @@ class CustomerGroupCategoryComposer
     public function compose(View $view)
     {
         $groupCategory = app('customerGroupCategory');
+        //dd(json_encode($groupCategory, JSON_PRETTY_PRINT));
         $view->with('groupCategory', $groupCategory);
     }
 }

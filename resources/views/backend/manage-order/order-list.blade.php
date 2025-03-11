@@ -38,7 +38,10 @@
                                 <tr>
                                     <th>Order ID</th>
                                     <th>Order Date</th>
-                                    <th>Customer</th>
+                                    <th>
+                                        Customer
+                                        /Pick up Status
+                                    </th>
                                     <th>Total</th>
                                     <th>Payment Mode</th>
                                     <th>Payment Status</th>
@@ -57,6 +60,9 @@
                                             <td>{{ $order->created_at->format('d, M Y h:i A') }}</td>
                                             <td>
                                                 <a href="#!" class="link-primary fw-medium">{{ $order->customer->name }}</a>
+                                                <span class="badge border border-success text-success  px-2 py-1 fs-13">
+                                                {{ ucfirst(str_replace('_', ' ', $order->pick_up_status)) }}
+                                                </span>
                                             </td>
                                             <td>Rs. {{ number_format($order->grand_total_amount, 2) }}</td>
                                             <td>

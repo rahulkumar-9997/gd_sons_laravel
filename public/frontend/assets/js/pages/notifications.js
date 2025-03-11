@@ -148,5 +148,5 @@ $(document).ready(function () {
         }
     }
 
-    setInterval(checkForNotifications, 10000);
+    //setInterval(checkForNotifications, 10000);
 });

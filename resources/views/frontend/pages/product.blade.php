@@ -1,29 +1,29 @@
 @php
 if ($data['product_details']->meta_title) {
-    $meta_title = $data['product_details']->meta_title;
+$meta_title = $data['product_details']->meta_title;
 } else {
-    $meta_title = ucwords(strtolower($data['product_details']->title))
-        . ' | ' . $data['product_details']->category->title . ' - ' . $data['attributes_value_name']->name;
+$meta_title = ucwords(strtolower($data['product_details']->title))
+. ' | ' . $data['product_details']->category->title . ' - ' . $data['attributes_value_name']->name;
 }
 
 if ($data['product_details']->meta_description) {
-    $meta_description = $data['product_details']->meta_description;
+$meta_description = $data['product_details']->meta_description;
 } else {
-    $meta_description = ucwords(strtolower($data['product_details']->title))
-        . ' | ' . $data['product_details']->category->title . ' - ' . $data['attributes_value_name']->name;
+$meta_description = ucwords(strtolower($data['product_details']->title))
+. ' | ' . $data['product_details']->category->title . ' - ' . $data['attributes_value_name']->name;
 }
 @endphp
 @section('meta')
-    @php
-        $firstImage = $data['product_details']->images->isNotEmpty() 
-        ? asset('images/product/thumb/' . $data['product_details']->images->first()->image_path) 
-        : asset('images/default.png');
-    @endphp
-    <meta property="og:title" content="{{ ucwords(strtolower($data['product_details']->title)) }}" />
-    <meta property="og:description" content="{{ $meta_description }}" />
-    <meta property="og:image" content="{{ $firstImage }}" />
-    <meta property="og:url" content="{{ url()->current() }}" />
-    <meta property="og:type" content="product" />
+@php
+$firstImage = $data['product_details']->images->isNotEmpty()
+? asset('images/product/thumb/' . $data['product_details']->images->first()->image_path)
+: asset('frontend/assets/gd-img/product/no-image.png');
+@endphp
+<meta property="og:title" content="{{ ucwords(strtolower($data['product_details']->title)) }}" />
+<meta property="og:description" content="{{ $meta_description }}" />
+<meta property="og:image" content="{{ $firstImage }}" />
+<meta property="og:url" content="{{ url()->current() }}" />
+<meta property="og:type" content="product" />
 @endsection
 @extends('frontend.layouts.master')
 @section('title', $meta_title)
@@ -73,9 +73,9 @@ if ($data['product_details']->meta_description) {
                                         @foreach($data['product_details']->images as $key => $image)
                                         <div>
                                             <div class="slider-image">
-                                                <img src="{{ asset('images/product/large/' . (!empty($image->image_path) ? $image->image_path : 'default.png')) }}"
+                                                <img src="{{ asset('images/product/large/' . (!empty($image->image_path) ? $image->image_path : 'frontend/assets/gd-img/product/no-image.png')) }}"
                                                     id="img-{{ $key }}"
-                                                    data-zoom-image="{{ asset('images/product/large/' . (!empty($image->image_path) ? $image->image_path : 'default.png')) }}"
+                                                    data-zoom-image="{{ asset('images/product/large/' . (!empty($image->image_path) ? $image->image_path : 'frontend/assets/gd-img/product/no-image.png')) }}"
                                                     class="img-fluid image_zoom_cls-{{ $key }} blur-up lazyload" alt="">
                                             </div>
                                         </div>
@@ -83,9 +83,9 @@ if ($data['product_details']->meta_description) {
                                         @else
                                         <div>
                                             <div class="slider-image">
-                                                <img src="{{ asset('images/default.png') }}"
+                                                <img src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
                                                     id="img-default"
-                                                    data-zoom-image="{{ asset('images/default.png') }}"
+                                                    data-zoom-image="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
                                                     class="img-fluid blur-up lazyload" alt="No Image Available">
                                             </div>
                                         </div>
@@ -102,7 +102,7 @@ if ($data['product_details']->meta_description) {
                                                 <img src="{{ asset('images/product/thumb/' . $image->image_path) }}"
                                                     class="img-fluid blur-up lazyload" alt="">
                                                 @else
-                                                <img src="{{ asset('images/default.png') }}"
+                                                <img src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
                                                     class="img-fluid blur-up lazyload" alt="">
                                                 @endif
                                             </div>
@@ -111,7 +111,7 @@ if ($data['product_details']->meta_description) {
                                         @else
                                         <div>
                                             <div class="sidebar-image">
-                                                <img src="{{ asset('images/default.png') }}"
+                                                <img src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
                                                     class="img-fluid blur-up lazyload" alt="No Image Available">
                                             </div>
                                         </div>
@@ -137,15 +137,17 @@ if ($data['product_details']->meta_description) {
                                     @php
 
                                     $final_offer_rate = $data['product_details']->offer_rate;
-                                    if($groupCategory){
-                                    $group_categoty_percentage = $groupCategory->group_category_percentage;
-                                    $purchase_rate = $data['product_details']->purchase_rate;
-                                    $offer_rate = $data['product_details']->offer_rate;
-                                    $percent_discount = 100/$group_categoty_percentage;
-                                    $final_offer_rate =
-                                    $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
-                                    $final_offer_rate = floor($final_offer_rate);
-                                    $offer_rate_display = '<br><span>Regular offer price</span><del class="text-content"> Rs. ' . number_format($offer_rate, 2) . '</del>';
+                                    if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
+                                    $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                    if ($group_categoty_percentage > 0) {
+                                        $purchase_rate = $data['product_details']->purchase_rate;
+                                        $offer_rate = $data['product_details']->offer_rate;
+                                        $percent_discount = 100/$group_categoty_percentage;
+                                        $final_offer_rate =
+                                        $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
+                                        $final_offer_rate = floor($final_offer_rate);
+                                        $offer_rate_display = '<br><span>Regular offer price</span><del class="text-content"> Rs. ' . number_format($offer_rate, 2) . '</del>';
+                                    }
                                     }
                                     @endphp
                                     Rs. {{ number_format($final_offer_rate, 2) }}
@@ -164,7 +166,41 @@ if ($data['product_details']->meta_description) {
                                     @endif
                                 </h3>
                             </div>
-
+                            <div class="additional_discount_area">
+                                <div class="additional-tex">
+                                    <h4>Get Additional Discount</h4>
+                                </div>
+                                <div class="additional-info">
+                                    <div class="help-tip">
+                                        <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                            <defs>
+                                                <circle id="b" cx="8" cy="8" r="8"></circle>
+                                                <filter id="a" width="130%" height="130%" x="-15%" y="-8.8%" filterUnits="objectBoundingBox">
+                                                    <feMorphology in="SourceAlpha" operator="dilate" radius=".4" result="shadowSpreadOuter1"></feMorphology>
+                                                    <feOffset dy="1" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
+                                                    <feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation=".5"></feGaussianBlur>
+                                                    <feComposite in="shadowBlurOuter1" in2="SourceAlpha" operator="out" result="shadowBlurOuter1"></feComposite>
+                                                    <feColorMatrix in="shadowBlurOuter1" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0"></feColorMatrix>
+                                                </filter>
+                                            </defs>
+                                            <g fill="none">
+                                                <g transform="translate(2 1)">
+                                                    <use fill="#000" filter="url(#a)" xlink:href="#b"></use>
+                                                    <use fill="#FCFCFC" stroke="#000" stroke-opacity=".3" stroke-width=".8" xlink:href="#b"></use>
+                                                </g>
+                                                <text fill="#1D1D1D" font-family="Roboto, sans-serif" font-size="11" font-weight="400" opacity="0.59" transform="translate(2 1)">
+                                                    <tspan x="6.6" y="12.2">i</tspan>
+                                                </text>
+                                            </g>
+                                        </svg>
+                                        <div class="tooltips-class tooltips-other">
+                                            <p>
+                                                If you Pick up your Order from our Varanasi Sigra Store, you get additional discount on all our Products. The final offer price will be displayed in the Shopping Cart Page.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <!--@if(!empty($data['product_details']->product_description))
                             <div class="product-contain">
                                 <p>
@@ -187,28 +223,27 @@ if ($data['product_details']->meta_description) {
                                     </div>
                                 </div>
                                 @if (auth()->guard('customer')->check())
-                                    @if($data['product_details']->mrp > 0 || $data['product_details']->stock_quantity > 0)
-                                        <button class="add-to-cart btn btn-md bg-dark cart-button text-white w-100" data-url="{{route('add.to.cart')}}" data-pid="{{$data['product_details']->id}}"
-                                            data-mrp="{{$data['product_details']->mrp}}">
-                                            Add To Cart
-                                        </button>
-                                    @else
-                                        <button disabled="" class="btn btn-md bg-dark cart-button text-white w-100">
-                                            Out Of Stock
-                                        </button>
-                                    @endif
+                                @if(intval($data['product_details']->mrp) > 0 && intval($data['product_details']->stock_quantity) > 0)
+                                <button class="add-to-cart btn btn-md bg-dark cart-button text-white w-100" data-url="{{route('add.to.cart')}}" data-pid="{{$data['product_details']->id}}"
+                                    data-mrp="{{$data['product_details']->mrp}}">
+                                    Add To Cart
+                                </button>
                                 @else
-                                    @if($data['product_details']->mrp > 0 || $data['product_details']->stock_quantity > 0)
-                                        <button onclick="location.href = '{{ route('logincustomer') }}?redirect={{ url()->current() }}';"
-                                        class="btn btn-md bg-dark cart-button text-white w-100">Add To Cart
-                                        </button>
-                                    @else
-                                        <button disabled="" class="btn btn-md bg-dark cart-button text-white w-100">
-                                            Out Of Stock
-                                        </button>
-                                    @endif
+                                <button disabled="" class="btn btn-md bg-dark cart-button text-white w-100">
+                                    Out Of Stock
+                                </button>
                                 @endif
-
+                                @else
+                                @if(intval($data['product_details']->mrp) > 0 && intval($data['product_details']->stock_quantity) > 0)
+                                <button onclick="location.href = '{{ route('logincustomer') }}?redirect={{ url()->current() }}';"
+                                    class="btn btn-md bg-dark cart-button text-white w-100">Add To Cart
+                                </button>
+                                @else
+                                <button disabled class="btn btn-md bg-dark cart-button text-white w-100">
+                                    Out Of Stock
+                                </button>
+                                @endif
+                                @endif
                             </div>
 
                             <div class="buy-box">
@@ -218,7 +253,7 @@ if ($data['product_details']->meta_description) {
                                 $isInWishlist = \App\Models\Wishlist::where('customer_id', $customerId)->where('product_id', $data['product_details']->id)->exists();
                                 @endphp
                                 <a href="javascript:void(0)"
-                                    class="addwishlist {{ $isInWishlist ? 'added-to-wishlist' : '' }}"
+                                    class="btn theme-bg-color text-white addwishlist {{ $isInWishlist ? 'added-to-wishlist' : '' }}"
                                     data-pid="{{ $data['product_details']->id }}"
                                     data-url="{{ route('wishlist.add') }}"
                                     data-cuid="{{ $customerId }}"
@@ -235,7 +270,7 @@ if ($data['product_details']->meta_description) {
 
                                 @else
                                 <a href="{{ route('logincustomer') }}?redirect={{ url()->current() }}"
-                                    class="addwishlist-le"
+                                    class="addwishlist-le btn theme-bg-color text-white"
                                     data-pid="{{ $data['product_details']->id }}"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
@@ -545,14 +580,16 @@ if ($data['product_details']->meta_description) {
                                                     @else
                                                     @php
                                                     $final_offer_rate = $related_product_row->offer_rate;
-                                                    if($groupCategory){
-                                                    $group_categoty_percentage = $groupCategory->group_category_percentage;
+                                                    if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
+                                                    $group_category_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                                    if ($group_category_percentage > 0) {
                                                     $purchase_rate = $related_product_row->purchase_rate;
                                                     $offer_rate = $related_product_row->offer_rate;
-                                                    $percent_discount = 100/$group_categoty_percentage;
+                                                    $percent_discount = 100/$group_category_percentage;
                                                     $final_offer_rate =
                                                     $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
                                                     $final_offer_rate = floor($final_offer_rate);
+                                                    }
                                                     }
                                                     @endphp
                                                     <span class="theme-color">Rs. {{$final_offer_rate}}</span>
@@ -588,7 +625,7 @@ if ($data['product_details']->meta_description) {
                             class="img-fluid blur-up lazyload"
                             alt="{{ ucwords(strtolower($data['product_details']->title ?? 'Product')) }}">
                         @else
-                        <img src="{{ asset('images/default.png') }}"
+                        <img src="{{asset('frontend/assets/gd-img/product/no-image.png')}}"
                             class="img-fluid blur-up lazyload"
                             alt="Default Image">
                         @endif

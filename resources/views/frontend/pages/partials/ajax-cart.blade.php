@@ -17,13 +17,15 @@
                     @php
                     $final_offer_rate = $cart->product->offer_rate ?? 0;
                     if($groupCategory){
-                        $group_categoty_percentage = $groupCategory->group_category_percentage;
-                        $purchase_rate = $cart->product->purchase_rate;
-                        $offer_rate = $cart->product->offer_rate;
-                        $percent_discount = 100/$group_categoty_percentage;
-                        $final_offer_rate =
-                        $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
-                        $final_offer_rate = floor($final_offer_rate);
+                        $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                        if ($group_categoty_percentage > 0) {
+                            $purchase_rate = $cart->product->purchase_rate;
+                            $offer_rate = $cart->product->offer_rate;
+                            $percent_discount = 100/$group_categoty_percentage;
+                            $final_offer_rate =
+                            $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
+                            $final_offer_rate = floor($final_offer_rate);
+                        }
                     }
                     $product_mrp = $cart->product->mrp ?? 0;
                     $product_discount_rate = $product_mrp-$final_offer_rate;
@@ -154,7 +156,7 @@
         <div class="button-group cart-button">
             <ul>
                 <li>
-                    <button onclick="location.href = '{{ route('checkout') }}';"
+                    <button onclick="location.href = '{{ route('order-param') }}';"
                         class="btn btn-animation proceed-btn fw-bold">Process To Checkout</button>
                 </li>
 

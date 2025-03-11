@@ -41,14 +41,16 @@
                                 Rs.
                                     @php
                                         $final_offer_rate = $item->product->offer_rate;
-                                        if($groupCategory){
-                                            $group_categoty_percentage = $groupCategory->group_category_percentage;
-                                            $purchase_rate = $item->product->purchase_rate;
-                                            $offer_rate = $item->product->offer_rate;
-                                            $percent_discount = 100/$group_categoty_percentage;
-                                            $final_offer_rate =
-                                            $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
-                                            $final_offer_rate = floor($final_offer_rate);
+                                        if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
+                                            $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                            if ($group_categoty_percentage > 0) {
+                                                $purchase_rate = $item->product->purchase_rate;
+                                                $offer_rate = $item->product->offer_rate;
+                                                $percent_discount = 100/$group_categoty_percentage;
+                                                $final_offer_rate =
+                                                $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
+                                                $final_offer_rate = floor($final_offer_rate);
+                                            }
                                         }
                                         $totalPrice = $final_offer_rate * $item->quantity;
                                         $subtotal += $totalPrice;
@@ -76,7 +78,7 @@
             </div>
             <div class="button-group">
                 <a href="{{route('cart')}}" class="btn btn-sm cart-button">View Cart</a>
-                <a href="{{route('checkout')}}" class="btn btn-sm cart-button theme-bg-color text-white">Checkout</a>
+                <a href="{{route('order-param')}}" class="btn btn-sm cart-button theme-bg-color text-white">Checkout</a>
             </div>
         @else
             <h5>Your cart is empty</h5>

@@ -248,12 +248,14 @@
                                                                     @php
                                                                         $final_offer_rate = $product->offer_rate;
                                                                         if($groupCategory){
-                                                                            $group_categoty_percentage = $groupCategory->group_category_percentage;
+                                                                            $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                                                            if ($group_categoty_percentage > 0) {
                                                                             $purchase_rate = $product->purchase_rate;
                                                                             $offer_rate = $product->offer_rate;
                                                                             $percent_discount = 100 / $group_categoty_percentage;
                                                                             $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
                                                                             $final_offer_rate = floor($final_offer_rate);
+                                                                            }
                                                                         }
                                                                     @endphp
                                                                     <span class="theme-color">Rs. {{$final_offer_rate}}</span>

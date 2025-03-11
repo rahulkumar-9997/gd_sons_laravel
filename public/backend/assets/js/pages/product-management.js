@@ -257,4 +257,65 @@ $(function () {
     }
 
     fetchProducts();
+    /**sort product img */
+    $('#commanModel').on('shown.bs.modal', function () {
+        $('#sortable_product_image_popup').sortable({
+            placeholder: "ui-sortable-placeholder",
+            update: function (event, ui) {
+                var order = $(this).sortable('toArray', {attribute: 'data-id'});
+
+                $.ajax({
+                    url: routes.sortProductImg,
+                    method: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        order: order
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            Toastify({
+                                text: response.message,
+                                duration: 10000,
+                                gravity: "top",
+                                position: "right",
+                                className: "bg-success",
+                                close: true
+                            }).showToast();
+                            $('#commanModel').modal('hide');
+                            var categoryId = $('#category-filter').val();
+                            var search = $('#product-search').val();
+                            var dateRange = $('#daterange').val();
+                            var productStatus = $('#product-status').val();
+                            var page = $('#pagination-links .active').find('a').data('page') 
+                                || $('#pagination-links .active').find('span').text() 
+                                || 1;
+                            page = parseInt(page);
+                            fetchProducts(categoryId, search, page, dateRange, productStatus);
+                        } else {
+                            Toastify({
+                                text: 'Failed to update sort order.',
+                                duration: 10000,
+                                gravity: "top",
+                                position: "right",
+                                className: "bg-danger",
+                                close: true
+                            }).showToast();
+                        }
+                    },
+                    error: function () {
+                        Toastify({
+                            text: 'Error updating sort order.',
+                            duration: 10000,
+                            gravity: "top",
+                            position: "right",
+                            className: "bg-danger",
+                            close: true
+                        }).showToast();
+                    }
+                });
+            }
+        });
+    });
+    /**sort product img */
+
 });

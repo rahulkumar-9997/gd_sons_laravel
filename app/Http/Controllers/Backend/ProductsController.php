@@ -38,7 +38,11 @@ class ProductsController extends Controller
         // return view('backend.product.index', compact('data'));
         $data['categories'] = Category::all(); 
         //Log::info('Request Data:', $request->all());
-        $query = Product::with(['images', 'category', 'brand', 'attributes.attribute', 'attributes.values.attributeValue']);
+        $query = Product::with(
+            ['images' => function ($query) {
+                    $query->select('id', 'product_id', 'image_path')->orderBy('sort_order');
+            }, 'category', 'brand', 'attributes.attribute', 'attributes.values.attributeValue']
+        );
         if ($request->has('category_id') && $request->category_id) {
             $query->where('category_id', $request->category_id);
         }
@@ -1540,8 +1544,29 @@ class ProductsController extends Controller
         $size = $request->input('size'); 
         $url = $request->input('url'); 
         $product_id = $request->input('product_id');
+        $product_img = ProductImages::where('product_id', $product_id)->orderBy('sort_order')->get();
         $form ='
-        <div class="modal-body">
+        <div class="modal-body">';
+            if($product_img->isNotEmpty()){
+                $form .='
+                <div class="product-images-container">
+                    <ul class="list-unstyled list-group sortable stage ui-sortable" id="sortable_product_image_popup">';
+                            foreach($product_img as $image){
+                                $image_path = asset('images/product/thumb/' . $image->image_path);
+                                $form .='
+                                <li class="d-flex align-items-center justify-content-between list-group-item ui-sortable-handle" data-id="'.$image->id.'">
+                                    <h6 class="mb-0">
+                                        <img src="'.$image_path.'" class="img-thumbnail me-3" style="width: 50px; height: 50px;" alt="img">
+                                        <span>'.$image->image_path.'</span>
+                                    </h6>
+                                    
+                                </li>';
+                            }
+                    $form .='
+                    </ul>
+                </div>';
+            }
+            $form .='
             <form method="POST" action="'.route('products.modal-image-form.submit').'" accept-charset="UTF-8" enctype="multipart/form-data" id="productimageForm">
                 '.csrf_field().'
                 <input type="hidden" name="product_id" value="'.$product_id.'">

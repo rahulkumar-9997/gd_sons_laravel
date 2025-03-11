@@ -158,31 +158,33 @@
             <div class="col-xxl-3 col-lg-4">
                 <div class="row g-4">
                     <div class="col-lg-12 col-sm-6">
-                        <div class="summery-box">
-                            <div class="summery-header d-block">
-                                <h3>Shipping Address</h3>
+                        @if($order->shippingAddress)
+                            <div class="summery-box">
+                                <div class="summery-header d-block">
+                                    <h3>Shipping Address</h3>
+                                </div>
+
+                                <ul class="summery-contain pb-0 border-bottom-0">
+                                    <li class="d-block">
+                                        <h4>{{ $order->shippingAddress->full_address }}</h4>
+                                        <h4 class="mt-2">{{ $order->shippingAddress->city_name }}, {{ $order->shippingAddress->state }} {{ $order->shippingAddress->pin_code }}</h4>
+                                    </li>
+
+                                    <!-- <li class="pb-0">
+                                        <h4>Expected Date Of Delivery:</h4>
+                                        <h4 class="price theme-color">
+                                            <a href="#" class="text-danger">Track Order</a>
+                                        </h4>
+                                    </li> -->
+                                </ul>
+
+                                <!-- <ul class="summery-total">
+                                    <li class="list-total border-top-0 pt-2">
+                                        <h4 class="fw-bold">Oct 21, 2021</h4>
+                                    </li>
+                                </ul> -->
                             </div>
-
-                            <ul class="summery-contain pb-0 border-bottom-0">
-                                <li class="d-block">
-                                    <h4>{{ $order->shippingAddress->full_address }}</h4>
-                                    <h4 class="mt-2">{{ $order->shippingAddress->city_name }}, {{ $order->shippingAddress->state }} {{ $order->shippingAddress->pin_code }}</h4>
-                                </li>
-
-                                <li class="pb-0">
-                                    <h4>Expected Date Of Delivery:</h4>
-                                    <h4 class="price theme-color">
-                                        <a href="#" class="text-danger">Track Order</a>
-                                    </h4>
-                                </li>
-                            </ul>
-
-                            <ul class="summery-total">
-                                <li class="list-total border-top-0 pt-2">
-                                    <h4 class="fw-bold">Oct 21, 2021</h4>
-                                </li>
-                            </ul>
-                        </div>
+                        @endif
 
                         @if($order->billingAddress)
                         <div class="summery-box">
@@ -212,6 +214,11 @@
                                     <p class="text-content">
                                         {{$order->payment_mode}}
                                     </p>
+                                    @if($order->pick_up_status =='pick_up_store')
+                                        <p class="text-content">
+                                            <strong>Please Pickup Your Item in my Shop.</strong>
+                                        </p>
+                                    @endif
                                 </li>
                             </ul>
                         </div>

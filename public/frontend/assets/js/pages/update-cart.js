@@ -1,28 +1,28 @@
 $(document).ready(function () {
-    $(document).off('click', '.qty-right-plus, .qty-left-minus');
-    $(document).on('click', '.qty-right-plus, .qty-left-minus', function (e) {
+    $(document).off('click', '.qty-right-plus-cart, .qty-left-minus-cart').on('click', '.qty-right-plus-cart, .qty-left-minus-cart', function (e) {
         e.preventDefault();
         let button = $(this);
-        let cartId = button.data('id');
-        let url = button.data('url');
-        let inputField = button.closest('.input-group').find('.qty-input');
+        let row = button.closest('.product-box-contain');
+        let inputField = row.find('.qty-input');
         let currentQuantity = parseInt(inputField.val()) || 0;
-
-        let quantity = button.hasClass('qty-right-plus') ? currentQuantity + 1 : currentQuantity - 1;
+        let cartId = button.data('id'); 
+        let url = button.data('url'); 
+        let quantity = button.hasClass('qty-right-plus-cart') ? currentQuantity + 1 : currentQuantity - 1;
         if (quantity < 1) {
-            showNotificationAll("warning", "Warning", "Quantity must be at least 1."); 
+            showNotificationAll("warning", "Warning", "Quantity must be at least 1.");
             return;
         }
-        
+    
         if (quantity > 10) {
-            showNotificationAll("warning", "Warning", "Quantity cannot exceed 10."); 
+            showNotificationAll("warning", "Warning", "Quantity cannot exceed 10.");
             return;
         }
+        button.prop('disabled', true);
         showSkeletonLoader();
-        updateCartQuantity(cartId, quantity, url);
+        updateCartQuantity(cartId, quantity, url, button);
     });
-
-    function updateCartQuantity(cartId, quantity, url) {
+    
+    function updateCartQuantity(cartId, quantity, url, button) {
         $.ajax({
             url: url,
             type: 'POST',
@@ -34,20 +34,23 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.success) {
                     $('.cart-items-container').html(response.cart_items_html);
-                    showNotificationAll("success", "Success", "Cart updated successfully."); 
+                    showNotificationAll("success", "Success", "Cart updated successfully.");
                 } else {
                     showNotificationAll("warning", "Warning", response.message || "Something went wrong. Please try again.");
                 }
             },
             complete: function () {
+                button.prop('disabled', false);
                 hideSkeletonLoader();
             },
             error: function () {
                 showNotificationAll("danger", "Warning", "Something went wrong. Please try again.");
+                button.prop('disabled', false); 
                 hideSkeletonLoader();
             }
         });
     }
+    
 
     
     function showSkeletonLoader() {

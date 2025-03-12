@@ -97,10 +97,12 @@ class AppServiceProvider extends ServiceProvider
                 'frontend.pages.product',
                 'frontend.pages.partials.ajax-search-catalog',
                 'frontend.pages.partials.ajax-checkout-form',
+                'frontend.pages.partials.ajax-cart',
                 'frontend.pages.cart',
                 'frontend.pages.customer.wishlist.index',
                 'frontend.pages.checkout-param-page',
                 'frontend.pages.pick-up-store-page',
+
             ],
             CustomerGroupCategoryComposer::class
         );

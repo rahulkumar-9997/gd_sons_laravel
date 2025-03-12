@@ -33,7 +33,7 @@
             @csrf
             <input type="hidden" name="pick_up_status" value="pick_up_store">
             <div class="row g-sm-5 g-3">
-                <div class="col-xxl-8 col-lg-8 col-md-8">
+                <div class="col-xxl-7 col-lg-7 col-md-7">
                     <div class="left-sidebar-checkout">
                         <div class="checkout-detail-box">
                             <ul>
@@ -46,7 +46,14 @@
                                         <div class="checkout-title">
                                             <h4>Payment Option</h4>
                                         </div>
-
+                                        <div class="payment-option-msg">
+                                            <p>
+                                                You can Book this Order by your Name by making a Payment to any of the UPI options provided below.
+                                            </p>
+                                            <p>
+                                                Once you make the payment, we will verify the same and notify it to you.
+                                            </p>
+                                        </div>
                                         <div class="checkout-detail">
                                             <div class="accordion accordion-flush custom-accordion" id="accordionFlushExample">
                                                 <div class="accordion-item">
@@ -63,7 +70,7 @@
                                                     <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                                                         <div class="accordion-body">
                                                             <div class="row g-2">
-                                                                After clicking “Place order”, you will be you will be redirected to Google Pay.
+                                                                You will get 'Girdhar Das & Sons' Official GPay ID after clicking on 'Place Order'.
                                                             </div>
                                                         </div>
                                                     </div>
@@ -83,7 +90,7 @@
                                                     <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                                                         <div class="accordion-body">
                                                             <div class="row g-2">
-                                                                After clicking “Place order”, you will be redirected to PayTM.
+                                                            You will get 'Girdhar Das & Sons' Official PayTM ID after clicking on 'Place Order'.
                                                             </div>
                                                         </div>
                                                     </div>
@@ -95,8 +102,13 @@
                             </ul>
                         </div>
                     </div>
+                    <div class="continue-shopping-btn">
+                        <a href="{{ route('checkout') }}" class="cntshop">
+                            <i class="fa fa-caret-left"></i>Go to Home Delivery
+                        </a>
+                    </div>
                 </div>
-                <div class="col-lg-4">
+                <div class="col-lg-5">
                     <div class="right-side-summery-box">
                         <div class="summery-box-2">
                             <div class="summery-header">
@@ -110,51 +122,111 @@
                                 @foreach ($carts as $cart)
                                 @php
                                 $mrp = $cart->product->inventories->first() ? $cart->product->inventories->first()->mrp : 0;
-
-                                if($cart->product->offer_rate){
-                                $final_offer_rate = $cart->product->offer_rate;
-                                if($groupCategory){
+                                $final_offer_rate = $cart->product->offer_rate ?? 0;
+                                $purchase_rate = $cart->product->purchase_rate ?? 0;
+                                $group_categoty_percentage = 1;
+                                $offer_rate_display ='';
+                                if ($groupCategory) {
                                 $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+
                                 if ($group_categoty_percentage > 0) {
-                                    $purchase_rate = $cart->product->purchase_rate;
-                                    $offer_rate = $cart->product->offer_rate;
-                                    $percent_discount = 100/$group_categoty_percentage;
-                                    $final_offer_rate =
-                                    $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
+                                    $offer_rate = $cart->product->offer_rate ?? 0;
+                                    $percent_discount = 100 / $group_categoty_percentage;
+                                    $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
                                     $final_offer_rate = floor($final_offer_rate);
+                                    $offer_rate_display = '<p><span>Regular offer price</span><del class="text-content"> Rs. ' . number_format($offer_rate, 2) . '</del></p>';
+                                } else {
+                                $group_categoty_percentage = 1;
                                 }
                                 }
+
                                 $original_price = $final_offer_rate;
-                                
-                                // Apply ₹20 discount per item
-                                $final_offer_rate = max(0, $final_offer_rate - 20);
+                                $profit_a = $final_offer_rate - $purchase_rate;
+                                $additional_offer = $profit_a * (10 - $group_categoty_percentage) / 100;
+                                $final_offer_rate = max(0, $final_offer_rate - $additional_offer);
+
                                 $discount_amount = ($original_price - $final_offer_rate) * $cart->quantity;
                                 $totalDiscount += $discount_amount;
-                                $totalPrice = $final_offer_rate * $cart->quantity;
+                                $totalPrice = $original_price * $cart->quantity;
                                 $subtotal += $totalPrice;
-                                }
                                 @endphp
+
                                 <input type="hidden" name="product_id[]" value="{{ $cart->product->id }}">
                                 <input type="hidden" name="cart_quantity[]" value="{{ $cart->quantity }}">
                                 <input type="hidden" name="cart_offer_rate[]" value="{{ $final_offer_rate }}">
-                                <input type="hidden" name="total_price[]" value="{{ $totalPrice }}">
+                                <input type="hidden" name="total_price[]" value="{{ $totalPrice-$discount_amount }}">
+
                                 <li>
                                     @if ($cart->product->images->first())
                                     <img src="{{ asset('images/product/thumb/' . $cart->product->images->first()->image_path) }}"
-                                        class="img-fluid blur-up lazyloaded checkout-image" alt="{{ $cart->product->name }}" loading="lazy">
+                                        class="img-fluid blur-up lazyloaded checkout-image"
+                                        alt="{{ $cart->product->name }}" loading="lazy">
                                     @else
-                                    <img src="{{ asset('images/default.png') }}" class="img-fluid blur-up lazyloaded checkout-image" alt="Default Image" loading="lazy">
+                                    <img src="{{ asset('images/default.png') }}"
+                                        class="img-fluid blur-up lazyloaded checkout-image"
+                                        alt="Default Image" loading="lazy">
                                     @endif
-                                    <h4>
-                                        {{ ucwords(strtolower($cart->product->title)) }}
-                                        <p>
-                                            <span>{{$final_offer_rate}} X {{ $cart->quantity }}</span>
+                                    <table class="pickupTable">
+                                        <tr>
+                                            <td>
+                                                {{ ucwords(strtolower($cart->product->title)) }}
+                                            </td>
+                                            <td class="lsttd"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <p>
+                                                    <strong>M.R.P.</strong> <del>Rs. {{ number_format($mrp, 2) }}</del>
+                                                </p>
+                                            </td>
+                                            <td class="lsttd"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <p>
+                                                Rs. {{ number_format($original_price, 2) }} x {{ $cart->quantity }}  
+                                                </p>
+                                            </td>
+                                            <td class="lsttd">
+                                                <del>
+                                                    Rs. {{ number_format((($original_price*$cart->quantity)), 2) }}
+                                                </del>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                            <p><span class="text-danger">Additional Offer</span> Rs. {{ $discount_amount }}</p>
+                                            </td>
+                                            <td  class="lsttd">
+                                                <p>
+                                                Rs. {{ number_format((($original_price*$cart->quantity)-$discount_amount), 2) }}
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    
+                                        
+                                        <!-- <p>
+                                            <span>
+                                                <del>
+                                                    Rs. {{ number_format($original_price, 2) }} 
+                                                </del>
+                                            </span>
+                                        </p> -->
+                                        <!-- <p>
+                                            Rs. {{ $final_offer_rate }} x {{ $cart->quantity }}
                                         </p>
-                                    </h4>
-                                    <h4 class="price">
-                                        Rs.
-                                        {{ number_format($totalPrice, 2) }}
-                                    </h4>
+                                        {!! $offer_rate_display !!}
+                                        
+                                        <p><span class="text-danger">Additional Offer</span> Rs. {{ $discount_amount }}</p> -->
+                                    <!-- <h4 class="price">
+                                        <p>
+                                        Rs. {{ number_format((($original_price*$cart->quantity)-$discount_amount), 2) }}
+                                        </p>
+                                        <p>
+                                        Rs. {{ number_format((($original_price*$cart->quantity)-$discount_amount), 2) }}
+                                        </p>
+                                    </h4> -->
                                 </li>
                                 @endforeach
                             </ul>
@@ -162,19 +234,8 @@
                             <ul class="summery-total">
                                 <li>
                                     <h4>Subtotal</h4>
-                                    <h4 class="price">Rs.
-
-                                        {{ number_format($subtotal, 2) }}
-                                    </h4>
+                                    <h4 class="price">Rs. {{ number_format($subtotal, 2) }}</h4>
                                 </li>
-                                <!--<li>
-                                    <h4>Shipping</h4>
-                                    <h4 class="price">Rs. 0</h4>
-                                </li>
-                                <li>
-                                    <h4>Tax</h4>
-                                    <h4 class="price">Rs. 0</h4>
-                                </li>-->
 
                                 <li>
                                     <h4>Discount</h4>
@@ -183,15 +244,15 @@
 
                                 <li class="list-total">
                                     <h4>Total (Rs.)</h4>
-                                    <h4 class="price">Rs.
-                                        @php
-                                        $total = $subtotal;
-                                        @endphp
-                                        {{ number_format($total, 2) }}
-                                        <input type="hidden" name="grand_total_amount" value="{{$total}}">
+                                    <h4 class="price">
+                                        Rs.
+                                        @php $total = $subtotal; @endphp
+                                        {{ number_format(($total-$totalDiscount), 2) }}
+                                        <input type="hidden" name="grand_total_amount" value="{{ $total }}">
                                     </h4>
                                 </li>
                             </ul>
+
                         </div>
                         <button type="submit" class="btn theme-bg-color text-white btn-md w-100 mt-4 fw-bold">Place Order</button>
                     </div>

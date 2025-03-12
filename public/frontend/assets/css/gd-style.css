@@ -1148,6 +1148,48 @@ section.banner-section{
 	left: 0;
 }
 
+a.cntshop {
+    color: #000000;
+    font-size: 18px;
+    font-weight: 600;
+    /* border: none; */
+    display: inline-block;
+    width: 100%;
+    padding: 10px 0;
+    /* background: linear-gradient(90.56deg, #f8471d 8.46%, #d6091a 62.97%); */
+    background: #f8f8f8;
+    border-radius: 7px;
+    border: 2px solid red; 
+    text-align: center;
+}
+.cart-wrapper, .left-sidebar-checkout{
+  margin-bottom: 30px;
+}
+.payment-option-msg p{
+  font-size: 16px;
+}
+
+.pickupTable {
+  width: 100%;
+}
+
+.pickupTable td {
+  /* padding: 10px; */
+  vertical-align: middle;
+}
+
+.pickupTable td.lsttd {
+  text-align: right;
+}
+
+
+.pickupTable del {
+  color: #999;
+  font-size: 14px;
+}
+.pickupTable .lsttd{
+  text-align: right;
+} 
 /* CSS animation */
 @-webkit-keyframes fadeIn {
     0% { opacity:0; }

@@ -1,9 +1,11 @@
 <div class="onhover-dropdown header-badge">
-    <button type="button" class="btn p-0 position-relative header-wishlist">
+    <button onclick="location.href = '{{ route('cart') }}';" type="button" class="btn p-0 position-relative header-wishlist">
+       
         <i data-feather="shopping-cart"></i>
         <span class="position-absolute top-0 start-100 translate-middle badge">
             {{ $cartCount }}
         </span>
+        
     </button>
     <div class="onhover-div" id="cart-items">
         @php 
@@ -78,7 +80,7 @@
             </div>
             <div class="button-group">
                 <a href="{{route('cart')}}" class="btn btn-sm cart-button">View Cart</a>
-                <a href="{{route('order-param')}}" class="btn btn-sm cart-button theme-bg-color text-white">Checkout</a>
+                <a href="{{route('checkout')}}" class="btn btn-sm cart-button theme-bg-color text-white">Checkout</a>
             </div>
         @else
             <h5>Your cart is empty</h5>

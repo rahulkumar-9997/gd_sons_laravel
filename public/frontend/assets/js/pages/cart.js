@@ -3,9 +3,9 @@ $(document).ready(function() {
     $('.qty-right-plus').click(function() {
         var cartId = $(this).data('id');
         var quantity = $('input[data-id="' + cartId + '"]').val();
-        quantity = parseInt(quantity) + 1; // Increase quantity by 1
+        quantity = parseInt(quantity) + 1;
         
-        var url = $(this).data('url'); // Get the URL from the data-url attribute
+        var url = $(this).data('url');
         
         updateCart(url, cartId, quantity);
     });
@@ -14,10 +14,9 @@ $(document).ready(function() {
     $('.qty-left-minus').click(function() {
         var cartId = $(this).data('id');
         var quantity = $('input[data-id="' + cartId + '"]').val();
-        quantity = parseInt(quantity) - 1; // Decrease quantity by 1
-        
-        if (quantity >= 1) {  // Prevent negative quantities
-            var url = $(this).data('url'); // Get the URL from the data-url attribute
+        quantity = parseInt(quantity) - 1;
+        if (quantity >= 1) { 
+            var url = $(this).data('url');
             
             updateCart(url, cartId, quantity);
         }
@@ -26,17 +25,15 @@ $(document).ready(function() {
     // Function to update the cart via AJAX
     function updateCart(url, cartId, quantity) {
         $.ajax({
-            url: url,  // Use the dynamic URL from the button's data-url
+            url: url, 
             method: 'POST',
             data: {
-                _token: '{{ csrf_token() }}',  // CSRF token for security
+                _token: '{{ csrf_token() }}',
                 quantity: quantity
             },
             success: function(response) {
                 if (response.success) {
-                    // Update the quantity in the input field
                     $('input[data-id="' + cartId + '"]').val(quantity);
-                    // Optionally, update the cart total or UI
                     $('#cart-total').text(response.cart_total);
                 } else {
                     alert('Failed to update the cart. Please try again.');

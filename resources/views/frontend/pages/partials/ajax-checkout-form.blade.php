@@ -385,6 +385,32 @@ if (auth('customer')->check()) {
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div class="accordion-item">
+                                            <div class="accordion-header" id="flush-headingThree">
+                                                <div class="accordion-button  collapsed"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#flush-collapseThree">
+                                                    <div class="custom-form-check form-check mb-0">
+                                                        <label class="form-check-label storePickUp" for="storePickUp">
+                                                            <input
+                                                            class="form-check-input storePickUp mt-0" type="radio"
+                                                            name="payment_type" id="storePickUp"
+                                                            value="Pick Up From Store">
+                                                            Pick Up From Store (Get Additional Discount)
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="flush-collapseThree" class="accordion-collapse collapse"
+                                                data-bs-parent="#accordionFlushExample">
+                                                <div class="accordion-body">
+                                                    <div class="row g-2">
+                                                    You can pick up your order from our store during business hours.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

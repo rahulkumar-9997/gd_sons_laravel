@@ -63,6 +63,8 @@ Route::group(['prefix' => 'account'], function() {
 	Route::post('/customer-update-details', [CustomerLoginController::class, 'customerUpdateDetails'])->name('customer.update.details');
 	Route::get('/login/google', [CustomerLoginController::class, 'redirectToGoogle'])->name('google.login');
 	Route::get('/login/google/callback', [CustomerLoginController::class, 'handleGoogleCallback']);
+    Route::get('/google/complete-profile', [CustomerLoginController::class, 'googleRedirectAfterForm'])->name('google.complete-profile');
+    Route::post('/google/complete-profile', [CustomerLoginController::class, 'storeGoogleProfile'])->name('google.store-profile');
 });
 Route::group(['middleware' => ['auth.customer']], function() {
     Route::get('/user-notifications', [CustomerLoginController::class, 'getNotifications']);

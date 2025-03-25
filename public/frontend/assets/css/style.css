@@ -29074,12 +29074,16 @@ header .offcanvas:not(.offcanvas-end):not(.offcanvas-bottom) {
     box-shadow: none
 }
 
+.mobile-menu-bar{
+    z-index: 2;
+    position: relative;
+}
 @media(max-width: 1199px) {
     header .offcanvas:not(.offcanvas-end):not(.offcanvas-bottom) {
         width: calc(300px + 20*(100vw - 1200px)/720);
         -webkit-transform: translateX(-100%);
         transform: translateX(-100%);
-        z-index: 7
+        /* z-index: 1041; */
     }
 }
 
@@ -29668,7 +29672,7 @@ header .navbar-expand-xl .offcanvas {
 }
 
 header .offcanvas-backdrop {
-    z-index: 6
+    z-index: 2;
 }
 
 @media(max-width: 1199px) {
@@ -32413,7 +32417,8 @@ body.rtl .menu-label {
 
 @media(max-width: 480px) {
     .product-box-3 .product-header .product-image {
-        padding: 8px
+        padding: 8px;
+        position: relative;
     }
 }
 

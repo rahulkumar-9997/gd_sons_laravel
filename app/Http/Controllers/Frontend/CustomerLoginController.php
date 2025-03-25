@@ -117,7 +117,6 @@ class CustomerLoginController extends Controller
         ]);
     }
 
-
     public function verifyOtp(Request $request){
         $request->validate([
             'otp' => 'required|digits:6',
@@ -259,19 +258,13 @@ class CustomerLoginController extends Controller
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
             $user = Customer::where('email', $googleUser->getEmail())->first();
-            // dd(session('redirect_url', route('home')));
-            // dd([
-            //     'client_id' => config('services.google.client_id'),
-            //     'client_secret' => config('services.google.client_secret'),
-            //     'redirect_uri' => config('services.google.redirect')
-            // ]);
             if ($user) {
-                $this->sendNotification($user, "Currently {$user->name} has logged in.");
+                //$this->sendNotification($user, "Currently {$user->name} has logged in.");
                 Auth::guard('customer')->login($user);
                 $redirectUrl = session('redirect_url', route('home'));
                 return redirect()->to($redirectUrl);
             } else {
-                $randomPassword = Str::random(16);
+                /*$randomPassword = Str::random(16);
                 $hashedPassword = Hash::make($randomPassword);
         
                 $user = Customer::create([
@@ -280,15 +273,56 @@ class CustomerLoginController extends Controller
                     'google_id' => $googleUser->getId(),
                     'password' => $hashedPassword, 
                 ]);
-                $this->sendNotification($user, "Currently {$user->name} has logged in.");
+                //$this->sendNotification($user, "Currently {$user->name} has logged in.");
                 Auth::guard('customer')->login($user);
                $redirectUrl = session('redirect_url', route('home'));
                return redirect()->to($redirectUrl);
+                */
+                session([
+                    'google_user' => [
+                        'email' => $googleUser->getEmail(),
+                        'name' => $googleUser->getName(),
+                        'google_id' => $googleUser->getId(),
+                    ]
+                ]);
+                return redirect()->route('google.complete-profile');
             }
             return redirect()->to($redirectUrl);
         } catch (\Exception $e) {
             return back()->with('error', 'Google login failed. Please try again.');
         }
+    }
+
+    public function googleRedirectAfterForm(){
+        if (!session()->has('google_user')) {
+            return redirect()->route('home');
+        }
+        return view('frontend.pages.customer-auth.google-login-after-form');
+    }
+
+    public function storeGoogleProfile(Request $request){
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone_number' => 'required|string|max:10|unique:customers,phone_number',
+            'email' => 'required|email|unique:customers,email',
+            'google_id' => 'required|unique:customers,google_id',
+        ]);
+
+        $randomPassword = Str::random(16);
+        $hashedPassword = Hash::make($randomPassword);
+
+        $user = Customer::create([
+            'email' => $request->email,
+            'name' => $request->name,
+            'phone_number' => $request->phone_number,
+            'google_id' => $request->google_id,
+            'password' => $hashedPassword,
+        ]);
+
+        Auth::guard('customer')->login($user);
+        session()->forget('google_user');
+        $redirectUrl = session('redirect_url', route('home'));
+        return redirect()->to($redirectUrl);
     }
 
     public function CustomerLogout(Request $request){

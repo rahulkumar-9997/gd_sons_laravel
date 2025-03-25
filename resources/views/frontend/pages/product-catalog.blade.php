@@ -1,8 +1,8 @@
 @extends('frontend.layouts.master')
 @if($primary_category)
-    @section('title', 'Complete Range of ' . $primary_category->title . ' in Varanasi.')
+@section('title', 'Complete Range of ' . $primary_category->title . ' in Varanasi.')
 @else
-    @section('title', 'Complete Range of ' . $category->title . ' ' . $attributeValue->name . ' in Varanasi.')
+@section('title', 'Complete Range of ' . $category->title . ' ' . $attributeValue->name . ' in Varanasi.')
 @endif
 @section('description', 'GD Sons - ' . $category->title . ' : ' . $attributeValue->name)
 @section('keywords', 'GD Sons - ' . $category->title . ' : ' . $attributeValue->name)
@@ -19,7 +19,7 @@
                         <ol class="breadcrumb mb-0">
                             <li class="breadcrumb-item">
                                 <a href="{{ url('/') }}">
-                                    Home 
+                                    Home
                                     <!-- {{ url()->current() }} -->
                                 </a>
                             </li>
@@ -38,17 +38,32 @@
 <section class="section-b-space shop-section">
     <div class="container-fluid-lg">
         <div class="row">
+            
             <div class="col-lg-12">
                 <div class="h1-heading">
                     @if($primary_category)
-                        <h1>
-                            Complete Range of {{ $primary_category->title }} in Varanasi.
-                        </h1>
+                    <h1>
+                        Complete Range of {{ $primary_category->title }} in Varanasi.
+                    </h1>
                     @else
-                        <h1>
-                            Complete Range of {{ $attributeValue->name }} {{ $category->title }} in Varanasi.
-                        </h1>
+                    <h1>
+                        Complete Range of {{ $attributeValue->name }} {{ $category->title }} in Varanasi.
+                    </h1>
                     @endif
+                </div>
+            </div>
+            <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dblock" style="margin-top: 10px;">
+                <div class="row">
+                    <div class="col-md-6 col-6">
+                        <a href="https://maps.app.goo.gl/8hPKnwQUX2Z3cT7GA" target="_blank" class="btn theme-bg-color btn-md fw-bold text-white">
+                            Visit our Store
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-6">
+                        <a class="btn theme-bg-color btn-md fw-bold text-white mobile-category">
+                            Explore All Products
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -144,7 +159,7 @@
             let baseUrl = window.location.href.split('?')[0];
             let queryParams = new URLSearchParams(window.location.search);
             queryParams.set('page', currentPage);
-            queryParams.set('load_more', true);  // Add load_more parameter
+            queryParams.set('load_more', true); // Add load_more parameter
             let url = `${baseUrl}?${queryParams.toString()}`;
             fetchFilteredProducts(url, true);
         });

@@ -560,13 +560,13 @@ class ProductsController extends Controller
         // THUMB IMAGE (250x250)
         $destination_path_thumb = public_path('images/product/thumb/');
         $img_thumb = Image::make($image->getRealPath());
-        $img_thumb->resize(150, 150, function ($constraint) {
+        $img_thumb->resize(400, 300, function ($constraint) {
             $constraint->aspectRatio();
         })->encode('webp', 90)->save($destination_path_thumb . '/' . $image_file_name);
         // ICON IMAGE (150x150)
         $destination_path_icon = public_path('images/product/icon/');
         $img_icon = Image::make($image->getRealPath());
-        $img_icon->resize(150, 150, function ($constraint) {
+        $img_icon->resize(200, 150, function ($constraint) {
             $constraint->aspectRatio();
         })->encode('webp', 90)->save($destination_path_icon . '/' . $image_file_name);
         // ORIGINAL IMAGE (save as WebP)
@@ -1594,7 +1594,7 @@ class ProductsController extends Controller
 
     public function imageUploadModalFormSubmit(Request $request){
         $request->validate([
-            'product_image.*' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'product_image.*' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
             'product_id' => 'required|exists:products,id',
         ]);
         $productId = $request->input('product_id');

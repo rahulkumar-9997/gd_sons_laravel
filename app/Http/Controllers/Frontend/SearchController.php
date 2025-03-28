@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
 use App\Models\Inventory;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class SearchController extends Controller
 {
@@ -36,7 +37,7 @@ class SearchController extends Controller
                 'image' => $image ? asset('images/product/icon/' . $image->image_path) : null,
             ];
         });
-
+		DB::disconnect();
         return response()->json(['suggestions' => $suggestions]);
     }
 
@@ -131,7 +132,7 @@ class SearchController extends Controller
                 $query->where('title', 'like', '%' . $term . '%');
             }
         })->get();
-
+		DB::disconnect();
         return view('frontend.pages.search-catalog', [
             'products' => $products,
             'categories' => $categories,

@@ -70,7 +70,7 @@
 
                                             <div class="contact-detail-contain">
                                                 <p>
-                                                    <a href="mailto:akshat@gdsons.co.in">akshat@gdsons.co.in</a>
+                                                    <a href="mailto:akshat.gd@gmail.com">akshat.gd@gmail.com</a>
                                                 </p>
                                             </div>
                                         </div>

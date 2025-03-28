@@ -31330,7 +31330,7 @@ body.rtl .menu-label {
 
 .product-box .product-image img {
     width: 100%;
-    height: 140px;
+    height: 200px;
     -o-object-fit: contain;
     object-fit: contain;
     -webkit-transition: all .3s ease-in-out;
@@ -32424,7 +32424,7 @@ body.rtl .menu-label {
 
 .product-box-3 .product-header .product-image img {
     width: 100%;
-    height: calc(100px + 40*(100vw - 320px)/1600);
+    height: 200px;
     -o-object-fit: contain;
     object-fit: contain;
     -webkit-transition: all .3s ease-in-out;

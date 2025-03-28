@@ -17,6 +17,7 @@ use App\Models\VisitorTracking;
 
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\Counter;
 use Image;
 class DashboardController extends Controller
 {
@@ -30,6 +31,7 @@ class DashboardController extends Controller
         $data['customer_count'] = Customer::count();
         $data['order_count'] = Orders::count();
         $data['order_status_count'] = OrderStatus::withCount('orders')->get();
+        $data['button_counter'] = Counter::all();
         return view('backend.dashboard.index', compact('data'));
     }
 

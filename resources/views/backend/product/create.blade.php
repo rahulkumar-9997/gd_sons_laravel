@@ -222,7 +222,7 @@
                         <button class="btn btn-primary add-more-attributes btn-sm" type="button">Add More Product Attributes</button>
                      </div>
                      <div class="card-body add-more-attributes-append">
-                        <div class="row" id="attribute-row-1">
+                        <div class="row" id="attribute-row-0">
                            <div class="col-lg-6">
                               <div class="mb-2">
                                  <select class="product_attributes js-example-basic-single" name="product_attributes[]" id="pro-att-0" require="">
@@ -534,44 +534,6 @@
       var attributeCount = 0;
       var additionalFeatureCount = 0;
       var selectedAttributeIds = new Set();
-      /*$('.add-more-attributes-append').on('change', '.product_attributes', function() {
-         let selectedAttributeId = $(this).val();
-         let currentRowId = $(this).attr('id').split('-')[2];
-         var data = {
-            _token: $('meta[name="csrf-token"]').attr('content'),
-            attribute_id: selectedAttributeId
-         };
-         if (selectedAttributeId) {
-            selectedAttributeIds.add(selectedAttributeId);
-         } else {
-            selectedAttributeIds.delete($(this).data('previous-value')); 
-         }
-         $(this).data('previous-value', selectedAttributeId); 
-         $.ajax({
-            url: "{{ route('getFilteredAttributes') }}",
-            type: 'POST',
-            data: data,
-            success: function(response) {
-                  let $select = $(`#pro-att-value-${currentRowId}`);
-                  $select.empty();
-                  if (response.data && response.data.length > 0) {
-                     response.data.forEach(function(item) {
-                        let newOption = new Option(item.name, item.id, false, false);
-                        $select.append(newOption);
-                     });
-                     $select.trigger('change'); 
-                  } else {
-                     console.log("No data found");
-                  }
-            },
-            error: function(xhr, status, error) {
-               console.error("Error:", error);
-               console.error("Response:", xhr.responseText);
-            }
-         });
-      });
-      */
-      
       $(document).ready(function() {
          initializeSelect2();
          var newDiv = `...`;
@@ -580,7 +542,7 @@
             attributeCount++;
             var newDiv = `
             <div class="row" id="attribute-row-${attributeCount}">
-               <div class="col-lg-6">
+               <div class="col-lg-5">
                   <div class="mb-2">
                         <select class="product_attributes js-example-basic-single" name="product_attributes[]" id="pro-att-${attributeCount}">
                               <option selected>Select an option</option>
@@ -590,7 +552,7 @@
                         </select>
                   </div>
                </div>
-               <div class="col-lg-6">
+               <div class="col-lg-5">
                   <div class="mb-2">
                         <!--<select class="js-example-basic-multiple" name="product_attributes_value[${attributeCount}][]" id="pro-att-value-${attributeCount}" multiple="multiple">
                            <option value="" disabled selected>Select Product Attributes Value</option>
@@ -598,11 +560,20 @@
                          <input type="text" name="product_attributes_value[${attributeCount}][]" required="required" id="pro-att-value-${attributeCount}" class="form-control" placeholder="Enter attributes value comma separated" >
                   </div>
                </div>
+               <div class="col-lg-2">
+                  <button type="button" class="btn btn-danger remove-attributes btn-sm" data-id="${attributeCount}">Remove</button>
+               </div>
             </div>`;
             $('.add-more-attributes-append').append(newDiv);
             initializeSelect2();
             updateAttributeOptions();
          });
+         /**Remove attributes */
+         $(document).on('click', '.remove-attributes', function() {
+            var rowId = $(this).data('id');
+            $(`#attribute-row-${rowId}`).remove();
+         });
+         /**Remove attributes */
          /*add more additional feature dynamic*/
          $('.add-more-additional-feature').on('click', function() {
             additionalFeatureCount++;
@@ -712,6 +683,26 @@
          });
          /*attributes select  */
          //updateAttributeOptions();
+         /**copy paste additional value */
+         $(document).on('paste', '.add-more-additional-feature-append .form-control', function (e) {
+            e.preventDefault();
+            const pastedText = (e.originalEvent.clipboardData || window.clipboardData).getData('text').trim();
+            const words = pastedText.split(/\s+/);
+            let wordIndex = 0;
+            let currentRow = $(this).closest('.row');
+            while (currentRow.length && wordIndex < words.length) {
+               currentRow.find('.form-control').each(function () {
+                     if (wordIndex < words.length) {
+                        $(this).val(words[wordIndex]);
+                        wordIndex++;
+                     }
+               });
+               currentRow = currentRow.next('.row');
+            }
+         });
+
+
+         /**copy paste additional value */
       });
 
       

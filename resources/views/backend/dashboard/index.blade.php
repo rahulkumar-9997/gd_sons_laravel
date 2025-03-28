@@ -196,6 +196,44 @@
                      </div>
                   @endforeach
                @endif
+               @php
+                  $counterIcons = [
+                     1 => 'bx ti-click',
+                     2 => 'bx ti-click',                     
+                  ];
+               @endphp
+               @if($data['button_counter']->isNotEmpty())
+                  @foreach($data['button_counter'] as $counter)
+                     <div class="col-md-3">
+                        <div class="card overflow-hidden">
+                           <div class="card-body">
+                              <a href="">
+                                 <div class="row">
+                                    <div class="col-3">
+                                       <div class="avatar-md bg-soft-primary rounded">
+                                          <i class="{{ $counterIcons[$counter->id] ?? 'bx bx-question-mark' }} avatar-title text-primary fs-24"></i>
+                                       </div>
+                                    </div>
+                                    <!-- end col -->
+                                    <div class="col-9 text-end">
+                                       <p class="mb-0 text-danger">
+                                          {{ $counter->title }} Button
+                                       </p>
+                                       <h3 class="text-dark mt-1 mb-0">
+                                          {{ $counter->counter }} Click
+                                       </h3>
+                                    </div>
+                                    <!-- end col -->
+                                 </div>
+                              </a>
+                              <!-- end row-->
+                           </div>
+                           
+                        </div>
+                        <!-- end card -->
+                     </div>
+                  @endforeach
+               @endif
                <!-- end col -->
             </div>
             <!-- end row -->

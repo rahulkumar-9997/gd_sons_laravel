@@ -4,11 +4,15 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 use App\Models\Product;
+use App\Models\Customer;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\File;
 use App\Models\WhatsappConversation;
+use Illuminate\Support\Facades\DB;
+use App\Models\WhatsappSpecialRate;
+
 class WhatsAppController extends Controller
 {
     public function index(Request $request){
@@ -83,116 +87,128 @@ class WhatsAppController extends Controller
         // if ($errors = $request->errors()) {
         //     return response()->json(['errors' => $errors], 422);
         // }
-        
-        $customer_name = $validatedData['name'];
-        $customer_mobile_no = $validatedData['mobile_no'];
-        $products = $validatedData['product_name'];
-        $productsIdArray = $validatedData['product_id'];
-        $mrp = $validatedData['mrp'];
-        $purchase_rate = $validatedData['purchase_rate'];
-        $offer_rate = $validatedData['offer_rate'];    
-        $api_endpoint ='';
-        $api_endpoint = "https://backend.aisensy.com/campaign/t1/api/v2";
-        $apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY"; 
-        $data = [
-            'apiKey' => $apiKey,
-            'campaignName' => "Admin_Prod_Head_New",
-            'destination' => $customer_mobile_no,
-            'userName' => $customer_name,
-            'source' => "Website Product Quotation",
-            'templateParams' => [$customer_name],
-            'paramsFallbackValue' => array("FirstName"=>"Customer")
-        ];
-
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'Authorization' => "Bearer $apiKey"
-        ])->post($api_endpoint, $data);
-
-        if (!$response->successful()) {
-            return response()->json([
-                'message' => 'API request for customer failed.',
-                'error' => $response->body()
-            ], 500);
-        }
-        $productPaths = [];
-        $imagePathsWebp = [];
-        $imagePathsJPG = [];
-        foreach ($productsIdArray as $index => $product_id) {
-            $product = Product::with([
-                'images' => function ($query) {
-                    $query->select('id', 'product_id', 'image_path')->orderBy('id');
-                },
-                'ProductAttributesValues' => function ($query) {
-                    $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
-                        ->with([
-                            'attributeValue:id,slug'
-                        ])
-                        ->orderBy('id');
-                }
-            ])->where('id', $product_id)->firstOrFail();
-            $attributes_value = $product->ProductAttributesValues->isNotEmpty()
-                ? $product->ProductAttributesValues->first()->attributeValue->slug
-                : 'futura-1';
-            $firstImage = $product->images->first();
-            if ($firstImage && !empty($firstImage->image_path)) {
-                $imageFileName = str_replace('.webp', '.jpg', $firstImage->image_path);
+        try {
+            DB::beginTransaction();
+            $customer_name = $validatedData['name'];
+            $customer_mobile_no = $validatedData['mobile_no'];
+            $products = $validatedData['product_name'];
+            $productsIdArray = $validatedData['product_id'];
+            $mrp = $validatedData['mrp'];
+            $purchase_rate = $validatedData['purchase_rate'];
+            $offer_rate = $validatedData['offer_rate'];   
+            /*Find or create customer with proper password handling with model code*/
             
-                $imagePathWebP = asset('images/product/thumb/' . $firstImage->image_path);
-                $imagePathJpg = asset('images/product/jpg-image/thumb/' . $imageFileName);
-                if (!file_exists(public_path('images/product/jpg-image/thumb/' . $imageFileName))) {
-                    $imagePathJpg = "https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png";
-                }
-                $imageName = basename($firstImage->image_path);
-            } else {
-                $imagePathWebP = null;
-                $imagePathJpg = "https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png";
-                $imageName = 'Girdhar Das & Sons';
-            }
-            // $queryParams = ['color' => 'red', 'size' => 'large'];
-            // $encryptedParams = Crypt::encryptString(json_encode($queryParams));
-            //$product_path = url('/products/' . $product->slug . '/' . urlencode($encryptedParams));
-
-            $product_path = url('/products/' . $product->slug .'/'. $attributes_value);
-            $productPaths[] = $product_path;
-            $imagePathsWebp[] = $imagePathWebP;
-            $imagePathsJPG[] = $imagePathJpg;
-
-            $product_data = [
+            $api_endpoint ='';
+            $api_endpoint = "https://backend.aisensy.com/campaign/t1/api/v2";
+            $apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY"; 
+            $data = [
                 'apiKey' => $apiKey,
-                'campaignName' => "Admin_Products_Images",
+                'campaignName' => "Admin_Prod_Head_New",
                 'destination' => $customer_mobile_no,
                 'userName' => $customer_name,
-                'source' => "New Landing page form facebook",
-                'media' => [
-                    'url' => $imagePathJpg,
-                    'filename' => $imageName
-                ],
-                'templateParams' => [
-                    $product->title,
-                    $mrp[$index],
-                    $offer_rate[$index],
-                    $product_path
-                ]
+                'source' => "Website Product Quotation",
+                'templateParams' => [$customer_name],
+                'paramsFallbackValue' => array("FirstName"=>"Customer")
             ];
+
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => "Bearer $apiKey"
-            ])->post($api_endpoint, $product_data);
+            ])->post($api_endpoint, $data);
 
             if (!$response->successful()) {
-                continue;
+                return response()->json([
+                    'message' => 'API request for customer failed.',
+                    'error' => $response->body()
+                ], 500);
             }
-        }
+            $productPaths = [];
+            $imagePathsWebp = [];
+            $imagePathsJPG = [];
+            foreach ($productsIdArray as $index => $product_id) {
+                
+                $product = Product::with([
+                    'images' => function ($query) {
+                        $query->select('id', 'product_id', 'image_path')->orderBy('id');
+                    },
+                    'ProductAttributesValues' => function ($query) {
+                        $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
+                            ->with([
+                                'attributeValue:id,slug'
+                            ])
+                            ->orderBy('id');
+                    }
+                ])->where('id', $product_id)->firstOrFail();
+                $attributes_value = $product->ProductAttributesValues->isNotEmpty()
+                    ? $product->ProductAttributesValues->first()->attributeValue->slug
+                    : 'futura-1';
+                $firstImage = $product->images->first();
+                if ($firstImage && !empty($firstImage->image_path)) {
+                    $imageFileName = str_replace('.webp', '.jpg', $firstImage->image_path);
+                
+                    $imagePathWebP = asset('images/product/thumb/' . $firstImage->image_path);
+                    $imagePathJpg = asset('images/product/jpg-image/thumb/' . $imageFileName);
+                    if (!file_exists(public_path('images/product/jpg-image/thumb/' . $imageFileName))) {
+                        $imagePathJpg = "https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png";
+                    }
+                    $imageName = basename($firstImage->image_path);
+                } else {
+                    $imagePathWebP = null;
+                    $imagePathJpg = "https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png";
+                    $imageName = 'Girdhar Das & Sons';
+                }
+                // $queryParams = ['color' => 'red', 'size' => 'large'];
+                // $encryptedParams = Crypt::encryptString(json_encode($queryParams));
+                //$product_path = url('/products/' . $product->slug . '/' . urlencode($encryptedParams));
 
-        return response()->json([
-            'message' => 'Message send successfully!',
-            'status' => 'success',
-            'product_paths' => $productPaths,
-            'image_path_webp' => $imagePathsWebp,
-            'image_path_jpg' => $imagePathsJPG,
-        ], 200, [], JSON_UNESCAPED_SLASHES);
-        
+                $product_path = url('/products/' . $product->slug .'/'. $attributes_value);
+                $productPaths[] = $product_path;
+                $imagePathsWebp[] = $imagePathWebP;
+                $imagePathsJPG[] = $imagePathJpg;
+
+                $product_data = [
+                    'apiKey' => $apiKey,
+                    'campaignName' => "Admin_Products_Images",
+                    'destination' => $customer_mobile_no,
+                    'userName' => $customer_name,
+                    'source' => "New Landing page form facebook",
+                    'media' => [
+                        'url' => $imagePathJpg,
+                        'filename' => $imageName
+                    ],
+                    'templateParams' => [
+                        $product->title,
+                        $mrp[$index],
+                        $offer_rate[$index],
+                        $product_path
+                    ]
+                ];
+                $response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Authorization' => "Bearer $apiKey"
+                ])->post($api_endpoint, $product_data);
+
+                if (!$response->successful()) {
+                    continue;
+                }
+            }
+            DB::commit();
+            return response()->json([
+                'message' => 'Message send successfully!',
+                'status' => 'success',
+                'product_paths' => $productPaths,
+                'image_path_webp' => $imagePathsWebp,
+                'image_path_jpg' => $imagePathsJPG,
+            ], 200, [], JSON_UNESCAPED_SLASHES);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Failed to process request',
+                'error' => $e->getMessage(),
+                'status' => 'error',
+            ], 500);
+        }
         
     }
     

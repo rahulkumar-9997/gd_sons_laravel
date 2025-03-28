@@ -203,7 +203,7 @@
                         <div class="contact-number">
                            <h6 class="text-content">Email Address :</h6>
                            <h5>
-                              <a href="mailto:akshat@gdsons.co.in">akshat@gdsons.co.in</a>
+                              <a href="mailto:akshat.gd@gmail.com">akshat.gd@gmail.com</a>
                            </h5>
                         </div>
                      </div>

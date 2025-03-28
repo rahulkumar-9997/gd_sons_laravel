@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class Customer extends Authenticatable
 {
@@ -58,6 +60,27 @@ class Customer extends Authenticatable
             'groups_category_id'
         );
     }
-    
+
+    // public static function findByWhatsappNumberOrCreate($phoneNumber, $name = null)
+    // {
+        
+    //     $cleanPhone = preg_replace('/[^0-9]/', '', $phoneNumber);
+    //     $customer = self::where('phone_number', $cleanPhone)->first();
+    //     $randomPassword = Str::random(8);
+    //     $hashedPassword = Hash::make($randomPassword);
+    //     if (!$customer) {
+    //         $password = Str::random(12); 
+    //         $customer = self::create([
+    //             'phone_number' => $cleanPhone,
+    //             'name' => $name,
+    //             'password' => $hashedPassword,
+    //             'status' => true,
+    //             'email' => 'gd'.$cleanPhone.'@gmail.com',
+    //             'customer_id' => 'GD-' . time(),
+    //         ]);
+    //     }
+
+    //     return $customer;
+    // }
     
 }

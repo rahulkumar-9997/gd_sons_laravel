@@ -587,7 +587,24 @@
             var rowId = $(this).data('id');
             $(`#feature-row-${rowId}`).remove();
          });
-
+         /**copy paste additional value */
+         $(document).on('paste', '.add-more-additional-feature-append .form-control', function (e) {
+            e.preventDefault();
+            const pastedText = (e.originalEvent.clipboardData || window.clipboardData).getData('text').trim();
+            const words = pastedText.split(/\s+/);
+            let wordIndex = 0;
+            let currentRow = $(this).closest('.row');
+            while (currentRow.length && wordIndex < words.length) {
+               currentRow.find('.form-control').each(function () {
+                     if (wordIndex < words.length) {
+                        $(this).val(words[wordIndex]);
+                        wordIndex++;
+                     }
+               });
+               currentRow = currentRow.next('.row');
+            }
+         });
+         /**copy paste additional value */
 
       });
       /**remove attributes code start */

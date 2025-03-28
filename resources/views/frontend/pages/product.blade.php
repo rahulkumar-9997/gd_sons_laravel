@@ -62,9 +62,9 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 <section class="product-section">
     <div class="container-fluid-lg">
         <div class="row">
-            <div class="col-xxl-9 col-xl-8 col-lg-7 wow fadeInUp">
+            <div class="col-xxl-9 col-xl-8 col-lg-7">
                 <div class="row g-4">
-                    <div class="col-xl-6 wow fadeInUp">
+                    <div class="col-xl-6">
                         <div class="product-left-box">
                             <div class="row g-2">
                                 <div class="col-xxl-10 col-lg-12 col-md-10 order-xxl-2 order-lg-1 order-md-2">
@@ -124,7 +124,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                         </div>
                     </div>
 
-                    <div class="col-xl-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="col-xl-6" data-wow-delay="0.1s">
                         <div class="right-box-contain">
                             <h1 class="name">{{$data['product_details']->title}}</h1>
 
@@ -535,7 +535,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                 </div>
             </div>
 
-            <div class="col-xxl-3 col-xl-4 col-lg-5 d-lg-block wow fadeInUp mb-5">
+            <div class="col-xxl-3 col-xl-4 col-lg-5 d-lg-block mb-5">
                 <div class="right-sidebar-box">
                     <div class="pt-25">
                         <div class="category-menu">

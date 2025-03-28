@@ -27,6 +27,7 @@
                         <a href="https://www.google.com/search?q={{ urlencode($product->title) }}&udm=2" target="_blank" class="text-primary">
                             
                             {{ ucwords(strtolower($product->title)) }}
+                            <span class="badge bg-warning">{{ $product->visitor_count }}</span>
                         </a>
                         <!-- {{ $product->title }} -->
                     </td>

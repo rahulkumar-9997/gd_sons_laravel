@@ -20,71 +20,15 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Mail\ContactUsMail;
 use App\Models\WhatsappConversation;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Counter;
 
 class FrontendController extends Controller
 {
     public function home()
     {
-        /*$labels = Label::whereIn('title', ['Popular Product', 'Trending Product'])
-        ->get()
-        ->keyBy('title');
-        $popular_label_id = $labels['Popular Product']->id ?? null;
-        $trending_label_id = $labels['Trending Product']->id ?? null;
-        $data['primary_category'] = PrimaryCategory::orderBy('title')->get(['id', 'title', 'link']);
-        $data['banner'] = Banner::orderBy('id', 'desc')->get(['id', 'image_path_desktop', 'link_desktop', 'title']);
-        $data['popular_products'] = Product::where('product_status', 1)
-            ->where('label_id', $popular_label_id)
-            ->inRandomOrder()
-            ->limit(20)
-            ->with([
-                'images' => function($query) {
-                    $query->select('id', 'product_id', 'image_path')
-                        ->orderBy('sort_order');
-                },
-                'ProductAttributesValues' => function ($query) {
-                    $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
-                        ->with([
-                            'attributeValue:id,slug'
-                        ])
-                        ->orderBy('id');
-                }
-            ])
-            ->leftJoin('inventories', function ($join) {
-                $join->on('products.id', '=', 'inventories.product_id')
-                    ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-            })
-            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
-            ->get();
-
         
-        $data['trending_products'] = Product::where('product_status', 1)
-            ->where('label_id', $trending_label_id)
-            ->inRandomOrder()
-            ->limit(20)
-            ->with([
-                'images' => function($query) {
-                    $query->select('id', 'product_id', 'image_path')
-                        ->orderBy('sort_order');
-                },
-                'ProductAttributesValues' => function ($query) {
-                    $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
-                        ->with([
-                            'attributeValue:id,slug'
-                        ])
-                        ->orderBy('id');
-                }
-            ])
-            ->leftJoin('inventories', function ($join) {
-                $join->on('products.id', '=', 'inventories.product_id')
-                    ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-            })
-            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
-            ->get();
-        //return response()->json($data['popular_products']);
-        return view('frontend.index', compact('data'));
-        */
-        // Fetch labels and their IDs
         $labels = Label::whereIn('title', ['Popular Product', 'Trending Product'])
         ->get()
         ->keyBy('title');
@@ -119,7 +63,7 @@ class FrontendController extends Controller
         /* Split products into popular and trending */
         $data['popular_products'] = $products->where('label_id', $popular_label_id)->take(20);
         $data['trending_products'] = $products->where('label_id', $trending_label_id)->take(20);
-
+		DB::disconnect();
         return view('frontend.index', compact('data'));
 
     }
@@ -602,7 +546,7 @@ class FrontendController extends Controller
                     ]);
                 }
             }
-
+			DB::disconnect();
             // Return view for non-AJAX requests
             return view('frontend.pages.product-catalog', compact(
                 'products',
@@ -622,6 +566,12 @@ class FrontendController extends Controller
     public function showProductDetails($slug, $attributes_value_slug)
     {
         $attributeValue = Attribute_values::where('slug', $attributes_value_slug)->first();
+        /*First get the product and increment visitor count in one query*/
+        $product = Product::where('slug', $slug)
+        ->firstOrFail()
+        ->increment('visitor_count');
+        /*First get the product and increment visitor count in one query*/
+       
         if (!$attributeValue) {
             $attributeValue = '';
         }
@@ -645,31 +595,7 @@ class FrontendController extends Controller
             ->firstOrFail();
         
         $categoryId = $data['product_details']->category->id;
-        /**Related product display */
-        /*$data['related_products'] = Product::with([
-            'images' => function ($query) {
-                $query->orderBy('sort_order');
-            },
-            'category',
-            'ProductImagesFront:id,product_id,image_path',
-            'ProductAttributesValues' => function($query) {
-                $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
-                    ->with([
-                        'attributeValue:id,slug'
-                    ])
-                    ->orderBy('id');
-            }
-        ])
-        ->leftJoin('inventories', function ($join) {
-            $join->on('products.id', '=', 'inventories.product_id')
-                ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-        })
-        ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
-        ->where('products.category_id', $categoryId)
-        ->inRandomOrder()
-        ->limit(15)
-        ->get();
-        */
+        
         $data['related_products'] = Product::with([
             'images' => function ($query) {
                 $query->orderBy('sort_order');
@@ -697,7 +623,7 @@ class FrontendController extends Controller
             ->inRandomOrder()
             ->limit(10)
             ->get();
-
+			DB::disconnect();
         /**Related product display */
         //return response()->json($data['product_details']);
         return view('frontend.pages.product', compact('data'));
@@ -808,6 +734,7 @@ class FrontendController extends Controller
                     ]);
                 }
             }
+			DB::disconnect();
 
             return view('frontend.pages.product-catalog-category', compact('products', 'category', 'attributes_with_values_for_filter_list'));
         } catch (\Exception $e) {
@@ -920,7 +847,7 @@ class FrontendController extends Controller
                     ]);
                 }
             }
-
+			DB::disconnect();
             return view('frontend.pages.product-catalog-category', compact('products', 'category', 'attributes_with_values_for_filter_list', 'primary_category'));
         } catch (\Exception $e) {
             Log::error('Error fetching product catalog: ' . $e->getMessage());
@@ -1093,6 +1020,7 @@ class FrontendController extends Controller
             ->inRandomOrder()
             ->take(4)
             ->get();
+			DB::disconnect();
         //return response()->json($blog);
         return view('frontend.pages.blog.blog-list', compact('blog', 'blog_category', 'blog_recent_post'));
     }
@@ -1134,6 +1062,7 @@ class FrontendController extends Controller
             ->where('status', 1)
             ->orderBy('title')
             ->get();
+			DB::disconnect();
         //return response()->json($blog);
         return view('frontend.pages.blog.blog-details', compact('blog', 'blog_recent_post', 'blog_categories'));
     }
@@ -1159,7 +1088,7 @@ class FrontendController extends Controller
         }
 
         try {
-            Mail::to('akshat@gdsons.co.in')->send(new ContactUsMail($request));
+            Mail::to('akshat.gd@gmail.com')->send(new ContactUsMail($request));
             return response()->json([
                 'status' => 'success',
                 'message' => 'Message sent successfully!',
@@ -1371,5 +1300,19 @@ class FrontendController extends Controller
         return $result;
     }
 
+    public function updateCounter(Request $request){
+        $counter = Counter::where('title', $request->counter_type)->first();
+
+        if ($counter) {
+            $counter->increment('counter');
+        } else {
+            Counter::create([
+                'title' => $request->counter_type,
+                'counter' => 1
+            ]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Counter updated successfully!']);
+    }
     
 }

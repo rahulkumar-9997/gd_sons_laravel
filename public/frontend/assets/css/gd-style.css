@@ -927,7 +927,7 @@ section.banner-section{
 .content-category h3{
     font-size: 20px;
     margin-bottom: 10px;
-    line-height: 20px;
+    line-height: 28px;
     font-weight: 500;
 }
 /*social media icon footer*/
@@ -1361,9 +1361,11 @@ a.cntshop {
   .navbar-nav .dropdown-item{
     white-space: normal;
   }
-  .product-box .product-image img {
-      height: 100px;
+  .product-box .product-image img,
+  .product-box-3 .product-header .product-image img {
+      height: 150px;
   }
+  
   .product-box .product-image {
     padding: 10px;
   }

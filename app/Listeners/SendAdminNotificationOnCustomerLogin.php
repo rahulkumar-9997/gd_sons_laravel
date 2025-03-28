@@ -16,7 +16,7 @@ class SendAdminNotificationOnCustomerLogin
         // Check if the logged-in user is a customer (if using multiple guards)
         if (auth()->guard('customer')->check()) {
             // Send email notification to admin
-            Mail::to('akshat@gdsons.co.in')->queue(new AdminConfirmationLoginMail($user));
+            Mail::to('akshat.gd@gmail.com')->queue(new AdminConfirmationLoginMail($user));
         }
     }
 }

@@ -333,7 +333,7 @@ class OrderController extends Controller
             Log::info('Sending order details email to customer: ' . auth('customer')->user()->email);
             // Queue the email
             Mail::to(auth('customer')->user()->email)->queue(new OrderDetailsMail($orderDetails));
-            Mail::to('akshat@gdsons.co.in')->queue(new OrderDetailsMail($orderDetails, $customerName));
+            Mail::to('akshat.gd@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
             Log::info('Order details email queued successfully to: ' . auth('customer')->user()->email);
             /**send mail process */
             DB::commit();

@@ -135,7 +135,7 @@
 </section>
 <!-- Home Section End -->
 <!-- Banner Section Start -->
-<section class="banner-section ratio_60 wow fadeInUp">
+<section class="banner-section ratio_60">
     <div class="container-fluid-lg">
         <div class="banner-slider gd5">
             <div>
@@ -404,7 +404,7 @@
                         <!-- <p>A virtual assistant collects the products from your list</p> -->
                     </div>
                     <div class="home-trending-section">
-                        <div class="product-border overflow-hidden wow fadeInUp">
+                        <div class="product-border overflow-hidden">
                             <div class="product-box-slider no-arrow">
                                 @foreach ($data['trending_products'] as $trending_products_row)
                                 @php

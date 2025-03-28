@@ -1,6 +1,6 @@
 
 <div class="col-custom-3">
-        <div class="left-box wow fadeInUp">
+        <div class="left-box">
             <div class="shop-left-sidebar">
                 <div class="back-button">
                     <h3><i class="fa-solid fa-arrow-left"></i> Back</h3>

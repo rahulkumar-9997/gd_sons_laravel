@@ -41,6 +41,7 @@ use App\Http\Controllers\Backend\WhatsAppGroupController;
 use App\Http\Controllers\Backend\WhatsappConversationController;
 use App\Http\Controllers\Backend\SocialMediaTrackController;
 use App\Http\Controllers\Backend\LandingPageController;
+use App\Http\Controllers\Backend\StorageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -129,6 +130,7 @@ Route::middleware([TrackVisitor::class])->group(function () {
     });
 });
 Route::get('/sitemap.xml', [SitemapController::class, 'index']);
+Route::post('/update-counter', [FrontendController::class, 'updateCounter'])->name('update.counter');
 
 
 /**backend rout */
@@ -339,5 +341,7 @@ Route::group(['middleware' => ['admin']], function () {
     Route::resource('manage-landing-page', LandingPageController::class);
     Route::get('social-media-track-list', [SocialMediaTrackController::class, 'socialMediaTrackList'])->name('social-media-track-list');
     Route::resource('manage-whatsapp-conversation', WhatsappConversationController::class);
-    
+    Route::get('manage-storage', [StorageController::class, 'index'])->name('manage-storage');
+    Route::get('manage-storage/create', [StorageController::class, 'create'])->name('manage-storage.create');
+    Route::post('manage-storage/submit', [StorageController::class, 'store'])->name('manage-storage.submit');
 });

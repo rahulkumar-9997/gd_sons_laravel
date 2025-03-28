@@ -52,17 +52,17 @@
                     @endif
                 </div>
             </div>
-            <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dblock" style="margin-top: 10px;">
+            <div class="col-xl-12 col-md-12 mobile-gap single-bn-mo-dblock" style="margin-top: 10px;">
                 <div class="row">
                     <div class="col-md-6 col-6">
-                        <a href="https://maps.app.goo.gl/8hPKnwQUX2Z3cT7GA" target="_blank" class="btn theme-bg-color btn-md fw-bold text-white">
+                        <a href="https://maps.app.goo.gl/8hPKnwQUX2Z3cT7GA"  target="_blank" class="btn theme-bg-color btn-md fw-bold text-white catvisitstore" onclick="updateCounter('Visit our Store')">
                             Visit our Store
                         </a>
                     </div>
                     <div class="col-md-6 col-6">
-                        <a class="btn theme-bg-color btn-md fw-bold text-white mobile-category">
-                            Explore All Products
-                        </a>
+                         <a href="tel:+918318894257" class="btn theme-bg-color btn-md fw-bold text-white catcallusnow" onclick="updateCounter('Call us Now')">
+							Call us Now
+						</a>
                     </div>
                 </div>
             </div>
@@ -227,5 +227,18 @@
         }
         feather.replace();
     });
+    function updateCounter(counterType) {
+        $.ajax({
+            url: "{{ route('update.counter') }}",
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                counter_type: counterType
+            },
+            success: function(response) {
+                console.log(response.message);
+            }
+        });
+    }
 </script>
 @endpush

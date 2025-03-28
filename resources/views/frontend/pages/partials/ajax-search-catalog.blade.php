@@ -10,7 +10,7 @@ $secondImage = $product->images->get(1);
     }
 @endphp
 <div>
-    <div class="product-box-3 h-100 wow fadeInUp">
+    <div class="product-box-3 h-100">
         <div class="product-header">
             <div class="product-image">
                 <a href="{{ url('products/'.$product['slug'].'/'.$attributes_value) }}">

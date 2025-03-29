@@ -101,7 +101,7 @@
                                     <ul class="list-unstyled list-group sortable stage ui-sortable" id="sortable_product_image">
                                         @if($data['product_details']->images->isNotEmpty())
                                             @foreach($data['product_details']->images as $image)
-                                                <li class="d-flex align-items-center justify-content-between list-group-item ui-sortable-handle" data-id="{{ $image->id }}" style="position: relative; left: 0px; top: 0px; padding: 5px;">
+                                                <li class="d-flex align-items-center justify-content-between list-group-item ui-sortable-handle-show" data-id="{{ $image->id }}" style="position: relative; left: 0px; top: 0px; padding: 5px;">
                                                     <h6 class="mb-0">
                                                         <img src="{{ asset('images/product/thumb/' . $image->image_path) }}" class="img-thumbnail me-3" style="width: 50px; height: 50px;" alt="{{ $data['product_details']->title }}">
                                                         <span>{{ $image->image_path }}</span>

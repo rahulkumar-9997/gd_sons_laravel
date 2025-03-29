@@ -36,7 +36,7 @@
                 <div class="tab-pane fade show   active " role="tabpanel">
                     <ul class="list-unstyled list-group sortable stage ui-sortable" id="sortable">
                         @foreach($attributes->AttributesValues as $value)
-                        <li class="d-flex align-items-center justify-content-between list-group-item ui-sortable-handle" data-id="{{ $value->id }}" style="position: relative; left: 0px; top: 0px;">
+                        <li class="d-flex align-items-center justify-content-between list-group-item ui-sortable-handle-attributes" data-id="{{ $value->id }}" style="position: relative; left: 0px; top: 0px;">
                             <h6 class="mb-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-move me-3 ti ti-arrows-maximize ">
                                 <polyline points="5 9 2 12 5 15"></polyline>

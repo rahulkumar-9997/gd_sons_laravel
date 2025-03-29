@@ -1553,12 +1553,21 @@ class ProductsController extends Controller
                     <ul class="list-unstyled list-group sortable stage ui-sortable" id="sortable_product_image_popup">';
                             foreach($product_img as $image){
                                 $image_path = asset('images/product/thumb/' . $image->image_path);
+                                $remove_bg_url = route('product.remove-bg', ['id' => $image->id]);
                                 $form .='
-                                <li class="d-flex align-items-center justify-content-between list-group-item ui-sortable-handle" data-id="'.$image->id.'">
+                                <li class="d-flex align-items-center justify-content-between list-group-item ui-sortable-handle-two" data-id="'.$image->id.'">
                                     <h6 class="mb-0">
-                                        <img src="'.$image_path.'" class="img-thumbnail me-3" style="width: 50px; height: 50px;" alt="img">
-                                        <span>'.$image->image_path.'</span>
+                                        <div class="popup-img">
+                                            <img src="'.$image_path.'" class="img-thumbnail me-3" style="width: 50px; height: 50px;" alt="img">
+                                            <span>'.$image->image_path.'</span>
+                                        </div>
+                                        
                                     </h6>
+                                    <!--<a href="javascript:void(0);" class="removebg-pimg" data-url="'.$remove_bg_url.'" >
+                                        <span class="badge bg-success">
+                                            Remove Background
+                                        </span>
+                                    </a>-->
                                     
                                 </li>';
                             }
@@ -1825,6 +1834,10 @@ class ProductsController extends Controller
         $img_thumb->resize(250, 250, function ($constraint) {
             $constraint->aspectRatio();
         })->encode('jpg', 90)->save($destination_path_thumb . '/' . $image_file_name);        
+    }
+
+    public function productImageRemoveBg($id){
+        
     }
 
     

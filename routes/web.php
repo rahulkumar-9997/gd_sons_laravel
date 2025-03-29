@@ -259,6 +259,7 @@ Route::group(['middleware' => ['admin']], function () {
     
     //Route::POST('/product-update-gst/create', [ProductsController::class, 'updateHSNCodeGstForm'])->name('product-update-gst.create');
     Route::POST('/product-update-gst/store', [ProductsController::class, 'updateHSNCodeGstFormSubmit'])->name('product-update-gst.store');
+    Route::get('product/remove-bg/{id}', [ProductsController::class, 'productImageRemoveBg'])->name('product.remove-bg');
     /**Product route */
     /**inventory route */
     Route::get('/manage-inventory', [InventoryController::class, 'index'])->name('manage-inventory.index');

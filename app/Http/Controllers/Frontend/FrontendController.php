@@ -483,7 +483,8 @@ class FrontendController extends Controller
                         break;
                 }
             } else {
-                $productsQuery->orderByRaw('ISNULL(inventories.mrp), inventories.mrp ASC');
+                //$productsQuery->orderByRaw('ISNULL(inventories.mrp), inventories.mrp ASC');
+                $productsQuery->orderBy('created_at', 'desc');
             }
 
             // Fetch attributes with values for the filter list (mapped attributes and counts)
@@ -810,7 +811,8 @@ class FrontendController extends Controller
                         break;
                 }
             } else {
-                $productsQuery->orderByRaw('ISNULL(inventories.mrp), inventories.mrp ASC');
+                //$productsQuery->orderByRaw('ISNULL(inventories.mrp), inventories.mrp ASC');
+                $productsQuery->orderBy('created_at', 'desc');
             }
 
             // Fetching products with the necessary relationships

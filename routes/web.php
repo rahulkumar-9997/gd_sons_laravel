@@ -344,4 +344,7 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('manage-storage', [StorageController::class, 'index'])->name('manage-storage');
     Route::get('manage-storage/create', [StorageController::class, 'create'])->name('manage-storage.create');
     Route::post('manage-storage/submit', [StorageController::class, 'store'])->name('manage-storage.submit');
+    Route::post('mapped-image-to-product/submit', [StorageController::class, 'mappedImageToProductSubmit'])->name('mapped-image-to-product.submit');
+    Route::delete('manage-storage/delete/{id}', [StorageController::class, 'destroy'])->name('manage-storage.delete');
+
 });

@@ -131,7 +131,7 @@ class SearchController extends Controller
             foreach ($searchTerms as $term) {
                 $query->where('title', 'like', '%' . $term . '%');
             }
-        })->get();
+        })->orderBy('created_at', 'desc')->get();
 		DB::disconnect();
         return view('frontend.pages.search-catalog', [
             'products' => $products,

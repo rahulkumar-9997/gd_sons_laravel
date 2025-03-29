@@ -1575,6 +1575,7 @@ class ProductsController extends Controller
                     </ul>
                 </div>';
             }
+            
             $form .='
             <form method="POST" action="'.route('products.modal-image-form.submit').'" accept-charset="UTF-8" enctype="multipart/form-data" id="productimageForm">
                 '.csrf_field().'

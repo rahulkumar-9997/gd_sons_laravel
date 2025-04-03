@@ -58,7 +58,7 @@
             <div class="top-filter-menu">
                 <div class="filter-button-group d-lg-none">
                     <div class="filter-button d-inline-block d-lg-none1">
-                        <a><i class="fa-solid fa-filter"></i> Filter Menu</a>
+                        <a><i class="fa-solid fa-filter"></i> Filter</a>
                     </div>
                 </div>
                 <div class="category-dropdown" style="margin-left: auto !important;">

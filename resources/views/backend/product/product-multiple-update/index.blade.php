@@ -32,6 +32,9 @@
                                     <option value="product-image" { request('criteria')=='product-image' ? 'selected' : '' }}>
                                         Product Image
                                     </option>
+                                    <option value="video-id" { request('criteria')=='video-id' ? 'selected' : '' }}>
+                                        Product Video ID
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -68,6 +71,8 @@
                                     <th>Product Specification</th>
                                     @elseif ($criteria == 'product-image')
                                     <th>Product Image</th>
+                                    @elseif ($criteria == 'video-id')
+                                    <th>Product Video ID</th>
                                     <!-- <th>Upload Image</th> -->
                                     @endif
                                 </tr>
@@ -125,6 +130,12 @@
                                     <td>
                                         <input type="hidden" name="product_id[]" value="{{ $product->id }}">
                                         <input type="file" name="productsImage[{{$sr_no}}][]" class="form-control form-control-sm" multiple>
+                                    </td>
+                                    @elseif ($criteria == 'video-id')
+                                    <td>
+                                        <input type="hidden" name="product_id[]" value="{{ $product->id }}">
+                                        <input type="text" name="products_video_id[]" value="{{ $product->video_id }}" class="form-control form-control-sm" placeholder="Enter Video Id">
+                                        
                                     </td>
                                     @endif
                                 </tr>

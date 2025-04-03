@@ -1553,21 +1553,12 @@ class ProductsController extends Controller
                     <ul class="list-unstyled list-group sortable stage ui-sortable" id="sortable_product_image_popup">';
                             foreach($product_img as $image){
                                 $image_path = asset('images/product/thumb/' . $image->image_path);
-                                $remove_bg_url = route('product.remove-bg', ['id' => $image->id]);
                                 $form .='
-                                <li class="d-flex align-items-center justify-content-between list-group-item ui-sortable-handle-two" data-id="'.$image->id.'">
+                                <li class="d-flex align-items-center justify-content-between list-group-item ui-sortable-handle" data-id="'.$image->id.'">
                                     <h6 class="mb-0">
-                                        <div class="popup-img">
-                                            <img src="'.$image_path.'" class="img-thumbnail me-3" style="width: 50px; height: 50px;" alt="img">
-                                            <span>'.$image->image_path.'</span>
-                                        </div>
-                                        
+                                        <img src="'.$image_path.'" class="img-thumbnail me-3" style="width: 50px; height: 50px;" alt="img">
+                                        <span>'.$image->image_path.'</span>
                                     </h6>
-                                    <!--<a href="javascript:void(0);" class="removebg-pimg" data-url="'.$remove_bg_url.'" >
-                                        <span class="badge bg-success">
-                                            Remove Background
-                                        </span>
-                                    </a>-->
                                     
                                 </li>';
                             }
@@ -1575,7 +1566,6 @@ class ProductsController extends Controller
                     </ul>
                 </div>';
             }
-            
             $form .='
             <form method="POST" action="'.route('products.modal-image-form.submit').'" accept-charset="UTF-8" enctype="multipart/form-data" id="productimageForm">
                 '.csrf_field().'
@@ -1660,6 +1650,9 @@ class ProductsController extends Controller
             $products = Product::with(['images'])->whereDoesntHave('images')->paginate(20);
             //$products = Product::with(['images'])->paginate(20);
             return view('backend.product.product-multiple-update.index', compact('criteria', 'products'));
+        } elseif ($criteria == 'video-id') {
+            $products = Product::with(['images'])->paginate(20);
+            return view('backend.product.product-multiple-update.index', compact('criteria', 'products'));
         }
         return view('backend.product.product-multiple-update.index', compact('criteria'));
 
@@ -1713,6 +1706,10 @@ class ProductsController extends Controller
                     if (isset($fileProducts[$key])) {
                        // Log::info("Image {$key}: " . $fileProducts[$key]);
                         $rules["productsImage.{$key}.*"] = 'image|mimes:jpg,jpeg,png,gif,webp|max:2048';
+                    }
+                case 'video-id':
+                    if (isset($request->products_video_id[$key])) {
+                        $rules["products_video_id.{$key}"] = 'nullable|string|max:255';
                     }
                     break;
             }
@@ -1795,6 +1792,12 @@ class ProductsController extends Controller
                     }
                     $msg ="Product images updated successfully.";
                 }
+                if ($criteria === 'video-id' && isset($request->products_video_id[$key])) {
+                    $product->video_id = $request->products_video_id[$key];
+                    $updated = true;
+                    $msg ="Product Video id updated successfully.";
+                }
+    
                 if ($updated) {
                     $product->save();
                     $noUpdate = false;
@@ -1835,10 +1838,6 @@ class ProductsController extends Controller
         $img_thumb->resize(250, 250, function ($constraint) {
             $constraint->aspectRatio();
         })->encode('jpg', 90)->save($destination_path_thumb . '/' . $image_file_name);        
-    }
-
-    public function productImageRemoveBg($id){
-        
     }
 
     

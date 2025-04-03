@@ -99,7 +99,7 @@ class TrackVisitor
         }
 
         $userAgent = strtolower($request->header('User-Agent', ''));
-        //Log::info("Checking Bot: " . $userAgent);
+        Log::info("Checking Bot: " . $userAgent);
         $bots = [
             'bot', 'crawl', 'spider', 'slurp', 'crawler', 'fetch', 'monitor', 'scraper',
             'google', 'bing', 'yahoo', 'duckduck', 'baidu', 'yandex', 'sogou', 'exabot',

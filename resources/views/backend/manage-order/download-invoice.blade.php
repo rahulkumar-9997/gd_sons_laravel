@@ -68,7 +68,7 @@
                                             W.H.Smith School Road, Sigra, Varanasi 221010 Uttar Pradesh India.
                                         </span><br>
                                         <span>
-                                            Ph: +918318894257 | Email: akshat.gd@gmail.com | Website : https://www.gdsons.co.in
+                                            Ph: +918318894257 | Email: akshat@gdsons.co.in | Website : https://www.gdsons.co.in
                                         </span><br>
                                         <span>GSTIN No. 09AKAPP2530L1Z3</span><br>
                                         <span style="padding-top: 30px; padding-bottom: 10px;">

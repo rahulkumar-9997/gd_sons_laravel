@@ -2,6 +2,7 @@
 @section('title','Manage Primary Category')
 @section('main-content')
 @push('styles')
+
 <link href="{{asset('backend/assets/vendor/datatables/css/jquery.dataTables.css')}}" rel="stylesheet" type="text/css" media="screen"/>
 <link href="{{asset('backend/assets/vendor/datatables/extensions/TableTools/css/dataTables.tableTools.min.css')}}" rel="stylesheet" type="text/css" media="screen"/>
 <link href="{{asset('backend/assets/vendor/datatables/extensions/Responsive/css/dataTables.responsive.css')}}" rel="stylesheet" type="text/css" media="screen"/>
@@ -37,6 +38,7 @@
                                  <th>Sr. No.</th>
                                  <th>Name</th>
                                  <th>Url</th>
+                                 <th>Description</th>
                                  <th>Action</th>
                               </tr>
                         </thead>
@@ -50,6 +52,11 @@
                                     <td>{{ $primaryCategoryRow->title }}</td>
                                     <td>
                                        {{$primaryCategoryRow->link}}
+                                    </td>
+                                    <td>
+                                    <div class="overflow-auto" style="max-width: 300px; max-height: 150px; overflow: auto; white-space: nowrap;">
+                                          {!! $primaryCategoryRow->primary_category_description !!}
+                                       </div>
                                     </td>
                                     <td>
                                           <div class="d-flex gap-2">
@@ -86,7 +93,7 @@
 <!-- modal--->
 @endsection
 @push('scripts')
-
+<script src="{{asset('backend/assets/js/components/form-quilljs.js')}}"></script>
 <script src="{{asset('backend/assets/js/pages/primaryCategory.js')}}" type="text/javascript"></script> 
 <script>
    $(document).ready(function() {

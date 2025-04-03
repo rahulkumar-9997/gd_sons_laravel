@@ -141,6 +141,9 @@
                      <li class="sub-nav-item">
                         <a class="sub-nav-link" href="{{ route('manage-primary-category.index') }}">Primary Category</a>
                      </li>
+                     <li class="sub-nav-item">
+                        <a class="sub-nav-link" href="{{ route('manage-video.index') }}">Home Video</a>
+                     </li>
                </ul>
             </div>
          </li>

@@ -13,8 +13,10 @@ class PrimaryCategory extends Model
         'title',
         'image_path',
         'link',
+        'primary_category_description',
         'status',
     ];
+
     /**
      * The attributes that should be cast to native types.
      *

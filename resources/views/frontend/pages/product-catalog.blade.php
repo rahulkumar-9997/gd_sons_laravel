@@ -1,13 +1,12 @@
 @extends('frontend.layouts.master')
 @if($primary_category)
-@section('title', 'Complete Range of ' . $primary_category->title . ' in Varanasi.')
+    @section('title', 'Complete Range of ' . $primary_category->title . ' in Varanasi.')
 @else
-@section('title', 'Complete Range of ' . $category->title . ' ' . $attributeValue->name . ' in Varanasi.')
+    @section('title', 'Complete Range of ' . $category->title . ' ' . $attributeValue->name . ' in Varanasi.')
 @endif
 @section('description', 'GD Sons - ' . $category->title . ' : ' . $attributeValue->name)
 @section('keywords', 'GD Sons - ' . $category->title . ' : ' . $attributeValue->name)
 @section('main-content')
-
 <!-- Breadcrumb Section Start -->
 <section class="breadcrumb-section pt-0">
     <div class="container-fluid-lg">
@@ -70,6 +69,16 @@
         <div class="row" id="product-catalog-frontend">
             @include('frontend.pages.ajax-product-catalog', [$products, $attributes_with_values_for_filter_list])
         </div>
+        @if($primary_category)
+        <div class="row justify-content-md-center primary-category-div">
+            <div class="col-custom-3"></div>
+            <div class="col-custom-">
+                <div class="primary_category_desc">
+                    {!! $primary_category->primary_category_description !!}
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 </section>
 <!-- Shop Section End -->

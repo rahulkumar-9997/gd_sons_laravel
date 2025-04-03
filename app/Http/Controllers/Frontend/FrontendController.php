@@ -15,6 +15,7 @@ use App\Models\Blog;
 use App\Models\BlogCategory;
 use App\Models\Banner;
 use App\Models\Label;
+use App\Models\Video;
 use App\Models\PrimaryCategory;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -38,7 +39,7 @@ class FrontendController extends Controller
 
         $data['primary_category'] = PrimaryCategory::orderBy('title')->get(['id', 'title', 'link']);
         $data['banner'] = Banner::orderBy('id', 'desc')->get(['id', 'image_path_desktop', 'link_desktop', 'title']);
-
+        $data['video'] = Video::inRandomOrder()->select('video_url')->take(10)->get();
         /* Fetch all required products in one query */
         $products = Product::where('product_status', 1)
             ->whereIn('label_id', [$popular_label_id, $trending_label_id])

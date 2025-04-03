@@ -35,6 +35,7 @@ class Product extends Model
         'meta_description',
         'product_description',
         'product_specification',
+        'video_id',
         'created_at',
     ];
 

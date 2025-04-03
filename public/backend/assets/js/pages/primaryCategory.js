@@ -6,7 +6,11 @@ $.ajaxSetup({
 
 var site_url = $('meta[name="base-url"]').attr('content');
 $(document).ready(function () {
-
+    $('#commanModel').on('shown.bs.modal', function () {
+        initializeQuillEditorsTwo();
+    });
+    
+    
     $(document).on('click', 'a[data-add-primarycategory-popup="true"]', function () {
         var title = $(this).data('title');
         var size = ($(this).data('size') == '') ? 'md' : $(this).data('size');
@@ -160,6 +164,35 @@ $(document).ready(function () {
     });
 });
    
+function initializeQuillEditorsTwo() {
+    document.querySelectorAll('.snow-editor').forEach(function(editor) {
+        // Check if Quill has already been initialized
+        if (!editor.classList.contains('ql-container')) {
+            var quill = new Quill(editor, {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'font': [] }, { 'size': [] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'script': 'super' }, { 'script': 'sub' }],
+                        [{ 'header': [false, 1, 2, 3, 4, 5, 6] }, 'blockquote', 'code-block'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
+                        ['direction', { 'align': [] }],
+                        ['link', 'image', 'video'],
+                        ['clean']
+                    ]
+                }
+            });
+
+            // Synchronize the content with the hidden textarea
+            var hiddenTextarea = editor.nextElementSibling;
+            quill.on('text-change', function() {
+                hiddenTextarea.value = quill.root.innerHTML;
+            });
+        }
+    });
+}
 
 /**submut button fixed after scroll */
 

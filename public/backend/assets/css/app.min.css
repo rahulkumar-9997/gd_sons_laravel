@@ -22158,11 +22158,7 @@ p.no-span::after {
 }
 
 /*rahul css*/
-.ui-sortable-handle-show, 
-.ui-sortable-handle-attributes {
-  cursor: move;
-}
-.ui-sortable-handle-two .popup-img {
+.ui-sortable-handle {
   cursor: move;
 }
 

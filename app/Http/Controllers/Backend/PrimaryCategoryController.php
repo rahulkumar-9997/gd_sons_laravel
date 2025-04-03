@@ -34,6 +34,14 @@ class PrimaryCategoryController extends Controller
                             <input type="text" id="path" name="path" class="form-control">
                         </div>
                     </div>
+
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <div class="snow-editor" style="height: 200px; width: 100%;"></div>
+                            <textarea name="description" class="hidden-textarea" style="display:none;"></textarea>
+                        </div>
+                    </div>
                     
                     <div class="modal-footer pb-0">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -53,6 +61,7 @@ class PrimaryCategoryController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'path' => 'required|url|max:255',
+            'description' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -65,6 +74,7 @@ class PrimaryCategoryController extends Controller
         $primaryCategory = PrimaryCategory::create([
             'title' => $validated['title'],
             'link' => $validated['path'],
+            'primary_category_description' => $validated['description'] ?? null,
         ]);
 
         return response()->json([
@@ -94,6 +104,17 @@ class PrimaryCategoryController extends Controller
                             <input type="text" id="path" name="path" class="form-control"  value="'.$primary_category_row->link.'">
                         </div>
                     </div>
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <div class="snow-editor" style="height: 200px; width: 100%;">
+                            '.$primary_category_row->primary_category_description .'
+                            </div>
+                            <textarea name="description" class="hidden-textarea" style="display:none;">
+                            '.$primary_category_row->primary_category_description .'
+                            </textarea>
+                        </div>
+                    </div>
                     
                     <div class="modal-footer pb-0">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -113,6 +134,7 @@ class PrimaryCategoryController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'path' => 'required|url|max:255',
+            'description' => 'nullable|string',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -132,6 +154,7 @@ class PrimaryCategoryController extends Controller
         $primaryCategory->update([
             'title' => $validated['title'],
             'link' => $validated['path'],
+            'primary_category_description' => $validated['description'] ?? null,
         ]);
         return response()->json([
             'status' => 'success',

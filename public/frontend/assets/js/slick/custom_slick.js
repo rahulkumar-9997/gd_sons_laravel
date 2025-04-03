@@ -1298,11 +1298,51 @@ $('.product-box-slider-2').slick({
     ]
 });
 
+
+
 $('.product-box-slider').slick({
     infinite: true,
     arrows: true,
     slidesToShow: 5,
     slidesToScroll: 1,
+    pauseOnHover: true,
+    responsive: [{
+        breakpoint: 1680,
+        settings: {
+            slidesToShow: 5,
+        }
+    },
+    {
+        breakpoint: 1400,
+        settings: {
+            slidesToShow: 4,
+        }
+    },
+    {
+        breakpoint: 1200,
+        settings: {
+            slidesToShow: 4,
+        }
+    }, {
+        breakpoint: 992,
+        settings: {
+            slidesToShow: 4,
+        }
+    },
+    {
+        breakpoint: 660,
+        settings: {
+            slidesToShow: 2,
+        }
+    },
+    ]
+});
+/**video shorts js code */
+$('.videoSwiper').slick({
+    infinite: true,
+    arrows: true,
+    slidesToShow: 4,
+    slidesToScroll: 2,
     pauseOnHover: true,
     responsive: [{
         breakpoint: 1680,

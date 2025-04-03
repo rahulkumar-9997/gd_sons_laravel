@@ -65,6 +65,47 @@ $firstImage = $data['product_details']->images->isNotEmpty()
             <div class="col-xxl-9 col-xl-8 col-lg-7">
                 <div class="row g-4">
                     <div class="col-xl-6">
+                        <div class="right-box-contain for-mobile-price">
+                            <h1 class="name">{{$data['product_details']->title}}</h1>
+                            <div class="price-rating">
+                                <h3 class="theme-color price">
+                                    @php
+                                    $offer_rate_display ='';
+                                    @endphp
+                                    @if($data['product_details']->offer_rate)
+                                    @php
+
+                                    $final_offer_rate = $data['product_details']->offer_rate;
+                                    if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
+                                    $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                    if ($group_categoty_percentage > 0) {
+                                    $purchase_rate = $data['product_details']->purchase_rate;
+                                    $offer_rate = $data['product_details']->offer_rate;
+                                    $percent_discount = 100/$group_categoty_percentage;
+                                    $final_offer_rate =
+                                    $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
+                                    $final_offer_rate = floor($final_offer_rate);
+                                    $offer_rate_display = '<br><span>Regular offer price</span><del class="text-content"> Rs. ' . number_format($offer_rate, 2) . '</del>';
+                                    }
+                                    }
+                                    @endphp
+                                    Rs. {{ number_format($final_offer_rate, 2) }}
+                                    @endif
+                                    @if($data['product_details']->mrp && $final_offer_rate)
+                                    @php
+                                    $discountPercentage = round(((($data['product_details']->mrp -$final_offer_rate) / $data['product_details']->mrp) * 100), 2);
+                                    @endphp
+                                    <span class="offer theme-color">({{ $discountPercentage }}% off)</span>
+                                    @endif
+                                    {!! $offer_rate_display !!}
+                                    @if($data['product_details']->mrp)
+                                    <br><span> M.R.P.</span><del class="text-content">
+                                        Rs. {{ number_format($data['product_details']->mrp, 2) }}
+                                    </del>
+                                    @endif
+                                </h3>
+                            </div>
+                        </div>
                         <div class="product-left-box">
                             <div class="row g-2">
                                 <div class="col-xxl-10 col-lg-12 col-md-10 order-xxl-2 order-lg-1 order-md-2">
@@ -126,20 +167,21 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 
                     <div class="col-xl-6" data-wow-delay="0.1s">
                         <div class="right-box-contain">
-                            <h1 class="name">{{$data['product_details']->title}}</h1>
+                            <div class="for-desktop-price">
+                                <h1 class="name">{{$data['product_details']->title}}</h1>
 
-                            <div class="price-rating">
-                                <h3 class="theme-color price">
-                                    @php
-                                    $offer_rate_display ='';
-                                    @endphp
-                                    @if($data['product_details']->offer_rate)
-                                    @php
+                                <div class="price-rating">
+                                    <h3 class="theme-color price">
+                                        @php
+                                        $offer_rate_display ='';
+                                        @endphp
+                                        @if($data['product_details']->offer_rate)
+                                        @php
 
-                                    $final_offer_rate = $data['product_details']->offer_rate;
-                                    if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
-                                    $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                    if ($group_categoty_percentage > 0) {
+                                        $final_offer_rate = $data['product_details']->offer_rate;
+                                        if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
+                                        $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                        if ($group_categoty_percentage > 0) {
                                         $purchase_rate = $data['product_details']->purchase_rate;
                                         $offer_rate = $data['product_details']->offer_rate;
                                         $percent_discount = 100/$group_categoty_percentage;
@@ -147,24 +189,25 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
                                         $final_offer_rate = floor($final_offer_rate);
                                         $offer_rate_display = '<br><span>Regular offer price</span><del class="text-content"> Rs. ' . number_format($offer_rate, 2) . '</del>';
-                                    }
-                                    }
-                                    @endphp
-                                    Rs. {{ number_format($final_offer_rate, 2) }}
-                                    @endif
-                                    @if($data['product_details']->mrp && $final_offer_rate)
-                                    @php
-                                    $discountPercentage = round(((($data['product_details']->mrp -$final_offer_rate) / $data['product_details']->mrp) * 100), 2);
-                                    @endphp
-                                    <span class="offer theme-color">({{ $discountPercentage }}% off)</span>
-                                    @endif
-                                    {!! $offer_rate_display !!}
-                                    @if($data['product_details']->mrp)
-                                    <br><span> M.R.P.</span><del class="text-content">
-                                        Rs. {{ number_format($data['product_details']->mrp, 2) }}
-                                    </del>
-                                    @endif
-                                </h3>
+                                        }
+                                        }
+                                        @endphp
+                                        Rs. {{ number_format($final_offer_rate, 2) }}
+                                        @endif
+                                        @if($data['product_details']->mrp && $final_offer_rate)
+                                        @php
+                                        $discountPercentage = round(((($data['product_details']->mrp -$final_offer_rate) / $data['product_details']->mrp) * 100), 2);
+                                        @endphp
+                                        <span class="offer theme-color">({{ $discountPercentage }}% off)</span>
+                                        @endif
+                                        {!! $offer_rate_display !!}
+                                        @if($data['product_details']->mrp)
+                                        <br><span> M.R.P.</span><del class="text-content">
+                                            Rs. {{ number_format($data['product_details']->mrp, 2) }}
+                                        </del>
+                                        @endif
+                                    </h3>
+                                </div>
                             </div>
                             <div class="additional_discount_area">
                                 <div class="additional-tex">
@@ -201,13 +244,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                     </div>
                                 </div>
                             </div>
-                            <!--@if(!empty($data['product_details']->product_description))
-                            <div class="product-contain">
-                                <p>
-                                    {{ Str::limit(strip_tags($data['product_details']->product_description), 200) }}
-                                </p>
-                            </div>
-                            @endif-->
+
                             <div class="note-box product-package">
                                 <div class="cart_qty qty-box product-qty">
                                     <div class="input-group">
@@ -315,29 +352,6 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                             <ul class="nav nav-tabs custom-nav" id="myTab" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="info-tab" data-bs-toggle="tab"
-                                        data-bs-target="#description" type="button" role="tab">Product Description</button>
-                                </li>
-                            </ul>
-                            <div class="tab-content custom-tab" id="myTabContent">
-                                <div class="tab-pane fade show active" id="description" role="tabpanel">
-                                    <div class="table-responsive">
-                                        @if(!empty($data['product_details']->product_description))
-                                        <p>
-                                            {!! $data['product_details']->product_description !!}
-                                        </p>
-                                        @else
-                                        <p>Product description not available !</p>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 mt-1 mb-5">
-                        <div class="product-section-box description-box">
-                            <ul class="nav nav-tabs custom-nav" id="myTab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="info-tab" data-bs-toggle="tab"
                                         data-bs-target="#additionalinfo" type="button" role="tab">Additional info</button>
                                 </li>
                             </ul>
@@ -367,171 +381,44 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                             </div>
                         </div>
                     </div>
-                    <!-- <div class="col-12">
+                    <div class="col-12 mt-1 mb-1">
                         <div class="product-section-box description-box">
                             <ul class="nav nav-tabs custom-nav" id="myTab" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="info-tab" data-bs-toggle="tab"
-                                        data-bs-target="#review" type="button" role="tab">Review</button>
+                                    <button class="nav-link" id="info-tab" data-bs-toggle="tab"
+                                        data-bs-target="#description" type="button" role="tab">Product Description</button>
                                 </li>
                             </ul>
-
                             <div class="tab-content custom-tab" id="myTabContent">
-                                <div class="tab-pane fade" id="review" role="tabpanel">
-                                    <div class="review-box">
-                                        <div class="row">
-                                            <div class="col-xl-5">
-                                                <div class="product-rating-box">
-                                                    <div class="row">
-                                                        <div class="col-xl-12">
-                                                            <div class="product-main-rating">
-                                                                <h2>3.40
-                                                                    <i data-feather="star"></i>
-                                                                </h2>
-
-                                                                <h5>5 Overall Rating</h5>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-xl-12">
-                                                            <ul class="product-rating-list">
-                                                                <li>
-                                                                    <div class="rating-product">
-                                                                        <h5>5<i data-feather="star"></i></h5>
-                                                                        <div class="progress">
-                                                                            <div class="progress-bar"
-                                                                                style="width: 40%;">
-                                                                            </div>
-                                                                        </div>
-                                                                        <h5 class="total">2</h5>
-                                                                    </div>
-                                                                </li>
-                                                                <li>
-                                                                    <div class="rating-product">
-                                                                        <h5>4<i data-feather="star"></i></h5>
-                                                                        <div class="progress">
-                                                                            <div class="progress-bar"
-                                                                                style="width: 20%;">
-                                                                            </div>
-                                                                        </div>
-                                                                        <h5 class="total">1</h5>
-                                                                    </div>
-                                                                </li>
-                                                                <li>
-                                                                    <div class="rating-product">
-                                                                        <h5>3<i data-feather="star"></i></h5>
-                                                                        <div class="progress">
-                                                                            <div class="progress-bar"
-                                                                                style="width: 0%;">
-                                                                            </div>
-                                                                        </div>
-                                                                        <h5 class="total">0</h5>
-                                                                    </div>
-                                                                </li>
-                                                                <li>
-                                                                    <div class="rating-product">
-                                                                        <h5>2<i data-feather="star"></i></h5>
-                                                                        <div class="progress">
-                                                                            <div class="progress-bar"
-                                                                                style="width: 20%;">
-                                                                            </div>
-                                                                        </div>
-                                                                        <h5 class="total">1</h5>
-                                                                    </div>
-                                                                </li>
-                                                                <li>
-                                                                    <div class="rating-product">
-                                                                        <h5>1<i data-feather="star"></i></h5>
-                                                                        <div class="progress">
-                                                                            <div class="progress-bar"
-                                                                                style="width: 20%;">
-                                                                            </div>
-                                                                        </div>
-                                                                        <h5 class="total">1</h5>
-                                                                    </div>
-                                                                </li>
-
-                                                            </ul>
-
-                                                            <div class="review-title-2">
-                                                                <h4 class="fw-bold">Review this product</h4>
-                                                                <p>Let other customers know what you think</p>
-                                                                <button class="btn" type="button"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#writereview">Write a
-                                                                    review</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-xl-7">
-                                                <div class="review-people">
-                                                    <ul class="review-list">
-                                                        <li>
-                                                            <div class="people-box">
-                                                                <div>
-                                                                    <div class="people-image people-text">
-                                                                        <img alt="user" class="img-fluid "
-                                                                            src="{{asset('frontend/assets/images/images/review/1.jpg')}}">
-                                                                    </div>
-                                                                </div>
-                                                                <div class="people-comment">
-                                                                    <div class="people-name"><a
-                                                                            href="javascript:void(0)"
-                                                                            class="name">Jack Doe</a>
-                                                                        <div class="date-time">
-                                                                            <h6 class="text-content"> 29 Sep 2023
-                                                                                06:40:PM
-                                                                            </h6>
-                                                                            <div class="product-rating">
-                                                                                <ul class="rating">
-                                                                                    <li>
-                                                                                        <i data-feather="star"
-                                                                                            class="fill"></i>
-                                                                                    </li>
-                                                                                    <li>
-                                                                                        <i data-feather="star"
-                                                                                            class="fill"></i>
-                                                                                    </li>
-                                                                                    <li>
-                                                                                        <i data-feather="star"
-                                                                                            class="fill"></i>
-                                                                                    </li>
-                                                                                    <li>
-                                                                                        <i data-feather="star"
-                                                                                            class="fill"></i>
-                                                                                    </li>
-                                                                                    <li>
-                                                                                        <i data-feather="star"></i>
-                                                                                    </li>
-                                                                                </ul>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="reply">
-                                                                        <p>Avoid this product. The quality is
-                                                                            terrible, and
-                                                                            it started falling apart almost
-                                                                            immediately. I
-                                                                            wish I had read more reviews before
-                                                                            buying.
-                                                                            Lesson learned.</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                        
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div class="tab-pane fade show active" id="description" role="tabpanel">
+                                    <div class="table-responsive">
+                                        @if(!empty($data['product_details']->product_description))
+                                        <p>
+                                            {!! $data['product_details']->product_description !!}
+                                        </p>
+                                        @else
+                                        <p>Product description not available !</p>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div> -->
+                    </div>
+                    @if($data['product_details']->video_id)
+                    <div class="col-12">
+                        <div class="product-video-section">
+                            <div class="product-short-container">
+                                <div class="product-video-container"
+                                    id="yt-{{ $data['product_details']->video_id }}"
+                                    data-video-id="{{ $data['product_details']->video_id }}">
+                                    <div class="video-loading">
+                                        <div class="loading-spinner"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
 
@@ -686,4 +573,60 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 <script src="{{asset('frontend/assets/js/sticky-cart-bottom.js')}}"></script>
 <script src="{{asset('frontend/assets/js/pages/addto-cart.js')}}"></script>
 <script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}"></script>
+<script>
+    $(document).ready(function() {
+
+        function isYouTubeShort(videoId) {
+            return videoId.length === 11;
+        }
+
+        function loadYouTubePlayer($container) {
+            const videoId = $container.data('video-id');
+            const isShort = isYouTubeShort(videoId);
+            $container.addClass(isShort ? 'short' : 'regular');
+            const params = {
+                autoplay: 1,
+                mute: 1,
+                enablejsapi: 1,
+                playsinline: 1,
+                rel: 0,
+                modestbranding: 1
+            };
+            if (isShort) {
+                params.loop = 1;
+                params.playlist = videoId;
+            }
+
+            const iframe = $('<iframe/>', {
+                src: `https://www.youtube-nocookie.com/embed/${videoId}?${$.param(params)}`,
+                allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+                allowfullscreen: '',
+                loading: 'lazy'
+            });
+            iframe.on('load', function() {
+                $container.find('.video-loading').hide();
+            });
+            $container.append(iframe);
+        }
+
+
+        function initVideoObserver() {
+            const observer = new IntersectionObserver(function(entries) {
+                $.each(entries, function(index, entry) {
+                    if (entry.isIntersecting) {
+                        const $container = $(entry.target);
+                        loadYouTubePlayer($container);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                rootMargin: '200px'
+            });
+            $('.product-video-container').each(function() {
+                observer.observe(this);
+            });
+        }
+        initVideoObserver();
+    });
+</script>
 @endpush

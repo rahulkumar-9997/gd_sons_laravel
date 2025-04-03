@@ -10,9 +10,9 @@
         <div class="row g-2">
             <div class="col-xl-8 ratio_65">
                 <div class="home-contain h-1001">
-                <!-- data-bs-ride="carousel" data-bs-interval="3000" -->
+                    <!-- data-bs-ride="carousel" data-bs-interval="3000" -->
                     @if ($data['banner'] && $data['banner']->isNotEmpty())
-                    <div id="homeBannerCarousel" class="carousel slide silk-carousel-wrapper home-banner-carousel"  >
+                    <div id="homeBannerCarousel" class="carousel slide silk-carousel-wrapper home-banner-carousel">
                         <!-- Indicators/Dots -->
                         <div class="carousel-indicators">
                             @foreach ($data['banner'] as $index => $banner)
@@ -29,13 +29,12 @@
                                 <div class="row1">
                                     <div class="col1">
                                         <a href="{{ $banner->link_desktop }}">
-                                            <img src="{{ asset($banner->image_path_desktop) }}" 
-                                            class="d-block w-100"
-                                            srcset="{{ asset($banner->image_path_desktop) }} 600w, {{ asset($banner->image_path_desktop) }} 1200w" 
-                                            sizes="(max-width: 600px) 600px, 1200px"
-                                            alt="{{ $banner->title }}"
-                                            loading="lazy"
-                                            >
+                                            <img src="{{ asset($banner->image_path_desktop) }}"
+                                                class="d-block w-100"
+                                                srcset="{{ asset($banner->image_path_desktop) }} 600w, {{ asset($banner->image_path_desktop) }} 1200w"
+                                                sizes="(max-width: 600px) 600px, 1200px"
+                                                alt="{{ $banner->title }}"
+                                                loading="lazy">
                                         </a>
                                     </div>
                                 </div>
@@ -63,8 +62,7 @@
                     <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dnone">
                         <div class="home-contain">
                             <img src="{{asset('frontend/assets/images/side-banner-1.png')}}" class="img-responsive blur-up lazyload"
-                                alt="side banner" loading="lazy"
-                                >
+                                alt="side banner" loading="lazy">
                             <div class="home-detail p-center-left home-p-sm w-75">
                                 <div>
                                     <h3 class="mt-0 theme-color fw-bold">eCom Website</h3>
@@ -86,7 +84,7 @@
                                     <h4 class="text-danger">or Online</h4>
                                     <p class="organic">Biggest range of Kitchenware</p>
                                     <a href="{{ route('contact-us') }}" class="shop-button">Call Now <i
-                                    class="fa-solid fa-right-long"></i></a>
+                                            class="fa-solid fa-right-long"></i></a>
                                 </div>
                             </div>
                         </div>
@@ -141,104 +139,74 @@
             <div>
                 <div class="banner-contain hover-effect">
                     <a href="https://gdsons.co.in/categories/vacuum-flask">
-                    <img 
-                        src="{{ asset('frontend/assets/gd-img/banner-bottom/bottlesU.webp') }}" 
-                        class="img-fluid blur-up lazyload"
-                        alt="bottles" 
-                        loading="lazy">
+                        <img
+                            src="{{ asset('frontend/assets/gd-img/banner-bottom/bottlesU.webp') }}"
+                            class="img-fluid blur-up lazyload"
+                            alt="bottles"
+                            loading="lazy"
+                            width="480"
+                            height="480">
                     </a>
-                    <!--<div class="banner-details">
-                        <div class="banner-box">
-                            <h6 class="text-danger">5% OFF</h6>
-                            <h5>Hot Deals on New Items</h5>
-                            <h6 class="text-content">Daily Essentials Eggs & Dairy</h6>
-                        </div>
-                        <a href="shop-left-sidebar.html" class="banner-button text-white">Shop Now <i
-                                class="fa-solid fa-right-long ms-2"></i></a>
-                    </div>-->
+                    
                 </div>
             </div>
 
             <div>
                 <div class="banner-contain hover-effect">
                     <a href="https://gdsons.co.in/categories/lpg-gas-stoves">
-                    <img 
-                        src="{{ asset('frontend/assets/gd-img/banner-bottom/stovesU.webp') }}" 
-                        class="img-fluid blur-up lazyload" 
-                        
-                        alt="lpg gas stoves" 
-                        loading="lazy">
+                        <img
+                            src="{{ asset('frontend/assets/gd-img/banner-bottom/stovesU.webp') }}"
+                            class="img-fluid blur-up lazyload"
+
+                            alt="lpg gas stoves"
+                            loading="lazy"
+                            width="480"
+                            height="480">
                     </a>
-                    <!--<div class="banner-details">
-                        <div class="banner-box">
-                            <h6 class="text-danger">5% OFF</h6>
-                            <h5>Buy More & Save More</h5>
-                            <h6 class="text-content">Fresh Vegetables</h6>
-                        </div>
-                        <a href="shop-left-sidebar.html" class="banner-button text-white">Shop Now <i
-                                class="fa-solid fa-right-long ms-2"></i></a>
-                    </div>-->
+                    
                 </div>
             </div>
 
             <div>
                 <div class="banner-contain hover-effect">
                     <a href="https://gdsons.co.in/categories/lunchbox-tiffin">
-                        <img 
-                        src="{{ asset('frontend/assets/gd-img/banner-bottom/tiffinsU.webp') }}" 
-                        class="img-fluid blur-up lazyload" 
-                        
-                        alt="Tiffins" 
-                        loading="lazy">
+                        <img
+                            src="{{ asset('frontend/assets/gd-img/banner-bottom/tiffinsU.webp') }}"
+                            class="img-fluid blur-up lazyload"
+
+                            alt="Tiffins"
+                            loading="lazy"
+                            width="480"
+                            height="480">
                     </a>
-                    <!--<div class="banner-details">
-                        <div class="banner-box">
-                            <h6 class="text-danger">5% OFF</h6>
-                            <h5>Organic Meat Prepared</h5>
-                            <h6 class="text-content">Delivered to Your Home</h6>
-                        </div>
-                        <a href="shop-left-sidebar.html" class="banner-button text-white">Shop Now <i
-                                class="fa-solid fa-right-long ms-2"></i></a>
-                    </div>-->
+                    
                 </div>
             </div>
 
             <div>
                 <div class="banner-contain hover-effect">
                     <a href="https://gdsons.co.in/categories/kitchen-appliances">
-                        <img 
-                        src="{{ asset('frontend/assets/gd-img/banner-bottom/appliances_0.webp') }}" 
-                        class="img-fluid blur-up lazyload" 
-                        
-                        alt="Application" 
-                        loading="lazy">
+                        <img
+                            src="{{ asset('frontend/assets/gd-img/banner-bottom/appliances_0.webp') }}"
+                            class="img-fluid blur-up lazyload"
+
+                            alt="Application"
+                            loading="lazy"
+                            width="480"
+                            height="480">
 
                     </a>
-                    <!--<div class="banner-details">
-                        <div class="banner-box">
-                            <h6 class="text-danger">5% OFF</h6>
-                            <h5>Buy More & Save More</h5>
-                            <h6 class="text-content">Nuts & Snacks</h6>
-                        </div>
-                        <a href="shop-left-sidebar.html" class="banner-button text-white">Shop Now <i
-                                class="fa-solid fa-right-long ms-2"></i></a>
-                    </div>-->
+                    
                 </div>
             </div>
             <div>
                 <div class="banner-contain hover-effect">
                     <a href="https://gdsons.co.in/categories/pressure-cooker">
-                        <img src="{{asset('frontend/assets/gd-img/banner-bottom/CookerPosterF1.webp')}}" class=" img-fluid blur-up lazyloaded" alt="" loading="lazy">
+                        <img src="{{asset('frontend/assets/gd-img/banner-bottom/CookerPosterF1.webp')}}" class=" img-fluid blur-up lazyloaded" alt="" loading="lazy"
+                        width="480"
+                            height="480">
                     </a>
-                    <!--<div class="banner-details">
-                        <div class="banner-box">
-                            <h6 class="text-danger">5% OFF</h6>
-                            <h5>Buy More & Save More</h5>
-                            <h6 class="text-content">Nuts & Snacks</h6>
-                        </div>
-                        <a href="shop-left-sidebar.html" class="banner-button text-white">Shop Now <i
-                                class="fa-solid fa-right-long ms-2"></i></a>
-                    </div>-->
+                   
                 </div>
             </div>
 
@@ -251,32 +219,38 @@
 <section class="product-section">
     <div class="container-fluid-lg">
         <div class="row g-sm-4 g-3">
-            <div class="col-xxl-3 col-xl-3 col-md-3 col-lg-3">
-                <div class="p-sticky home-sticky-category-section">
-                    @if ($data['primary_category'] && $data['primary_category']->isNotEmpty())
-                    <div class="category-menu">
-                        <h3>Highlighted Products</h3>
-                        <ul>
-                            @foreach ($data['primary_category'] as $primary_category_row)
-                            <li class="{{ $loop->last ? 'pb-30' : '' }}">
-                                <div class="category-list">
-                                    <h5>
-                                        <a href="{{$primary_category_row->link}}">
-                                            {{$primary_category_row->title}}
-                                        </a>
-                                    </h5>
-                                </div>
-                            </li>
-                            @endforeach
-                        </ul>
+            
+            @if ($data['primary_category'] && $data['primary_category']->isNotEmpty())
+            <div class="highlighted-products">
+                <div class="title d-block text-center">
+                    <div>
+                        <h2>Highlighted Products</h2>
+                        <span class="title-leaf"></span>
                     </div>
-                    @endif
+                </div>
+                <div class="section-b-space h-button-area">
+                    <ul class="list text-center">
+                        @php
+                        $colors = [
+                        '#FF5733', '#a1521b', '#FF69B4',
+                        '#8A2BE2', '#efab49', '#00CED1', '#DC143C',
+                        '#4682B4', '#FF8C00', '#8B008B', '#2E8B57'
+                        ];
+                        @endphp
+                        @foreach ($data['primary_category'] as $index =>$primary_category_row)
+                        <li>
+                            <a class="btn text-white" href="{{$primary_category_row->link}}" style="background-color: {{ $colors[$index % count($colors)] }};">
+                                {{$primary_category_row->title}}
+                            </a>
+                        </li>
+                        @endforeach
+                    </ul>
                 </div>
             </div>
-
-            <div class="col-xxl-9 col-xl-9 col-lg-9 col-md-9">
+            @endif
+            <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12">
                 @if ($data['popular_products'] && $data['popular_products']->isNotEmpty())
-                <div class="title title-flex">
+                <div class="title d-block text-center">
                     <div>
                         <h2>Popular Products</h2>
                         <span class="title-leaf">
@@ -291,8 +265,8 @@
                     <div class="product-border border-row overflow-hidden">
                         <div class="product-box-slider no-arrow">
                             @php
-                                $row_count = 0;
-                                $num_of_item_display_new = 2;
+                            $row_count = 0;
+                            $num_of_item_display_new = 2;
                             @endphp
                             <div>
                                 <div class="row m-0">
@@ -306,18 +280,18 @@
                                     }
                                     @endphp
                                     @php
-                                        $final_offer_rate = $popular_product_row->offer_rate;
-                                        $mrp = $popular_product_row->mrp;
-                                        if ($groupCategory && $popular_product_row->offer_rate !== null) {
-                                            $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                            if ($group_categoty_percentage > 0) {
-                                                $purchase_rate = $popular_product_row->purchase_rate;
-                                                $offer_rate = $popular_product_row->offer_rate;
-                                                $percent_discount = 100 / $group_categoty_percentage;
-                                                $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
-                                                $final_offer_rate = floor($final_offer_rate);
-                                            }
-                                        }
+                                    $final_offer_rate = $popular_product_row->offer_rate;
+                                    $mrp = $popular_product_row->mrp;
+                                    if ($groupCategory && $popular_product_row->offer_rate !== null) {
+                                    $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                    if ($group_categoty_percentage > 0) {
+                                    $purchase_rate = $popular_product_row->purchase_rate;
+                                    $offer_rate = $popular_product_row->offer_rate;
+                                    $percent_discount = 100 / $group_categoty_percentage;
+                                    $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
+                                    $final_offer_rate = floor($final_offer_rate);
+                                    }
+                                    }
                                     @endphp
                                     @php
                                     $discountPercentage = ($mrp > 0) ? round(((($mrp - $final_offer_rate) / $mrp) * 100), 2) : 0;
@@ -326,36 +300,43 @@
                                         <div class="product-box">
                                             <div class="product-image">
                                                 @if ($discountPercentage>0)
-                                                    <div class="label-flex">
-                                                        <div class="discount">
-                                                            <label>
-                                                                Save {{ $discountPercentage }}%
-                                                            </label>
-                                                        </div>
+                                                <div class="label-flex">
+                                                    <div class="discount">
+                                                        <label>
+                                                            Save {{ $discountPercentage }}%
+                                                        </label>
                                                     </div>
+                                                </div>
                                                 @endif
                                                 <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
-                                                @if ($firstImage)
-                                                    <img 
-                                                        class="img-fluid blur-up lazyload" 
-                                                        data-src="{{ asset('images/product/thumb/'. $firstImage->image_path) }}" 
-                                                        src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}" 
+                                                    @if ($firstImage)
+                                                    <img
+                                                        class="img-fluid blur-up lazyload"
+                                                        data-src="{{ asset('images/product/thumb/'. $firstImage->image_path) }}"
+                                                        src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
                                                         srcset="{{ asset('images/product/thumb/'. $firstImage->image_path) }} 600w, 
                                                                 {{ asset('images/product/thumb/'. $firstImage->image_path) }} 1200w"
                                                         sizes="(max-width: 600px) 600px, 1200px"
-                                                        alt="{{ $popular_product_row->title }}" 
-                                                        title="{{ $popular_product_row->title }}" 
-                                                        loading="lazy">
-                                                @else
-                                                    <img 
+                                                        alt="{{ $popular_product_row->title }}"
+                                                        title="{{ $popular_product_row->title }}"
+                                                        loading="lazy"
+                                                        width="300"
+                                                        height="300"
+                                                        onload="this.style.opacity=1"
+                                                        >
+                                                    @else
+                                                    <img
                                                         src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                        class="img-fluid blur-up lazyload" 
-                                                        alt="{{ $popular_product_row->title }}" 
-                                                        loading="lazy">
-                                                @endif
+                                                        class="img-fluid blur-up lazyload"
+                                                        alt="{{ $popular_product_row->title }}"
+                                                        loading="lazy"
+                                                        width="300"
+                                                        height="300"
+                                                        >
+                                                    @endif
 
                                                 </a>
-                                                
+
                                             </div>
                                             <div class="product-detail">
                                                 <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
@@ -363,13 +344,13 @@
                                                 </a>
                                                 <h5 class="sold text-content">
                                                     @if ($final_offer_rate === null)
-                                                        <span class="theme-color price">Price not available</span>
+                                                    <span class="theme-color price">Price not available</span>
                                                     @else
-                                                        <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
+                                                    <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
                                                     @endif
 
                                                     @if ($mrp !== null)
-                                                        <del>Rs. {{ $mrp }}</del>
+                                                    <del>Rs. {{ $mrp }}</del>
                                                     @endif
                                                 </h5>
                                             </div>
@@ -394,7 +375,7 @@
                     </div>
                     @endif
                     @if ($data['trending_products'] && $data['trending_products']->isNotEmpty())
-                    <div class="title d-block">
+                    <div class="title d-block text-center">
                         <h2>Trending Products</h2>
                         <span class="title-leaf">
                             <!-- <svg class="icon-width">
@@ -416,20 +397,20 @@
                                 }
                                 @endphp
                                 @php
-                                    $final_offer_rate = $trending_products_row->offer_rate;
-                                    $mrp = $trending_products_row->mrp;
+                                $final_offer_rate = $trending_products_row->offer_rate;
+                                $mrp = $trending_products_row->mrp;
 
-                                    if ($groupCategory && $trending_products_row->offer_rate !== null) {
-                                        $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                        if ($group_categoty_percentage > 0) {
-                                            $purchase_rate = $trending_products_row->purchase_rate;
-                                            $offer_rate = $trending_products_row->offer_rate;
-                                            $percent_discount = 100 / $group_categoty_percentage;
-                                            $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
-                                            $final_offer_rate = floor($final_offer_rate);
-                                        }
-                                    }
-                                    $discountPercentage = ($mrp > 0) ? round(((($mrp - $final_offer_rate) / $mrp) * 100), 2) : 0;
+                                if ($groupCategory && $trending_products_row->offer_rate !== null) {
+                                $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                if ($group_categoty_percentage > 0) {
+                                $purchase_rate = $trending_products_row->purchase_rate;
+                                $offer_rate = $trending_products_row->offer_rate;
+                                $percent_discount = 100 / $group_categoty_percentage;
+                                $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
+                                $final_offer_rate = floor($final_offer_rate);
+                                }
+                                }
+                                $discountPercentage = ($mrp > 0) ? round(((($mrp - $final_offer_rate) / $mrp) * 100), 2) : 0;
                                 @endphp
                                 <div>
                                     <div class="row m-0">
@@ -437,36 +418,42 @@
                                             <div class="product-box">
                                                 <div class="product-image">
                                                     @if ($discountPercentage>0)
-                                                        <div class="label-flex">
-                                                            <div class="discount">
-                                                                <label>
-                                                                    Save {{ $discountPercentage }}%
-                                                                </label>
-                                                            </div>
+                                                    <div class="label-flex">
+                                                        <div class="discount">
+                                                            <label>
+                                                                Save {{ $discountPercentage }}%
+                                                            </label>
                                                         </div>
+                                                    </div>
                                                     @endif
                                                     <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value)}}">
-                                                    @if ($firstImageTrending)
-                                                        <img 
-                                                            class="img-fluid blur-up lazyload" 
-                                                            data-src="{{ asset('images/product/thumb/'. $firstImageTrending->image_path) }}" 
-                                                            src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}" 
+                                                        @if ($firstImageTrending)
+                                                        <img
+                                                            class="img-fluid blur-up lazyload"
+                                                            data-src="{{ asset('images/product/thumb/'. $firstImageTrending->image_path) }}"
+                                                            src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
                                                             srcset="{{ asset('images/product/thumb/'. $firstImageTrending->image_path) }} 600w, 
                                                                     {{ asset('images/product/thumb/'. $firstImageTrending->image_path) }} 1200w"
                                                             sizes="(max-width: 600px) 600px, 1200px"
-                                                            alt="{{ $trending_products_row->title }}" 
-                                                            title="{{ $trending_products_row->title }}" 
-                                                            loading="lazy">
-                                                    @else
-                                                        <img 
+                                                            alt="{{ $trending_products_row->title }}"
+                                                            title="{{ $trending_products_row->title }}"
+                                                            loading="lazy"
+                                                            width="300"
+                                                            height="300"
+                                                            onload="this.style.opacity=1">
+                                                        @else
+                                                        <img
                                                             src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                            class="img-fluid blur-up lazyload" 
-                                                            alt="{{ $trending_products_row->title }}" 
-                                                            loading="lazy">
-                                                    @endif
+                                                            class="img-fluid blur-up lazyload"
+                                                            alt="{{ $trending_products_row->title }}"
+                                                            loading="lazy"
+                                                            width="300"
+                                                            height="300"
+                                                            onload="this.style.opacity=1">
+                                                        @endif
 
                                                     </a>
-                                                    
+
                                                 </div>
                                                 <div class="product-detail">
                                                     <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value)}}">
@@ -476,13 +463,13 @@
                                                     </a>
                                                     <h5 class="sold text-content">
                                                         @if ($trending_products_row->offer_rate === null)
-                                                            <span class="theme-color price">Price not available</span>
+                                                        <span class="theme-color price">Price not available</span>
                                                         @else
-                                                            <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
+                                                        <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
                                                         @endif
 
                                                         @if ($mrp !== null)
-                                                            <del>Rs. {{ $mrp }}</del>
+                                                        <del>Rs. {{ $mrp }}</del>
                                                         @endif
                                                     </h5>
                                                 </div>
@@ -500,9 +487,78 @@
         </div>
 </section>
 <!-- Product Section End -->
+@if (!empty($data['video']) && $data['video']->isNotEmpty())
+@push('head')
+<link rel="preconnect" href="https://www.youtube.com">
+<link rel="preconnect" href="https://www.google.com">
+<link rel="dns-prefetch" href="https://www.youtube.com">
+@endpush
+
+<section class="video-shorts">
+    <div class="container-fluid-lg">
+        <div class="videoSwiper">
+            @foreach ($data['video'] as $video_row)
+            @php
+            $videoId = str_replace(['https://www.youtube.com/shorts/','https://youtube.com/shorts/'], '', $video_row->video_url);
+            @endphp
+            <div>
+                <div class="row m-1">
+                    <div class="col-12 px-0">
+                        <div class="short-container">
+                            <div class="youtube-lazy"
+                                data-id="{{ $videoId }}"
+                                data-loaded="false">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+@endif
+
+
+
+
 @endsection
 @push('scripts')
-<script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const container = entry.target;
+                    if (container.dataset.loaded === 'true') return;
+
+                    const videoId = container.dataset.id;
+                    container.innerHTML = `
+                        <iframe 
+                            src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&loop=1&mute=1&playlist=${videoId}&enablejsapi=1" 
+                            loading="lazy"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen
+                            style="width:100%;height:100%;border-radius: 10px!important;"
+                            title="YouTube Short">
+                        </iframe>`;
+
+                    container.dataset.loaded = 'true';
+                    observer.unobserve(container);
+                }
+            });
+        }, {
+            rootMargin: '500px',
+            threshold: 0.01
+        });
+
+        document.querySelectorAll('.youtube-lazy').forEach(el => {
+            observer.observe(el);
+        });
+    });
+</script>
+<!-- <script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}"></script>
 <script src="{{asset('frontend/assets/js/pages/quick-view.js')}}"></script>
-<script src="{{asset('frontend/assets/js/pages/addto-cart.js')}}"></script>
+<script src="{{asset('frontend/assets/js/pages/addto-cart.js')}}"></script> -->
 @endpush

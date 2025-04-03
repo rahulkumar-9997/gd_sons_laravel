@@ -42,6 +42,7 @@ use App\Http\Controllers\Backend\WhatsappConversationController;
 use App\Http\Controllers\Backend\SocialMediaTrackController;
 use App\Http\Controllers\Backend\LandingPageController;
 use App\Http\Controllers\Backend\StorageController;
+use App\Http\Controllers\Backend\VideoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -259,7 +260,6 @@ Route::group(['middleware' => ['admin']], function () {
     
     //Route::POST('/product-update-gst/create', [ProductsController::class, 'updateHSNCodeGstForm'])->name('product-update-gst.create');
     Route::POST('/product-update-gst/store', [ProductsController::class, 'updateHSNCodeGstFormSubmit'])->name('product-update-gst.store');
-    Route::get('product/remove-bg/{id}', [ProductsController::class, 'productImageRemoveBg'])->name('product.remove-bg');
     /**Product route */
     /**inventory route */
     Route::get('/manage-inventory', [InventoryController::class, 'index'])->name('manage-inventory.index');
@@ -333,6 +333,7 @@ Route::group(['middleware' => ['admin']], function () {
     /**Banner route */
     Route::resource('manage-banner', BannerController::class);
     Route::resource('manage-primary-category', PrimaryCategoryController::class);
+    Route::resource('manage-video', VideoController::class);
     /**Banner route */
     Route::resource('manage-whatsapp', WhatsAppController::class);
     Route::get('/autocomplete/products-whatsapp', [WhatsAppController::class, 'autocompleteProductsWhatsapp'])->name('autocomplete.products-whatsapp');
@@ -345,7 +346,4 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('manage-storage', [StorageController::class, 'index'])->name('manage-storage');
     Route::get('manage-storage/create', [StorageController::class, 'create'])->name('manage-storage.create');
     Route::post('manage-storage/submit', [StorageController::class, 'store'])->name('manage-storage.submit');
-    Route::post('mapped-image-to-product/submit', [StorageController::class, 'mappedImageToProductSubmit'])->name('mapped-image-to-product.submit');
-    Route::delete('manage-storage/delete/{id}', [StorageController::class, 'destroy'])->name('manage-storage.delete');
-
 });

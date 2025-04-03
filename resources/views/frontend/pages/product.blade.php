@@ -65,47 +65,49 @@ $firstImage = $data['product_details']->images->isNotEmpty()
             <div class="col-xxl-9 col-xl-8 col-lg-7">
                 <div class="row g-4">
                     <div class="col-xl-6">
-                        <div class="right-box-contain for-mobile-price">
-                            <h1 class="name">{{$data['product_details']->title}}</h1>
-                            <div class="price-rating">
-                                <h3 class="theme-color price">
-                                    @php
-                                    $offer_rate_display ='';
-                                    @endphp
-                                    @if($data['product_details']->offer_rate)
-                                    @php
+                        @if(preg_match('/(android|iphone|ipod|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])))
+                            <div class="right-box-contain for-mobile-price">
+                                <h1 class="name">{{$data['product_details']->title}}</h1>
+                                <div class="price-rating">
+                                    <h3 class="theme-color price">
+                                        @php
+                                        $offer_rate_display ='';
+                                        @endphp
+                                        @if($data['product_details']->offer_rate)
+                                        @php
 
-                                    $final_offer_rate = $data['product_details']->offer_rate;
-                                    if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
-                                    $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                    if ($group_categoty_percentage > 0) {
-                                    $purchase_rate = $data['product_details']->purchase_rate;
-                                    $offer_rate = $data['product_details']->offer_rate;
-                                    $percent_discount = 100/$group_categoty_percentage;
-                                    $final_offer_rate =
-                                    $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
-                                    $final_offer_rate = floor($final_offer_rate);
-                                    $offer_rate_display = '<br><span>Regular offer price</span><del class="text-content"> Rs. ' . number_format($offer_rate, 2) . '</del>';
-                                    }
-                                    }
-                                    @endphp
-                                    Rs. {{ number_format($final_offer_rate, 2) }}
-                                    @endif
-                                    @if($data['product_details']->mrp && $final_offer_rate)
-                                    @php
-                                    $discountPercentage = round(((($data['product_details']->mrp -$final_offer_rate) / $data['product_details']->mrp) * 100), 2);
-                                    @endphp
-                                    <span class="offer theme-color">({{ $discountPercentage }}% off)</span>
-                                    @endif
-                                    {!! $offer_rate_display !!}
-                                    @if($data['product_details']->mrp)
-                                    <br><span> M.R.P.</span><del class="text-content">
-                                        Rs. {{ number_format($data['product_details']->mrp, 2) }}
-                                    </del>
-                                    @endif
-                                </h3>
+                                        $final_offer_rate = $data['product_details']->offer_rate;
+                                        if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
+                                        $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                        if ($group_categoty_percentage > 0) {
+                                        $purchase_rate = $data['product_details']->purchase_rate;
+                                        $offer_rate = $data['product_details']->offer_rate;
+                                        $percent_discount = 100/$group_categoty_percentage;
+                                        $final_offer_rate =
+                                        $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
+                                        $final_offer_rate = floor($final_offer_rate);
+                                        $offer_rate_display = '<br><span>Regular offer price</span><del class="text-content"> Rs. ' . number_format($offer_rate, 2) . '</del>';
+                                        }
+                                        }
+                                        @endphp
+                                        Rs. {{ number_format($final_offer_rate, 2) }}
+                                        @endif
+                                        @if($data['product_details']->mrp && $final_offer_rate)
+                                        @php
+                                        $discountPercentage = round(((($data['product_details']->mrp -$final_offer_rate) / $data['product_details']->mrp) * 100), 2);
+                                        @endphp
+                                        <span class="offer theme-color">({{ $discountPercentage }}% off)</span>
+                                        @endif
+                                        {!! $offer_rate_display !!}
+                                        @if($data['product_details']->mrp)
+                                        <br><span> M.R.P.</span><del class="text-content">
+                                            Rs. {{ number_format($data['product_details']->mrp, 2) }}
+                                        </del>
+                                        @endif
+                                    </h3>
+                                </div>
                             </div>
-                        </div>
+                        @endif
                         <div class="product-left-box">
                             <div class="row g-2">
                                 <div class="col-xxl-10 col-lg-12 col-md-10 order-xxl-2 order-lg-1 order-md-2">
@@ -167,48 +169,52 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 
                     <div class="col-xl-6" data-wow-delay="0.1s">
                         <div class="right-box-contain">
-                            <div class="for-desktop-price">
-                                <h1 class="name">{{$data['product_details']->title}}</h1>
+                            @if(preg_match('/(android|iphone|ipod|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])))
 
-                                <div class="price-rating">
-                                    <h3 class="theme-color price">
-                                        @php
-                                        $offer_rate_display ='';
-                                        @endphp
-                                        @if($data['product_details']->offer_rate)
-                                        @php
+                            @else
+                                <div class="for-desktop-price">
+                                    <h1 class="name">{{$data['product_details']->title}}</h1>
 
-                                        $final_offer_rate = $data['product_details']->offer_rate;
-                                        if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
-                                        $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                        if ($group_categoty_percentage > 0) {
-                                        $purchase_rate = $data['product_details']->purchase_rate;
-                                        $offer_rate = $data['product_details']->offer_rate;
-                                        $percent_discount = 100/$group_categoty_percentage;
-                                        $final_offer_rate =
-                                        $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
-                                        $final_offer_rate = floor($final_offer_rate);
-                                        $offer_rate_display = '<br><span>Regular offer price</span><del class="text-content"> Rs. ' . number_format($offer_rate, 2) . '</del>';
-                                        }
-                                        }
-                                        @endphp
-                                        Rs. {{ number_format($final_offer_rate, 2) }}
-                                        @endif
-                                        @if($data['product_details']->mrp && $final_offer_rate)
-                                        @php
-                                        $discountPercentage = round(((($data['product_details']->mrp -$final_offer_rate) / $data['product_details']->mrp) * 100), 2);
-                                        @endphp
-                                        <span class="offer theme-color">({{ $discountPercentage }}% off)</span>
-                                        @endif
-                                        {!! $offer_rate_display !!}
-                                        @if($data['product_details']->mrp)
-                                        <br><span> M.R.P.</span><del class="text-content">
-                                            Rs. {{ number_format($data['product_details']->mrp, 2) }}
-                                        </del>
-                                        @endif
-                                    </h3>
+                                    <div class="price-rating">
+                                        <h3 class="theme-color price">
+                                            @php
+                                            $offer_rate_display ='';
+                                            @endphp
+                                            @if($data['product_details']->offer_rate)
+                                            @php
+
+                                            $final_offer_rate = $data['product_details']->offer_rate;
+                                            if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
+                                            $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                            if ($group_categoty_percentage > 0) {
+                                            $purchase_rate = $data['product_details']->purchase_rate;
+                                            $offer_rate = $data['product_details']->offer_rate;
+                                            $percent_discount = 100/$group_categoty_percentage;
+                                            $final_offer_rate =
+                                            $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
+                                            $final_offer_rate = floor($final_offer_rate);
+                                            $offer_rate_display = '<br><span>Regular offer price</span><del class="text-content"> Rs. ' . number_format($offer_rate, 2) . '</del>';
+                                            }
+                                            }
+                                            @endphp
+                                            Rs. {{ number_format($final_offer_rate, 2) }}
+                                            @endif
+                                            @if($data['product_details']->mrp && $final_offer_rate)
+                                            @php
+                                            $discountPercentage = round(((($data['product_details']->mrp -$final_offer_rate) / $data['product_details']->mrp) * 100), 2);
+                                            @endphp
+                                            <span class="offer theme-color">({{ $discountPercentage }}% off)</span>
+                                            @endif
+                                            {!! $offer_rate_display !!}
+                                            @if($data['product_details']->mrp)
+                                            <br><span> M.R.P.</span><del class="text-content">
+                                                Rs. {{ number_format($data['product_details']->mrp, 2) }}
+                                            </del>
+                                            @endif
+                                        </h3>
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
                             <div class="additional_discount_area">
                                 <div class="additional-tex">
                                     <h4>Get Additional Discount</h4>

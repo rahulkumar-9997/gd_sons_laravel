@@ -37,7 +37,9 @@ class FrontendController extends Controller
         $popular_label_id = $labels['Popular Product']->id ?? null;
         $trending_label_id = $labels['Trending Product']->id ?? null;
 
-        $data['primary_category'] = PrimaryCategory::orderBy('title')->get(['id', 'title', 'link']);
+        $data['primary_category'] = PrimaryCategory::where('status', 1)
+        ->orderBy('title')
+        ->get(['id', 'title', 'link']);
         $data['banner'] = Banner::orderBy('id', 'desc')->get(['id', 'image_path_desktop', 'link_desktop', 'title']);
         $data['video'] = Video::inRandomOrder()->select('video_url')->take(10)->get();
         /* Fetch all required products in one query */

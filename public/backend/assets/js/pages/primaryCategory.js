@@ -86,6 +86,7 @@ $(document).ready(function () {
             }
         });
     });
+
     $(document).on('click', 'a[data-edit-primary-category-popup="true" ]', function () {
         var title = $(this).data('title');
         var size = ($(this).data('size') == '') ? 'md' : $(this).data('size');
@@ -113,6 +114,7 @@ $(document).ready(function () {
             }
         });
     });
+
     /**Blog category form submit code */
     $(document).off('submit', '#editPrimaryCategory').on('submit', '#editPrimaryCategory', function (event) {
         event.preventDefault();
@@ -162,6 +164,52 @@ $(document).ready(function () {
             }
         });
     });
+    /**Primary category update status */
+    $('.primaryCategoryStatus').change(function() {
+        var $checkbox = $(this);
+        var primaryCategoryId = $checkbox.data('pid');
+        var updateUrl = $checkbox.data('url');
+        var isActive = $checkbox.is(':checked') ? 1 : 0;
+        $('#loader').fadeIn();
+        $checkbox.prop('disabled', true);
+        
+        $.ajax({
+            url: updateUrl,
+            method: 'POST',
+            data: {
+                status: isActive,
+                _token: $('meta[name="csrf-token"]').attr('content'),
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    Toastify({
+                        text: response.message,
+                        duration: 10000,
+                        gravity: "top",
+                        position: "right",
+                        className: "bg-success",
+                        close: true,
+                    }).showToast();
+                }
+            },
+            error: function(xhr, status, error) {
+                $checkbox.prop('checked', !isActive);
+                Toastify({
+                    text: 'Failed to update status. Please try again.',
+                    duration: 10000,
+                    gravity: "top",
+                    position: "right",
+                    className: "bg-danger",
+                    close: true,
+                }).showToast();
+            },
+            complete: function() {
+                $('#loader').fadeOut();
+                $checkbox.prop('disabled', false);
+            }
+        });
+    });
+    /**Primary category update status */
 });
    
 function initializeQuillEditorsTwo() {

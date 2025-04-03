@@ -3,14 +3,14 @@ if ($data['product_details']->meta_title) {
 $meta_title = $data['product_details']->meta_title;
 } else {
 $meta_title = ucwords(strtolower($data['product_details']->title))
-. ' | ' . $data['product_details']->category->title . ' - ' . $data['attributes_value_name']->name;
+. ' at Best Price';
 }
 
 if ($data['product_details']->meta_description) {
 $meta_description = $data['product_details']->meta_description;
 } else {
 $meta_description = ucwords(strtolower($data['product_details']->title))
-. ' | ' . $data['product_details']->category->title . ' - ' . $data['attributes_value_name']->name;
+. ' at best Online Price. Best Retail Store in Varanasi. Get more discount for Bulk Orders.';
 }
 @endphp
 @section('meta')

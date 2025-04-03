@@ -333,6 +333,7 @@ Route::group(['middleware' => ['admin']], function () {
     /**Banner route */
     Route::resource('manage-banner', BannerController::class);
     Route::resource('manage-primary-category', PrimaryCategoryController::class);
+    Route::post('manage-primary-category/{id}/status', [PrimaryCategoryController::class, 'updateStatus'])->name('manage-primary-category.status');
     Route::resource('manage-video', VideoController::class);
     /**Banner route */
     Route::resource('manage-whatsapp', WhatsAppController::class);
@@ -346,4 +347,6 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('manage-storage', [StorageController::class, 'index'])->name('manage-storage');
     Route::get('manage-storage/create', [StorageController::class, 'create'])->name('manage-storage.create');
     Route::post('manage-storage/submit', [StorageController::class, 'store'])->name('manage-storage.submit');
+    Route::delete('manage-storage/{id}',  [StorageController::class, 'destroy'])->name('manage-storage.delete');
+    Route::post('mapped-image-to-product/submit', [StorageController::class, 'mappedImageToProductSubmit'])->name('mapped-image-to-product.submit');
 });

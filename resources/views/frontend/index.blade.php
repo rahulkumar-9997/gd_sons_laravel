@@ -138,30 +138,33 @@
         <div class="banner-slider gd5">
             <div>
                 <div class="banner-contain hover-effect">
-                    <a href="https://gdsons.co.in/categories/vacuum-flask">
+                    <a href="https://gdsons.co.in/categories/vacuum-flask" aria-label="Browse Vacuum Flasks">
                         <img
                             src="{{ asset('frontend/assets/gd-img/banner-bottom/bottlesU.webp') }}"
                             class="img-fluid blur-up lazyload"
                             alt="bottles"
                             loading="lazy"
-                            width="480"
-                            height="480">
+                            width="236"
+                            height="258"
+                            decoding="async"
+                            fetchpriority="low">
                     </a>
-                    
                 </div>
             </div>
 
             <div>
                 <div class="banner-contain hover-effect">
-                    <a href="https://gdsons.co.in/categories/lpg-gas-stoves">
+                    <a href="https://gdsons.co.in/categories/lpg-gas-stoves"  aria-label="Browse LPG Gas Stoves" >
                         <img
                             src="{{ asset('frontend/assets/gd-img/banner-bottom/stovesU.webp') }}"
                             class="img-fluid blur-up lazyload"
 
                             alt="lpg gas stoves"
                             loading="lazy"
-                            width="480"
-                            height="480">
+                            width="236"
+                            height="258"
+                            decoding="async"
+                            fetchpriority="low">
                     </a>
                     
                 </div>
@@ -169,15 +172,16 @@
 
             <div>
                 <div class="banner-contain hover-effect">
-                    <a href="https://gdsons.co.in/categories/lunchbox-tiffin">
+                    <a href="https://gdsons.co.in/categories/lunchbox-tiffin" aria-label="Browse Lunchboxes and Tiffins">
                         <img
                             src="{{ asset('frontend/assets/gd-img/banner-bottom/tiffinsU.webp') }}"
                             class="img-fluid blur-up lazyload"
-
                             alt="Tiffins"
                             loading="lazy"
-                            width="480"
-                            height="480">
+                            width="236"
+                            height="258"
+                            decoding="async"
+                            fetchpriority="low">
                     </a>
                     
                 </div>
@@ -185,15 +189,17 @@
 
             <div>
                 <div class="banner-contain hover-effect">
-                    <a href="https://gdsons.co.in/categories/kitchen-appliances">
+                    <a href="https://gdsons.co.in/categories/kitchen-appliances"  aria-label="Browse Kitchen Appliances">
                         <img
                             src="{{ asset('frontend/assets/gd-img/banner-bottom/appliances_0.webp') }}"
                             class="img-fluid blur-up lazyload"
 
                             alt="Application"
                             loading="lazy"
-                            width="480"
-                            height="480">
+                            width="236"
+                            height="258"
+                            decoding="async"
+                            fetchpriority="low">
 
                     </a>
                     
@@ -201,10 +207,12 @@
             </div>
             <div>
                 <div class="banner-contain hover-effect">
-                    <a href="https://gdsons.co.in/categories/pressure-cooker">
+                    <a href="https://gdsons.co.in/categories/pressure-cooker" aria-label="Browse Pressure Cookers">
                         <img src="{{asset('frontend/assets/gd-img/banner-bottom/CookerPosterF1.webp')}}" class=" img-fluid blur-up lazyloaded" alt="" loading="lazy"
-                        width="480"
-                            height="480">
+                        width="236"
+                        height="258"
+                        decoding="async"
+                        fetchpriority="low">
                     </a>
                    
                 </div>

@@ -9,12 +9,12 @@
 <script src="{{asset('frontend/assets/js/slick/slick.js')}}" defer></script>
 <script src="{{asset('frontend/assets/js/slick/slick-animation.min.js')}}" defer></script>
 <script src="{{asset('frontend/assets/js/slick/custom_slick.js')}}" defer></script>
-<script src="{{asset('frontend/assets/js/wow.min.js')}}"></script>
-<script src="{{asset('frontend/assets/js/custom-wow.js')}}"></script>
+<!-- <script src="{{asset('frontend/assets/js/wow.min.js')}}"></script> -->
+<!-- <script src="{{asset('frontend/assets/js/custom-wow.js')}}"></script> -->
 <script src="{{asset('frontend/assets/js/script.js')}}"></script>
 <script src="{{asset('frontend/assets/js/gd.js')}}"></script>
 <script src="{{asset('frontend/assets/js/pages/search.js')}}"></script>
-<script src="{{asset('frontend/assets/js/pages/notifications.js')}}"></script>
+<!-- <script src="{{asset('frontend/assets/js/pages/notifications.js')}}"></script> -->
 
 @if (session('error'))
     <script>

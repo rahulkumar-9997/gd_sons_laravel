@@ -83,6 +83,7 @@ class PrimaryCategoryController extends Controller
         ]);
     }
 
+
     public function edit(Request $request, $id){
         $primary_category_row = PrimaryCategory::findOrFail($id);
         $form ='
@@ -167,5 +168,23 @@ class PrimaryCategoryController extends Controller
         $primaryCategory->delete();
         return redirect()->back()->with('success', 'Primary category deleted successfully!');           
     }
+
+    public function updateStatus(Request $request, $id){
+    try {
+        $primaryCategory = PrimaryCategory::findOrFail($id);
+        $primaryCategory->status = $request->status;
+        $primaryCategory->save();
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Status updated successfully'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'fail',
+            'message' => 'Error updating status: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
 }

@@ -37,6 +37,7 @@
                               <tr>
                                  <th>Sr. No.</th>
                                  <th>Name</th>
+                                 <th>Status</th>
                                  <th>Url</th>
                                  <th>Description</th>
                                  <th>Action</th>
@@ -51,10 +52,16 @@
                                     <td>{{ $sr_no }}</td>
                                     <td>{{ $primaryCategoryRow->title }}</td>
                                     <td>
+                                       <div class="form-check form-switch">
+                                          <input class="form-check-input primaryCategoryStatus" data-pid="{{ $primaryCategoryRow->id }}"   data-url="{{ route('manage-primary-category.status', $primaryCategoryRow->id) }}" type="checkbox" role="switch"
+                                          @if($primaryCategoryRow->status == 1) checked @endif>
+                                       </div>
+                                    </td>
+                                    <td>
                                        {{$primaryCategoryRow->link}}
                                     </td>
                                     <td>
-                                    <div class="overflow-auto" style="max-width: 300px; max-height: 150px; overflow: auto; white-space: nowrap;">
+                                    <div class="overflow-auto" style="max-width: 250px; max-height: 100px; overflow: auto; white-space: nowrap;">
                                           {!! $primaryCategoryRow->primary_category_description !!}
                                        </div>
                                     </td>

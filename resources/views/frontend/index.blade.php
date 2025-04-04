@@ -144,8 +144,8 @@
                             class="img-fluid blur-up lazyload"
                             alt="bottles"
                             loading="lazy"
-                            width="236"
-                            height="258"
+                            width="400"
+                            height="437"
                             decoding="async"
                             fetchpriority="low">
                     </a>
@@ -161,8 +161,8 @@
 
                             alt="lpg gas stoves"
                             loading="lazy"
-                            width="236"
-                            height="258"
+                            width="400"
+                            height="437"
                             decoding="async"
                             fetchpriority="low">
                     </a>
@@ -178,8 +178,8 @@
                             class="img-fluid blur-up lazyload"
                             alt="Tiffins"
                             loading="lazy"
-                            width="236"
-                            height="258"
+                            width="400"
+                            height="437"
                             decoding="async"
                             fetchpriority="low">
                     </a>
@@ -196,8 +196,8 @@
 
                             alt="Application"
                             loading="lazy"
-                            width="236"
-                            height="258"
+                            width="400"
+                            height="437"
                             decoding="async"
                             fetchpriority="low">
 

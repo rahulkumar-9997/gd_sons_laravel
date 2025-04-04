@@ -274,7 +274,7 @@
                         <div class="product-box-slider no-arrow">
                             @php
                             $row_count = 0;
-                            $num_of_item_display_new = 2;
+                            $num_of_item_display_new = 3;
                             @endphp
                             <div>
                                 <div class="row m-0">
@@ -522,6 +522,15 @@
                 </div>
             </div>
             @endforeach
+        </div>
+        <div class="row justify-content-md-center">
+            <div class="col-lg-2">
+                <div class="youtube-btn mt-2">
+                    <a class="btn text-white" target="_blank" href="https://www.youtube.com/@GirdharDasandSons" style="background-color: #FF5733;">
+                       <i class="youtube-icon fa fa-youtube"></i>  Visit Our Youtube
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </section>

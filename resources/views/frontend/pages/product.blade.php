@@ -119,7 +119,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                                 <img src="{{ asset('images/product/large/' . (!empty($image->image_path) ? $image->image_path : 'frontend/assets/gd-img/product/no-image.png')) }}"
                                                     id="img-{{ $key }}"
                                                     data-zoom-image="{{ asset('images/product/large/' . (!empty($image->image_path) ? $image->image_path : 'frontend/assets/gd-img/product/no-image.png')) }}"
-                                                    class="img-fluid image_zoom_cls-{{ $key }} blur-up lazyload" alt="">
+                                                    class="img-fluid image_zoom_cls-{{ $key }} blur-up lazyload" alt="img">
                                             </div>
                                         </div>
                                         @endforeach

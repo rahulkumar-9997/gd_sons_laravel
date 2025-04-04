@@ -31055,9 +31055,13 @@ body.rtl .menu-label {
     margin: 0 -14px
 }
 
-.product-border.border-row .row>div:last-child {
-    border-top: 1px solid #ddd
+.product-border.border-row .row>div:not(:first-child) {
+    border-top: 1px solid #ddd;
 }
+
+/* .product-border.border-row .row>div:last-child {
+    border-top: 1px solid #ddd
+} */
 
 .product-border .slider-5-1 .slick-slide>.row {
     border-right: 1px solid rgba(74, 85, 104, .3);

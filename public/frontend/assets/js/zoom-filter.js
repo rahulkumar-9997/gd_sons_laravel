@@ -4,6 +4,7 @@
  if ($(window).width() > 991) {
      $('.product-main').on('afterChange', function (event, slick, currentSlide, nextSlide) {
          var img_url_temp = $(this).find('img').attr('src');
+         
          var imgs = $('.image_zoom_cls');
          $('.zoomContainer').remove();
          imgs.removeData('elevateZoom');
@@ -19,7 +20,7 @@
  }
  if ($(window).width() > 991) {
      setTimeout(function () {
-         $('.product-main img').elevateZoom({
+         $('.image_zoom_cls-0').elevateZoom({
              zoomType: "inner",
              cursor: "crosshair"
          });

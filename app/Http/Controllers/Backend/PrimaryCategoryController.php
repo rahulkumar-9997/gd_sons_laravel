@@ -137,6 +137,7 @@ class PrimaryCategoryController extends Controller
             'path' => 'required|url|max:255',
             'description' => 'nullable|string',
         ]);
+        //Log::debug('Request data:', $request->all());
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',

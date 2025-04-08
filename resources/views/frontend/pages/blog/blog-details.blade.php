@@ -109,7 +109,9 @@
 
             <div class="col-xxl-9 col-xl-8 col-lg-7 ratio_50">
                 <div class="blog-detail-image rounded-3 mb-4">
-                    <img src="{{asset($blog->blog_image) }}" class="bg-img blur-up lazyload" alt="{{$blog->title}}">
+                    <div class="blog-deta-img">
+                        <img src="{{asset($blog->blog_image) }}" class="pc__img_blog bg-img-blog-details blur-up lazyload" alt="{{$blog->title}}">
+                    </div>
                     <div class="blog-image-contain">
                         <h1>{{$blog->title}}</h1>
                         <ul class="contain-comment-list">

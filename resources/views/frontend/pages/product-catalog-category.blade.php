@@ -52,6 +52,16 @@
         <div class="row" id="product-catalog-frontend">
             @include('frontend.pages.ajax-product-category-catalog', [$products, $attributes_with_values_for_filter_list])
         </div>
+        @if($primary_category)
+        <div class="row justify-content-md-center primary-category-div">
+            <div class="col-custom-3"></div>
+            <div class="col-custom-">
+                <div class="primary_category_desc">
+                    {!! $primary_category->primary_category_description !!}
+                </div>
+            </div>
+        </div>
+        @endif
         @if($category->category_heading)
             <div class="row">
                 <div class="content-category text-center mt-5">
@@ -68,6 +78,7 @@
         @endif
    </div>
 </section>
+
 <!-- Shop Section End -->
 @endsection
 @push('scripts')

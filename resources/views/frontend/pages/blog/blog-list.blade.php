@@ -38,10 +38,10 @@
                     @foreach ($blog as $blog_row)
                     <div class="col-xxl-4 col-sm-6">
                         <div class="blog-box wow fadeInUp">
-                            <div class="blog-image">
+                            <div class="blog-image pc-img-wrapper">
                                 <a href="{{ route('blog.details', ['slug' => $blog_row->slug]) }}">
                                     <img src="{{asset($blog_row->blog_image) }}"
-                                        class="bg-img blur-up lazyload" alt="{{$blog_row->title}}">
+                                        class="blog-bg blur-up lazyload pc__img" alt="{{$blog_row->title}}"/>
                                 </a>
                             </div>
 

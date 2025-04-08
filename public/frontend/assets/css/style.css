@@ -31216,7 +31216,7 @@ body.rtl .menu-label {
 }
 .blog-product-row .product-box{
     border-right: 0px solid rgba(74, 85, 104, .3);
-    padding: 10px;
+    padding: 5px;
 }
 
 @keyframes pulse {

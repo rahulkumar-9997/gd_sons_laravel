@@ -20,8 +20,9 @@ class BlogController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(){
-        $blogs = Blog::with(['category', 'paragraphs.productLinks'])->get();
+        $blogs = Blog::with(['category', 'paragraphs.productLinks'])->orderBy('id', 'desc')->get();
         return view('backend.manage-blog.blog.index', compact('blogs'));
+       
     }
 
     /**
@@ -163,8 +164,90 @@ class BlogController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id){
-        //dd(request()->all());
+    public function update(Request $request, $id)
+    {
+        try {
+            $validatedData = $request->validate([
+                'blog_category' => 'required|exists:blog_categories,id',
+                'blog_name' => 'required|string|max:255',
+                'blog_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
+                'blog_description' => 'required|string',
+                'paragraphs_title' => 'nullable|array',
+                'paragraphs_title.*.title' => 'nullable|string|max:255',
+                'paragraphs_description' => 'nullable|array',
+                'paragraphs_description.*' => 'nullable|string',
+                'product_name' => 'nullable|array',
+                'product_name.*.products.*.name' => 'nullable|string|max:255',
+                'product_id' => 'nullable|array',
+                'product_id.*.products.*.id' => 'nullable|exists:products,id',
+            ]);
+
+            DB::beginTransaction();
+            $blog = Blog::findOrFail($id);
+            $blog->title = $validatedData['blog_name'];
+            $blog->blog_category_id = $validatedData['blog_category'];
+            $blog->bog_description = $validatedData['blog_description'];
+            
+            if ($request->hasFile('blog_img')) {
+                if ($blog->blog_image) {
+                    $imagePath = public_path($blog->blog_image);
+                    if (file_exists($imagePath)) {
+                        unlink($imagePath);
+                    }
+                }
+                /*Compress and save the new image*/
+                $blogImage = $request->file('blog_img');
+                $blogImagePath = $this->compressAndSaveImage($blogImage, 'blogs', $request->blog_name);
+                $blog->blog_image = $blogImagePath;
+            }
+
+            $blog->save();
+            foreach ($blog->paragraphs as $paragraph) {
+                BlogParagraphProductLinks::where('blog_paragraphs_id', $paragraph->id)->delete();
+                $paragraph->delete();
+            }
+
+            if (!empty($request->paragraphs_title)) {
+                foreach ($request->paragraphs_title as $index => $paragraphTitleData) {
+                    $paragraphTitle = $paragraphTitleData['title'] ?? null;
+                    if ($paragraphTitle) {
+                        $blogParagraph = BlogParagraph::create([
+                            'blog_id' => $blog->id,
+                            'paragraphs_title' => $paragraphTitle,
+                            'bog_paragraph_description' => $request->paragraphs_description[$index] ?? '',
+                            'bog_paragraph_image' => null,
+                        ]);
+
+                        // Add product links if they exist
+                        if (!empty($request->product_name[$index]['products'])) {
+                            foreach ($request->product_name[$index]['products'] as $linkIndex => $productData) {
+                                $productName = $productData['name'] ?? null;
+                                $productId = $request->product_id[$index]['products'][$linkIndex]['id'] ?? null;
+                                
+                                if ($productId && $productName) {
+                                    BlogParagraphProductLinks::create([
+                                        'blog_paragraphs_id' => $blogParagraph->id,
+                                        'links' => $productName,
+                                        'product_id' => $productId,
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('manage-blog.index')->with('success', 'Blog updated successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating blog: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
+
+    public function update_old(Request $request, $id){
+        dd(request()->all());
         try {
             $validatedData = $request->validate([
                 'blog_category' => 'required|exists:blog_categories,id',
@@ -215,7 +298,7 @@ class BlogController extends Controller
             }
             if (!empty($request->paragraphs_title[0])) {
                 /*Remove the blog paragraph and its links*/
-                //BlogParagraphProductLinks::where('blog_paragraphs_id', $paragraph->id)->delete();
+                BlogParagraphProductLinks::where('blog_paragraphs_id', $paragraph->id)->delete();
                 //$paragraph->delete();
                 foreach ($validatedData['paragraphs_title'] as $index => $paragraphTitle) {
                     $paragraphImage = $request->file('paragraphs_img')[$index] ?? null;

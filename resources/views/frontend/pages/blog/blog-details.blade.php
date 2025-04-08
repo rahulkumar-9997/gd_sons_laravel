@@ -36,78 +36,7 @@
 <section class="blog-section section-b-space">
     <div class="container-fluid-lg">
         <div class="row g-sm-4 g-3">
-            <div class="col-xxl-3 col-xl-4 col-lg-5 d-lg-block d-none">
-                <div class="left-sidebar-box">
-                    <div class="accordion left-accordion-box" id="accordionPanelsStayOpenExample">
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="panelsStayOpen-headingOne">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne">
-                                    Recent Post
-                                </button>
-                            </h2>
-                            <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show">
-                                <div class="accordion-body pt-0">
-                                    <div class="recent-post-box">
-                                        @if($blog_recent_post->isNotEmpty())
-                                        @foreach($blog_recent_post as $post)
-                                        <div class="recent-box">
-                                            <a href="{{ route('blog.details', ['slug' => $blog->slug]) }}" class="recent-image">
-                                                <img src="{{ asset($post->blog_image) }}" class="img-fluid blur-up lazyload" alt="{{ $post->title }}">
-                                            </a>
-
-                                            <div class="recent-detail">
-                                                <a href="{{ route('blog.details', ['slug' => $blog->slug]) }}">
-                                                    <h5 class="recent-name">{{ $post->title }}</h5>
-                                                </a>
-                                                <h6>{{ \Carbon\Carbon::parse($post->created_at)->format('d M, Y') }}
-                                                    <!-- <i data-feather="thumbs-up"></i> -->
-                                                </h6>
-                                            </div>
-                                        </div>
-                                        @endforeach
-                                        @else
-                                        <p>No recent posts available.</p>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @if($blog_categories->isNotEmpty())
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#panelsStayOpen-collapseTwo">
-                                    Category
-                                </button>
-                            </h2>
-                            <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse show">
-                                <div class="accordion-body p-0">
-                                    <div class="category-list-box">
-                                        <ul>
-                                            @foreach ($blog_categories as $blog_category)
-                                            @if($blog_category->blogs_count > 0)
-                                            <li>
-                                                <a href="{{ route('blog.list', ['slug' => $blog_category->slug]) }}">
-                                                    <div class="category-name">
-                                                        <h5>{{ $blog_category->title }}</h5>
-                                                        <span>{{ $blog_category->blogs_count }}</span>
-                                                    </div>
-                                                </a>
-                                            </li>
-                                            @endif
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-xxl-9 col-xl-8 col-lg-7 ratio_50">
+        <div class="col-xxl-9 col-xl-8 col-lg-7 ratio_50 order-md-1">
                 <div class="blog-detail-image rounded-3 mb-4">
                     <div class="blog-deta-img">
                         <img src="{{asset($blog->blog_image) }}" class="pc__img_blog bg-img-blog-details blur-up lazyload" alt="{{$blog->title}}">
@@ -179,7 +108,8 @@
                                             @foreach ($paragraph->productLinks as $productLink)
                                                 @php
                                                     $product = $productLink->product;
-                                                    $firstImageBlog = $product->ProductImagesFront->first();
+                                                    $firstImageBlog = 
+                                                    $product->images->get(0);
                                                     $attributes_value ='na';
                                                     $attributes_value_slug ='';
                                                     if($product->ProductAttributesValues->isNotEmpty()){
@@ -189,11 +119,11 @@
                                                 @endphp
                                                 <div>
                                                     <div class="product-box product-white-bg wow fadeIn">
-                                                        <div class="product-box">
-                                                            <div class="product-image">
+                                                        <div class="product-box blog-product-box">
+                                                            <div class="product-image blog-product-img">
                                                                 <a href="{{ url('products/'.$product->slug.'/'.$attributes_value_slug) }}">
                                                                     @if ($firstImageBlog)
-                                                                    <img class="img-fluid blur-up lazyload"
+                                                                    <img class="blog_pc__img_blog img-fluid blur-up lazyload"
                                                                         data-src="{{ asset('images/product/large/'. $firstImageBlog->image_path) }}"
                                                                         src="{{ asset('images/product/large/'. $firstImageBlog->image_path) }}"
                                                                         alt="{{ $product->title }}" title="{{ $product->title }}">
@@ -202,38 +132,7 @@
                                                                         class="img-fluid blur-up lazyload" alt="{{ $product->title }}">
                                                                     @endif
                                                                 </a>
-                                                                <!--<ul class="product-option">
-                                                                    <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                                                        <a href="javascript:void(0)" data-url="{{ route('quick.view') }}" data-product-id="{{ $product->id }}" class="quick-view">
-                                                                            <i data-feather="eye"></i>
-                                                                        </a>
-                                                                    </li>
-                                                                    @if (auth()->guard('customer')->check())
-                                                                    @php
-                                                                    $customerId = auth('customer')->id();
-                                                                    $isInWishlist = \App\Models\Wishlist::where('customer_id', $customerId)->where('product_id', $product->id)->exists();
-                                                                    @endphp
-                                                                    <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                                        <a href="javascript:void(0)"
-                                                                            class="addwishlist {{ $isInWishlist ? 'added-to-wishlist' : '' }}"
-                                                                            data-pid="{{ $product->id }}"
-                                                                            data-url="{{ route('wishlist.add') }}"
-                                                                            data-cuid="{{ $customerId }}">
-                                                                            @if ($isInWishlist)
-                                                                            <i class="feather-icon heart-icon filled" data-feather="heart"></i>
-                                                                            @else
-                                                                            <i class="feather-icon heart-icon" data-feather="heart"></i>
-                                                                            @endif
-                                                                        </a>
-                                                                    </li>
-                                                                    @else
-                                                                    <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                                                        <a href="{{ route('logincustomer') }}?redirect={{ url()->current() }}" class="addwishlist-le" data-pid="{{ $product->id }}">
-                                                                            <i data-feather="heart"></i>
-                                                                        </a>
-                                                                    </li>
-                                                                    @endif
-                                                                </ul>-->
+                                                                
                                                             </div>
                                                             <div class="product-detail">
                                                                 <a href="{{ url('products/'.$product->slug.'/'.$attributes_value_slug) }}">
@@ -283,6 +182,76 @@
                     </div>
                 </div>
                 @endif
+            </div>
+            <div class="col-xxl-3 col-xl-4 col-lg-5 d-lg-block order-md-2">
+                <div class="left-sidebar-box">
+                    <div class="accordion left-accordion-box" id="accordionPanelsStayOpenExample">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne">
+                                    Recent Post
+                                </button>
+                            </h2>
+                            <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show">
+                                <div class="accordion-body pt-0">
+                                    <div class="recent-post-box">
+                                        @if($blog_recent_post->isNotEmpty())
+                                        @foreach($blog_recent_post as $post)
+                                        <div class="recent-box">
+                                            <a href="{{ route('blog.details', ['slug' => $blog->slug]) }}" class="recent-image">
+                                                <img src="{{ asset($post->blog_image) }}" class="img-fluid blur-up lazyload" alt="{{ $post->title }}">
+                                            </a>
+
+                                            <div class="recent-detail">
+                                                <a href="{{ route('blog.details', ['slug' => $blog->slug]) }}">
+                                                    <h5 class="recent-name">{{ $post->title }}</h5>
+                                                </a>
+                                                <h6>{{ \Carbon\Carbon::parse($post->created_at)->format('d M, Y') }}
+                                                    <!-- <i data-feather="thumbs-up"></i> -->
+                                                </h6>
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                        @else
+                                        <p>No recent posts available.</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @if($blog_categories->isNotEmpty())
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#panelsStayOpen-collapseTwo">
+                                    Category
+                                </button>
+                            </h2>
+                            <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse show">
+                                <div class="accordion-body p-0">
+                                    <div class="category-list-box">
+                                        <ul>
+                                            @foreach ($blog_categories as $blog_category)
+                                            @if($blog_category->blogs_count > 0)
+                                            <li>
+                                                <a href="{{ route('blog.list', ['slug' => $blog_category->slug]) }}">
+                                                    <div class="category-name">
+                                                        <h5>{{ $blog_category->title }}</h5>
+                                                        <span>{{ $blog_category->blogs_count }}</span>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            @endif
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
     </div>

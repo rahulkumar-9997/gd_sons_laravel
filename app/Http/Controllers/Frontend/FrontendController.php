@@ -1036,7 +1036,9 @@ class FrontendController extends Controller
             'category',
             'paragraphs.productLinks.product' => function ($query) {
                 $query->with([
-                    'ProductImagesFront:id,product_id,image_path',
+                    'images' => function ($query) {
+                        $query->select('id', 'product_id', 'image_path')->orderBy('sort_order');
+                    },
                     'ProductAttributesValues' => function ($query) {
                         $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
                             ->with([
@@ -1045,15 +1047,15 @@ class FrontendController extends Controller
                             ->orderBy('id');
                     }
                 ])
-                    ->leftJoin('inventories', function ($join) {
-                        $join->on('products.id', '=', 'inventories.product_id')
-                            ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-                    })
-                    ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku');
+                ->leftJoin('inventories', function ($join) {
+                    $join->on('products.id', '=', 'inventories.product_id')
+                        ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+                })
+                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku');
             }
         ])
-            ->where('slug', $slug)
-            ->firstOrFail();
+        ->where('slug', $slug)
+        ->firstOrFail();
 
         $blog_category_id = $blog->blog_category_id;
         $blog_recent_post = Blog::where('blog_category_id', $blog_category_id)

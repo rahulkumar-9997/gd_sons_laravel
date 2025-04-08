@@ -853,6 +853,7 @@ header .navbar.navbar-expand-xl .navbar-nav .nav-link.mobile-link::before {
   }
 }
 @media screen and (min-width: 769px) {
+  
   .d-block-mobile{
       display: none !important;
   }
@@ -1354,6 +1355,9 @@ a.cntshop {
 }
 /*media query*/
 @media only screen and (max-width: 1024px) and (max-height: 768px) {
+  .blog-section .blog-detail-image .blog-image-contain{
+    padding: 10px 0px 10px;
+  }
   .d-sm-none {
       display: block !important;
   }
@@ -1547,3 +1551,28 @@ a.cntshop {
   padding: 1px;
 }
 
+/* .product-box .blog-product-img {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+.blog-product-img {
+  display: block;
+  position: relative;
+  height: 0;
+  padding-top: 75.212122%;
+  overflow: hidden;
+}
+
+.blog_pc__img_blog {
+  width: auto;
+  position: absolute;
+  margin: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: 100%;
+  max-height: 100%;
+  padding: 1px;
+} */

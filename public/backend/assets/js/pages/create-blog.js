@@ -82,20 +82,17 @@ $(document).ready(function () {
         }
     });
     $(document).on('click', '.add-more-blog-paragraphs', function () {
+        var rowCount = $('table tbody tr').length;
         var newRow = `
-            <tr>
+            <tr class="paragraphstr">
                 <td>
-                    <input type="text" id="paragraphs_title" name="paragraphs_title[]" class="form-control" placeholder="Enter Paragraphs Title">
-                   
+                    <input type="text" id="paragraphs_title" name="paragraphs_title[${rowCount}][title]" class="form-control" placeholder="Enter Paragraphs Title">
                 </td>
                 <td>
-                    <!--<input type="file" id="paragraphs_img" class="form-control" aria-label="file example" name="paragraphs_img[]" accept="image/*"><br>-->
-                    <label for="blog_img" class="form-label">Select Blog Links One</label>
-                    <!--<input type="text" id="blog_links_one" name="blog_links_one[]" placeholder="Enter Blog Links One" class="form-control">-->
+                    <label for="blog_img" class="form-label">Select Blog Links</label>
                     <div class="position-relative autocompleted">
                         <div class="input-group">
-                            <input type="text" id="product_name" name="product_name[]" class="form-control product-autocomplete">
-
+                            <input type="text" name="product_name[${rowCount}][products][0][name]" class="form-control product-autocomplete">
                             <span class="input-group-text">
                                 <i class="ti ti-refresh"></i>
                                 <div class="spinner-border spinner-border-sm product-loader" role="status" style="display: none;">
@@ -103,15 +100,13 @@ $(document).ready(function () {
                                 </div>
                             </span>
                         </div>
-                        <input type="hidden" name="product_id[]" class="product_id">
+                        <input type="hidden" name="product_id[${rowCount}][products][0][id]" class="product_id">
                     </div>
-
-                    <label for="blog_img" class="form-label">Select Blog Links Two</label>
-                    <!--<input type="text" id="blog_links_two" name="blog_links_two[]" placeholder="Enter Blog Links Two" class="form-control">-->
+    
+                    <label for="blog_img" class="form-label">Select Blog Links</label>
                     <div class="position-relative autocompleted">
                         <div class="input-group">
-                            <input type="text" id="product_name" name="product_name[]" class="form-control product-autocomplete">
-
+                            <input type="text" name="product_name[${rowCount}][products][1][name]" class="form-control product-autocomplete">
                             <span class="input-group-text">
                                 <i class="ti ti-refresh"></i>
                                 <div class="spinner-border spinner-border-sm product-loader" role="status" style="display: none;">
@@ -119,20 +114,21 @@ $(document).ready(function () {
                                 </div>
                             </span>
                         </div>
-                        <input type="hidden" name="product_id[]" class="product_id">
+                        <input type="hidden" name="product_id[${rowCount}][products][1][id]" class="product_id">
                     </div>
                 </td>
                 <td>
                     <div class="snow-editor" style="height: 150px; width: 100%;"></div>
-                    <textarea name="paragraphs_description[]" class="hidden-textarea" style="display:none;"></textarea>
+                    <textarea name="paragraphs_description[${rowCount}]" class="hidden-textarea" style="display:none;"></textarea>
                     
-                     <button type="button" class="btn btn-danger remove-row btn-sm">Remove</button>
+                    <button type="button" class="btn btn-danger remove-row btn-sm">Remove</button>
                 </td>
-                
             </tr>
         `;
+        
         $('table tbody').append(newRow);
         initializeQuillEditorsAppend();
+        initializeProductAutocomplete();
     });
     $(document).on('click', '.remove-row', function () {
         $(this).closest('tr').remove();

@@ -186,7 +186,6 @@
                     
                 </div>
             </div>
-
             <div>
                 <div class="banner-contain hover-effect">
                     <a href="https://gdsons.co.in/categories/kitchen-appliances"  aria-label="Browse Kitchen Appliances">

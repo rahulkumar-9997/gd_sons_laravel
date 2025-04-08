@@ -112,7 +112,7 @@
                                                     
                                                 }
                                             @endphp
-                                            <input type="text" id="paragraphs_title" name="paragraphs_title[]" class="form-control" placeholder="Enter Paragraphs Title" value="{{ $paragraph->paragraphs_title }}">
+                                            <input type="text" id="paragraphs_title" name="paragraphs_title[{{ $index }}][title]" class="form-control" placeholder="Enter Paragraphs Title" value="{{ $paragraph->paragraphs_title }}">
                                             @if($errors->has('paragraphs_title'))
                                                 <div class="text-danger">{{ $errors->first('paragraphs_title') }}</div>
                                             @endif
@@ -126,42 +126,46 @@
                                             <!-- @if($paragraph->bog_paragraph_image)
                                                 <img src="{{ asset($paragraph->bog_paragraph_image) }}" class="mt-2" height="50">
                                             @endif -->
-                                            <br>
-                                            <label for="blog_img" class="form-label">Select Blog Links One</label>
-                                            <div class="position-relative autocompleted">
-                                                <div class="input-group">
-                                                    <input type="text" id="product_name" name="product_name[]" class="form-control product-autocomplete" value="{{$product_name_first}}">
+                                            @if ($paragraph->productLinks->isNotEmpty())
+                                                @foreach($paragraph->productLinks as $linkIndex => $link)
+                                                    <br>
+                                                    <label for="blog_img" class="form-label">Select Blog Links </label>
+                                                    <div class="position-relative autocompleted">
+                                                        <div class="input-group">
+                                                            <input type="text" id="product_name" name="product_name[{{ $index }}][products][{{ $linkIndex }}][name]" class="form-control product-autocomplete" value="{{$link->links}}">
 
-                                                    <span class="input-group-text">
-                                                        <i class="ti ti-refresh"></i>
-                                                        <div class="spinner-border spinner-border-sm product-loader" role="status" style="display: none;">
-                                                            <span class="visually-hidden">Loading...</span>
+                                                            <span class="input-group-text">
+                                                                <i class="ti ti-refresh"></i>
+                                                                <div class="spinner-border spinner-border-sm product-loader" role="status" style="display: none;">
+                                                                    <span class="visually-hidden">Loading...</span>
+                                                                </div>
+                                                            </span>
                                                         </div>
-                                                    </span>
-                                                </div>
-                                                <input type="hidden" value="{{$product_id_first}}" name="product_id[]" class="product_id">
-                                            </div>
-                                            @if($errors->has('blog_links_one'))
-                                                <div class="text-danger">{{ $errors->first('blog_links_one') }}</div>
-                                            @endif
-                                            <br>
-                                            <label for="blog_img" class="form-label">Select Blog Links Two</label>
-                                            
-                                            <div class="position-relative autocompleted">
-                                                <div class="input-group">
-                                                    <input type="text" id="product_name" name="product_name[]" class="form-control product-autocomplete" value="{{$product_name_second}}">
+                                                        <input type="hidden" value="{{$link->product_id}}" name="product_id[{{ $index }}][products][{{ $linkIndex }}][id]" class="product_id">
+                                                    </div>
+                                                    @if($errors->has('blog_links_one'))
+                                                        <div class="text-danger">{{ $errors->first('blog_links_one') }}</div>
+                                                    @endif
+                                                @endforeach
+                                                <!-- <br>
+                                                <label for="blog_img" class="form-label">Select Blog Links Two</label>
+                                                
+                                                <div class="position-relative autocompleted">
+                                                    <div class="input-group">
+                                                        <input type="text" id="product_name" name="product_name[]" class="form-control product-autocomplete" value="{{$product_name_second}}">
 
-                                                    <span class="input-group-text">
-                                                        <i class="ti ti-refresh"></i>
-                                                        <div class="spinner-border spinner-border-sm product-loader" role="status" style="display: none;">
-                                                            <span class="visually-hidden">Loading...</span>
-                                                        </div>
-                                                    </span>
+                                                        <span class="input-group-text">
+                                                            <i class="ti ti-refresh"></i>
+                                                            <div class="spinner-border spinner-border-sm product-loader" role="status" style="display: none;">
+                                                                <span class="visually-hidden">Loading...</span>
+                                                            </div>
+                                                        </span>
+                                                    </div>
+                                                    <input type="hidden" value="{{$product_id_second}}" name="product_id[]" class="product_id">
                                                 </div>
-                                                <input type="hidden" value="{{$product_id_second}}" name="product_id[]" class="product_id">
-                                            </div>
-                                            @if($errors->has('blog_links_two'))
-                                                <div class="text-danger">{{ $errors->first('blog_links_two') }}</div>
+                                                @if($errors->has('blog_links_two'))
+                                                    <div class="text-danger">{{ $errors->first('blog_links_two') }}</div>
+                                                @endif -->
                                             @endif
                                         </td>
                                         <td>

@@ -138,10 +138,10 @@ $search_value = !empty($query) ? $query : '';
 
                            @include('frontend.pages.partials.cart_items', [
                            'cartItems' => $cartItems,
-                           'cartTotal' => number_format($cartTotal, 2),
                            'cartCount' => $cartCount,
                            'isCartEmpty' => $isCartEmpty
                            ])
+
                         </li>
                         <li class="right-side onhover-dropdown">
                            <div class="delivery-login-box">

@@ -1,4 +1,6 @@
 <?php
+use App\Models\SpecialOffer;
+use Illuminate\Support\Facades\Auth;
 
 if (!function_exists('numberToWords')) {
     function numberToWords($number) {
@@ -25,3 +27,22 @@ if (!function_exists('numberToWords')) {
         return 'Number out of range';
     }
 }
+
+if (!function_exists('getCustomerSpecialOffers')) {
+    function getCustomerSpecialOffers()
+    {
+        $customer = Auth::guard('customer')->user();
+        $specialOffers = [];
+        if ($customer) {
+            $offers = SpecialOffer::where('customer_id', $customer->id)
+            ->get();
+
+            foreach ($offers as $offer) {
+                $specialOffers[$offer->product_id] = $offer->special_offer_rate;
+            }
+        }
+        return $specialOffers;
+    }
+}
+
+

@@ -154,7 +154,7 @@
 
             <div>
                 <div class="banner-contain hover-effect">
-                    <a href="https://gdsons.co.in/categories/lpg-gas-stoves"  aria-label="Browse LPG Gas Stoves" >
+                    <a href="https://gdsons.co.in/categories/lpg-gas-stoves" aria-label="Browse LPG Gas Stoves">
                         <img
                             src="{{ asset('frontend/assets/gd-img/banner-bottom/stovesU.webp') }}"
                             class="img-fluid blur-up lazyload"
@@ -166,7 +166,7 @@
                             decoding="async"
                             fetchpriority="low">
                     </a>
-                    
+
                 </div>
             </div>
 
@@ -183,12 +183,12 @@
                             decoding="async"
                             fetchpriority="low">
                     </a>
-                    
+
                 </div>
             </div>
             <div>
                 <div class="banner-contain hover-effect">
-                    <a href="https://gdsons.co.in/categories/kitchen-appliances"  aria-label="Browse Kitchen Appliances">
+                    <a href="https://gdsons.co.in/categories/kitchen-appliances" aria-label="Browse Kitchen Appliances">
                         <img
                             src="{{ asset('frontend/assets/gd-img/banner-bottom/appliances_0.webp') }}"
                             class="img-fluid blur-up lazyload"
@@ -201,19 +201,19 @@
                             fetchpriority="low">
 
                     </a>
-                    
+
                 </div>
             </div>
             <div>
                 <div class="banner-contain hover-effect">
                     <a href="https://gdsons.co.in/categories/pressure-cooker" aria-label="Browse Pressure Cookers">
                         <img src="{{asset('frontend/assets/gd-img/banner-bottom/CookerPosterF1.webp')}}" class=" img-fluid blur-up lazyloaded" alt="" loading="lazy"
-                        width="236"
-                        height="258"
-                        decoding="async"
-                        fetchpriority="low">
+                            width="236"
+                            height="258"
+                            decoding="async"
+                            fetchpriority="low">
                     </a>
-                   
+
                 </div>
             </div>
 
@@ -226,7 +226,7 @@
 <section class="product-section">
     <div class="container-fluid-lg">
         <div class="row g-sm-4 g-3">
-            
+
             @if ($data['primary_category'] && $data['primary_category']->isNotEmpty())
             <div class="highlighted-products">
                 <div class="title d-block text-center">
@@ -289,19 +289,41 @@
                                     @php
                                     $final_offer_rate = $popular_product_row->offer_rate;
                                     $mrp = $popular_product_row->mrp;
-                                    if ($groupCategory && $popular_product_row->offer_rate !== null) {
-                                    $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                    if ($group_categoty_percentage > 0) {
+
                                     $purchase_rate = $popular_product_row->purchase_rate;
                                     $offer_rate = $popular_product_row->offer_rate;
-                                    $percent_discount = 100 / $group_categoty_percentage;
-                                    $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
-                                    $final_offer_rate = floor($final_offer_rate);
+
+                                    $group_offer_rate = null;
+                                    $special_offer_rate = null;
+
+                                    /*Group Offer*/
+                                    if ($groupCategory && $offer_rate !== null) {
+                                    $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                    if ($group_percentage > 0) {
+                                    $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                                    $group_offer_rate = floor($group_offer_rate);
                                     }
                                     }
-                                    @endphp
-                                    @php
-                                    $discountPercentage = ($mrp > 0) ? round(((($mrp - $final_offer_rate) / $mrp) * 100), 2) : 0;
+
+                                    /*Special Offer*/
+                                    if (isset($specialOffers[$popular_product_row->id])) {
+                                    $special_offer_rate = (float) $specialOffers[$popular_product_row->id];
+                                    }
+
+                                    /* Choose lowest rate */
+                                    $all_rates = array_filter([
+                                    $offer_rate,
+                                    $group_offer_rate,
+                                    $special_offer_rate
+                                    ]);
+                                    if (!empty($all_rates)) {
+                                    $final_offer_rate = min($all_rates);
+                                    }
+
+                                    /* Calculate discount */
+                                    $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
+                                    ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+                                    : 0;
                                     @endphp
                                     <div class="col-12 px-0">
                                         <div class="product-box">
@@ -329,8 +351,7 @@
                                                         loading="lazy"
                                                         width="300"
                                                         height="300"
-                                                        onload="this.style.opacity=1"
-                                                        >
+                                                        onload="this.style.opacity=1">
                                                     @else
                                                     <img
                                                         src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
@@ -338,8 +359,7 @@
                                                         alt="{{ $popular_product_row->title }}"
                                                         loading="lazy"
                                                         width="300"
-                                                        height="300"
-                                                        >
+                                                        height="300">
                                                     @endif
 
                                                 </a>
@@ -404,20 +424,39 @@
                                 }
                                 @endphp
                                 @php
-                                $final_offer_rate = $trending_products_row->offer_rate;
-                                $mrp = $trending_products_row->mrp;
-
-                                if ($groupCategory && $trending_products_row->offer_rate !== null) {
-                                $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                if ($group_categoty_percentage > 0) {
                                 $purchase_rate = $trending_products_row->purchase_rate;
                                 $offer_rate = $trending_products_row->offer_rate;
-                                $percent_discount = 100 / $group_categoty_percentage;
-                                $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
-                                $final_offer_rate = floor($final_offer_rate);
+                                $mrp = $trending_products_row->mrp;
+
+                                $group_offer_rate = null;
+                                $special_offer_rate = null;
+
+                                /* Group Price Calculation */
+                                if ($groupCategory && $offer_rate !== null) {
+                                $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                if ($group_percentage > 0) {
+                                $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                                $group_offer_rate = floor($group_offer_rate);
                                 }
                                 }
-                                $discountPercentage = ($mrp > 0) ? round(((($mrp - $final_offer_rate) / $mrp) * 100), 2) : 0;
+
+                                /* Special Offer from array */
+                                if (isset($specialOffers[$trending_products_row->id])) {
+                                $special_offer_rate = (float) $specialOffers[$trending_products_row->id];
+                                }
+
+                                /* Final Rate: Minimum of all */
+                                $all_rates = array_filter([
+                                $offer_rate,
+                                $group_offer_rate,
+                                $special_offer_rate
+                                ]);
+                                $final_offer_rate = !empty($all_rates) ? min($all_rates) : null;
+
+                                /* Discount Calculation */
+                                $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
+                                ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+                                : 0;
                                 @endphp
                                 <div>
                                     <div class="row m-0">
@@ -526,7 +565,7 @@
             <div class="col-lg-2">
                 <div class="youtube-btn mt-2">
                     <a class="btn text-white" target="_blank" href="https://www.youtube.com/@GirdharDasandSons" style="background-color: #FF5733;">
-                       <i class="youtube-icon fa fa-youtube"></i>  Visit Our Youtube
+                        <i class="youtube-icon fa fa-youtube"></i> Visit Our Youtube
                     </a>
                 </div>
             </div>

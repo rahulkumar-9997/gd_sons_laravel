@@ -5,12 +5,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 use App\Models\Product;
 use App\Models\Customer;
+use App\Models\SpecialOffer;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\File;
 use App\Models\WhatsappConversation;
 use Illuminate\Support\Facades\DB;
+use Vinkla\Hashids\Facades\Hashids;
 use App\Models\WhatsappSpecialRate;
 
 class WhatsAppController extends Controller
@@ -97,9 +99,12 @@ class WhatsAppController extends Controller
             $purchase_rate = $validatedData['purchase_rate'];
             $offer_rate = $validatedData['offer_rate'];   
             /*Find or create customer with proper password handling with model code*/
-            
+            /*this code use only find customer id  */
+            $customer = Customer::findByWhatsappNumberOrCreate($customer_mobile_no, $customer_name);
+            /*Find or create customer with proper password handling with model code*/
             $api_endpoint ='';
             $api_endpoint = "https://backend.aisensy.com/campaign/t1/api/v2";
+            //$apiKey ='';
             $apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY"; 
             $data = [
                 'apiKey' => $apiKey,
@@ -126,7 +131,7 @@ class WhatsAppController extends Controller
             $imagePathsWebp = [];
             $imagePathsJPG = [];
             foreach ($productsIdArray as $index => $product_id) {
-                
+                $hash = Hashids::encode($customer->id, $product_id);
                 $product = Product::with([
                     'images' => function ($query) {
                         $query->select('id', 'product_id', 'image_path')->orderBy('id');
@@ -142,6 +147,25 @@ class WhatsAppController extends Controller
                 $attributes_value = $product->ProductAttributesValues->isNotEmpty()
                     ? $product->ProductAttributesValues->first()->attributeValue->slug
                     : 'futura-1';
+
+                    $product_path = url('/products/' . $product->slug . '/' . $attributes_value) . '?token=' .$hash;
+                /**Check if special offer rate already exists*/
+                $existingOffer = SpecialOffer::where('customer_id', $customer->id)
+                    ->where('product_id', $product_id)
+                    ->first();
+
+                if ($existingOffer) {
+                    $existingOffer->special_offer_rate = $offer_rate[$index];
+                    $existingOffer->save();
+                } else {
+                    SpecialOffer::create([
+                        'customer_id' => $customer->id,
+                        'product_id' => $product_id,
+                        'special_offer_rate' => $offer_rate[$index],
+                        'url' =>  $product_path,
+                    ]);
+                }
+                /**Check if special offer rate already exists*/    
                 $firstImage = $product->images->first();
                 if ($firstImage && !empty($firstImage->image_path)) {
                     $imageFileName = str_replace('.webp', '.jpg', $firstImage->image_path);
@@ -157,11 +181,8 @@ class WhatsAppController extends Controller
                     $imagePathJpg = "https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png";
                     $imageName = 'Girdhar Das & Sons';
                 }
-                // $queryParams = ['color' => 'red', 'size' => 'large'];
-                // $encryptedParams = Crypt::encryptString(json_encode($queryParams));
-                //$product_path = url('/products/' . $product->slug . '/' . urlencode($encryptedParams));
-
-                $product_path = url('/products/' . $product->slug .'/'. $attributes_value);
+                
+                
                 $productPaths[] = $product_path;
                 $imagePathsWebp[] = $imagePathWebP;
                 $imagePathsJPG[] = $imagePathJpg;
@@ -211,6 +232,7 @@ class WhatsAppController extends Controller
         }
         
     }
+    
     
     public function imageFileRename(){
         $i = 1;

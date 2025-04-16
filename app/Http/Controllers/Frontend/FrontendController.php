@@ -17,13 +17,19 @@ use App\Models\Banner;
 use App\Models\Label;
 use App\Models\Video;
 use App\Models\PrimaryCategory;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 use App\Mail\ContactUsMail;
 use App\Models\WhatsappConversation;
+use App\Models\Counter;
+use App\Models\Customer;
+use App\Models\SpecialOffer;
+use Vinkla\Hashids\Facades\Hashids;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Counter;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 
 class FrontendController extends Controller
 {
@@ -33,7 +39,8 @@ class FrontendController extends Controller
         $labels = Label::whereIn('title', ['Popular Product', 'Trending Product'])
         ->get()
         ->keyBy('title');
-
+        $specialOffers = getCustomerSpecialOffers();
+        //dd($specialOffers);
         $popular_label_id = $labels['Popular Product']->id ?? null;
         $trending_label_id = $labels['Trending Product']->id ?? null;
 
@@ -67,7 +74,7 @@ class FrontendController extends Controller
         $data['popular_products'] = $products->where('label_id', $popular_label_id)->take(20);
         $data['trending_products'] = $products->where('label_id', $trending_label_id)->take(20);
 		DB::disconnect();
-        return view('frontend.index', compact('data'));
+        return view('frontend.index', compact('data', 'specialOffers'));
 
     }
 
@@ -535,17 +542,20 @@ class FrontendController extends Controller
                 })
                 ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
                 ->paginate(32);
-
+                /**special offer rate */
+                $specialOffers = getCustomerSpecialOffers();
+                //dd($specialOffers);
+                /**special offer rate */
             // Return JSON response for AJAX requests
             if ($request->ajax()) {
                 if ($request->has('load_more') && $request->get('load_more') == true) {
                     return response()->json([
-                        'products' => view('frontend.pages.partials.product-catalog-load-more', compact('products', 'attributes_with_values_for_filter_list'))->render(),
+                        'products' => view('frontend.pages.partials.product-catalog-load-more', compact('products','specialOffers', 'attributes_with_values_for_filter_list'))->render(),
                         'hasMore' => $products->hasMorePages(),
                     ]);
                 } else {
                     return response()->json([
-                        'products' => view('frontend.pages.ajax-product-catalog', compact('products', 'attributes_with_values_for_filter_list'))->render(),
+                        'products' => view('frontend.pages.ajax-product-catalog', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list'))->render(),
                         'hasMore' => $products->hasMorePages(),
                     ]);
                 }
@@ -558,6 +568,7 @@ class FrontendController extends Controller
                 'attributeValue',
                 'attribute_top',
                 'primary_category',
+                'specialOffers',
                 'attributes_with_values_for_filter_list'
             ));
         } catch (\Exception $e) {
@@ -567,8 +578,53 @@ class FrontendController extends Controller
         }
     }
 
-    public function showProductDetails($slug, $attributes_value_slug)
+    public function showProductDetails(Request $request, $slug, $attributes_value_slug)
     {
+        /*Check customer whatapp click link is login or not */
+        if (!auth()->guard('customer')->check()) {
+            $decoded = Hashids::decode($request->get('token'));
+            $customer_id = $decoded[0] ?? null;
+            $product_id = $decoded[1] ?? null;
+            if (!is_null($customer_id) && !is_null($product_id)) {
+                $originalUrl = url()->full();
+                $offer = SpecialOffer::where('customer_id', $customer_id)
+                ->where('product_id', $product_id)
+                ->first();
+                if ($offer) {
+                    $customer = Customer::select('phone_number')->where('id', $customer_id)->first();
+                    $phone_number = $customer->phone_number;
+                    $otp = (string) rand(100000, 999999);
+                    $sessionData = [
+                        'otp' => $otp,
+                        'expires_at' => now()->addMinutes(30),
+                        'phone_number' => $phone_number,
+                    ];
+                    session(['whatsapp_otp' => $sessionData]);
+                    $mobile_number = '91' . $phone_number;
+                    Log::info('mobile Number:', ['no' => $mobile_number]);
+                    Log::info('oTP:', ['no' => $otp]);
+                    //$response = $this->whatappLinkSendWhatappOtp($mobile_number, $otp);
+                    return redirect()->route('wp.otp.form', ['redirect_to' => $originalUrl])->with([
+                        'success' => 'OTP sent successfully to your WhatsApp!',
+                        'phone_number' => $phone_number,
+                    ]);
+                    // if ($response->successful()) {
+                    //     return redirect()->route('otp.form', ['redirect_to' => $originalUrl])->with([
+                    //         'success' => 'OTP sent successfully to your WhatsApp!',
+                    //         'phone_number' => $customer->phone_number,
+                    //     ]);
+                    // } else {
+                    //     Log::error('OTP send failed:', $response->json());
+                    //     return redirect()->back()->with('error', 'Failed to send OTP. Try again.');
+                    // }
+                } else {
+                    
+                }
+            }
+        }
+        $specialOffers = getCustomerSpecialOffers();
+        //dd($specialOffers);
+        /*Check customer whatapp click link is login or not */
         $attributeValue = Attribute_values::where('slug', $attributes_value_slug)->first();
         /*First get the product and increment visitor count in one query*/
         $product = Product::where('slug', $slug)
@@ -630,7 +686,7 @@ class FrontendController extends Controller
 			DB::disconnect();
         /**Related product display */
         //return response()->json($data['product_details']);
-        return view('frontend.pages.product', compact('data'));
+        return view('frontend.pages.product', compact('data', 'specialOffers'));
     }
 
     public function showCategoryProduct_old_1_2_2025(Request $request, $categorySlug)
@@ -839,21 +895,23 @@ class FrontendController extends Controller
                 })
                 ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
                 ->paginate(32);
+            $specialOffers = getCustomerSpecialOffers();
+            //dd($specialOffers);
             if ($request->ajax()) {
                 if ($request->has('load_more') && $request->get('load_more') == true) {
                     return response()->json([
-                        'products' => view('frontend.pages.partials.product-category-catalog-load-more', compact('products', 'attributes_with_values_for_filter_list'))->render(),
+                        'products' => view('frontend.pages.partials.product-category-catalog-load-more', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list'))->render(),
                         'hasMore' => $products->hasMorePages(),
                     ]);
                 } else {
                     return response()->json([
-                        'products' => view('frontend.pages.ajax-product-category-catalog', compact('products', 'attributes_with_values_for_filter_list'))->render(),
+                        'products' => view('frontend.pages.ajax-product-category-catalog', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list'))->render(),
                         'hasMore' => $products->hasMorePages(),
                     ]);
                 }
             }
 			DB::disconnect();
-            return view('frontend.pages.product-catalog-category', compact('products', 'category', 'attributes_with_values_for_filter_list', 'primary_category'));
+            return view('frontend.pages.product-catalog-category', compact('products', 'specialOffers', 'category', 'attributes_with_values_for_filter_list', 'primary_category'));
         } catch (\Exception $e) {
             Log::error('Error fetching product catalog: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
@@ -1321,5 +1379,77 @@ class FrontendController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Counter updated successfully!']);
     }
+
+    public function whatappLinkSendWhatappOtp($mobile_number, $otp){
+        $apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY";
+        
+        $response = Http::post('https://backend.aisensy.com/campaign/t1/api/v2', [
+            'apiKey' => $apiKey,
+            'campaignName' => 'gdsons_login_otp',
+            'destination' =>$mobile_number,
+            'userName' => $mobile_number,
+            'templateParams' => [$otp],
+            'source' => 'new-landing-page form',
+            'media' => new \stdClass(),
+            'buttons' => [
+                [
+                    'type' => 'button',
+                    'sub_type' => 'url',
+                    'index' => 0,
+                    'parameters' => [
+                        [
+                            'type' => 'text',
+                            'text' => $otp
+                        ]
+                    ]
+                ]
+            ],
+            'carouselCards' => [],
+            'location' => new \stdClass(),
+            'attributes' => new \stdClass(),
+            'paramsFallbackValue' => [
+                'FirstName' => 'user'
+            ]
+        ]);
+        return $response;
+    }
+
+    public function WhatAppClickShowOtpForm(){
+        //dd(session()->all());
+        return view('frontend.pages.whatapp-otp-form');
+    }
+
+    public function WhatappVerifyOtp(Request $request)
+    {
+        $request->validate([
+            'otp' => 'required|digits:6',
+            'redirect_to' => 'required|url',
+        ]);
+        
+        $otpData = Session::get('whatsapp_otp');
+        $storedOtp = $otpData['otp'] ?? null;
+        $expiresAt = $otpData['expires_at'] ?? null;
+        $phoneNumber = $otpData['phone_number'] ?? null;
+        Log::info('OTP Session Data:', [
+            'storedOtp' => $storedOtp,
+            'expiresAt' => $expiresAt,
+            'now' => now(),
+            'isExpired' => \Carbon\Carbon::parse($expiresAt)->lt(now())
+        ]);
+        if (!$storedOtp || !$expiresAt || \Carbon\Carbon::parse($expiresAt)->lt(now())) {
+            return back()->withErrors(['otp' => 'OTP expired. Please try again.']);
+        }
+
+        if ($request->otp !== $storedOtp) {
+            return back()->withErrors(['otp' => 'Invalid OTP. Please try again.']);
+        }else{
+            $customer = Customer::where('phone_number', $phoneNumber)->first();
+            Auth::guard('customer')->login($customer);
+            Session::forget('whatsapp_otp');
+            return redirect()->to($request->redirect_to)->with('success', 'OTP verified successfully!');
+        }
+      
+    }
+
     
 }

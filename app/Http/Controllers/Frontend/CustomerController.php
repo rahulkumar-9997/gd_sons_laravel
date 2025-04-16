@@ -123,7 +123,7 @@ class CustomerController extends Controller
             });
             $cartCount = $cartItems->count();
             $isCartEmpty = $cartCount == 0;
-        
+            //$specialOffers = getCustomerSpecialOffers();
             return response()->json([
                 'success' => true,
                 'message' => 'Item added to cart!',
@@ -131,7 +131,6 @@ class CustomerController extends Controller
                 'cart_total' => number_format($cartTotal, 2),
                 'cartItems' => view('frontend.pages.partials.cart_items', [
                     'cartItems' => $cartItems,
-                    'cartTotal' => number_format($cartTotal, 2),
                     'cartCount' => $cartCount,
                     'isCartEmpty' => $isCartEmpty
                 ])->render(),
@@ -149,6 +148,8 @@ class CustomerController extends Controller
 
     public function cartList(Request $request){
         $customerId = auth('customer')->id();
+        $specialOffers = getCustomerSpecialOffers();
+        dd($specialOffers);
         if ($request->isMethod('get')) {
             $carts = Cart::where('customer_id', $customerId)
                 ->with([

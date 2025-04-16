@@ -132,11 +132,14 @@ class SearchController extends Controller
                 $query->where('title', 'like', '%' . $term . '%');
             }
         })->orderBy('created_at', 'desc')->get();
+        $specialOffers = getCustomerSpecialOffers();
+        //dd($specialOffers);
 		DB::disconnect();
         return view('frontend.pages.search-catalog', [
             'products' => $products,
             'categories' => $categories,
-            'query' => $query
+            'query' => $query,
+            'specialOffers' =>$specialOffers
         ]);
     }
 }

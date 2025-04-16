@@ -121,6 +121,14 @@ class Product extends Model
     {
         return $this->belongsTo(Label::class, 'label_id', 'id');
     }
+
+    public function specialOffers()
+    {
+        return $this->hasMany(SpecialOffer::class, 'product_id');
+    }
+
+    
+
     /** 
      * Write code on Method
      *

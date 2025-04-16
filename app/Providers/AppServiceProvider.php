@@ -19,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
+    
     public function register()
     {
         // Store Cart Data Singleton
@@ -30,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
         // Store Cart Data Singleton
         $this->app->singleton('cartData', function () {
             $customerId = Auth::guard('customer')->id();
+            $specialOffers = getCustomerSpecialOffers();
             if ($customerId) {
                 $cartItems = Cart::where('customer_id', $customerId)
                     ->with([
@@ -52,19 +54,20 @@ class AppServiceProvider extends ServiceProvider
                         }
                     ])
                     ->get();
-                $cartTotal = 0;
                 $cartCount = $cartItems->count();
-            } else {
+            }
+            else
+            {
                 $cartItems = collect();
-                $cartTotal = 0;
                 $cartCount = 0;
+                $specialOffers = $specialOffers;
             }
 
             return [
                 'cartItems' => $cartItems,
-                'cartTotal' => $cartTotal,
                 'cartCount' => $cartCount,
                 'isCartEmpty' => $cartCount == 0,
+                'specialOffers' => $specialOffers
             ];
         });
     }

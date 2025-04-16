@@ -132,6 +132,10 @@ Route::middleware([TrackVisitor::class])->group(function () {
 });
 Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 Route::post('/update-counter', [FrontendController::class, 'updateCounter'])->name('update.counter');
+Route::get('/wp-otp-form', [FrontendController::class, 'WhatAppClickShowOtpForm'])->name('wp.otp.form');
+Route::post('/wp-verify-otp', [FrontendController::class, 'WhatappVerifyOtp'])->name('wp.verify.otp');
+
+
 
 
 /**backend rout */

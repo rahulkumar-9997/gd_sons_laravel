@@ -15,20 +15,37 @@ $firstImage = $product->images->get(0);
 $secondImage = $product->images->get(1);
 @endphp
 @php
-    $final_offer_rate = $product->offer_rate;
+    $purchase_rate = $product->purchase_rate;
+    $offer_rate = $product->offer_rate;
     $mrp = $product->mrp;
+    $group_offer_rate = null;
+    $special_offer_rate = null;
 
-    if ($groupCategory && $product->offer_rate !== null) {
-        $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-        if ($group_categoty_percentage > 0) {
-            $purchase_rate = $product->purchase_rate;
-            $offer_rate = $product->offer_rate;
-            $percent_discount = 100 / $group_categoty_percentage;
-            $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
-            $final_offer_rate = floor($final_offer_rate); 
+    /* Group price calculation*/
+    if ($groupCategory && $offer_rate !== null) {
+        $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+        if ($group_percentage > 0) {
+            $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+            $group_offer_rate = floor($group_offer_rate);
         }
     }
-    $discountPercentage = ($mrp > 0) ? round(((($mrp - $final_offer_rate) / $mrp) * 100), 2) : 0;
+
+    /* Special offer (from array) */
+    if (isset($specialOffers[$product->id])) {
+        $special_offer_rate = (float) $specialOffers[$product->id];
+    }
+
+    /* Final price: lowest among all available */
+    $final_offer_rate = collect([
+        $offer_rate,
+        $group_offer_rate,
+        $special_offer_rate
+    ])->filter()->min();
+
+    /* Discount calculation */
+    $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
+        ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+        : 0;
 @endphp
 <div>
     <div class="product-box-3 h-100">

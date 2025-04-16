@@ -164,6 +164,7 @@ return [
         App\Providers\MenuServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Torann\GeoIP\GeoIPServiceProvider::class,
+        Vinkla\Hashids\HashidsServiceProvider::class,
         /*
          * Package Service Providers...
          */
@@ -232,6 +233,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Image' => Intervention\Image\Facades\Image::class,
+        'Hashids' => Vinkla\Hashids\Facades\Hashids::class,
 
     ],
 

@@ -4,10 +4,40 @@ $firstImage = $product->images->get(0);
 $secondImage = $product->images->get(1);
 @endphp
 @php
-    $attributes_value ='na';
-    if($product->ProductAttributesValues->isNotEmpty()){
-    $attributes_value = $product->ProductAttributesValues->first()->attributeValue->slug;
-    }
+$attributes_value ='na';
+if($product->ProductAttributesValues->isNotEmpty()){
+$attributes_value = $product->ProductAttributesValues->first()->attributeValue->slug;
+}
+@endphp
+@php
+$purchase_rate = $product->purchase_rate;
+$offer_rate = $product->offer_rate;
+$mrp = $product->mrp;
+
+$group_offer_rate = null;
+$special_offer_rate = null;
+
+if ($groupCategory && $offer_rate !== null) {
+$group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+if ($group_percentage > 0) {
+$group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+$group_offer_rate = floor($group_offer_rate);
+}
+}
+
+if (isset($specialOffers[$product->id])) {
+$special_offer_rate = (float) $specialOffers[$product->id];
+}
+
+$final_offer_rate = collect([
+$offer_rate,
+$group_offer_rate,
+$special_offer_rate
+])->filter()->min();
+
+$discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
+? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+: 0;
 @endphp
 <div>
     <div class="product-box-3 h-100">
@@ -15,15 +45,15 @@ $secondImage = $product->images->get(1);
             <div class="product-image">
                 <a href="{{ url('products/'.$product['slug'].'/'.$attributes_value) }}">
                     @if ($firstImage)
-                    <img 
-                    class="img-fluid blur-up lazyload"
-                    data-src="{{ asset('images/product/thumb/'. $firstImage->image_path) }}" 
-                    src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}" 
-                    srcset="{{ asset('images/product/thumb/'. $firstImage->image_path) }} 600w, {{ asset('images/product/thumb/'. $firstImage->image_path) }} 1200w"
-                    sizes="(max-width: 600px) 600px, 1200px"
-                    alt="{{ $product->title }}"
-                    title="{{ $product->title }}" 
-                    loading="lazy">
+                    <img
+                        class="img-fluid blur-up lazyload"
+                        data-src="{{ asset('images/product/thumb/'. $firstImage->image_path) }}"
+                        src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                        srcset="{{ asset('images/product/thumb/'. $firstImage->image_path) }} 600w, {{ asset('images/product/thumb/'. $firstImage->image_path) }} 1200w"
+                        sizes="(max-width: 600px) 600px, 1200px"
+                        alt="{{ $product->title }}"
+                        title="{{ $product->title }}"
+                        loading="lazy">
                     @else
                     <img src="{{asset('frontend/assets/gd-img/product/no-image.png')}}"
                         class="img-fluid blur-up lazyload" alt="{{ $product->title }}" loading="lazy">
@@ -72,30 +102,17 @@ $secondImage = $product->images->get(1);
                     <h5 class="name">{{ ucwords(strtolower($product->title)) }}</h5>
                 </a>
                 <h5 class="price">
-                    @if ($product->offer_rate === null)
-
-                        <span class="theme-color">Price not available</span>
+                    @if ($final_offer_rate === null)
+                    <span class="theme-color">Price not available</span>
                     @else
-                        @php
-                            $final_offer_rate = $product->offer_rate;
-                            if($groupCategory){
-                                $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                $purchase_rate = $product->purchase_rate;
-                                if ($group_categoty_percentage > 0) { 
-                                    $offer_rate = $product->offer_rate;
-                                    $percent_discount = 100/$group_categoty_percentage;
-                                    $final_offer_rate =
-                                    $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
-                                    $final_offer_rate = floor($final_offer_rate);
-                                }
-                            }
-                        @endphp
-                        <span class="theme-color">Rs. {{$final_offer_rate}}</span>
+                    <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
+                    @if($discountPercentage > 0)
+                    <span class="offer theme-color">({{ $discountPercentage }}% OFF)</span>
                     @endif
-                    @if ($product->mrp === null)
-                    
-                    @else
-                        <del>Rs. {{ $product->mrp }}</del>
+                    @endif
+
+                    @if ($mrp)
+                    <br><del>Rs. {{ $mrp }}</del>
                     @endif
                 </h5>
                 <div class="add-to-cart-box bg-white">

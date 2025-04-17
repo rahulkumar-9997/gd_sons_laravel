@@ -90,7 +90,7 @@
                                                     <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                                                         <div class="accordion-body">
                                                             <div class="row g-2">
-                                                            You will get 'Girdhar Das & Sons' Official PayTM ID after clicking on 'Place Order'.
+                                                                You will get 'Girdhar Das & Sons' Official PayTM ID after clicking on 'Place Order'.
                                                             </div>
                                                         </div>
                                                     </div>
@@ -121,35 +121,44 @@
                                 @endphp
                                 @foreach ($carts as $cart)
                                 @php
-                                $mrp = $cart->product->inventories->first() ? $cart->product->inventories->first()->mrp : 0;
-                                $final_offer_rate = $cart->product->offer_rate ?? 0;
+                                $mrp = $cart->product->inventories->first()->mrp ?? 0;
                                 $purchase_rate = $cart->product->purchase_rate ?? 0;
-                                $group_categoty_percentage = 1;
-                                $offer_rate_display ='';
-                                if ($groupCategory) {
-                                $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                $offer_rate = $cart->product->offer_rate ?? 0;
 
-                                if ($group_categoty_percentage > 0) {
-                                    $offer_rate = $cart->product->offer_rate ?? 0;
-                                    $percent_discount = 100 / $group_categoty_percentage;
-                                    $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
-                                    $final_offer_rate = floor($final_offer_rate);
-                                    $offer_rate_display = '<p><span>Regular offer price</span><del class="text-content"> Rs. ' . number_format($offer_rate, 2) . '</del></p>';
-                                } else {
-                                $group_categoty_percentage = 1;
+                                $group_offer_rate = null;
+                                $special_offer_rate = null;
+                                $offer_rate_display = '';
+
+                                // Group offer rate logic
+                                if ($groupCategory && $offer_rate !== null) {
+                                $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                if ($group_percentage > 0) {
+                                $percent_discount = $group_percentage / 100;
+                                $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount;
+                                $group_offer_rate = floor($group_offer_rate);
+                                $offer_rate_display = '<p><span>Regular offer price</span><del class="text-content"> Rs. ' . number_format($offer_rate, 2) . '</del></p>';
                                 }
                                 }
 
+                                // Special offer rate logic
+                                $special_offer_rate = isset($specialOffers[$cart->product->id]) ? (float) $specialOffers[$cart->product->id] : null;
+
+                                // Final rate: min of available
+                                $final_offer_rate = collect([$offer_rate, $group_offer_rate, $special_offer_rate])->filter()->min() ?? 0;
+
+                                // Optionally apply additional 10% of remaining profit logic (if you need this)
                                 $original_price = $final_offer_rate;
                                 $profit_a = $final_offer_rate - $purchase_rate;
-                                $additional_offer = $profit_a * (10 - $group_categoty_percentage) / 100;
-                                $final_offer_rate = max(0, $final_offer_rate - $additional_offer);
+                                $additional_offer = $profit_a * (10 - ($group_percentage ?? 0)) / 100;
+                                $final_offer_rate = floor(max(0, $final_offer_rate - $additional_offer));
 
+                                // Discount calculation
                                 $discount_amount = ($original_price - $final_offer_rate) * $cart->quantity;
                                 $totalDiscount += $discount_amount;
                                 $totalPrice = $original_price * $cart->quantity;
                                 $subtotal += $totalPrice;
                                 @endphp
+
 
                                 <input type="hidden" name="product_id[]" value="{{ $cart->product->id }}">
                                 <input type="hidden" name="cart_quantity[]" value="{{ $cart->quantity }}">
@@ -184,7 +193,7 @@
                                         <tr>
                                             <td>
                                                 <p>
-                                                Rs. {{ number_format($original_price, 2) }} x {{ $cart->quantity }}  
+                                                    Rs. {{ number_format($original_price, 2) }} x {{ $cart->quantity }}
                                                 </p>
                                             </td>
                                             <td class="lsttd">
@@ -195,25 +204,25 @@
                                         </tr>
                                         <tr>
                                             <td>
-                                            <p><span class="text-danger">Additional Offer</span> Rs. {{ $discount_amount }}</p>
+                                                <p><span class="text-danger">Additional Offer</span> Rs. {{ $discount_amount }}</p>
                                             </td>
-                                            <td  class="lsttd">
+                                            <td class="lsttd">
                                                 <p>
-                                                Rs. {{ number_format((($original_price*$cart->quantity)-$discount_amount), 2) }}
+                                                    Rs. {{ number_format((($original_price*$cart->quantity)-$discount_amount), 2) }}
                                                 </p>
                                             </td>
                                         </tr>
                                     </table>
-                                    
-                                        
-                                        <!-- <p>
+
+
+                                    <!-- <p>
                                             <span>
                                                 <del>
                                                     Rs. {{ number_format($original_price, 2) }} 
                                                 </del>
                                             </span>
                                         </p> -->
-                                        <!-- <p>
+                                    <!-- <p>
                                             Rs. {{ $final_offer_rate }} x {{ $cart->quantity }}
                                         </p>
                                         {!! $offer_rate_display !!}

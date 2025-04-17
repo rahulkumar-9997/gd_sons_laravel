@@ -15,27 +15,44 @@
                     <tbody>
                         @foreach($carts as $cart)
                         @php
-                        $final_offer_rate = $cart->product->offer_rate ?? 0;
-                        if($groupCategory){
-                            $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                            if ($group_categoty_percentage > 0) {
-                                $purchase_rate = $cart->product->purchase_rate;
-                                $offer_rate = $cart->product->offer_rate;
-                                $percent_discount = 100/$group_categoty_percentage;
-                                $final_offer_rate =
-                                $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
-                                $final_offer_rate = floor($final_offer_rate);
-                            }
-                        }
-                        $product_mrp = $cart->product->mrp ?? 0;
-                        $product_discount_rate = $product_mrp-$final_offer_rate;
-                        $totalPrice = $final_offer_rate * $cart->quantity;
-                        $subtotal += $totalPrice;
-                        //$discount += $product_discount_rate * $cart->quantity;
+                            $purchase_rate = $cart->product->purchase_rate ?? 0;
+                            $offer_rate = $cart->product->offer_rate ?? 0;
+                            $mrp = $cart->product->mrp ?? 0;
 
-                        $attributes_value ='na';
-                        if($cart->product->ProductAttributesValues->isNotEmpty()){
-                        $attributes_value = $cart->product->ProductAttributesValues->first()->attributeValue->slug;
+                            $group_offer_rate = null;
+                            $special_offer_rate = null;
+
+                            // Group Offer Rate Calculation
+                            if ($groupCategory && $offer_rate !== null) {
+                                $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                if ($group_percentage > 0) {
+                                    $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                                    $group_offer_rate = floor($group_offer_rate);
+                                }
+                            }
+
+                            // Special Offer Rate (if available)
+                            if (isset($specialOffers[$cart->product_id])) {
+                                $special_offer_rate = (float) $specialOffers[$cart->product_id];
+                            }
+
+                            // Final offer rate — take minimum from all available
+                            $final_offer_rate = collect([
+                                $offer_rate,
+                                $group_offer_rate,
+                                $special_offer_rate
+                            ])->filter()->min();
+
+                            // Calculate discount and total
+                            $product_discount_rate = $mrp - $final_offer_rate;
+                            $totalPrice = $final_offer_rate * $cart->quantity;
+                            $subtotal += $totalPrice;
+
+                            // Optional: Discount total
+                            // $discount += $product_discount_rate * $cart->quantity;
+                            $attributes_value ='na';
+                            if($cart->product->ProductAttributesValues->isNotEmpty()){
+                            $attributes_value = $cart->product->ProductAttributesValues->first()->attributeValue->slug;
                         }
                         @endphp
                         
@@ -58,7 +75,7 @@
                                     <div class="product-detail">
                                         <ul>
                                             <li class="name">
-                                                <a href="{{ url('products/'.$cart->product->slug.'/'.$attributes_value) }}">{{ ucwords(strtolower($cart->product->title)) }}</a>
+                                                <a href="{{ url('products/'.$cart->product->slug.'/'.$attributes_value) }}">{{ ucwords(strtolower($cart->product->title)) }} sedadasdsad</a>
                                             </li>
                                             <li class="text-content">
                                                 @if($cart->product->offer_rate)

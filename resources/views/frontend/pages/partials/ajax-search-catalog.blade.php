@@ -18,11 +18,11 @@ $group_offer_rate = null;
 $special_offer_rate = null;
 
 if ($groupCategory && $offer_rate !== null) {
-$group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-if ($group_percentage > 0) {
-$group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-$group_offer_rate = floor($group_offer_rate);
-}
+    $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+    if ($group_percentage > 0) {
+        $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+        $group_offer_rate = floor($group_offer_rate);
+    }
 }
 
 if (isset($specialOffers[$product->id])) {

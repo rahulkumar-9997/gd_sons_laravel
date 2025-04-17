@@ -497,6 +497,7 @@ class OrderController extends Controller
     public function pickUpStore(){
         $customerId = auth('customer')->id();
         $customer_address = Address::where('customer_id', $customerId)->get();
+        $specialOffers = getCustomerSpecialOffers();
         $carts = Cart::where('customer_id', $customerId)
             ->with(['product' => function ($query) {
                 $query->with(['category', 'images'])
@@ -507,7 +508,7 @@ class OrderController extends Controller
                     ->select('products.*', 'inventories.mrp', 'inventories.purchase_rate', 'inventories.offer_rate', 'inventories.sku');
             }])
             ->get();
-        return view('frontend.pages.pick-up-store-page', compact('carts'));
+        return view('frontend.pages.pick-up-store-page', compact('carts', 'specialOffers'));
     }
 
 }

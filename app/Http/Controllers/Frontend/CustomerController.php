@@ -149,7 +149,7 @@ class CustomerController extends Controller
     public function cartList(Request $request){
         $customerId = auth('customer')->id();
         $specialOffers = getCustomerSpecialOffers();
-        dd($specialOffers);
+        //dd($specialOffers);
         if ($request->isMethod('get')) {
             $carts = Cart::where('customer_id', $customerId)
                 ->with([
@@ -174,7 +174,7 @@ class CustomerController extends Controller
                     }
                 ])
                 ->get();
-            return view('frontend.pages.cart', compact('carts'));
+            return view('frontend.pages.cart', compact('carts', 'specialOffers'));
         }
         
 
@@ -226,13 +226,14 @@ class CustomerController extends Controller
                     ->get();
 
                 $cartItemsHtml = view('frontend.pages.partials.ajax-cart', [
-                    'carts' => $updatedCarts
+                    'carts' => $updatedCarts,  'specialOffers' =>$specialOffers
                 ])->render();
 
                 return response()->json([
                     'success' => true,
                     'message' => 'Cart updated successfully.',
                     'cart_items_html' => $cartItemsHtml,
+                    'specialOffers' =>$specialOffers
                 ]);
             }
             return response()->json([
@@ -272,6 +273,8 @@ class CustomerController extends Controller
     public function checkOut(Request $request){
         $customerId = auth('customer')->id();
         $customer_address = Address::where('customer_id', $customerId)->get();
+        $specialOffers = getCustomerSpecialOffers();
+        //dd($specialOffers);
         $carts = Cart::where('customer_id', $customerId)
             ->with(['product' => function ($query) {
                 $query->with(['category', 'images'])
@@ -281,10 +284,10 @@ class CustomerController extends Controller
                     })
                     ->select('products.*', 'inventories.mrp', 'inventories.purchase_rate', 'inventories.offer_rate', 'inventories.sku');
             }])
-            ->get();
-           // return response()->json($carts);
+            ->get();        
+           //return response()->json($carts);
         //return view('frontend.emails.order_details_mail');
-        return view('frontend.pages.checkout', compact('customer_address', 'carts'));
+        return view('frontend.pages.checkout', compact('customer_address', 'carts', 'specialOffers'));
     }
 
     public function addAddressForm(Request $request){
@@ -408,6 +411,7 @@ class CustomerController extends Controller
             if ($address) {
                 $customerId = $request->input('customer_id');
                 $customer_address = Address::where('customer_id', $customerId)->get();
+                $specialOffers = getCustomerSpecialOffers();
                 $carts = Cart::getCartDetailsWithRelations($customerId);
                 return response()->json([
                     'success' => true,
@@ -415,7 +419,8 @@ class CustomerController extends Controller
                     'customer_address' => view('frontend.pages.partials.ajax-checkout-form', [
                         'customer_address' => $customer_address,
                         'customerId' => $customerId,
-                        'carts' => $carts, 
+                        'carts' => $carts,
+                        'specialOffers' =>$specialOffers
                     ])->render(),
                 ], 200);
             } else {
@@ -556,13 +561,15 @@ class CustomerController extends Controller
             ]);
             $customer_address = Address::where('customer_id', $customerId)->get();
             $carts = Cart::getCartDetailsWithRelations($customerId);
+            $specialOffers = getCustomerSpecialOffers();
             return response()->json([
                 'success' => true,
                 'message' => 'Address updated successfully.',
                 'customer_address' => view('frontend.pages.partials.ajax-checkout-form', [
                     'customer_address' => $customer_address,
                     'customerId' => $customerId,
-                    'carts' => $carts, 
+                    'carts' => $carts,
+                    'specialOffers' =>$specialOffers 
                 ])->render(),
             ], 200);
         } catch (\Exception $e) {

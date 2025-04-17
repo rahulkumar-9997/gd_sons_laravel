@@ -603,22 +603,20 @@ class FrontendController extends Controller
                     $mobile_number = '91' . $phone_number;
                     Log::info('mobile Number:', ['no' => $mobile_number]);
                     Log::info('oTP:', ['no' => $otp]);
-                    //$response = $this->whatappLinkSendWhatappOtp($mobile_number, $otp);
-                    return redirect()->route('wp.otp.form', ['redirect_to' => $originalUrl])->with([
-                        'success' => 'OTP sent successfully to your WhatsApp!',
-                        'phone_number' => $phone_number,
-                    ]);
-                    // if ($response->successful()) {
-                    //     return redirect()->route('otp.form', ['redirect_to' => $originalUrl])->with([
-                    //         'success' => 'OTP sent successfully to your WhatsApp!',
-                    //         'phone_number' => $customer->phone_number,
-                    //     ]);
-                    // } else {
-                    //     Log::error('OTP send failed:', $response->json());
-                    //     return redirect()->back()->with('error', 'Failed to send OTP. Try again.');
-                    // }
-                } else {
-                    
+                    $response = $this->whatappLinkSendWhatappOtp($mobile_number, $otp);
+                    // return redirect()->route('wp.otp.form', ['redirect_to' => $originalUrl])->with([
+                    //     'success' => 'OTP sent successfully to your WhatsApp!',
+                    //     'phone_number' => $phone_number,
+                    // ]);
+                    if ($response->successful()) {
+                        return redirect()->route('wp.otp.form', ['redirect_to' => $originalUrl])->with([
+                            'success' => 'OTP sent successfully to your WhatsApp No.!',
+                            'phone_number' => $customer->phone_number,
+                        ]);
+                    }else {
+                        Log::error('OTP send failed:', $response->json());
+                        return redirect()->back()->with('error', 'Failed to send OTP. Try again.');
+                    }
                 }
             }
         }

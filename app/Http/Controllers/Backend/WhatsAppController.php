@@ -18,7 +18,11 @@ use App\Models\WhatsappSpecialRate;
 class WhatsAppController extends Controller
 {
     public function index(Request $request){
-        return view('backend.manage-whatsapp.index');
+        $data['specialOffers'] = SpecialOffer::with(['customer', 'product'])
+        ->orderBy('id', 'desc')
+        ->get();
+        //return response()->json($data['specialOffers']);
+        return view('backend.manage-whatsapp.index', compact('data'));
     }
 
     public function create(Request $request){
@@ -278,6 +282,28 @@ class WhatsAppController extends Controller
         $searchTerm = $request->input('query');
         $results = WhatsappConversation::autocomplete($searchTerm);
         return response()->json($results);
+    }
+
+    public function destroy($id){
+        $specialOffer = SpecialOffer::findOrFail($id);
+        $specialOffer->delete();
+        return redirect()->route('manage-whatsapp.index')->with('success', 'Special offer deleted successfully.');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $specialOffer = SpecialOffer::findOrFail($id);
+        if ($request->has('special_offer_rate')) {
+            $specialOffer->special_offer_rate = $request->input('special_offer_rate');
+            $specialOffer->save();
+            return response()->json([
+                'status' => 'success',
+                'message' =>'Special offer rate updated successfully.'
+                ]
+            );
+        }
+
+        return response()->json(['error' => 'Invalid data'], 400);
     }
        
 

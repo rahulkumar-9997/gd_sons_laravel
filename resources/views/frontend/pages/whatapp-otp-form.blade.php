@@ -141,8 +141,13 @@
             <div class="col-xxl-4 col-xl-5 col-lg-6 col-sm-8 mx-auto">
                 <div class="log-in-box">
                     <div class="opt-box hideBox">
-                        @if (Session::has('whatsapp_otp'))
+                        <!-- @if (Session::has('whatsapp_otp'))
                             <div class="alert alert-info">OTP: {{ Session::get('whatsapp_otp')['otp'] }}</div>
+                        @endif -->
+                        @if (session('success'))
+                            <div class="alert alert-success">
+                                {{ session('success') }}
+                            </div>
                         @endif
                         <form action="{{ route('wp.verify.otp') }}" method="POST">
                             @csrf

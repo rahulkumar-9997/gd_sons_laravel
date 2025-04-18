@@ -1348,6 +1348,12 @@ a.cntshop {
   .sticky-user {
     bottom: 75px;
   }
+  .other-page-list{
+    gap: 1px;
+  }
+  .other-page-list li{
+    padding: 0px 5px;
+  }
 }
 
 @media (max-width: 767px) {

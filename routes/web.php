@@ -91,7 +91,8 @@ Route::middleware([TrackVisitor::class])->group(function () {
     Route::post('product-enquiry-modal-form', [FrontendController::class, 'productEnquiryModalForm'])->name('product-enquiry-modal-form');
     Route::post('product-enquiry-modal-form-submit', [FrontendController::class, 'productEnquiryModalFormSubmit'])->name('product-enquiry-modal-form.submit');
     Route::get('lp', [FrontLandingPageController::class, 'landingPage'])->name('lp');
-
+    Route::get('privacy-policy', [FrontendController::class, 'privacyPolicy'])->name('privacy-policy');
+    Route::get('terms-of-use', [FrontendController::class, 'termsOfUse'])->name('terms-of-use');
 
     
     Route::group(['middleware' => ['auth.customer']], function() {

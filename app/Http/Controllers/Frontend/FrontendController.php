@@ -1449,5 +1449,15 @@ class FrontendController extends Controller
       
     }
 
+    public function privacyPolicy()
+    {
+        return view('frontend.pages.privacy-policy');
+    }
+
+    public function termsOfUse()
+    {
+        return view('frontend.pages.term-of-use');
+    }
+
     
 }

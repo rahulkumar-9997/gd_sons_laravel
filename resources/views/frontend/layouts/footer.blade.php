@@ -1,36 +1,36 @@
 <!--Sticky user-->
 @if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory))
-   @php
-      $groupNames ='';
-      $customer = $groupCategory->name;
-      $groupNames = $groupCategory->customerGroup->name;
-   @endphp
-   <div class="sticky-user">
-      <div class="user-name">
-         <a href="{{ route('myaccount') }}">
-            <h5>
-                  {!! $customer !!} 
-                  
-                  @if($groupNames)
-                     <span> - {{ $groupNames }}</span>
-                  @endif
-            </h5>
-         </a>
-      </div>
+@php
+$groupNames ='';
+$customer = $groupCategory->name;
+$groupNames = $groupCategory->customerGroup->name;
+@endphp
+<div class="sticky-user">
+   <div class="user-name">
+      <a href="{{ route('myaccount') }}">
+         <h5>
+            {!! $customer !!}
+
+            @if($groupNames)
+            <span> - {{ $groupNames }}</span>
+            @endif
+         </h5>
+      </a>
    </div>
+</div>
 @endif
 <!--Sticky user-->
 
 <!--sticky footer--->
 <div class="floating-buttons shake1">
-    <a href="https://wa.me/918318894257?text=Hello,+I+am+interested+in+learning+more+about+your+Services" 
-       class="float-btn whatsapp" target="_blank">
-        <i class="fab fa-whatsapp"></i>
-    </a>
-    <a href="tel:+918318894257" 
-       class="float-btn messenger" target="_blank">
-        <i class="fa fa-solid fa-phone" style="font-size: 20px;"></i>
-    </a>
+   <a href="https://wa.me/918318894257?text=Hello,+I+am+interested+in+learning+more+about+your+Services"
+      class="float-btn whatsapp" target="_blank">
+      <i class="fab fa-whatsapp"></i>
+   </a>
+   <a href="tel:+918318894257"
+      class="float-btn messenger" target="_blank">
+      <i class="fa fa-solid fa-phone" style="font-size: 20px;"></i>
+   </a>
 </div>
 
 <!--sticky footer--->
@@ -93,31 +93,7 @@
                   <img src="{{asset('frontend/assets/gd-img/footer-img/gd-footer-logo.png')}}" class="blur-up lazyload" alt="Save More on Bulk Orders">
                </div>
             </div>
-            <!-- <div class="col-xl-3 col-lg-4 col-sm-6">
-               <div class="footer-logo">
-                  <div class="theme-logo">
-                     <a href="index.html">
-                        <img src="{{asset('frontend/assets/images/logo/1.png')}}" class="blur-up lazyload" alt="">
-                     </a>
-                  </div>
 
-                  <div class="footer-logo-contain">
-                     <p>We are a friendly bar serving a variety of cocktails, wines and beers. Our bar is a
-                        perfect place for a couple.</p>
-
-                     <ul class="address">
-                        <li>
-                           <i data-feather="home"></i>
-                           <a href="javascript:void(0)">1418 Riverwood Drive, CA 96052, US</a>
-                        </li>
-                        <li>
-                           <i data-feather="mail"></i>
-                           <a href="javascript:void(0)">support@fastkart.com</a>
-                        </li>
-                     </ul>
-                  </div>
-               </div>
-            </div> -->
             @if (isset($category_for_footer) && $category_for_footer->isNotEmpty())
             <div class="col-xl-3 col-lg-3 col-sm-3">
                <div class="footer-title">
@@ -225,6 +201,27 @@
             </div>
          </div>
       </div>
+      <div class="row">
+         <div class="col-lg-12">
+            <div class="footer-term">
+               <div class="other-page-link">
+                  <ul class="other-page-list">
+                     <li>
+                        <a href="{{ route('privacy-policy') }}">
+                           Privacy Policy
+                        </a>
+                     </li>
+                     <li>
+                        <a href="{{ route('terms-of-use') }}">Terms Of Use</a>
+                     </li>
+                     <li>
+                     <a href="{{ route('terms-of-use') }}#returns-and-cancellations">Return / Refund</a>
+                     </li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+      </div>
    </div>
 
    <div class="sub-footer section-small-space footer-bottom-section">
@@ -281,7 +278,7 @@
       <div class="modal-content">
          <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel"></h5>
-           
+
             <button type="button" class="btn-close" data-bs-dismiss="modal">
                <i class="fa-solid fa-xmark"></i>
             </button>

@@ -71,39 +71,77 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                             <div class="price-rating">
                                 <h3 class="theme-color price">
                                     @php
-                                    $offer_rate_display ='';
-                                    @endphp
-                                    @if($data['product_details']->offer_rate)
-                                    @php
+                                    // Initialize variables
+                                    $product = $data['product_details'];
+                                    $final_offer_rate = null;
+                                    $offer_rate_display = '';
+                                    $special_offer_rate = null;
+                                    $group_offer_rate = null;
 
-                                    $final_offer_rate = $data['product_details']->offer_rate;
+                                    // Default offer rate from product
+                                    if ($product->offer_rate) {
+                                    $final_offer_rate = $product->offer_rate;
+                                    }
+
+                                    // Group offer calculation (if customer logged in and group category exists)
                                     if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
-                                    $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                    if ($group_categoty_percentage > 0) {
-                                    $purchase_rate = $data['product_details']->purchase_rate;
-                                    $offer_rate = $data['product_details']->offer_rate;
-                                    $percent_discount = 100/$group_categoty_percentage;
-                                    $final_offer_rate =
-                                    $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
-                                    $final_offer_rate = floor($final_offer_rate);
+                                    $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                    if ($group_percentage > 0) {
+                                    $purchase_rate = $product->purchase_rate;
+                                    $offer_rate = $product->offer_rate;
+                                    // Calculate group offer rate based on the group's discount percentage
+                                    $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                                    $group_offer_rate = floor($group_offer_rate);
+                                    // Prepare the display for the regular (default) offer rate if the group offer is applied
                                     $offer_rate_display = '<br><span>Regular offer price</span><del class="text-content"> Rs. ' . number_format($offer_rate, 2) . '</del>';
                                     }
                                     }
+
+                                    // Check for a special offer rate (provided by $specialOffers array)
+                                    if (isset($specialOffers[$product->id])) {
+                                    $special_offer_rate = (float) $specialOffers[$product->id];
+                                    }
+
+                                    // Determine the minimum (best) offer from available offers
+                                    $all_offer_prices = array_filter([
+                                    $special_offer_rate,
+                                    $group_offer_rate,
+                                    $product->offer_rate,
+                                    ]);
+
+                                    if (!empty($all_offer_prices)) {
+                                    $final_offer_rate = min($all_offer_prices);
+                                    }
                                     @endphp
-                                    Rs. {{ number_format($final_offer_rate, 2) }}
+
+                                    @if($final_offer_rate)
+                                    <div>
+                                        Rs. {{ number_format($final_offer_rate, 2) }}
+
+                                        {{-- Discount Calculation --}}
+                                        @if($product->mrp)
+                                        @php
+                                        $discountPercentage = round((($product->mrp - $final_offer_rate) / $product->mrp) * 100, 2);
+                                        @endphp
+                                        <span class="offer theme-color">
+                                            ({{ $discountPercentage }}% off)
+                                        </span>
+                                        @endif
+
+                                        {{-- Display M.R.P. (crossed out) --}}
+                                        @if($product->mrp)
+                                        <br>
+                                        <span>M.R.P.</span>
+                                        <del class="text-content">
+                                            Rs. {{ number_format($product->mrp, 2) }}
+                                        </del>
+                                        @endif
+
+                                        {{-- Display the "regular offer" price if group rate is applied --}}
+                                        {!! $offer_rate_display !!}
+                                    </div>
                                     @endif
-                                    @if($data['product_details']->mrp && $final_offer_rate)
-                                    @php
-                                    $discountPercentage = round(((($data['product_details']->mrp -$final_offer_rate) / $data['product_details']->mrp) * 100), 2);
-                                    @endphp
-                                    <span class="offer theme-color">({{ $discountPercentage }}% off)</span>
-                                    @endif
-                                    {!! $offer_rate_display !!}
-                                    @if($data['product_details']->mrp)
-                                    <br><span> M.R.P.</span><del class="text-content">
-                                        Rs. {{ number_format($data['product_details']->mrp, 2) }}
-                                    </del>
-                                    @endif
+
                                 </h3>
                             </div>
                         </div>
@@ -189,7 +227,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 
                                         /* Default offer */
                                         if ($product->offer_rate) {
-                                            $final_offer_rate = $product->offer_rate;
+                                        $final_offer_rate = $product->offer_rate;
                                         }
 
                                         /* Group offer calculation */
@@ -206,18 +244,18 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 
                                         /* Special offer */
                                         if (isset($specialOffers[$product->id])) {
-                                            $special_offer_rate = (float) $specialOffers[$product->id];
+                                        $special_offer_rate = (float) $specialOffers[$product->id];
                                         }
 
                                         /* Get minimum of all available offer prices*/
                                         $all_offer_prices = array_filter([
-                                            $special_offer_rate,
-                                            $group_offer_rate,
-                                            $product->offer_rate,
+                                        $special_offer_rate,
+                                        $group_offer_rate,
+                                        $product->offer_rate,
                                         ]);
 
                                         if (!empty($all_offer_prices)) {
-                                            $final_offer_rate = min($all_offer_prices);
+                                        $final_offer_rate = min($all_offer_prices);
                                         }
                                         @endphp
                                         @if($final_offer_rate)

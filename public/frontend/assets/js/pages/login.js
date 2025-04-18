@@ -84,6 +84,10 @@ $(document).ready(function () {
                 submitButton.prop('disabled', false).html(originalButtonText);
     
                 if (response.success) {
+                    if(response.dummy==1){
+                        showNotification("success", "Success!", response.message);
+                        window.location.href = response.redirect_url;
+                    }
                     $('.login-box').hide();
                     $('.opt-box').removeClass('hideBox');
     

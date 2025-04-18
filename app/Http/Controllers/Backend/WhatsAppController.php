@@ -138,7 +138,7 @@ class WhatsAppController extends Controller
                 $hash = Hashids::encode($customer->id, $product_id);
                 $product = Product::with([
                     'images' => function ($query) {
-                        $query->select('id', 'product_id', 'image_path')->orderBy('id');
+                        $query->select('id', 'product_id', 'image_path')->orderBy('sort_order');
                     },
                     'ProductAttributesValues' => function ($query) {
                         $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')

@@ -74,7 +74,6 @@ class Customer extends Authenticatable
                 'name' => $name,
                 'password' => $hashedPassword,
                 'status' => true,
-                'email' => 'gd'.$cleanPhone.'@gmail.com',
                 'customer_id' => 'GD-' . time(),
             ]);
         }

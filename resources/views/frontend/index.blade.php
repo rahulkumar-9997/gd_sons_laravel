@@ -133,10 +133,10 @@
 </section>
 <!-- Home Section End -->
 <!-- Banner Section Start -->
-<section class="banner-section ratio_60">
+<section class="banner-section ratio_60 gd5">
     <div class="container-fluid-lg">
-        <div class="banner-slider gd5">
-            <div>
+        <div class="row g-3">
+            <div class="col-xl-20">
                 <div class="banner-contain hover-effect">
                     <a href="https://gdsons.co.in/categories/vacuum-flask" aria-label="Browse Vacuum Flasks">
                         <img
@@ -152,13 +152,12 @@
                 </div>
             </div>
 
-            <div>
+            <div class="col-xl-20">
                 <div class="banner-contain hover-effect">
                     <a href="https://gdsons.co.in/categories/lpg-gas-stoves" aria-label="Browse LPG Gas Stoves">
                         <img
                             src="{{ asset('frontend/assets/gd-img/banner-bottom/stovesU.webp') }}"
                             class="img-fluid blur-up lazyload"
-
                             alt="lpg gas stoves"
                             loading="lazy"
                             width="400"
@@ -166,11 +165,10 @@
                             decoding="async"
                             fetchpriority="low">
                     </a>
-
                 </div>
             </div>
 
-            <div>
+            <div class="col-xl-20">
                 <div class="banner-contain hover-effect">
                     <a href="https://gdsons.co.in/categories/lunchbox-tiffin" aria-label="Browse Lunchboxes and Tiffins">
                         <img
@@ -183,43 +181,44 @@
                             decoding="async"
                             fetchpriority="low">
                     </a>
-
                 </div>
             </div>
-            <div>
+
+            <div class="col-xl-20">
                 <div class="banner-contain hover-effect">
                     <a href="https://gdsons.co.in/categories/kitchen-appliances" aria-label="Browse Kitchen Appliances">
                         <img
                             src="{{ asset('frontend/assets/gd-img/banner-bottom/appliances_0.webp') }}"
                             class="img-fluid blur-up lazyload"
-
                             alt="Application"
                             loading="lazy"
                             width="400"
                             height="437"
                             decoding="async"
                             fetchpriority="low">
-
                     </a>
-
                 </div>
             </div>
-            <div>
+
+            <div class="col-xl-20">
                 <div class="banner-contain hover-effect">
                     <a href="https://gdsons.co.in/categories/pressure-cooker" aria-label="Browse Pressure Cookers">
-                        <img src="{{asset('frontend/assets/gd-img/banner-bottom/CookerPosterF1.webp')}}" class=" img-fluid blur-up lazyloaded" alt="" loading="lazy"
+                        <img
+                            src="{{ asset('frontend/assets/gd-img/banner-bottom/CookerPosterF1.webp') }}"
+                            class="img-fluid blur-up lazyload"
+                            alt="Pressure Cooker"
+                            loading="lazy"
                             width="236"
                             height="258"
                             decoding="async"
                             fetchpriority="low">
                     </a>
-
                 </div>
             </div>
-
         </div>
     </div>
 </section>
+
 
 <!-- Banner Section End -->
 <!-- Product Section Start -->
@@ -399,8 +398,9 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    @endif
+                </div>
+                
+                @endif
                     @if ($data['trending_products'] && $data['trending_products']->isNotEmpty())
                     <div class="title d-block text-center">
                         <h2>Trending Products</h2>
@@ -612,6 +612,7 @@
             observer.observe(el);
         });
     });
+    
 </script>
 <!-- <script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}"></script>
 <script src="{{asset('frontend/assets/js/pages/quick-view.js')}}"></script>

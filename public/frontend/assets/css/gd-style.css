@@ -18,7 +18,16 @@
     box-shadow: #63636333 0 2px 8px;
     padding: 5px;
     border: 2px solid #d6091a;
+    max-width: 268px;
+    max-height: 268px;
+    overflow: hidden;
+    /* aspect-ratio: 0.9037037037; */
+    aspect-ratio: 400/437;
     
+}
+.col-xl-20 {
+  flex: 0 0 auto;
+  width: 20%;
 }
 .mobile-menu-section a{
     font-family: 'Playfair Display', serif;
@@ -354,9 +363,9 @@
   /* padding: 0px 0px !important; */
 }
 .gd5 .banner-contain:hover img {
-  -webkit-transform: scale(1.2);
-  -ms-transform: scale(1.2);
-  transform: scale(1.2);
+  -webkit-transform: scale(1.1);
+  -ms-transform: scale(1.1);
+  transform: scale(1.1);
   transition: transform 0.6s ease;
 }
 #shopping-cart-table td.product-image {
@@ -1582,3 +1591,21 @@ a.cntshop {
   max-height: 100%;
   padding: 1px;
 } */
+
+@media (max-width: 768px) {
+  .gd5 .col-xl-20 {
+      flex: 0 0 auto;
+      width: 50%;
+  }
+  .gd5 .banner-contain{
+    max-width: 194px;
+    max-height: 194px;
+  }
+  .gd5 .row{
+    justify-content: center;
+  }
+  /* .product-box{
+    max-width: 224px;
+    max-height: 224px;
+  } */
+}

@@ -31104,8 +31104,10 @@ body.rtl .menu-label {
     position: relative;
     -webkit-transition: all .3s ease-in-out;
     transition: all .3s ease-in-out;
-    overflow: hidden
+    overflow: hidden;
 }
+
+
 
 .product-box:hover .product-image a img {
     -webkit-transform: scale(1.1);

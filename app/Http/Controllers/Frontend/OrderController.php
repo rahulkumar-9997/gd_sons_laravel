@@ -28,9 +28,11 @@ use Illuminate\Support\Facades\Log;
 use App\Mail\OrderDetailsMail;
 use Illuminate\Support\Facades\Mail;
 use PhpParser\Node\Expr\FuncCall;
+use Razorpay\Api\Api;
 
 class OrderController extends Controller
 {
+
     public function checkOutFormSubmit(Request $request){
         $addressExists = isset($request->customer_address_id) && $request->customer_address_id != '';
         if($request->pick_up_status == 'pick_up_store'){
@@ -509,6 +511,45 @@ class OrderController extends Controller
             }])
             ->get();
         return view('frontend.pages.pick-up-store-page', compact('carts', 'specialOffers'));
+    }
+
+    public function createOrder(Request $request)
+    {
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+        
+        $orderData = [
+            'amount' => $request->amount * 100, // Razorpay expects amount in paise
+            'currency' => 'INR',
+            'receipt' => 'order_rcpt_'.uniqid(),
+            'payment_capture' => 1 // auto capture
+        ];
+
+        $order = $api->order->create($orderData);
+        
+        return response()->json($order);
+    }
+
+    public function handleSuccess(Request $request)
+    {
+        // Verify payment signature
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+        
+        try {
+            $attributes = [
+                'razorpay_order_id' => $request->razorpay_order_id,
+                'razorpay_payment_id' => $request->razorpay_payment_id,
+                'razorpay_signature' => $request->razorpay_signature
+            ];
+            
+            $api->utility->verifyPaymentSignature($attributes);
+            
+            // Payment successful - process order
+            return view('payment.success');
+            
+        } catch (\Exception $e) {
+            // Handle failed payment
+            return view('payment.failed');
+        }
     }
 
 }

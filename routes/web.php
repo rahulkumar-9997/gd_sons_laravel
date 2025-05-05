@@ -115,6 +115,10 @@ Route::middleware([TrackVisitor::class])->group(function () {
         Route::post('add/address/submit', [CustomerController::class, 'addAddressFormSubmit'])->name('add.address.submit');
         Route::post('edit/address/{id}', [CustomerController::class, 'editAddressForm'])->name('edit.address');
         Route::put('update/address/{id}', [CustomerController::class, 'editAddressFormSubmit'])->name('update.address');
+        /** */
+        Route::post('/create-order', [OrderController::class, 'createOrder'])->name('create.order');
+        Route::post('/payment-success', [OrderController::class, 'handleSuccess'])->name('payment.success');
+        /** */
         Route::group(['prefix' => 'account'], function() {
             Route::get('address', [CustomerController::class, 'showCustomerAddress'])->name('address');
             Route::get('customer-profile', [CustomerController::class, 'customerProfile'])->name('customer-profile');

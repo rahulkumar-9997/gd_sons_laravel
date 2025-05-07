@@ -40,6 +40,7 @@ class DatabaseController extends Controller
         try {
             $backupFileName = 'backup_' . date('Y-m-d_H-i-s') . '.sql';
             $backupPath = storage_path('app/backups/' . $backupFileName);
+            
             if (!file_exists(storage_path('app/backups'))) {
                 mkdir(storage_path('app/backups'), 0755, true);
             }
@@ -49,24 +50,34 @@ class DatabaseController extends Controller
             $password = env('DB_PASSWORD');
             $host = env('DB_HOST');
             $port = env('DB_PORT');
-            $mysqldumpPath = exec('where mysqldump'); 
-            if (!$mysqldumpPath) {
-                //$mysqldumpPath = 'C:\\xampp\\mysql\\bin\\mysqldump.exe'; 
-                $mysqldumpPath = '/usr/bin/mysqldump';
+            $mysqldumpPath = exec('which mysqldump') ?: '/usr/bin/mysqldump';
+            //$mysqldumpPath = 'C:\\xampp\\mysql\\bin\\mysqldump.exe'; 
+            if (!file_exists($mysqldumpPath)) {
+                throw new \Exception('mysqldump command not found at '.$mysqldumpPath);
             }
-            if (empty($mysqldumpPath) || !file_exists($mysqldumpPath)) {
-                throw new \Exception('mysqldump command not found. Please ensure MySQL is installed and the path to mysqldump is correct.');
-            }
-            $command = "$mysqldumpPath --user=$username --password=$password --host=$host --port=$port $database > $backupPath";
+            $password = escapeshellarg($password);
+            $command = sprintf(
+                '%s --user=%s --password=%s --host=%s --port=%s %s > %s',
+                $mysqldumpPath,
+                escapeshellarg($username),
+                $password,
+                escapeshellarg($host),
+                escapeshellarg($port),
+                escapeshellarg($database),
+                escapeshellarg($backupPath)
+            );
+
             $output = [];
             $result = null;
             exec($command . ' 2>&1', $output, $result);
+            
             Log::info('Backup command output: ' . implode("\n", $output));
             Log::info('Backup command result: ' . $result);
-            if ($result == 0) {
+            
+            if ($result === 0) {
                 return response()->download($backupPath, $backupFileName)->deleteFileAfterSend(true);
             } else {
-                throw new \Exception('Backup command failed. Output: ' . implode("\n", $output));
+                throw new \Exception('Backup command failed. Exit code: ' . $result . '. Output: ' . implode("\n", $output));
             }
         } catch (\Exception $e) {
             Log::error('Database backup failed: ' . $e->getMessage());
@@ -74,7 +85,6 @@ class DatabaseController extends Controller
         }
     }
 
- 
 }
 
 

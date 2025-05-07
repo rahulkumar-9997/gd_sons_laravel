@@ -25,10 +25,7 @@
                     <table class="table table">
                         <thead>
                             <tr>
-                                <th>
-                                    <input type="checkbox" id="selectAll" class="form-check-input">
-                                </th>
-                                <th>Select</th>
+                                <th>Select <BR><input type="checkbox" id="selectAll" class="form-check-input"></th>
                                 <th>Table Name</th>
                             </tr>
                         </thead>

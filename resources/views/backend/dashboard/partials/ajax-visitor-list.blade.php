@@ -7,8 +7,9 @@
                     <th>Sr. No.</th>
                     <th>IP Address</th>
                     <th>Browser</th>
-                    <th style="width: 10%;">Page Name</th>
-                    <th>Location</th>
+                    <th style="width: 10%;">Page Url</th>
+                    <th style="width: 10%;">Page Title</th>
+                    <th>Customer Name</th>
                     <th>Visited At</th>
                 </tr>
             </thead>
@@ -30,10 +31,11 @@
                             {{ $visitor->page_name }}
                         </div>
                     </td>
-                    <td style="width: 30%;">
-                        <div class="overflow-auto" style="max-width: 300px; white-space: nowrap;">
-                            {{ $visitor->location }}
-                        </div>
+                    <td style="width: 10%;">
+                        {{ $visitor->page_title }}
+                    </td>
+                    <td style="width: 20%;">
+                        {{ $visitor->customer_name }}
                     </td>
                     <td>{{ $visitor->visited_at }}</td>
                 </tr>

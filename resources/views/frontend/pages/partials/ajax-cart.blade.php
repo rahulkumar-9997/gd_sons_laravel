@@ -179,9 +179,9 @@
         <div class="button-group cart-button">
             <ul>
                 <li>
-                    <!-- <button onclick="location.href = '{{ route('checkout') }}';"
-                        class="btn btn-animation proceed-btn fw-bold">Process To Checkout</button> -->
-                    <button id="rzp-button1" class="btn btn-animation proceed-btn fw-bold">Process To Checkout</button>
+                    <button onclick="location.href = '{{ route('checkout') }}';"
+                        class="btn btn-animation proceed-btn fw-bold">Process To Checkout</button>
+                    <!-- <button id="rzp-button1" class="btn btn-animation proceed-btn fw-bold">Process To Checkout</button> -->
                 </li>
 
                 <!--<li>

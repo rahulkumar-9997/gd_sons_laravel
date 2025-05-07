@@ -20,6 +20,7 @@ class CreateWhatsAppConversationTable extends Migration
             $table->longText('conversation_message')->nullable();
             $table->timestamps();
         });
+        
     }
 
     /**

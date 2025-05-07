@@ -39,3 +39,12 @@
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/vendors/animate.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/style.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/gd-style.css')}}">
+<!-- <script>
+    if (!window.location.search.includes('pt=')) {
+        const title = encodeURIComponent(document.title);
+        const separator = window.location.search ? '&' : '?';
+        const newUrl = window.location.href + separator + 'pt=' + title;
+        window.history.replaceState({}, '', newUrl);
+        window.location.href = newUrl;
+    }
+</script> -->

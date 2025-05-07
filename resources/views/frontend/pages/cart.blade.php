@@ -80,6 +80,12 @@
                     },
                     "theme": {
                         "color": "#f8471d"
+                    },
+                    "magic": true,
+                    "modal": {
+                        "ondismiss": function() {
+                            console.log("Checkout closed by user");
+                        }
                     }
                 };
                 

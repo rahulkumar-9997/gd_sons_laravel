@@ -11,7 +11,8 @@ use App\Models\SocialMediaTracking;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 class TrackVisitor
 {
     /**
@@ -25,15 +26,10 @@ class TrackVisitor
     {
         /** Social Media Management **/
         $this->SocialMediaTracking($request);
-        /** Social Media Management **/
-
-        /*Skip logging for non-GET requests or AJAX requests*/
-        //if (!$request->isMethod('get') || $request->ajax()) {
+        
         if (!$request->isMethod('get') || $request->expectsJson() || $request->wantsJson()) {
             return $next($request); 
         }
-
-        /* Check if the visitor is a bot*/
         if ($this->isBot($request)) {
             return $next($request); 
         }
@@ -42,17 +38,12 @@ class TrackVisitor
             Log::info("Blocked IP: " . $request->ip());
             return $next($request); 
         }
-       
-    
-
-        /* Get visitor details*/
         $ipAddress = $request->ip();
         $browser = $request->header('User-Agent');
         $pageName = $request->fullUrl();
+        $pageTitle = $this->getPageTitle($request);
         $currentDate = Carbon::now()->toDateString();
-        
-        /* Skip certain assets like images, CSS, JS*/
-        if (preg_match('/\.(png|jpg|jpeg|gif|svg|css|js|woff|woff2|ttf|map|ico)$/i', $pageName)) {
+        if (preg_match('/\.(png|jpg|jpeg|gif|svg|css|js|woff|woff2|ttf|map|ico)$/i', $pageName) || $request->is('images/*', 'css/*', 'js/*')) {
             return $next($request);
         }
 
@@ -61,7 +52,11 @@ class TrackVisitor
         $cacheDuration = now()->addDay();
         /* Cache for 1 day*/
 
-
+        if (auth()->guard('customer')->check()) {
+            $customerName = auth()->guard('customer')->user()->name;
+        } else {
+            $customerName = null;
+        }
         if (!Cache::has($cacheKey)) {
             $location_array = GeoIP::getLocation($ipAddress);
             $location = [
@@ -71,17 +66,16 @@ class TrackVisitor
                 'postal_code' => $location_array->postal_code ?? 'Unknown',
                 'currency' => $location_array->currency ?? 'Unknown',
             ];
-
-            // Save tracking data in the database
             VisitorTracking::create([
                 'ip_address' => $ipAddress,
                 'browser' => $browser,
                 'page_name' => $pageName,
                 'location' => json_encode($location),
                 'visited_at' => now(),
+                'customer_name' => $customerName,
+                'page_title' => $pageTitle,
             ]);
 
-            // Store in cache to prevent duplicate inserts
             Cache::put($cacheKey, true, $cacheDuration);
         }
 
@@ -168,5 +162,30 @@ class TrackVisitor
         ];
     
         return in_array($ip, $blockedIPs);
+    }
+    private function getPageTitle($request)
+    {
+        // Method 1: Get from named routes
+        if ($request->route() && $routeName = $request->route()->getName()) {
+            return Str::title(str_replace('.', ' ', $routeName));
+        }
+
+        // Method 2: Get from view data (if you set title in controllers)
+        if ($request->has('title')) {
+            return $request->input('title');
+        }
+
+        // Method 3: Get from session (if you set it in controllers)
+        if (session()->has('page_title')) {
+            return session('page_title');
+        }
+
+        // Default title based on URL path
+        $path = trim($request->path(), '/');
+        if (empty($path)) {
+            return 'Home Page';
+        }
+
+        return Str::title(str_replace(['-', '_', '/'], ' ', $path));
     }
 }

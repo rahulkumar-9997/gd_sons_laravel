@@ -11,6 +11,7 @@ use App\Http\Controllers\Frontend\OrderController;
 use App\Http\Controllers\Frontend\SearchController;
 use App\Http\Controllers\Frontend\FrontLandingPageController;
 use App\Http\Controllers\Frontend\SitemapController;
+use App\Http\Controllers\Frontend\WhatsappConfirmationController;
 
 use App\Http\Controllers\Backend\LoginController;
 use App\Http\Controllers\Backend\ForgotPasswordController;
@@ -135,6 +136,7 @@ Route::middleware([TrackVisitor::class])->group(function () {
         });
     });
 });
+Route::get('/confirmwa/yes/{value}', [WhatsappConfirmationController::class, 'confirmWhatsappYes'])->name('confirmwa.yes');
 Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 Route::post('/update-counter', [FrontendController::class, 'updateCounter'])->name('update.counter');
 Route::get('/wp-otp-form', [FrontendController::class, 'WhatAppClickShowOtpForm'])->name('wp.otp.form');
@@ -353,6 +355,8 @@ Route::group(['middleware' => ['admin']], function () {
     Route::resource('manage-landing-page', LandingPageController::class);
     Route::get('social-media-track-list', [SocialMediaTrackController::class, 'socialMediaTrackList'])->name('social-media-track-list');
     Route::resource('manage-whatsapp-conversation', WhatsappConversationController::class);
+    Route::post('whatsapp-conversation-send/{id}', [WhatsappConversationController::class, 'sendAgainMsgModal'])->name('whatsapp-conversation.send');
+    Route::post('whatsapp-conversation-sendmessage/{id}', [WhatsappConversationController::class, 'sendAgainMsgModalSubmit'])->name('whatsapp-conversation.sendmessage');
     Route::get('manage-storage', [StorageController::class, 'index'])->name('manage-storage');
     Route::get('manage-storage/create', [StorageController::class, 'create'])->name('manage-storage.create');
     Route::post('manage-storage/submit', [StorageController::class, 'store'])->name('manage-storage.submit');

@@ -21,7 +21,7 @@
                   Create New Conversation to Whatsapp
                </a>
             </div>
-            <div class="card-body conversation-list">
+            <div class="card-body conversation-list-whattapp">
                @include('backend.manage-whatsapp.manage-whatsapp-conversation.partials.ajax-conversation-list', ['WhatsappConversation' => $WhatsappConversation])
             </div>
          </div>

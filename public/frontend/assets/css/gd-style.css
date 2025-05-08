@@ -17,7 +17,7 @@
 .gd5 .banner-contain{
     box-shadow: #63636333 0 2px 8px;
     padding: 5px;
-    border: 2px solid #d6091a;
+    /* border: 2px solid #d6091a; */
     max-width: 268px;
     max-height: 268px;
     overflow: hidden;
@@ -685,6 +685,7 @@
 }
 .blog-paragraphs .recent-name{
     margin-bottom: 11px;
+    color: #ee3d43;
 }
 .blog-section .blog-detail-image .blog-image-contain h1 {
   margin: calc(10px + 4*(100vw - 320px) / 1600) 0;

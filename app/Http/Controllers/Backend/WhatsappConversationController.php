@@ -179,7 +179,7 @@ class WhatsappConversationController extends Controller
         $url = "https://www.gdsons.co.in/confirmwa/yes/{$WhatsappConversationMessageId}";
         $apiData = [
             "apiKey" => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY",
-            "campaignName" => "Test New API",
+            "campaignName" => "Send Message to Customer for Keyword Enquiry",
             "destination" => $mobileNumber,
             "userName" =>  $name,
             "templateParams" => [

@@ -23,7 +23,7 @@
             <td>{{ $conversation->name }}</td>
             <td>
                 @php
-                    $hasReply = $conversation->messages->contains('reply', 'yes');
+                    $hasReply = $conversation->messages->contains('reply', 'Yes');
                 @endphp
 
                 @if ($hasReply)

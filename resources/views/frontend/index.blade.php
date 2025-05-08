@@ -268,7 +268,7 @@
                     </div>
                 </div>
                 <div class="section-b-space">
-                    <div class="product-border border-row overflow-hidden">
+                    <div class="non-product-border non-border-row no-overflow-hidden">
                         <div class="product-box-slider no-arrow">
                             @php
                             $row_count = 0;
@@ -324,8 +324,8 @@
                                     ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
                                     : 0;
                                     @endphp
-                                    <div class="col-12 px-0">
-                                        <div class="product-box">
+                                    <div class="col-12 px-1">
+                                        <div class="product-box mb-1">
                                             <div class="product-image">
                                                 @if ($discountPercentage>0)
                                                 <div class="label-flex">
@@ -336,32 +336,34 @@
                                                     </div>
                                                 </div>
                                                 @endif
-                                                <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
-                                                    @if ($firstImage)
-                                                    <img
-                                                        class="img-fluid blur-up lazyload"
-                                                        data-src="{{ asset('images/product/thumb/'. $firstImage->image_path) }}"
-                                                        src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                        srcset="{{ asset('images/product/thumb/'. $firstImage->image_path) }} 600w, 
-                                                                {{ asset('images/product/thumb/'. $firstImage->image_path) }} 1200w"
-                                                        sizes="(max-width: 600px) 600px, 1200px"
-                                                        alt="{{ $popular_product_row->title }}"
-                                                        title="{{ $popular_product_row->title }}"
-                                                        loading="lazy"
-                                                        width="300"
-                                                        height="300"
-                                                        onload="this.style.opacity=1">
-                                                    @else
-                                                    <img
-                                                        src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                        class="img-fluid blur-up lazyload"
-                                                        alt="{{ $popular_product_row->title }}"
-                                                        loading="lazy"
-                                                        width="300"
-                                                        height="300">
-                                                    @endif
+                                                <div class="product-img">
+                                                    <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
+                                                        @if ($firstImage)
+                                                        <img
+                                                            class="img-fluid blur-up lazyload"
+                                                            data-src="{{ asset('images/product/thumb/'. $firstImage->image_path) }}"
+                                                            src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                                            srcset="{{ asset('images/product/thumb/'. $firstImage->image_path) }} 600w, 
+                                                                    {{ asset('images/product/thumb/'. $firstImage->image_path) }} 1200w"
+                                                            sizes="(max-width: 600px) 600px, 1200px"
+                                                            alt="{{ $popular_product_row->title }}"
+                                                            title="{{ $popular_product_row->title }}"
+                                                            loading="lazy"
+                                                            width="300"
+                                                            height="300"
+                                                            onload="this.style.opacity=1">
+                                                        @else
+                                                        <img
+                                                            src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                                            class="img-fluid blur-up lazyload"
+                                                            alt="{{ $popular_product_row->title }}"
+                                                            loading="lazy"
+                                                            width="300"
+                                                            height="300">
+                                                        @endif
 
-                                                </a>
+                                                    </a>
+                                                </div>
 
                                             </div>
                                             <div class="product-detail">
@@ -412,7 +414,7 @@
                         <!-- <p>A virtual assistant collects the products from your list</p> -->
                     </div>
                     <div class="home-trending-section">
-                        <div class="product-border overflow-hidden">
+                        <div class="no-product-border no-overflow-hidden">
                             <div class="product-box-slider no-arrow">
                                 @foreach ($data['trending_products'] as $trending_products_row)
                                 @php
@@ -459,8 +461,8 @@
                                 : 0;
                                 @endphp
                                 <div>
-                                    <div class="row m-0">
-                                        <div class="col-12 px-0">
+                                    <div class="row m-1">
+                                        <div class="col-12 px-1">
                                             <div class="product-box">
                                                 <div class="product-image">
                                                     @if ($discountPercentage>0)
@@ -472,33 +474,35 @@
                                                         </div>
                                                     </div>
                                                     @endif
-                                                    <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value)}}">
-                                                        @if ($firstImageTrending)
-                                                        <img
-                                                            class="img-fluid blur-up lazyload"
-                                                            data-src="{{ asset('images/product/thumb/'. $firstImageTrending->image_path) }}"
-                                                            src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                            srcset="{{ asset('images/product/thumb/'. $firstImageTrending->image_path) }} 600w, 
-                                                                    {{ asset('images/product/thumb/'. $firstImageTrending->image_path) }} 1200w"
-                                                            sizes="(max-width: 600px) 600px, 1200px"
-                                                            alt="{{ $trending_products_row->title }}"
-                                                            title="{{ $trending_products_row->title }}"
-                                                            loading="lazy"
-                                                            width="300"
-                                                            height="300"
-                                                            onload="this.style.opacity=1">
-                                                        @else
-                                                        <img
-                                                            src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                            class="img-fluid blur-up lazyload"
-                                                            alt="{{ $trending_products_row->title }}"
-                                                            loading="lazy"
-                                                            width="300"
-                                                            height="300"
-                                                            onload="this.style.opacity=1">
-                                                        @endif
+                                                    <div class="product-img">
+                                                        <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value)}}">
+                                                            @if ($firstImageTrending)
+                                                            <img
+                                                                class="img-fluid blur-up lazyload"
+                                                                data-src="{{ asset('images/product/thumb/'. $firstImageTrending->image_path) }}"
+                                                                src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                                                srcset="{{ asset('images/product/thumb/'. $firstImageTrending->image_path) }} 600w, 
+                                                                        {{ asset('images/product/thumb/'. $firstImageTrending->image_path) }} 1200w"
+                                                                sizes="(max-width: 600px) 600px, 1200px"
+                                                                alt="{{ $trending_products_row->title }}"
+                                                                title="{{ $trending_products_row->title }}"
+                                                                loading="lazy"
+                                                                width="300"
+                                                                height="300"
+                                                                onload="this.style.opacity=1">
+                                                            @else
+                                                            <img
+                                                                src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                                                class="img-fluid blur-up lazyload"
+                                                                alt="{{ $trending_products_row->title }}"
+                                                                loading="lazy"
+                                                                width="300"
+                                                                height="300"
+                                                                onload="this.style.opacity=1">
+                                                            @endif
 
-                                                    </a>
+                                                        </a>
+                                                    </div>
 
                                                 </div>
                                                 <div class="product-detail">

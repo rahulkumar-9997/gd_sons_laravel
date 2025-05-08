@@ -118,20 +118,22 @@
                                                     }
                                                 @endphp
                                                 <div>
-                                                    <div class="product-box product-white-bg wow fadeIn">
+                                                    <div class="product-white-bg wow fadeIn">
                                                         <div class="product-box blog-product-box">
                                                             <div class="product-image blog-product-img">
-                                                                <a href="{{ url('products/'.$product->slug.'/'.$attributes_value_slug) }}">
-                                                                    @if ($firstImageBlog)
-                                                                    <img class="blog_pc__img_blog img-fluid blur-up lazyload"
-                                                                        data-src="{{ asset('images/product/large/'. $firstImageBlog->image_path) }}"
-                                                                        src="{{ asset('images/product/large/'. $firstImageBlog->image_path) }}"
-                                                                        alt="{{ $product->title }}" title="{{ $product->title }}">
-                                                                    @else
-                                                                    <img src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                                        class="img-fluid blur-up lazyload" alt="{{ $product->title }}">
-                                                                    @endif
-                                                                </a>
+                                                                <div class="product-img">
+                                                                    <a href="{{ url('products/'.$product->slug.'/'.$attributes_value_slug) }}">
+                                                                        @if ($firstImageBlog)
+                                                                        <img class="blog_pc__img_blog img-fluid blur-up lazyload"
+                                                                            data-src="{{ asset('images/product/large/'. $firstImageBlog->image_path) }}"
+                                                                            src="{{ asset('images/product/large/'. $firstImageBlog->image_path) }}"
+                                                                            alt="{{ $product->title }}" title="{{ $product->title }}">
+                                                                        @else
+                                                                        <img src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                                                            class="img-fluid blur-up lazyload" alt="{{ $product->title }}">
+                                                                        @endif
+                                                                    </a>
+                                                                </div>
                                                                 
                                                             </div>
                                                             <div class="product-detail">

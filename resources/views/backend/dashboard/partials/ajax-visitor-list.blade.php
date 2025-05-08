@@ -6,7 +6,7 @@
                 <tr>
                     <th>Sr. No.</th>
                     <th>IP Address</th>
-                    <th>Browser</th>
+                    <!-- <th>Browser</th> -->
                     <th style="width: 10%;">Page Url</th>
                     <th style="width: 10%;">Page Title</th>
                     <th>Customer Name</th>
@@ -21,11 +21,11 @@
                 <tr>
                     <td>{{ $srNo }}</td>
                     <td>{{ $visitor->ip_address }}</td>
-                    <td style="width: 15%;">
+                    <!-- <td style="width: 15%;">
                         <div class="overflow-auto" style="max-width: 100px; white-space: nowrap;">
                             {{ $visitor->browser }}
                         </div>
-                    </td>
+                    </td> -->
                     <td style="width: 30%;">
                         <div class="overflow-auto" style="max-width: 300px; white-space: nowrap;">
                             {{ $visitor->page_name }}

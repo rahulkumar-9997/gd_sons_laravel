@@ -12583,11 +12583,11 @@ template {
 }
 
 :root {
-    --theme-color: #d6091a;
+    --theme-color: #ee3d43;
     --theme-color-rgb: 13, 164, 135;
     --theme-color1: #f8471d;
     --theme-color1-rgb: 14, 148, 122;
-    --theme-color2: linear-gradient(90.56deg, var(--theme-color1) 8.46%, var(--theme-color) 62.97%)
+    --theme-color2: #ee3d43;
 }
 
 @-webkit-keyframes scaleUpDown {
@@ -14860,7 +14860,7 @@ input[type=number]::-webkit-outer-spin-button {
 .checkbox_animated {
     cursor: pointer;
     position: relative;
-    margin-right: 16px;
+    margin-right: 10px;
     height: 100%
 }
 
@@ -14896,8 +14896,8 @@ input[type=number]::-webkit-outer-spin-button {
 .checkbox_animated:after {
     content: "";
     position: absolute;
-    width: 21px;
-    height: 21px;
+    width: 18px;
+    height: 18px;
     top: -2px;
     left: 0;
     background-color: #fff;
@@ -15011,7 +15011,8 @@ input[type=number]::-webkit-outer-spin-button {
     -webkit-box-pack: center;
     -ms-flex-pack: center;
     justify-content: center;
-    margin: -2px 0
+    margin: -2px 0;
+    font-size: 13px;
 }
 
 .label-flex .wishlist {
@@ -22188,14 +22189,14 @@ header .nav-about-2 {
 header .top-nav {
     /* padding: 24px 0; */
     padding: 5px 0;
-    background-color: hsl(11.51deg 93.99% 54.31%);
+    background-color: #ee3d43;
 }
 
 @media(max-width: 767px) {
     header .top-nav {
         /* padding: 24px 0 0 */
         padding: 5px 0 5px 0;
-        background-color: hsl(355.02deg 91.93% 43.73%);
+        background-color: #ee3d43;
     }
 }
 
@@ -31100,11 +31101,14 @@ body.rtl .menu-label {
 
 .product-box {
     padding: calc(8px + 6*(100vw - 320px)/1600);
-    border-right: 1px solid rgba(74, 85, 104, .3);
+    /* border-right: 1px solid rgba(74, 85, 104, .3); */
+    box-shadow: #63636333 0 2px 8px;
     position: relative;
     -webkit-transition: all .3s ease-in-out;
     transition: all .3s ease-in-out;
     overflow: hidden;
+    background-color: #f9f9fb;
+    padding-inline: 8px;
 }
 
 
@@ -31143,12 +31147,7 @@ body.rtl .menu-label {
     }
 }
 
-.product-box.product-white-bg {
-    background-color: #fff;
-    border-radius: calc(9px + 7*(100vw - 320px)/1600);
-    padding: calc(10px + 4*(100vw - 320px)/1600);
-    border: 1px solid #eee
-}
+
 
 .product-box.product-white-bg .qty-box .input-group {
     background-color: #fff;
@@ -31216,10 +31215,10 @@ body.rtl .menu-label {
 .blog-product-row .product-box .product-image {
     padding: 0 0 10px 0;
 }
-.blog-product-row .product-box{
+/* .blog-product-row .product-box{
     border-right: 0px solid rgba(74, 85, 104, .3);
-    padding: 5px;
-}
+    padding: 0px;
+} */
 
 @keyframes pulse {
     0% {
@@ -31338,12 +31337,21 @@ body.rtl .menu-label {
 }
 
 .product-box .product-image img {
-    width: 100%;
+    /* width: 100%;
     height: 200px;
     -o-object-fit: contain;
     object-fit: contain;
     -webkit-transition: all .3s ease-in-out;
-    transition: all .3s ease-in-out
+    transition: all .3s ease-in-out */
+    width: 100%;
+    /* height: 200px; */
+    height: 100%;
+    left: 0;
+    -o-object-fit: cover;
+    object-fit: contain;
+    position: absolute;
+    top: 0;
+    width: 100%;
 }
 
 .product-box .product-detail a {
@@ -31358,10 +31366,26 @@ body.rtl .menu-label {
 .product-box .product-detail a h6.name, .product-box .product-detail a h6.name-title {
     font-weight: 600;
     line-height: 22px;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     display: -webkit-box;
     overflow: hidden
+}
+
+
+.product-img:before {
+    padding-bottom: 100%;
+    margin-top: 1px;
+}
+.product-img:before {
+    content: "";
+    display: block;
+    height: 0;
+    width: 100%;
+}
+.product-img {
+    background-color: #ffffff;
+    position: relative;
 }
 
 .product-box .product-detail a h6.name-2 {
@@ -43010,7 +43034,7 @@ body.rtl .question-answer li .question-box .link-dislike-box {
     display: flex;
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
-    gap: calc(10px + 6*(100vw - 320px)/1600)
+    gap: 8px;
 }
 
 [dir=rtl] .category-list {
@@ -43030,6 +43054,9 @@ body.rtl .question-answer li .question-box .link-dislike-box {
     -ms-flex-align: center;
     align-items: center
 }
+.category-list li .category-list-box {
+    cursor: pointer;
+}
 
 .category-list li .category-list-box input {
     margin-top: -4px
@@ -43046,11 +43073,11 @@ body.rtl .question-answer li .question-box .link-dislike-box {
     -ms-flex-pack: justify;
     justify-content: space-between;
     width: 100%;
-    margin-left: 8px
+    margin-left: 2px
 }
 
 .category-list li .category-list-box .form-check-label .name {
-    font-size: calc(15px + 2*(100vw - 320px)/1600);
+    font-size: 16px;
     color: #222;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
@@ -43657,12 +43684,23 @@ body.rtl .question-answer li .question-box .link-dislike-box {
     border: none;
     width: 100%
 }
+.shop-section .left-box .shop-left-sidebar .custom-accordion .accordion-item .show {
+    /* border: none; */
+    border: 1px solid;
+    border-color: #efebeb;
+}
 
 .shop-section .left-box .shop-left-sidebar .custom-accordion .accordion-item .accordion-header .accordion-button {
-    font-size: 18px;
+    font-size: 17px;
     padding: 0 0 8px 0;
     font-weight: 600;
-    margin-bottom: 9px
+    /* margin-bottom: 9px; */
+    border: 1px solid #fab7b7;
+    /*  */
+    background-color: #f7f0f0;
+    margin-bottom: 0px;
+    border-radius: 4px;
+    padding: 10px 8px;
 }
 
 .shop-section .left-box .shop-left-sidebar .custom-accordion .accordion-item .accordion-header .accordion-button.collapsed::before {
@@ -43697,7 +43735,7 @@ body.rtl .question-answer li .question-box .link-dislike-box {
     -webkit-box-pack: center;
     -ms-flex-pack: center;
     justify-content: center;
-    top: 0;
+    top: 5px;
     right: 5px;
     background-color: #f7f6f4;
     font-size: 15px;
@@ -43713,7 +43751,8 @@ body.rtl .question-answer li .question-box .link-dislike-box {
 
 .shop-section .left-box .shop-left-sidebar .custom-accordion .accordion-item .accordion-header .accordion-button:not(.collapsed) {
     color: #222;
-    background-color: rgba(0, 0, 0, 0);
+    /* background-color: rgba(0, 0, 0, 0); */
+    background-color: #f7f0f0;
     -webkit-box-shadow: none;
     box-shadow: none
 }
@@ -43729,11 +43768,12 @@ body.rtl .question-answer li .question-box .link-dislike-box {
     height: 1px;
     bottom: -8px;
     left: 0;
-    background-color: var(--theme-color)
+    background-color: var(--theme-color);
+    display: none;
 }
 
 .shop-section .left-box .shop-left-sidebar .custom-accordion .accordion-item .accordion-collapse .accordion-body {
-    padding: 16px 0 0
+    padding: 10px 10px 10px 10px;
 }
 
 .shop-section .left-box .shop-left-sidebar .left-title {

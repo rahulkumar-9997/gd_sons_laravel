@@ -52,7 +52,7 @@
                 : 0;
         @endphp
         <div>
-            <div class="product-box-3 h-100">
+            <div class="product-box h-100">
                 <div class="product-header">
                     <div class="product-image">
                         @if ($discountPercentage>0)
@@ -64,29 +64,31 @@
                                 </div>
                             </div>
                         @endif
-                        <a href="{{ url('products/'.$product['slug'].'/'.$attributes_value) }}">
-                        @if ($firstImage)
-                        <img 
-                            class="img-fluid blur-up lazyload"
-                            data-src="{{ asset('images/product/thumb/'. $firstImage->image_path) }}" 
-                            src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}" 
-                            srcset="{{ asset('images/product/thumb/'. $firstImage->image_path) }} 600w, 
-                                    {{ asset('images/product/thumb/'. $firstImage->image_path) }} 1200w"
-                            sizes="(max-width: 600px) 600px, 1200px"
-                            alt="{{ $product->title }}"
-                            title="{{ $product->title }}"
-                            loading="lazy">
-                    @else
-                        <img 
-                            class="img-fluid blur-up lazyload" 
-                            src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}" 
-                            alt="{{ $product->title }}" 
-                            title="{{ $product->title }}" 
-                            loading="lazy">
-                    @endif
+                        <div class="product-img">
+                            <a href="{{ url('products/'.$product['slug'].'/'.$attributes_value) }}">
+                            @if ($firstImage)
+                            <img 
+                                class="img-fluid blur-up lazyload"
+                                data-src="{{ asset('images/product/thumb/'. $firstImage->image_path) }}" 
+                                src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}" 
+                                srcset="{{ asset('images/product/thumb/'. $firstImage->image_path) }} 600w, 
+                                        {{ asset('images/product/thumb/'. $firstImage->image_path) }} 1200w"
+                                sizes="(max-width: 600px) 600px, 1200px"
+                                alt="{{ $product->title }}"
+                                title="{{ $product->title }}"
+                                loading="lazy">
+                            @else
+                            <img 
+                                class="img-fluid blur-up lazyload" 
+                                src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}" 
+                                alt="{{ $product->title }}" 
+                                title="{{ $product->title }}" 
+                                loading="lazy">
+                            @endif
 
-                        
-                        </a>
+                            
+                            </a>
+                        </div>
                         <!--<ul class="product-option">
                             <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
                                 <a href="javascript:void(0)" data-url="{{route('quick.view')}}" data-product-id="{{$product->id}}" class="quick-view">

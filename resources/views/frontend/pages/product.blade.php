@@ -643,7 +643,6 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 </div>
 <!-- Sticky Cart Box End -->
 <!--sticky cart code -->
-
 @endsection
 @push('scripts')
 <script src="{{asset('frontend/assets/js/jquery.elevatezoom.js')}}"></script>

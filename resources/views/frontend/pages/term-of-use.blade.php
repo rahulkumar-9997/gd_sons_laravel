@@ -97,9 +97,18 @@
                                     </ul>
                                 </div>
                             </div>
+                            <div class="return-cancell" id="returns-and-cancellations">
+                                <div class="mb-3">
+                                    <h2>6. Refund Timelines</h2>
+                                    <ul class="custom-list">
+                                        <li>Refund for Cancelled Orders: If your order is cancelled, the refund will be processed within 24-48 hours of cancellation confirmation.</li>
+                                        <li>Refund for Returned Orders: For returned items, the refund will be initiated within 24-48 hours after the product is received at our warehouse and approved upon inspection.</li>
+                                    </ul>
+                                </div>
+                            </div>
 
                             <div class="mb-3">
-                                <h2>6. Warranty and Liability</h2>
+                                <h2>7. Warranty and Liability</h2>
                                 <ul class="custom-list">
                                     <li>Some items may include manufacturer warranties (details on product page).</li>
                                     <li>We are not responsible for issues due to misuse or improper installation.</li>
@@ -108,7 +117,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <h2>7. User Responsibilities</h2>
+                                <h2>8. User Responsibilities</h2>
                                 <ul class="custom-list">
                                     <li>Provide accurate personal and payment details.</li>
                                     <li>Do not engage in fraudulent or illegal website use.</li>
@@ -117,17 +126,17 @@
                             </div>
 
                             <div class="mb-3">
-                                <h2>8. Privacy Policy</h2>
+                                <h2>9. Privacy Policy</h2>
                                 <p>Your use of the website is also governed by our <a href="{{ route('privacy-policy') }}">Privacy Policy</a>.</p>
                             </div>
 
                             <div class="mb-3">
-                                <h2>9. Governing Law</h2>
+                                <h2>10. Governing Law</h2>
                                 <p>These Terms & Conditions are governed by Indian law with jurisdiction in Varanasi, Uttar Pradesh.</p>
                             </div>
 
                             <div class="mb-3">
-                                <h2>10. Contact Us</h2>
+                                <h2>11. Contact Us</h2>
                                 <address class="p-address">
                                     <h3 class="mb-2">Girdhar Das & Sons</h3>
                                     <h4 class="mb-2">W.H.Smith School Road, Sigra, Varanasi, Uttar Pradesh, India</h4>

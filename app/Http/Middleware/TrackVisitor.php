@@ -71,7 +71,7 @@ class TrackVisitor
                 'browser' => $browser,
                 'page_name' => $pageName,
                 'location' => json_encode($location),
-                'visited_at' => now(),
+                'visited_at' => now()->setTimezone('Asia/Kolkata'),                
                 'customer_name' => $customerName,
                 'page_title' => $pageTitle,
             ]);

@@ -37,7 +37,7 @@
                     <td style="width: 20%;">
                         {{ $visitor->customer_name }}
                     </td>
-                    <td>{{ $visitor->visited_at }}</td>
+                   <td>{{ \Carbon\Carbon::parse($visitor->visited_at)->format('d M Y, h:i:s A') }}</td>
                 </tr>
                 @php
                     $srNo++;

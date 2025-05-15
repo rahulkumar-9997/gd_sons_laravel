@@ -1,15 +1,20 @@
 @php
+
+$categorytitle = $data['product_details']->category->title;
+if (substr($categorytitle, -1) === 's')
+{
+    $categorytitle = substr($categorytitle, 0, -1);
+}
 if ($data['product_details']->meta_title) {
 $meta_title = $data['product_details']->meta_title;
 } else {
-$meta_title = ucwords(strtolower($data['product_details']->title))
-. ' at Best Price';
+$meta_title = removeDuplicateWords(ucwords(strtolower($categorytitle . ' ' . $data['attributes_value_name']->name. ' ' . $data['product_details']->title))). ' Best Online Rate';
 }
 
 if ($data['product_details']->meta_description) {
 $meta_description = $data['product_details']->meta_description;
 } else {
-$meta_description = ucwords(strtolower($data['product_details']->title))
+$meta_description = 'Great Offer on '. $categorytitle.'. Best '.ucwords(strtolower($data['attributes_value_name']->name)). ' Product. '.ucwords(strtolower($data['product_details']->title))
 . ' at best Online Price. Best Retail Store in Varanasi. Get more discount for Bulk Orders.';
 }
 @endphp

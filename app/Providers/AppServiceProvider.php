@@ -84,7 +84,7 @@ class AppServiceProvider extends ServiceProvider
         Log::info("MenuComposer is being executed");
         View::composer('frontend.layouts.header-menu', MenuComposer::class);
         View::composer(
-            ['frontend.pages.partials.cart_items', 'frontend.layouts.header-menu'],
+            ['frontend.pages.partials.cart-drawer', 'frontend.layouts.footer'],
             CartComposer::class
         );
         View::composer(
@@ -94,7 +94,7 @@ class AppServiceProvider extends ServiceProvider
                 'frontend.pages.blog.blog-details',
                 'frontend.pages.blog.blog-list',
                 'frontend.pages.partials.product-catalog-load-more',
-                'frontend.pages.partials.cart_items',
+                'frontend.pages.partials.cart-drawer',
                 'frontend.layouts.footer',
                 'frontend.pages.partials.product-category-catalog-load-more',
                 'frontend.pages.product',

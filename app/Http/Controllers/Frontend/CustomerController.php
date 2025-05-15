@@ -60,6 +60,79 @@ class CustomerController extends Controller
         ]);
     }
 
+    public function changeQuantityCartDrawer(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:carts,id',
+            'quantity' => 'required|integer|min:0',
+        ]);
+
+        $customerId = auth('customer')->id();
+        if (!$customerId) {
+            return response()->json(['success' => false, 'message' => 'You must be logged in.']);
+        }
+
+        try {
+            $cartItem = Cart::where('id', $request->id)
+                ->where('customer_id', $customerId)
+                ->with('product.inventories')
+                ->first();
+
+            if (!$cartItem) {
+                return response()->json(['success' => false, 'message' => 'Cart item not found.']);
+            }
+
+            $currentQuantity = $cartItem->quantity;
+
+            if ((int)$request->quantity === 0) {
+                $cartItem->delete();
+            } else {
+                if ($request->quantity > $currentQuantity) {
+                    $inventory = $cartItem->product->inventories->first();
+                    if (!$inventory || $inventory->stock_quantity < $request->quantity) {
+                        return response()->json([
+                            'success' => false, 
+                            'message' => 'Not enough stock available. Only ' . ($inventory->stock_quantity ?? 0) . ' items in stock.'
+                        ]);
+                    }
+                }
+
+                $cartItem->quantity = $request->quantity;
+                $cartItem->save();
+            }
+
+
+            Cache::forget('customer_cart_' . $customerId);
+
+            $cartItems = Cart::with(['product', 'product.inventories', 'product.images'])
+                ->where('customer_id', $customerId)->get();
+
+            $cartTotal = $cartItems->sum(function ($item) {
+                $mrp = optional($item->product->inventories->sortBy('mrp')->first())->mrp ?? 0;
+                return $item->quantity * $mrp;
+            });
+            $cartCount = $cartItems->count();
+            session(['cart_count' => $cartCount]);
+            $isCartEmpty = $cartCount == 0;
+            $specialOffers = getCustomerSpecialOffers();
+            return response()->json([
+                'success' => true,
+                'message' => 'Cart updated successfully.',
+                'cart_count' => $cartCount,
+                'cart_total' => number_format($cartTotal, 2),
+                'cartItems' => view('frontend.pages.partials.cart-drawer', [
+                    'cartItems' => $cartItems,
+                    'cartCount' => $cartCount,
+                    'isCartEmpty' => $isCartEmpty,
+                    'specialOffers' =>$specialOffers
+                ])->render(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+        }
+    }
+
+
     public function addToCart(Request $request){
         $request->validate([
             'product_id' => 'required|exists:products,id',
@@ -122,6 +195,7 @@ class CustomerController extends Controller
                 return $item->quantity * $offerRate;
             });
             $cartCount = $cartItems->count();
+            session(['cart_count' => $cartCount]);
             $isCartEmpty = $cartCount == 0;
             //$specialOffers = getCustomerSpecialOffers();
             return response()->json([
@@ -129,7 +203,7 @@ class CustomerController extends Controller
                 'message' => 'Item added to cart!',
                 'cart_count' => $cartCount,
                 'cart_total' => number_format($cartTotal, 2),
-                'cartItems' => view('frontend.pages.partials.cart_items', [
+                'cartItems' => view('frontend.pages.partials.cart-drawer', [
                     'cartItems' => $cartItems,
                     'cartCount' => $cartCount,
                     'isCartEmpty' => $isCartEmpty
@@ -145,6 +219,8 @@ class CustomerController extends Controller
         
         
     }
+
+
 
     public function cartList(Request $request){
         $customerId = auth('customer')->id();

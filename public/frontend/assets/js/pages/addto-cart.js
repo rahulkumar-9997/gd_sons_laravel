@@ -24,15 +24,11 @@ $(document).ready(function () {
             },
             success: function (response) {
                 if (response.success) {
-                    $('#cartItem').html(response.cartItems);
+                    $('.drawer__body', '#drawer-cart-id').html(response.cartItems);
+                    $('.countCartDisplay, .minicart-header .cart-count').text(response.cart_count);
                     feather.replace();
-                    $("#cart-items").css({
-                        "opacity": "1",
-                        "visibility": "visible"
-                    });
-                    setTimeout(function () {
-                        $("#cart-items").removeAttr("style");
-                    }, 20000);
+                    $('#drawer-cart-id').addClass('drawer--is-visible');
+                    $('body').css('overflow', 'hidden');
                     showNotificationAll("success", "", response.message);
                 }else{
                     showNotificationAll("danger", "", response.message);

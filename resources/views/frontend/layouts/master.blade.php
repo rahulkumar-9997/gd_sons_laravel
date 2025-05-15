@@ -10,6 +10,7 @@
 		@yield('main-content')
 	
 		@include('frontend.layouts.footer')
+		<!-- @include('frontend.pages.partials.cart-drawer') -->
 		@include('frontend.layouts.footerjs')
 		@stack('scripts')
 	</body>

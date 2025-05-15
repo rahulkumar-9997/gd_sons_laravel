@@ -107,6 +107,10 @@ Route::middleware([TrackVisitor::class])->group(function () {
         /**WISHLIST ROUTE PENDING */
         Route::post('/wishlist/add', [CustomerController::class, 'addToWishlist'])->name('wishlist.add');
         Route::post('/cart/remove', [CustomerController::class, 'removeFromCart'])->name('cart.remove');
+        /**cart drawer route */
+        Route::get('/cart/change', [CustomerController::class, 'changeQuantityCartDrawer'])->name('cart.changeQuantity');
+
+        /**cart drawer route */
         Route::get('checkout', [CustomerController::class, 'checkOut'])->name('checkout');
         Route::post('checkout/submit', [OrderController::class, 'checkOutFormSubmit'])->name('checkout.submit');
         Route::post('pay-modal-form', [OrderController::class, 'payModalForm'])->name('pay-modal-form');

@@ -44,5 +44,20 @@ if (!function_exists('getCustomerSpecialOffers')) {
         return $specialOffers;
     }
 }
+function removeDuplicateWords($sentence) {
+    $words = explode(' ', $sentence);
+    $seen = [];
+    $result = [];
+    
+    foreach ($words as $word) {
+        $lowerWord = strtolower($word);
+        if (!in_array($lowerWord, $seen)) {
+            $seen[] = $lowerWord;
+            $result[] = $word; 
+        }
+    }
+    
+    return implode(' ', $result);
+}
 
 

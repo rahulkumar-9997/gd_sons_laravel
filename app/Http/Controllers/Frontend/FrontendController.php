@@ -1459,5 +1459,33 @@ class FrontendController extends Controller
         return view('frontend.pages.term-of-use');
     }
 
+    public function flashSale()
+    {
+        $flashLabel = Label::where('title', 'Flash Sale')->first();
+        $flash_label_id = $flashLabel->id;
+        $specialOffers = getCustomerSpecialOffers();       
+        $products = Product::where('product_status', 1)
+            ->where('label_id', $flash_label_id)
+            ->with([
+                'images' => function ($query) {
+                    $query->select('id', 'product_id', 'image_path')->orderBy('sort_order');
+                },
+                'ProductAttributesValues' => function ($query) {
+                    $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
+                        ->with(['attributeValue:id,slug'])
+                        ->orderBy('id');
+                }
+            ])
+            ->leftJoin('inventories', function ($join) {
+                $join->on('products.id', '=', 'inventories.product_id')
+                    ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+            })
+            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+            ->get();
+		DB::disconnect();
+        return view('frontend.pages.flash-sale', compact('products', 'specialOffers'));
+
+    }
+
     
 }

@@ -270,3 +270,12 @@
     opacity: 0.5;
     cursor: not-allowed;
 }
+.cart-empty-message{
+    text-align: center;
+    padding: 20px 0 20px 0;
+    font-size: 20px;
+}
+.cart-empty-message p{
+    font-size: 20px;
+    font-weight: 600;
+}

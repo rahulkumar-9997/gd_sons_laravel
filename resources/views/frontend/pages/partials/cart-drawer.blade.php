@@ -68,17 +68,11 @@
 						</a>
 						<div class="product-details">
 							<a class="product-title" href="{{ url('products/'.$item->product->slug.'/'.$attributes_value) }}">{{ucwords(strtolower($item->product->title))}}</a>
-							<!-- <div class="variant-cart my-2">{{ $attributes_value }}</div> -->
 							<div class="priceRow">
 								<div class="product-price">
 									<span class="price">Rs. {{ number_format($final_offer_rate, 2) }}</span>
 								</div>
-								<!-- <h6>
-                                <span>Total:</span>
-									Rs. {{ number_format($item->quantity * ($final_offer_rate ?? 0), 2) }}
-									<br>
-									
-								</h6> -->
+								
 							</div>
 						</div>
 						<div class="qtyDetail text-center">
@@ -110,25 +104,28 @@
 			@else
 				<div class="cart-empty-message">
 					<p>Your cart is empty</p>
-					<a href="/collections/all" class="btn btn--primary margin-top-sm">Continue shopping</a>
+					<a href="{{URL::to('')}}" class="btn btn-animation proceed-btn fw-bold">Continue shopping</a>
 				</div>
 			@endif
 		</div>
 							
-		
-		<footer class="cart-footer border-top border-contrast-lower minicart-bottom">
-			<div class="subtotal clearfix">
-				<div class="totalInfo clearfix">
-					<span>Total: </span>
-					<span class="product-price">Rs. {{ number_format($subtotal, 2) }}</span>
-				</div>
+		@if(!$isCartEmpty)
+			<footer class="cart-footer border-top border-contrast-lower minicart-bottom">
+				<div class="subtotal clearfix">
+					<div class="totalInfo clearfix">
+						<span>Total: </span>
+						<span class="product-price">Rs. {{ number_format($subtotal, 2) }}</span>
+					</div>
 
-				<div class="minicart-action d-flex mt-3">
-					<a href="{{ route('checkout') }}" class="proceed-to-checkout btn btn-primary w-50 me-1">Check Out</a>
-					<a href="{{ route('cart') }}" class="cart-btn btn btn-secondary w-50 ms-1">View Cart</a>
+					<div class="minicart-action d-flex mt-3">
+						<a href="{{ route('checkout') }}" class="proceed-to-checkout btn btn-primary w-50 me-1">Check Out</a>
+						<a href="{{ route('cart') }}" class="cart-btn btn btn-secondary w-50 ms-1">View Cart</a>
+					</div>
 				</div>
-			</div>
-		</footer>
+			</footer>
+		@else
+
+		@endif
 		
 	</div>
 </div>

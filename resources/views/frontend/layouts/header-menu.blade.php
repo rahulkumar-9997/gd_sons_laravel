@@ -194,6 +194,7 @@ $search_value = !empty($query) ? $query : '';
                      <i data-feather="align-left"></i>
                      <span>All Categories</span>
                   </button>
+                  
                   <div class="category-dropdown">
                      <div class="category-title">
                         <h5>Categories</h5>
@@ -256,8 +257,10 @@ $search_value = !empty($query) ? $query : '';
 
                      </ul>
                   </div>
+                  
                </div>
                <div class="header-nav-middle">
+                  
                   <div class="main-nav navbar navbar-expand-xl navbar-light navbar-sticky">
                      <div class="offcanvas offcanvas-collapse order-xl-2" id="primaryMenu">
                         <div class="offcanvas-header navbar-shadow mobile-menu-section">
@@ -270,6 +273,11 @@ $search_value = !empty($query) ? $query : '';
                         </div>
                         <div class="offcanvas-body canvasbody-mobile">
                            <ul class="navbar-nav">
+                              <li class="mobile-flash-sale">
+                                 <a href="{{ route('flash.sale')}}" class="flash-sale-button">
+                                    Flash Sale <small>Only Limited Time</small>
+                                 </a>
+                              </li>
                               <li class="nav-item for-mobile-display mobile-category" style="margin-bottom: 20px;">
                                  <a class="nav-link mobile-link" href="javascript:void(0)" style="padding: 10px 9px 10px;
                                  border-radius: 10px;
@@ -389,7 +397,7 @@ $search_value = !empty($query) ? $query : '';
       </li>
 
       <li>
-         <a href="{{route('cart')}}">
+         <a href="javascript:void(0);" class="js-cart-drawer-open">
             <i class="iconly-Bag-2 icli fly-cate"></i>
             <span>Cart</span>
          </a>

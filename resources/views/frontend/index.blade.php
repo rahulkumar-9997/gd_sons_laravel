@@ -117,6 +117,15 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dblock">
+                        <div class="row justify-content-center">
+                            <div class="col-md-6 col-6 mobile-flash-sale-div">
+                                 <a href="{{ route('flash.sale')}}" class="flash-sale-button">
+                                    Flash Sale <small>Only Limited Time</small>
+                                 </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

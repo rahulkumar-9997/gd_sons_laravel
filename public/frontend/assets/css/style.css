@@ -47358,7 +47358,59 @@ ul.custom-list li{
     margin-bottom: 5px;
 }
   
+ @keyframes smoothFlash {
+      0%, 100% {
+        background-color: #e60000;
+        /* box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); */
+        opacity: 1;
+      }
+      50% {
+        background-color: #ff4d4d;
+        /* box-shadow: 0 0 20px rgba(255, 80, 80, 0.8); */
+        opacity: 0.7;
+      }
+    }
 
+    .flash-sale-button {
+        display: inline-block;
+        padding: 6px 20px;
+        font-size: 20px;
+        /* font-weight: bold; */
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        animation: smoothFlash 1.5s infinite ease-in-out;
+        /* border: 2px solid #ee3d43; */
+        transition: transform 0.3s ease;
+        position: relative;
+    }
+
+    .flash-sale-button small {
+        position: absolute;
+        bottom: -16px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #f4d840;
+        color: #000;
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 5px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .flash-sale-button:hover {
+      color: #ffff;
+    }
   
 /*privacy policy*/
 /*# sourceMappingURL=style.css.map */
+@media (max-width: 1199px) {
+    .mobile-flash-sale{
+        margin-bottom: 30px;
+    }
+    .mobile-flash-sale-div{
+        margin-bottom: 20px;
+    }
+}

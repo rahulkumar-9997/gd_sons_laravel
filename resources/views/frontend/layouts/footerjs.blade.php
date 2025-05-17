@@ -16,6 +16,7 @@
 <script src="{{asset('frontend/assets/js/pages/search.js')}}"></script>
 <script src="{{asset('frontend/assets/js/cart-drawer.min.js')}}"></script>
 <!-- <script src="{{asset('frontend/assets/js/pages/notifications.js')}}"></script> -->
+<!-- <script src="https://checkout.razorpay.com/v1/magic-checkout.js"></script> -->
 
 @if (session('error'))
     <script>

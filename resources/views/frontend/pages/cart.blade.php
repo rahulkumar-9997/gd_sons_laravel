@@ -39,60 +39,6 @@
 <!-- Cart Section End -->
 @endsection
 @push('scripts')
-<script src="https://checkout.razorpay.com/v1/magic-checkout.js"></script>
 <script src="{{asset('frontend/assets/js/pages/update-cart.js')}}"></script>
-<script>
-        document.getElementById('rzp-button1').onclick = function(e) {
-            fetch('/create-order', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    amount: 1000 // Your amount in rupees
-                })
-            })
-            .then(response => response.json())
-            .then(order => {
-                var options = {
-                    "key": "{{ config('services.razorpay.key') }}",
-                    "order_id": order.id,
-                    "amount": order.amount,
-                    "currency": order.currency,
-                    "name": "GD Sons",
-                    "description": "Test Transaction",
-                    "image": "https://www.gdsons.co.in/public/frontend/assets/gd-img/fav-icon.png",
-                    "handler": function (response) {
-                        // Handle success
-                        window.location.href = '/payment-success?' + 
-                            'razorpay_payment_id=' + response.razorpay_payment_id + 
-                            '&razorpay_order_id=' + response.razorpay_order_id + 
-                            '&razorpay_signature=' + response.razorpay_signature;
-                    },
-                    "prefill": {
-                        "name": "Customer Name",
-                        "email": "customer@example.com",
-                        "contact": "9999999999"
-                    },
-                    "notes": {
-                        "address": "Customer Address"
-                    },
-                    "theme": {
-                        "color": "#f8471d"
-                    },
-                    "magic": true,
-                    "modal": {
-                        "ondismiss": function() {
-                            console.log("Checkout closed by user");
-                        }
-                    }
-                };
-                
-                var rzp = new Razorpay(options);
-                rzp.open();
-                e.preventDefault();
-            });
-        }
-    </script>
+
 @endpush

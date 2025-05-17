@@ -57,7 +57,10 @@
                                     @foreach ($data['orders'] as $order)
                                         <tr>
                                             <td>{{ $order->order_id }}</td>
-                                            <td>{{ $order->created_at->format('d, M Y h:i A') }}</td>
+                                            <td>
+                                                {{ \Carbon\Carbon::parse($order->order_date)->format('d M Y, h:i:s A') }}
+                                                
+                                            </td>
                                             <td>
                                                 <a href="#!" class="link-primary fw-medium">{{ $order->customer->name }}</a>
                                                 <span class="badge border border-success text-success  px-2 py-1 fs-13">

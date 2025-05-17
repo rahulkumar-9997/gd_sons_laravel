@@ -173,6 +173,9 @@ $groupNames = $groupCategory->customerGroup->name;
                         <div class="contact-number">
                            <h6 class="text-content">Hotline 24/7 :</h6>
                            <h5>
+                              <a href="tel:+91-99350700007">+91 - 9935070000</a>
+                           </h5>
+                           <h5>
                               <a href="tel:+91-8318894257">+91 - 83188 94257</a>
                            </h5>
                         </div>
@@ -185,7 +188,10 @@ $groupNames = $groupCategory->customerGroup->name;
                         <div class="contact-number">
                            <h6 class="text-content">Email Address :</h6>
                            <h5>
-                              <a href="mailto:akshat.gd@gmail.com">akshat.gd@gmail.com</a>
+                              <a href="mailto:akshat@gdsons.co.in">akshat@gdsons.co.in</a>
+                           </h5>
+                           <h5>
+                              <a href="mailto:gdsons.vns@gmail.com">gdsons.vns@gmail.com</a>
                            </h5>
                         </div>
                      </div>

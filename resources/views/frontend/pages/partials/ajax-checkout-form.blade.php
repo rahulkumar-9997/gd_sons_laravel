@@ -306,104 +306,61 @@ $customerPhone = '';
                                 </div>
 
                                 <div class="checkout-detail">
-                                    <div class="accordion accordion-flush custom-accordion"
-                                        id="accordionFlushExample">
+                                    <div class="accordion accordion-flush custom-accordion" id="accordionFlushExample">
+
+                                        <!-- Razorpay Payment Option -->
                                         <div class="accordion-item">
-                                            <div class="accordion-header" id="flush-headingFour">
-                                                <div class="accordion-button collapsed"
-                                                    data-bs-toggle="collapse"
-                                                    data-bs-target="#flush-collapseFour">
+                                            <div class="accordion-header" id="flush-headingRazorpay">
+                                                <div class="accordion-button" data-bs-toggle="collapse" data-bs-target="#flush-collapseRazorpay">
                                                     <div class="custom-form-check form-check mb-0">
-                                                        <label class="form-check-label" for="payment_type">
-                                                            <input
-                                                                class="form-check-input mt-0" type="radio"
-                                                                name="payment_type" id="payment_type" checked value="Cash on Delivery">
+                                                        <label class="form-check-label" for="payment_razorpay">
+                                                            <input class="form-check-input mt-0" type="radio" name="payment_type" id="payment_razorpay" value="Razorpay" checked>
+                                                            Pay Online (Credit/Debit Card, UPI, Net Banking)
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="flush-collapseRazorpay" class="accordion-collapse collapse show" data-bs-parent="#accordionFlushExample">
+                                                <div class="accordion-body">
+                                                    <div class="row g-2">
+                                                        Secure payment via Razorpay
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Cash on Delivery Option -->
+                                        <div class="accordion-item">
+                                            <div class="accordion-header" id="flush-headingCOD">
+                                                <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#flush-collapseCOD">
+                                                    <div class="custom-form-check form-check mb-0">
+                                                        <label class="form-check-label" for="payment_cod">
+                                                            <input class="form-check-input mt-0" type="radio" name="payment_type" id="payment_cod" value="Cash on Delivery">
                                                             Cash On Delivery
                                                         </label>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div id="flush-collapseFour"
-                                                class="accordion-collapse collapse show"
-                                                data-bs-parent="#accordionFlushExample">
+                                            <div id="flush-collapseCOD" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                                                 <div class="accordion-body">
-                                                    <!-- <p class="cod-review">
-                                                        <a href="javascript:void(0)">Know more.</a>
-                                                    </p> -->
+                                                    <!-- You can add COD info here -->
                                                 </div>
                                             </div>
                                         </div>
 
+                                        <!-- Store Pickup Option -->
                                         <div class="accordion-item">
-                                            <div class="accordion-header" id="flush-headingOne">
-                                                <div class="accordion-button collapsed"
-                                                    data-bs-toggle="collapse"
-                                                    data-bs-target="#flush-collapseOne">
+                                            <div class="accordion-header" id="flush-headingStore">
+                                                <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#flush-collapseStore">
                                                     <div class="custom-form-check form-check mb-0">
-                                                        <label class="form-check-label" for="gpay">
-                                                            <input
-                                                                class="form-check-input mt-0" type="radio"
-                                                                name="payment_type" id="gpay"
-                                                                value="Pay to GPay ID of Girdhar Das and Sons">
-                                                            Pay to GPay ID of Girdhar Das and Sons
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div id="flush-collapseOne" class="accordion-collapse collapse"
-                                                data-bs-parent="#accordionFlushExample">
-                                                <div class="accordion-body">
-                                                    <div class="row g-2">
-                                                        After clicking “Place order”, you will be you will be redirected to Google Pay.
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="accordion-item">
-                                            <div class="accordion-header" id="flush-headingTwo">
-                                                <div class="accordion-button collapsed"
-                                                    data-bs-toggle="collapse"
-                                                    data-bs-target="#flush-collapseTwo">
-                                                    <div class="custom-form-check form-check mb-0">
-                                                        <label class="form-check-label" for="paytm">
-                                                            <input
-                                                                class="form-check-input mt-0" type="radio"
-                                                                name="payment_type" id="paytm"
-                                                                value="Pay to PayTM ID of Girdhar Das and Sons">
-                                                            Pay to PayTM ID of Girdhar Das and Sons
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div id="flush-collapseTwo" class="accordion-collapse collapse"
-                                                data-bs-parent="#accordionFlushExample">
-                                                <div class="accordion-body">
-                                                    <div class="row g-2">
-                                                        After clicking “Place order”, you will be redirected to PayTM.
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="accordion-item">
-                                            <div class="accordion-header" id="flush-headingThree">
-                                                <div class="accordion-button  collapsed"
-                                                    data-bs-toggle="collapse"
-                                                    data-bs-target="#flush-collapseThree">
-                                                    <div class="custom-form-check form-check mb-0">
-                                                        <label class="form-check-label storePickUp" for="storePickUp">
-                                                            <input
-                                                                class="form-check-input storePickUp mt-0" type="radio"
-                                                                name="payment_type" id="storePickUp"
-                                                                value="Pick Up From Store">
+                                                        <label class="form-check-label" for="payment_store">
+                                                            <input class="form-check-input mt-0" type="radio" name="payment_type" id="payment_store" value="Pick Up From Store">
                                                             Pick Up From Store (Get Additional Discount)
                                                         </label>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div id="flush-collapseThree" class="accordion-collapse collapse"
-                                                data-bs-parent="#accordionFlushExample">
+                                            <div id="flush-collapseStore" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                                                 <div class="accordion-body">
                                                     <div class="row g-2">
                                                         You can pick up your order from our store during business hours.
@@ -411,8 +368,10 @@ $customerPhone = '';
                                                 </div>
                                             </div>
                                         </div>
+
                                     </div>
                                 </div>
+
                             </div>
                         </li>
                     </ul>
@@ -432,35 +391,35 @@ $customerPhone = '';
                         @endphp
                         @foreach ($carts as $cart)
                         @php
-                            $purchase_rate = $cart->product->purchase_rate ?? 0;
-                            $offer_rate = $cart->product->offer_rate ?? 0;
-                            $mrp = $cart->product->mrp ?? 0;
-                            $group_offer_rate = null;
-                            $special_offer_rate = null;
+                        $purchase_rate = $cart->product->purchase_rate ?? 0;
+                        $offer_rate = $cart->product->offer_rate ?? 0;
+                        $mrp = $cart->product->mrp ?? 0;
+                        $group_offer_rate = null;
+                        $special_offer_rate = null;
 
-                            /*Group discount calculation*/
-                            if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
-                            $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                            if ($group_percentage > 0) {
-                                $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-                                $group_offer_rate = floor($group_offer_rate); 
-                            }
+                        /*Group discount calculation*/
+                        if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
+                        $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                        if ($group_percentage > 0) {
+                        $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                        $group_offer_rate = floor($group_offer_rate);
+                        }
                         }
 
                         /*Special offer logic (make sure $specialOffers is available)*/
                         if (isset($specialOffers[$cart->product_id])) {
-                            $special_offer_rate = (float) $specialOffers[$cart->product_id];
+                        $special_offer_rate = (float) $specialOffers[$cart->product_id];
                         }
-                        //echo  $offer_rate;
+                        //echo $offer_rate;
                         //echo "<br>";
                         //echo $group_offer_rate;
                         //echo "<br>";
                         //echo $special_offer_rate;
                         /*Final offer rate (min of available rates)*/
                         $final_offer_rate = collect([
-                            $offer_rate,
-                            $group_offer_rate,
-                            $special_offer_rate
+                        $offer_rate,
+                        $group_offer_rate,
+                        $special_offer_rate
                         ])->filter()->min();
                         //echo $final_offer_rate;
                         /*Total calculation*/
@@ -552,4 +511,5 @@ $customerPhone = '';
             </div>
         </div>
     </div>
+    
 </form>

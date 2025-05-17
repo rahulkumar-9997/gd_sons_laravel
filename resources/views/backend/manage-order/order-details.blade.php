@@ -6,7 +6,7 @@
 <!-- Start Container -->
 <div class="container-xxl">
     <div class="row">
-        <div class="col-xl-9 col-lg-8">
+        <div class="col-xl-8 col-lg-8">
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card">
@@ -29,20 +29,20 @@
                                             {{ $order->orderStatus->status_name }}
                                         </span>
                                     </h4>
-                                    <p class="mb-0">Order / Order Details / {{ $order->order_id }} - {{ $order->created_at->format('d, M Y h:i A') }}</p>
+                                    <p class="mb-0">Order / Order Details / {{ $order->order_id }} -  {{ \Carbon\Carbon::parse($order->order_date)->format('d M Y, h:i:s A') }}</p>
                                 </div>
-                                <div>
+                                <!-- <div>
                                     <a href="#!" class="btn btn-outline-secondary">Refund</a>
                                     <a href="#!" class="btn btn-outline-secondary">Return</a>
                                     <a href="#!" class="btn btn-primary">Edit Order</a>
-                                </div>
+                                </div> -->
 
                             </div>
 
-                            <div class="mt-4">
+                            <!-- <div class="mt-4">
                                 <h4 class="fw-medium text-dark">Progress</h4>
-                            </div>
-                            <div class="row row-cols-xxl-5 row-cols-md-2 row-cols-1">
+                            </div> -->
+                            <!-- <div class="row row-cols-xxl-5 row-cols-md-2 row-cols-1">
                                 <div class="col">
                                     <div class="progress mt-3" style="height: 10px;">
                                         <div class="progress-bar progress-bar  progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 100%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="70">
@@ -83,14 +83,14 @@
                                     </div>
                                     <p class="mb-0 mt-2">Delivered</p>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
-                        <div class="card-footer d-flex flex-wrap align-items-center justify-content-between bg-light-subtle gap-2">
+                        <!-- <div class="card-footer d-flex flex-wrap align-items-center justify-content-between bg-light-subtle gap-2">
                             <p class="border rounded mb-0 px-2 py-1 bg-body"><i class='bx bx-arrow-from-left align-middle fs-16'></i> Estimated shipping date : <span class="text-dark fw-medium">Apr 25 , 2024</span></p>
                             <div>
                                 <a href="#!" class="btn btn-primary">Make As Ready To Ship</a>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="card">
                         <div class="card-header">
@@ -146,7 +146,7 @@
                         </div>
 
                     </div>
-                    <div class="card">
+                    <!-- <div class="card">
                         <div class="card-header">
                             <h4 class="card-title">Order Timeline</h4>
                         </div>
@@ -241,12 +241,12 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-lg-4">
+        <div class="col-xl-4 col-lg-4">
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Order Summary</h4>
@@ -302,7 +302,7 @@
                     <h4 class="card-title">Payment Information</h4>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="d-flex align-items-center gap-3 mb-2">
 
                         <div>
                             <p class="mb-1 text-dark fw-medium">{{ $order->payment_mode }}</p>
@@ -312,7 +312,9 @@
                             <iconify-icon icon="solar:check-circle-broken" class="fs-22 text-success"></iconify-icon>
                         </div>
                     </div>
-                    <p class="text-dark mb-1 fw-medium">Transaction ID : <span class="text-muted fw-normal fs-13"> #000000000</span></p>
+                    <p class="text-dark mb-1 fw-medium">Razorpay Order ID : <span class="text-muted fw-normal fs-13"> {{ $order->razorpay_order_id }}</span></p>
+                    <p class="text-dark mb-1 fw-medium">Razorpay Payment ID : <span class="text-muted fw-normal fs-13"> {{ $order->razorpay_payment_id }}</span></p>
+                    <p class="text-dark mb-1 fw-medium">Razorpay Signature ID : <span class="text-muted fw-normal fs-13"> {{ $order->signature_id }}</span></p>
                     <!-- <p class="text-dark mb-0 fw-medium">Card Holder Name : <span class="text-muted fw-normal fs-13"> Gaston Lapierre</span></p> -->
 
                 </div>
@@ -323,12 +325,14 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex align-items-center gap-2">
-                        @if($order->customer->profile_img)
-                        <img src="{{ asset('images/customer/'.$order->customer->profile_img) }}" alt="Profile Image" class="avatar rounded-3 border border-light border-3">
-                        @else
-                        <img src="{{ asset('assets/images/users/avatar-1.jpg') }}" alt="Default Profile Image" class="avatar rounded-3 border border-light border-3">
-                        @endif
+                        @php
+                            $profileImg = $order->customer->profile_img ?? null;
+                        @endphp
 
+                        <img 
+                            src="{{ $profileImg ? asset('images/customer/' . $profileImg) : asset('assets/images/users/avatar-1.jpg') }}" 
+                            alt="Profile Image" 
+                            class="avatar rounded-3 border border-light border-3">
                         <div>
                             <p class="mb-1">{{ $order->customer->name }}</p>
                             <a href="#!" class="link-primary fw-medium">
@@ -361,9 +365,9 @@
 
                     <div class="d-flex justify-content-between mt-3">
                         <h5 class="">Billing Address</h5>
-                        <div>
+                        <!-- <div>
                             <a href="#!"><i class='bx bx-edit-alt fs-18'></i></a>
-                        </div>
+                        </div> -->
                     </div>
 
                     @if($order->billingAddress)

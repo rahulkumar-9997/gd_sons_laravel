@@ -2,7 +2,9 @@
 @section('title','GD Sons - Checkout')
 @section('description', 'GD Sons - Checkout')
 @section('keywords', 'GD Sons - Checkout')
-
+@push('styles')
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+@endpush
 @section('main-content')
 <!-- Breadcrumb Section Start -->
 
@@ -35,6 +37,7 @@
         </div>
     </div>
 </section>
+
 <!-- Checkout section End -->
 <!---ADD NEW ADDRESS MODAL -->
 <div class="modal fade theme-modal" id="addAddressModal" tabindex="-1">
@@ -56,6 +59,9 @@
 @endsection
 @push('scripts')
 <script>
+    window.razorpayKey = "{{ config('services.razorpay.key') }}";
+</script>
+<script>
 $(document).ready(function() {
     $(document).on('click', '.storePickUp', function (event) {
         event.stopPropagation(); 
@@ -67,5 +73,5 @@ $(document).ready(function() {
 </script>
 <script src="{{asset('frontend/assets/js/lusqsztk.js')}}"></script>
 <script src="{{asset('frontend/assets/js/pages/add-new-address.js')}}"></script>
-<script src="{{asset('frontend/assets/js/pages/checkout-form-submit.js')}}"></script>
+<script src="{{asset('frontend/assets/js/pages/checkout-form-submit.js')}}?={{ time() }}"></script>
 @endpush

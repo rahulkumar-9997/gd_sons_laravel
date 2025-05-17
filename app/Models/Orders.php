@@ -22,6 +22,12 @@ class Orders extends Model
         'billing_address_id',
         'billing_address_id',
         'order_status_id',
+        'razorpay_payment_id',
+        'razorpay_signature_id',
+        'razorpay_order_id',
+        'razorpay_method',
+        'payment_status',
+        'failure_reason'
     ];
 
     public function orderStatus()

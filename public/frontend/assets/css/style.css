@@ -47403,7 +47403,9 @@ ul.custom-list li{
     .flash-sale-button:hover {
       color: #ffff;
     }
-  
+.cart-footer .btn .secure-checkout-lock{
+    margin-right: 5px;
+}
 /*privacy policy*/
 /*# sourceMappingURL=style.css.map */
 @media (max-width: 1199px) {

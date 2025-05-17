@@ -2,8 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\TrackVisitor;
-use App\Models\Notification;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Frontend\FrontendController;
 use App\Http\Controllers\Frontend\CustomerLoginController;
 use App\Http\Controllers\Frontend\CustomerController;
@@ -12,6 +10,7 @@ use App\Http\Controllers\Frontend\SearchController;
 use App\Http\Controllers\Frontend\FrontLandingPageController;
 use App\Http\Controllers\Frontend\SitemapController;
 use App\Http\Controllers\Frontend\WhatsappConfirmationController;
+use App\Http\Controllers\Frontend\RazorpayController;
 
 use App\Http\Controllers\Backend\LoginController;
 use App\Http\Controllers\Backend\ForgotPasswordController;
@@ -116,14 +115,21 @@ Route::middleware([TrackVisitor::class])->group(function () {
         Route::post('checkout/submit', [OrderController::class, 'checkOutFormSubmit'])->name('checkout.submit');
         Route::post('pay-modal-form', [OrderController::class, 'payModalForm'])->name('pay-modal-form');
         Route::post('pay-modal-form/submit', [OrderController::class, 'payModalFormSubmit'])->name('pay-modal-form.submit');
+        Route::post('/razorpay/callback', [OrderController::class, 'handleRazorpayCallback'])->name('razorpay.callback');
+        Route::post('/payment-failed', [OrderController::class, 'handlePaymentFailed'])->name('payment.failed');
         Route::get('order/success', [OrderController::class, 'showOrderSuccess'])->name('order.success');
         Route::post('add/address', [CustomerController::class, 'addAddressForm'])->name('add.address');
         Route::post('add/address/submit', [CustomerController::class, 'addAddressFormSubmit'])->name('add.address.submit');
         Route::post('edit/address/{id}', [CustomerController::class, 'editAddressForm'])->name('edit.address');
         Route::put('update/address/{id}', [CustomerController::class, 'editAddressFormSubmit'])->name('update.address');
         /** */
-        Route::post('/create-order', [OrderController::class, 'createOrder'])->name('create.order');
-        Route::post('/payment-success', [OrderController::class, 'handleSuccess'])->name('payment.success');
+        // Razorpay Routes
+        Route::post('/razorpay/magic/order', [RazorpayController::class, 'createMagicOrder'])
+        ->name('razorpay.magic.order.create');
+        Route::post('/razorpay/magic/callback', [RazorpayController::class, 'handleMagicCallback'])
+            ->name('razorpay.magic.callback');
+        // Route::get('/order-success', [OrderController::class, 'success'])->name('order.success');
+        // Route::get('/order-failed', [OrderController::class, 'failed'])->name('order.failed');
         /** */
         Route::group(['prefix' => 'account'], function() {
             Route::get('address', [CustomerController::class, 'showCustomerAddress'])->name('address');

@@ -75,7 +75,7 @@
                                     <div class="product-detail">
                                         <ul>
                                             <li class="name">
-                                                <a href="{{ url('products/'.$cart->product->slug.'/'.$attributes_value) }}">{{ ucwords(strtolower($cart->product->title)) }} sedadasdsad</a>
+                                                <a href="{{ url('products/'.$cart->product->slug.'/'.$attributes_value) }}">{{ ucwords(strtolower($cart->product->title)) }}</a>
                                             </li>
                                             <li class="text-content">
                                                 @if($cart->product->offer_rate)

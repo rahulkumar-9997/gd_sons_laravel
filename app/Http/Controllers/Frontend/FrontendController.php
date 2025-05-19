@@ -35,18 +35,18 @@ class FrontendController extends Controller
 {
     public function home()
     {
-        
+
         $labels = Label::whereIn('title', ['Popular Product', 'Trending Product'])
-        ->get()
-        ->keyBy('title');
+            ->get()
+            ->keyBy('title');
         $specialOffers = getCustomerSpecialOffers();
         //dd($specialOffers);
         $popular_label_id = $labels['Popular Product']->id ?? null;
         $trending_label_id = $labels['Trending Product']->id ?? null;
 
         $data['primary_category'] = PrimaryCategory::where('status', 1)
-        ->orderBy('title')
-        ->get(['id', 'title', 'link']);
+            ->orderBy('title')
+            ->get(['id', 'title', 'link']);
         $data['banner'] = Banner::orderBy('id', 'desc')->get(['id', 'image_path_desktop', 'link_desktop', 'title']);
         $data['video'] = Video::inRandomOrder()->select('video_url')->take(10)->get();
         /* Fetch all required products in one query */
@@ -73,9 +73,8 @@ class FrontendController extends Controller
         /* Split products into popular and trending */
         $data['popular_products'] = $products->where('label_id', $popular_label_id)->take(20);
         $data['trending_products'] = $products->where('label_id', $trending_label_id)->take(20);
-		DB::disconnect();
+        DB::disconnect();
         return view('frontend.index', compact('data', 'specialOffers'));
-
     }
 
     public function showProductCatalogOld_29_1_25(Request $request, $categorySlug, $attributeSlug, $valueSlug)
@@ -524,7 +523,7 @@ class FrontendController extends Controller
             // Fetch paginated products (dynamic filtering)
             $products = $productsQuery->with([
                 'category',
-                'images' => function($query) {
+                'images' => function ($query) {
                     $query->select('id', 'product_id', 'image_path')
                         ->orderBy('sort_order');
                 },
@@ -542,15 +541,15 @@ class FrontendController extends Controller
                 })
                 ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
                 ->paginate(32);
-                /**special offer rate */
-                $specialOffers = getCustomerSpecialOffers();
-                //dd($specialOffers);
-                /**special offer rate */
+            /**special offer rate */
+            $specialOffers = getCustomerSpecialOffers();
+            //dd($specialOffers);
+            /**special offer rate */
             // Return JSON response for AJAX requests
             if ($request->ajax()) {
                 if ($request->has('load_more') && $request->get('load_more') == true) {
                     return response()->json([
-                        'products' => view('frontend.pages.partials.product-catalog-load-more', compact('products','specialOffers', 'attributes_with_values_for_filter_list'))->render(),
+                        'products' => view('frontend.pages.partials.product-catalog-load-more', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list'))->render(),
                         'hasMore' => $products->hasMorePages(),
                     ]);
                 } else {
@@ -560,7 +559,7 @@ class FrontendController extends Controller
                     ]);
                 }
             }
-			DB::disconnect();
+            DB::disconnect();
             // Return view for non-AJAX requests
             return view('frontend.pages.product-catalog', compact(
                 'products',
@@ -588,8 +587,8 @@ class FrontendController extends Controller
             if (!is_null($customer_id) && !is_null($product_id)) {
                 $originalUrl = url()->full();
                 $offer = SpecialOffer::where('customer_id', $customer_id)
-                ->where('product_id', $product_id)
-                ->first();
+                    ->where('product_id', $product_id)
+                    ->first();
                 if ($offer) {
                     $customer = Customer::select('phone_number')->where('id', $customer_id)->first();
                     $phone_number = $customer->phone_number;
@@ -613,7 +612,7 @@ class FrontendController extends Controller
                             'success' => 'OTP sent successfully to your WhatsApp No.!',
                             'phone_number' => $customer->phone_number,
                         ]);
-                    }else {
+                    } else {
                         Log::error('OTP send failed:', $response->json());
                         return redirect()->back()->with('error', 'Failed to send OTP. Try again.');
                     }
@@ -626,10 +625,10 @@ class FrontendController extends Controller
         $attributeValue = Attribute_values::where('slug', $attributes_value_slug)->first();
         /*First get the product and increment visitor count in one query*/
         $product = Product::where('slug', $slug)
-        ->firstOrFail()
-        ->increment('visitor_count');
+            ->firstOrFail()
+            ->increment('visitor_count');
         /*First get the product and increment visitor count in one query*/
-       
+
         if (!$attributeValue) {
             $attributeValue = '';
         }
@@ -651,9 +650,9 @@ class FrontendController extends Controller
             ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
             ->where('products.slug', $slug)
             ->firstOrFail();
-        
+
         $categoryId = $data['product_details']->category->id;
-        
+
         $data['related_products'] = Product::with([
             'images' => function ($query) {
                 $query->orderBy('sort_order');
@@ -681,7 +680,7 @@ class FrontendController extends Controller
             ->inRandomOrder()
             ->limit(10)
             ->get();
-			DB::disconnect();
+        DB::disconnect();
         /**Related product display */
         //return response()->json($data['product_details']);
         return view('frontend.pages.product', compact('data', 'specialOffers'));
@@ -792,7 +791,7 @@ class FrontendController extends Controller
                     ]);
                 }
             }
-			DB::disconnect();
+            DB::disconnect();
 
             return view('frontend.pages.product-catalog-category', compact('products', 'category', 'attributes_with_values_for_filter_list'));
         } catch (\Exception $e) {
@@ -875,7 +874,7 @@ class FrontendController extends Controller
             // Fetching products with the necessary relationships
             $products = $productsQuery->with([
                 'category',
-                'images' => function($query) {
+                'images' => function ($query) {
                     $query->select('id', 'product_id', 'image_path')
                         ->orderBy('sort_order');
                 },
@@ -908,7 +907,7 @@ class FrontendController extends Controller
                     ]);
                 }
             }
-			DB::disconnect();
+            DB::disconnect();
             return view('frontend.pages.product-catalog-category', compact('products', 'specialOffers', 'category', 'attributes_with_values_for_filter_list', 'primary_category'));
         } catch (\Exception $e) {
             Log::error('Error fetching product catalog: ' . $e->getMessage());
@@ -1081,7 +1080,7 @@ class FrontendController extends Controller
             ->inRandomOrder()
             ->take(4)
             ->get();
-			DB::disconnect();
+        DB::disconnect();
         //return response()->json($blog);
         return view('frontend.pages.blog.blog-list', compact('blog', 'blog_category', 'blog_recent_post'));
     }
@@ -1103,15 +1102,15 @@ class FrontendController extends Controller
                             ->orderBy('id');
                     }
                 ])
-                ->leftJoin('inventories', function ($join) {
-                    $join->on('products.id', '=', 'inventories.product_id')
-                        ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-                })
-                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku');
+                    ->leftJoin('inventories', function ($join) {
+                        $join->on('products.id', '=', 'inventories.product_id')
+                            ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+                    })
+                    ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku');
             }
         ])
-        ->where('slug', $slug)
-        ->firstOrFail();
+            ->where('slug', $slug)
+            ->firstOrFail();
 
         $blog_category_id = $blog->blog_category_id;
         $blog_recent_post = Blog::where('blog_category_id', $blog_category_id)
@@ -1125,7 +1124,7 @@ class FrontendController extends Controller
             ->where('status', 1)
             ->orderBy('title')
             ->get();
-			DB::disconnect();
+        DB::disconnect();
         //return response()->json($blog);
         return view('frontend.pages.blog.blog-details', compact('blog', 'blog_recent_post', 'blog_categories'));
     }
@@ -1225,7 +1224,8 @@ class FrontendController extends Controller
         ]);
     }
 
-    public function productEnquiryModalFormSubmit(Request $request){
+    public function productEnquiryModalFormSubmit(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'phone_number' => 'required|digits_between:10,15',
@@ -1267,8 +1267,8 @@ class FrontendController extends Controller
             $imageName = 'Girdhar-Das-and-Sons.jpg';
         }
 
-        
-        
+
+
         $this->sendAiSensyCampaign(
             $request->phone_number,
             $request->name,
@@ -1279,11 +1279,11 @@ class FrontendController extends Controller
         );
         // $existingConversation = WhatsappConversation::where('mobile_number', $request->phone_number)->first();
         // if (!$existingConversation) {
-            $conversation = WhatsappConversation::create([
-                'mobile_number' => $request->phone_number,
-                'name' => $request->name,
-                'conversation_message' => $product->title,
-            ]);
+        $conversation = WhatsappConversation::create([
+            'mobile_number' => $request->phone_number,
+            'name' => $request->name,
+            'conversation_message' => $product->title,
+        ]);
         //}
         return response()->json([
             'status' => 'success',
@@ -1348,7 +1348,8 @@ class FrontendController extends Controller
         $this->makeApiRequest($apiEndpoint, $adminData);
     }
 
-    private function makeApiRequest($apiEndpoint, $data){
+    private function makeApiRequest($apiEndpoint, $data)
+    {
         $ch = curl_init($apiEndpoint);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
@@ -1363,7 +1364,8 @@ class FrontendController extends Controller
         return $result;
     }
 
-    public function updateCounter(Request $request){
+    public function updateCounter(Request $request)
+    {
         $counter = Counter::where('title', $request->counter_type)->first();
 
         if ($counter) {
@@ -1378,13 +1380,14 @@ class FrontendController extends Controller
         return response()->json(['success' => true, 'message' => 'Counter updated successfully!']);
     }
 
-    public function whatappLinkSendWhatappOtp($mobile_number, $otp){
+    public function whatappLinkSendWhatappOtp($mobile_number, $otp)
+    {
         $apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY";
-        
+
         $response = Http::post('https://backend.aisensy.com/campaign/t1/api/v2', [
             'apiKey' => $apiKey,
             'campaignName' => 'gdsons_login_otp',
-            'destination' =>$mobile_number,
+            'destination' => $mobile_number,
             'userName' => $mobile_number,
             'templateParams' => [$otp],
             'source' => 'new-landing-page form',
@@ -1412,7 +1415,8 @@ class FrontendController extends Controller
         return $response;
     }
 
-    public function WhatAppClickShowOtpForm(){
+    public function WhatAppClickShowOtpForm()
+    {
         //dd(session()->all());
         return view('frontend.pages.whatapp-otp-form');
     }
@@ -1423,7 +1427,7 @@ class FrontendController extends Controller
             'otp' => 'required|digits:6',
             'redirect_to' => 'required|url',
         ]);
-        
+
         $otpData = Session::get('whatsapp_otp');
         $storedOtp = $otpData['otp'] ?? null;
         $expiresAt = $otpData['expires_at'] ?? null;
@@ -1440,13 +1444,12 @@ class FrontendController extends Controller
 
         if ($request->otp !== $storedOtp) {
             return back()->withErrors(['otp' => 'Invalid OTP. Please try again.']);
-        }else{
+        } else {
             $customer = Customer::where('phone_number', $phoneNumber)->first();
             Auth::guard('customer')->login($customer);
             Session::forget('whatsapp_otp');
             return redirect()->to($request->redirect_to)->with('success', 'OTP verified successfully!');
         }
-      
     }
 
     public function privacyPolicy()
@@ -1459,33 +1462,230 @@ class FrontendController extends Controller
         return view('frontend.pages.term-of-use');
     }
 
-    public function flashSale()
+    public function flashSale(Request $request)
     {
         $flashLabel = Label::where('title', 'Flash Sale')->first();
         $flash_label_id = $flashLabel->id;
-        $specialOffers = getCustomerSpecialOffers();       
-        $products = Product::where('product_status', 1)
+        $specialOffers = getCustomerSpecialOffers(); 
+        $query = Product::where('product_status', 1)
             ->where('label_id', $flash_label_id)
             ->with([
                 'images' => function ($query) {
                     $query->select('id', 'product_id', 'image_path')->orderBy('sort_order');
                 },
-                'ProductAttributesValues' => function ($query) {
-                    $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
-                        ->with(['attributeValue:id,slug'])
-                        ->orderBy('id');
-                }
+                'category',
+                'attributes.attribute',
+                'attributes.values.attributeValue',
             ])
             ->leftJoin('inventories', function ($join) {
                 $join->on('products.id', '=', 'inventories.product_id')
                     ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
             })
-            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
-            ->get();
-		DB::disconnect();
-        return view('frontend.pages.flash-sale', compact('products', 'specialOffers'));
+            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku');
 
+        /*Apply filters*/
+        if ($request->hasAny(array_keys($request->all()))) {
+            foreach ($request->all() as $attributeSlug => $valueSlugs) {
+                if (strpos($attributeSlug, 'price') === false && $attributeSlug !== 'sort') {
+                    $valueSlugsArray = explode(',', $valueSlugs);
+                    
+                    $query->whereHas('attributes.values.attributeValue', function($q) use ($attributeSlug, $valueSlugsArray) {
+                        $q->whereHas('attribute', function($q) use ($attributeSlug) {
+                            $q->where('slug', $attributeSlug);
+                        })->whereIn('slug', $valueSlugsArray);
+                    });
+                }
+            }
+        }
+
+        // Apply sorting
+        if ($request->has('sort')) {
+            switch ($request->sort) {
+                case 'price-low-to-high':
+                    $query->orderBy('inventories.offer_rate', 'asc');
+                    break;
+                case 'price-high-to-low':
+                    $query->orderBy('inventories.offer_rate', 'desc');
+                    break;
+                case 'a-to-z-order':
+                    $query->orderBy('products.title', 'asc');
+                    break;
+                case 'new-arrivals':
+                    $query->orderBy('products.created_at', 'desc');
+                    break;
+                default:
+                    $query->orderBy('products.created_at', 'desc');
+            }
+        } else {
+            $query->orderBy('products.created_at', 'desc');
+        }
+        $products = $query->get();
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('frontend.pages.ajax-flash-deal', compact('products', 'specialOffers'))->render()
+            ]);
+        }
+
+        $attributes_with_values_for_filter_list = [];
+        $allProducts = Product::where('product_status', 1)
+            ->where('label_id', $flash_label_id)
+            ->with(['attributes.attribute', 'attributes.values.attributeValue'])
+            ->get();
+
+        foreach ($allProducts as $product) {
+            foreach ($product->attributes as $attributeRelation) {
+                $attribute = $attributeRelation->attribute;
+                if (!$attribute) continue;
+
+                $attrId = $attribute->id;
+                $attrSlug = $attribute->slug;
+                $attrTitle = $attribute->title;
+
+                if (!isset($attributes_with_values_for_filter_list[$attrId])) {
+                    $attributes_with_values_for_filter_list[$attrId] = [
+                        'attribute_title' => $attrTitle,
+                        'attribute_slug' => $attrSlug,
+                        'values' => [],
+                    ];
+                }
+
+                foreach ($attributeRelation->values as $valueRelation) {
+                    $attributeValue = $valueRelation->attributeValue;
+                    if ($attributeValue && !isset($attributes_with_values_for_filter_list[$attrId]['values'][$attributeValue->id])) {
+                        if($attributeValue->name !== 'NA') {
+                            $attributes_with_values_for_filter_list[$attrId]['values'][$attributeValue->id] = [
+                                'id' => $attributeValue->id,
+                                'name' => $attributeValue->name ?? $attributeValue->slug,
+                                'slug' => $attributeValue->slug,
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+        DB::disconnect();
+        return view('frontend.pages.flash-sale', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list'));
     }
 
-    
+    public function flashSaleOld(Request $request)
+    {
+        $flashLabel = Label::where('title', 'Flash Sale')->first();
+        $flash_label_id = $flashLabel->id;
+        $specialOffers = getCustomerSpecialOffers();
+        $query = Product::where('product_status', 1)
+            ->where('label_id', $flash_label_id)
+            ->with([
+                'images' => function ($query) {
+                    $query->select('id', 'product_id', 'image_path')->orderBy('sort_order');
+                },
+                'category',
+                'attributes.attribute',
+                'attributes.values.attributeValue',
+            ])
+            ->leftJoin('inventories', function ($join) {
+                $join->on('products.id', '=', 'inventories.product_id')
+                    ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+            })
+            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku');
+        /**filter */
+        if ($request->hasAny(array_keys($request->all()))) {
+            foreach ($request->all() as $attributeSlug => $valueSlugs) {
+                if (strpos($attributeSlug, 'price') === false && $attributeSlug !== 'sort') {
+                    $valueSlugsArray = explode(',', $valueSlugs);
+
+                    $query->whereHas('attributes.values.attributeValue', function ($q) use ($attributeSlug, $valueSlugsArray) {
+                        $q->whereHas('attribute', function ($q) use ($attributeSlug) {
+                            $q->where('slug', $attributeSlug);
+                        })->whereIn('slug', $valueSlugsArray);
+                    });
+                }
+            }
+        }
+
+        // Apply sorting
+        if ($request->has('sort')) {
+            $sortOption = $request->get('sort');
+            switch ($sortOption) {
+                case 'new-arrivals':
+                    $query->orderBy('created_at', 'desc');
+                    break;
+                case 'price-low-to-high':
+                    $query->orderByRaw('ISNULL(inventories.mrp), inventories.mrp ASC');
+                    break;
+                case 'price-high-to-low':
+                    $query->orderByRaw('ISNULL(inventories.mrp), inventories.mrp DESC');
+                    break;
+                case 'a-to-z-order':
+                    $query->orderBy('products.title', 'asc');
+                    break;
+                default:
+                    $query->orderBy('products.id', 'desc');
+                    break;
+            }
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $products = $query->get();
+        /**filter */
+        $attributes_with_values_for_filter_list = [];
+        foreach ($products as $product) {
+            foreach ($product->attributes as $attributeRelation) {
+                $attribute = $attributeRelation->attribute;
+
+                if (!$attribute) continue;
+
+                $attrId = $attribute->id;
+                $attrSlug = $attribute->slug;
+                $attrTitle = $attribute->title;
+
+                if (!isset($attributes_with_values_for_filter_list[$attrId])) {
+                    $attributes_with_values_for_filter_list[$attrId] = [
+                        'attribute_title' => $attrTitle,
+                        'attribute_slug' => $attrSlug,
+                        'values' => [],
+                    ];
+                }
+
+                foreach ($attributeRelation->values as $valueRelation) {
+                    $attributeValue = $valueRelation->attributeValue;
+                    if ($attributeValue && !isset($attributes_with_values_for_filter_list[$attrId]['values'][$attributeValue->id])) {
+                        if ($attributeValue->name !== 'NA') {
+                            $attributes_with_values_for_filter_list[$attrId]['values'][$attributeValue->id] = [
+                                'id' => $attributeValue->id,
+                                'name' => $attributeValue->name ?? $attributeValue->slug,
+                                'slug' => $attributeValue->slug,
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+
+        // Optional: sort values alphabetically
+        // foreach ($attributes_with_values_for_filter_list as &$attr) {
+        //     $attr['values'] = collect($attr['values'])->sortBy('name')->values()->all();
+        // }
+        //unset($attr);
+        //return response()->json($attributes_with_values_for_filter_list);
+        //return response()->json($products);
+        DB::disconnect();
+        if ($request->ajax()) {
+            $view = $request->input('view', 'filter');
+            if ($view === 'filter') {
+                return response()->json([
+                    'html' => view('frontend.pages.partials.ajax-flash-sale-load-more', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list'))->render(),
+                ]);
+            } else {
+                return response()->json([
+                    'html' => view('frontend.pages.partials.ajax-flash-sale-load-more', compact('products'))->render(),
+                    'hasMore' => false
+                ]);
+            }
+        }
+
+        return view('frontend.pages.flash-sale', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list'));
+    }
 }

@@ -29,11 +29,11 @@ $groupNames = $groupCategory->customerGroup->name;
 
 <!--sticky footer--->
 <div class="floating-buttons shake1">
-   <a href="https://wa.me/918318894257?text=Hello,+I+am+interested+in+learning+more+about+your+Services"
+   <a href="https://wa.me/919935070000?text=Hello,+I+visited+your+official+website.+Please+give+me+a+call."
       class="float-btn whatsapp" target="_blank">
       <i class="fab fa-whatsapp"></i>
    </a>
-   <a href="tel:+918318894257"
+   <a href="tel:+919935070000"
       class="float-btn messenger" target="_blank">
       <i class="fa fa-solid fa-phone" style="font-size: 20px;"></i>
    </a>
@@ -173,10 +173,10 @@ $groupNames = $groupCategory->customerGroup->name;
                         <div class="contact-number">
                            <h6 class="text-content">Hotline 24/7 :</h6>
                            <h5>
-                              <a href="tel:+91-99350700007">+91 - 9935070000</a>
+                              <a href="tel:+91-9935070000">+91 - 9935070000</a>
                            </h5>
                            <h5>
-                              <a href="tel:+91-8318894257">+91 - 83188 94257</a>
+                              <a href="tel:+91-8318894257">+91 - 8318894257</a>
                            </h5>
                         </div>
                      </div>

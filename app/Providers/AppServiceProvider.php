@@ -101,7 +101,7 @@ class AppServiceProvider extends ServiceProvider
                 'frontend.pages.partials.ajax-search-catalog',
                 'frontend.pages.partials.ajax-checkout-form',
                 'frontend.pages.partials.ajax-cart',
-                'frontend.pages.partials.ajax-flash-sale',
+                'frontend.pages.partials.ajax-flash-sale-load-more',
                 'frontend.pages.cart',
                 'frontend.pages.customer.wishlist.index',
                 'frontend.pages.checkout-param-page',

@@ -622,7 +622,8 @@ class FrontendController extends Controller
         $specialOffers = getCustomerSpecialOffers();
         //dd($specialOffers);
         /*Check customer whatapp click link is login or not */
-        $attributeValue = Attribute_values::where('slug', $attributes_value_slug)->first();
+        //$attributeValue = Attribute_values::where('slug', $attributes_value_slug)->first();
+        $attributeValue = Attribute_values::where('slug', $attributes_value_slug)->firstOrFail();
         /*First get the product and increment visitor count in one query*/
         $product = Product::where('slug', $slug)
             ->firstOrFail()

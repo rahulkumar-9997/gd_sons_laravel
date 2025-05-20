@@ -1,8 +1,4 @@
-@php
-    $urlPath = Request::path();
-    $segments = explode('/', $urlPath);
-    $lastSegment = end($segments);
-@endphp
+
 @php
     $customerId = auth('customer')->id();
     $wishlistProductIds = \App\Models\Wishlist::where('customer_id', $customerId)
@@ -11,10 +7,12 @@
 @endphp
 @foreach($products as $product)
 @php
-$firstImage = $product->images->get(0);
-$secondImage = $product->images->get(1);
-@endphp
-@php
+    $firstImage = $product->images->get(0);
+    $secondImage = $product->images->get(1);
+    $attributes_value ='na';
+    if($product->ProductAttributesValues->isNotEmpty()){
+        $attributes_value = $product->ProductAttributesValues->first()->attributeValue->slug;
+    }
     $purchase_rate = $product->purchase_rate;
     $offer_rate = $product->offer_rate;
     $mrp = $product->mrp;
@@ -61,7 +59,7 @@ $secondImage = $product->images->get(1);
                     </div>
                 @endif
                 <div class="product-img">
-                    <a href="{{ url('products/'.$product['slug'].'/'.$lastSegment) }}">
+                    <a href="{{ url('products/'.$product['slug'].'/'.$attributes_value) }}">
                     @if ($firstImage)
                     <img class="img-fluid blur-up lazyload" 
                         data-src="{{ asset('images/product/thumb/'. $firstImage->image_path) }}" 
@@ -112,7 +110,7 @@ $secondImage = $product->images->get(1);
         <div class="product-footer">
             <div class="product-detail">
                 <span class="span-name">{{ucwords(strtolower($product->category->title))}}</span>
-                <a href="{{ url('products/'.$product['slug'].'/'.$lastSegment) }}">
+                <a href="{{ url('products/'.$product['slug'].'/'.$attributes_value) }}">
                     <h5 class="name">{{ ucwords(strtolower($product->title)) }}</h5>
                 </a>
                 <h5 class="price">

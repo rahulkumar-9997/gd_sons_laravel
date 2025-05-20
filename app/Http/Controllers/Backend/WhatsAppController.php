@@ -14,11 +14,22 @@ use App\Models\WhatsappConversation;
 use Illuminate\Support\Facades\DB;
 use Vinkla\Hashids\Facades\Hashids;
 use App\Models\WhatsappSpecialRate;
-
 class WhatsAppController extends Controller
 {
     public function index(Request $request){
-        $data['specialOffers'] = SpecialOffer::with(['customer', 'product'])
+        $data['specialOffers'] = SpecialOffer::with([
+            'customer',
+            'product' => function ($query) {
+                $query->leftJoin('inventories', function ($join) {
+                    $join->on('products.id', '=', 'inventories.product_id')
+                        ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+                })
+                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+                ->with(['images' => function ($query) {
+                    $query->select('id', 'product_id', 'image_path')->orderBy('sort_order');
+                }]);
+            }
+        ])
         ->orderBy('id', 'desc')
         ->get();
         //return response()->json($data['specialOffers']);

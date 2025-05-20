@@ -5,10 +5,18 @@
             <thead>
                 <tr>
                     <th>Sr. No.</th>
-                    <th>IP Address</th>
+                    <th>
+                        IP Address
+                    </th>
+                    <th>
+                        Device Name
+                    </th>
+                    <th>
+                        OS
+                    </th>
                     <!-- <th>Browser</th> -->
-                    <th style="width: 10%;">Page Url</th>
-                    <th style="width: 10%;">Page Title</th>
+                    <th>Page Url</th>
+                    <th>Page Title</th>
                     <th>Customer Name</th>
                     <th>Visited At</th>
                 </tr>
@@ -20,13 +28,21 @@
                 @foreach ($data['visitor_list'] as $visitor)
                 <tr>
                     <td>{{ $srNo }}</td>
-                    <td>{{ $visitor->ip_address }}</td>
+                    <td>
+                        {{ $visitor->ip_address }}
+                    </td>
+                    <td>
+                        {{ $visitor->device_category }}
+                    </td>
+                    <td>
+                        {{ $visitor->os }}
+                    </td>
                     <!-- <td style="width: 15%;">
                         <div class="overflow-auto" style="max-width: 100px; white-space: nowrap;">
                             {{ $visitor->browser }}
                         </div>
                     </td> -->
-                    <td style="width: 30%;">
+                    <td style="width: 20%;">
                         <div class="overflow-auto" style="max-width: 300px; white-space: nowrap;">
                             {{ $visitor->page_name }}
                         </div>

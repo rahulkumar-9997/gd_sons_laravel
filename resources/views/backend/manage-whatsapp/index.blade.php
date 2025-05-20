@@ -36,22 +36,44 @@
                            <th>Name</th>
                            <th>Phone No.</th>
                            <th style="width: 20%;">Product Title</th>
-                           <th style="width: 25%;">Special Rate</th>
+                           <th style="width: 10%;">Special Rate</th>
                            <th>Post Date</th>
+                           <th>WhatsApp Message</th>
                            <th>Action</th>
                         </tr>
                      </thead>
                      <tbody>
                         @php $sr_no = 1; @endphp
                         @foreach($data['specialOffers'] as $specialOffers_row)
+                        @php
+                        $product = $specialOffers_row->product;
+                        $firstImage = $product->images->first() ?? null;
+                        $imagePathJpg = "https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png";
+                        $imageName = 'Girdhar Das & Sons';
+
+                        if ($firstImage && !empty($firstImage->image_path)) {
+                        $imageFileName = str_replace('.webp', '.jpg', $firstImage->image_path);
+                        $imagePathJpg = asset('images/product/jpg-image/thumb/' . $imageFileName);
+
+                        if (!file_exists(public_path('images/product/jpg-image/thumb/' . $imageFileName))) {
+                        $imagePathJpg = "https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png";
+                        }
+                        $imageName = basename($firstImage->image_path);
+                        }
+                      
+                        $whatsappMessage = "*Item : " . ($product->title ?? 'N/A') . "*\n";
+                        $whatsappMessage .= "MRP : ~" . ($product->mrp ?? 0) . "~\n";
+                        $whatsappMessage .= "Offer Price : *" . $specialOffers_row->special_offer_rate . "*\n\n";
+                        $whatsappMessage .= "Check the Product in the Link given below:\n";
+                        $whatsappMessage .= "*".$specialOffers_row->url."*";
+                        @endphp
                         <tr>
                            <td>{{ $sr_no }}</td>
                            <td>{{ $specialOffers_row->customer->name ?? 'N/A' }}</td>
                            <td>{{ $specialOffers_row->customer->phone_number ?? 'N/A' }}</td>
-                           <td>{{ $specialOffers_row->product->title ?? 'N/A' }}</td>
+                           <td>{{ $product->title ?? 'N/A' }}</td>
                            <td>
                               <span class="offer-rate-display">{{ $specialOffers_row->special_offer_rate }}</span>
-                              <!-- Edit mode (hidden by default) -->
                               <div class="offer-rate-edit d-none">
                                  <input type="number"
                                     class="form-control form-control-sm offer-rate-input"
@@ -61,11 +83,28 @@
                                  <button class="btn btn-sm btn-secondary btn-cancel-offer-rate mt-1">Cancel</button>
                               </div>
                            </td>
-
                            <td>{{ \Carbon\Carbon::parse($specialOffers_row->created_at)->format('d-m-Y') }}</td>
                            <td>
+                              <div class="whatsapp-message-container">
+                                 <div class="whatsapp-message-preview mb-2 p-2 bg-light rounded">
+                                    @if($firstImage)
+                                    <img src="{{ $imagePathJpg }}" alt="{{ $product->title }}" style="max-width: 80px; max-height: 80px;" class="mb-2"><br>
+                                    @endif
+                                    <strong>Item Name:</strong> {{ $product->title ?? 'N/A' }}<br>
+                                    <strong>MRP:</strong> ₹{{ $product->mrp ?? 0 }}<br>
+                                    <strong>Offer Price:</strong> ₹{{ $specialOffers_row->special_offer_rate }}<br><br>
+                                    <strong>Check the Product in the Link given below:</strong><br>
+                                    <a href="{{ $specialOffers_row->url }}" target="_blank">{{ $specialOffers_row->url }}</a>
+                                 </div>
+                                 <button class="btn btn-sm btn-success btn-copy-message w-100"
+                                    data-message="{{ $whatsappMessage }}"
+                                    data-image="{{ $imagePathJpg }}">
+                                    <i class="ti ti-copy"></i> Copy Message
+                                 </button>
+                              </div>
+                           </td>
+                           <td>
                               <div class="d-flex gap-1">
-                                 <!-- Edit Button -->
                                  <a href="javascript:void(0);"
                                     class="btn btn-soft-primary btn-sm btn-edit-offer-rate"
                                     data-editwhatappcon-popup="true"
@@ -75,8 +114,6 @@
                                     data-url="{{ route('manage-whatsapp.edit', $specialOffers_row->id) }}">
                                     <i class="ti ti-pencil"></i>
                                  </a>
-
-                                 <!-- Delete Form -->
                                  <form method="POST"
                                     action="{{ route('manage-whatsapp.destroy', $specialOffers_row->id) }}"
                                     style="margin-left: 10px;">
@@ -97,7 +134,6 @@
                         @php $sr_no++; @endphp
                         @endforeach
                      </tbody>
-
                   </table>
                </div>
                @endif
@@ -180,12 +216,12 @@
                      position: "right",
                      className: "bg-success",
                      close: true,
-                     onClick: function () { }
+                     onClick: function() {}
                   }).showToast();
                }
                $tr.find('.offer-rate-display').text(newRate).removeClass('d-none');
                $tr.find('.offer-rate-edit').addClass('d-none');
-               
+
             },
             error: function() {
                alert('Something went wrong. Please try again.');
@@ -197,4 +233,37 @@
       });
    });
 </script>
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+      const copyButtons = document.querySelectorAll('.btn-copy-message');
+      copyButtons.forEach(button => {
+         button.addEventListener('click', function() {
+            const message = this.getAttribute('data-message');
+            const textarea = document.createElement('textarea');
+            textarea.value = message;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+               document.execCommand('copy');
+               const originalHtml = this.innerHTML;
+               this.innerHTML = '<i class="ti ti-check"></i> Copied!';
+               this.classList.remove('btn-success');
+               this.classList.add('btn-primary');
+
+               setTimeout(() => {
+                  this.innerHTML = originalHtml;
+                  this.classList.remove('btn-primary');
+                  this.classList.add('btn-success');
+               }, 2000);
+            } catch (err) {
+               console.error('Failed to copy message: ', err);
+               alert('Failed to copy message. Please try again.');
+            }
+
+            document.body.removeChild(textarea);
+         });
+      });
+   });
+</script>
+
 @endpush

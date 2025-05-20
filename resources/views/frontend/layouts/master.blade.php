@@ -5,6 +5,9 @@
 		@stack('styles')
 	</head>
     <body class="bg-effect">
+		@if (!Auth::guard('customer')->check())
+			@include('frontend.pages.partials.Remove-push-notification-popup')
+		@endif
 		@include('frontend.layouts.header-menu')
 		
 		@yield('main-content')

@@ -6,6 +6,7 @@ use App\Models\WhatsappConversation;
 use App\Models\WhatsappConversationMessage;
 use Illuminate\Support\Facades\Http;
 use Vinkla\Hashids\Facades\Hashids;
+
 class WhatsappConversationController extends Controller
 {
     public function index(){

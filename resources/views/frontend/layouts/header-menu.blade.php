@@ -195,67 +195,69 @@ $search_value = !empty($query) ? $query : '';
                      <span>All Categories</span>
                   </button>
                   
-                  <div class="category-dropdown">
+                  <div class="category-dropdown desktop-menu-st">
                      <div class="category-title">
                         <h5>Categories</h5>
                         <button type="button" class="btn p-0 close-button text-content">
                            <i class="fa-solid fa-xmark"></i>
                         </button>
                      </div>
-                     <ul class="category-list">
-                        @if(!empty($categoriesWithMappedAttributesAndValues))
-                        @foreach($categoriesWithMappedAttributesAndValues as $category)
-                        <li class="onhover-category-list">
-                           <a href="javascript:void(0)" class="category-name">
-                              @if($category['category-image'] && file_exists(public_path('images/category/icon/' . $category['category-image'])))
-                              <img src="{{ asset('images/category/icon/' . $category['category-image']) }}" alt="{{ $category['title'] }}" style="object-fit: cover;">
-                              @else
-                              <img src="{{ asset('images/meats.svg') }}" alt="{{ $category['title'] }}">
-                              @endif
-                              <h6>{{ $category['title'] }}</h6>
-                              <i class="fa-solid fa-angle-right"></i>
-                           </a>
-                           @if(!empty($category['attributes']))
-
-                           <div class="onhover-category-box">
-                              <a href="{{ url('categories/'.$category['category-slug'])}}" class="btn btn-md mt-1 mb-3 theme-bg-color text-white ">
-                                 All {{ $category['title'] }}
+                     <div class="desktop-catelis">
+                        <ul class="category-list">
+                           @if(!empty($categoriesWithMappedAttributesAndValues))
+                           @foreach($categoriesWithMappedAttributesAndValues as $category)
+                           <li class="onhover-category-list">
+                              <a href="javascript:void(0)" class="category-name">
+                                 @if($category['category-image'] && file_exists(public_path('images/category/icon/' . $category['category-image'])))
+                                 <img src="{{ asset('images/category/icon/' . $category['category-image']) }}" alt="{{ $category['title'] }}" style="object-fit: cover;">
+                                 @else
+                                 <img src="{{ asset('images/meats.svg') }}" alt="{{ $category['title'] }}">
+                                 @endif
+                                 <h6>{{ $category['title'] }}</h6>
+                                 <i class="fa-solid fa-angle-right"></i>
                               </a>
-                              <div class="col-lg-12">
-                                 <div class="row">
-                                    @php
-                                    $sr_no = 1;
-                                    @endphp
-                                    @foreach($category['attributes'] as $attribute)
-                                    <div class="list-{{$sr_no}} col-lg-4">
-                                       <div class="category-title-box">
-                                          <h5>{{ $attribute['title'] }}</h5>
+                              @if(!empty($category['attributes']))
+
+                              <div class="onhover-category-box">
+                                 <a href="{{ url('categories/'.$category['category-slug'])}}" class="btn btn-md mt-1 mb-3 theme-bg-color text-white ">
+                                    All {{ $category['title'] }}
+                                 </a>
+                                 <div class="col-lg-12">
+                                    <div class="row">
+                                       @php
+                                       $sr_no = 1;
+                                       @endphp
+                                       @foreach($category['attributes'] as $attribute)
+                                       <div class="list-{{$sr_no}} col-lg-4">
+                                          <div class="category-title-box">
+                                             <h5>{{ $attribute['title'] }}</h5>
+                                          </div>
+                                          <ul>
+                                             @foreach($attribute['values'] as $value)
+                                             <li>
+                                                <a href="{{ url('kitchen-catalog/' . $category['category-slug'] . '/' . $attribute['slug'] . '/' . $value['slug']) }}">
+                                                   {{ $value['name'] }}
+                                                </a>
+                                             </li>
+                                             @endforeach
+                                          </ul>
                                        </div>
-                                       <ul>
-                                          @foreach($attribute['values'] as $value)
-                                          <li>
-                                             <a href="{{ url('kitchen-catalog/' . $category['category-slug'] . '/' . $attribute['slug'] . '/' . $value['slug']) }}">
-                                                {{ $value['name'] }}
-                                             </a>
-                                          </li>
-                                          @endforeach
-                                       </ul>
+                                       @php
+                                       $sr_no++;
+                                       @endphp
+                                       @endforeach
                                     </div>
-                                    @php
-                                    $sr_no++;
-                                    @endphp
-                                    @endforeach
                                  </div>
                               </div>
-                           </div>
+                              @endif
+                           </li>
+                           @endforeach
+                           @else
+                           <li>No categories available</li>
                            @endif
-                        </li>
-                        @endforeach
-                        @else
-                        <li>No categories available</li>
-                        @endif
 
-                     </ul>
+                        </ul>
+                     </div>
                   </div>
                   
                </div>

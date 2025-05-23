@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
 
 class TrackVisitor
 {
@@ -59,41 +60,43 @@ class TrackVisitor
     public function handle(Request $request, Closure $next)
     {
         $this->SocialMediaTracking($request);
+        
         if (!$request->isMethod('get') || $request->expectsJson() || $request->wantsJson()) {
             return $next($request);
         }
         
-        // Skip static files
         if ($this->isStaticFile($request)) {
             return $next($request);
         }
         
-        // Check for bots
         if ($this->isBot($request)) {
             $this->logBotDetection($request);
             return $next($request);
         }
         
         if ($this->isBlockedIP($request->ip())) {
-            Log::info("Blocked IP: " . $request->ip());
+            //Log::info("Blocked IP: " . $request->ip());
             return $next($request);
         }
 
-        // Track human visitors
-        $this->trackVisitor($request);
-
-        return $next($request);
+        // Get the response first
+        $response = $next($request);
+        
+        // Track visitor with response content
+        $this->trackVisitor($request, $response->getContent());
+        
+        return $response;
     }
 
     /**
      * Track human visitors
      */
-    private function trackVisitor(Request $request): void
+    private function trackVisitor(Request $request, ?string $content = null): void
     {
         $ipAddress = $request->getClientIp();
         $browser = $request->header('User-Agent');
         $pageName = $request->fullUrl();
-        $pageTitle = $this->getPageTitle($request);
+        $pageTitle = $this->extractPageTitle($request, $content);
         $currentDate = Carbon::now()->toDateString();
         $sessionId = $request->session()->getId();
         
@@ -290,14 +293,14 @@ class TrackVisitor
     private function logBotDetection(Request $request): void
     {
         $reason = $this->getDetectionReason($request);
-        Log::info('Bot detected', [
-            'ip' => $request->ip(),
-            'url' => $request->fullUrl(),
-            'user_agent' => $request->header('User-Agent'),
-            'referrer' => $request->header('referer'),
-            'reason' => $reason,
-            'timestamp' => now()->toDateTimeString()
-        ]);
+        // Log::info('Bot detected', [
+        //     'ip' => $request->ip(),
+        //     'url' => $request->fullUrl(),
+        //     'user_agent' => $request->header('User-Agent'),
+        //     'referrer' => $request->header('referer'),
+        //     'reason' => $reason,
+        //     'timestamp' => now()->toDateTimeString()
+        // ]);
     }
 
     /**
@@ -397,7 +400,7 @@ class TrackVisitor
                 'lon' => $location->lon ?? null,
             ];
         } catch (\Exception $e) {
-            Log::warning("GeoIP lookup failed for IP {$ip}: " . $e->getMessage());
+            //Log::warning("GeoIP lookup failed for IP {$ip}: " . $e->getMessage());
             return [
                 'city' => 'Unknown',
                 'country' => 'Unknown',
@@ -454,32 +457,27 @@ class TrackVisitor
     /**
      * Get page title
      */
-    private function getPageTitle(Request $request): string
+     private function extractPageTitle(Request $request, ?string $content): string
     {
-        if ($request->route() && $routeName = $request->route()->getName()) {
-            return Str::title(str_replace('.', ' ', $routeName));
-        }
-        if ($request->has('title')) {
-            return $request->input('title');
-        }
-        if (session()->has('page_title')) {
-            return session('page_title');
-        }
-        try {
-            if ($request->isMethod('get') && !$request->expectsJson()) {
-                $content = file_get_contents($request->fullUrl());
-                if (preg_match('/<title>(.*?)<\/title>/', $content, $matches)) {
-                    return html_entity_decode($matches[1]);
-                }
+        // 1. Try to extract from HTML content
+        if ($content && preg_match('/<title[^>]*>\s*(.*?)\s*<\/title>/is', $content, $matches)) {
+            $title = trim(html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            if (!empty($title)) {
+                return $title;
             }
-        } catch (\Exception $e) {
-            // Silent fail
-        }
-        $path = trim($request->path(), '/');
-        if (empty($path)) {
-            return 'Home Page';
         }
 
-        return Str::title(str_replace(['-', '_', '/'], ' ', $path));
+        // 2. Check route name
+        if ($request->route() && $routeName = $request->route()->getName()) {
+            $title = Str::title(str_replace(['-', '_', '.'], ' ', $routeName));
+            if (!in_array(strtolower($title), ['index', 'home'])) {
+                return $title;
+            }
+        }
+
+        // 3. Generate from path
+        $path = trim($request->path(), '/');
+        return $path ? Str::title(str_replace(['-', '_'], ' ', $path)) : 'Home Page';
     }
+
 }

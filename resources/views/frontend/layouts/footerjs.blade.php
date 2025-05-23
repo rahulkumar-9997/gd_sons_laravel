@@ -101,3 +101,48 @@
         
     </script>
 @endif
+@if (!isset($_SERVER['HTTP_USER_AGENT']) || !preg_match('/(android|iphone|ipod|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])))
+    <script>
+    $(document).ready(function () {
+        const $desktopMenu = $('.desktop-menu-st');
+        const $categoryLists = $('.onhover-category-list');
+        const $categoryBoxes = $('.onhover-category-box');
+        $('.dropdown-category').on('click', function (e) {
+            e.stopPropagation();
+            $desktopMenu.toggleClass('show');
+            $categoryLists.removeClass('active');
+            $categoryBoxes.removeClass('show');
+        });
+        $categoryLists.on('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const $thisBox = $(this).find('.onhover-category-box');
+            $categoryLists.not(this).removeClass('active')
+                .find('.onhover-category-box').removeClass('show');
+            $(this).toggleClass('active');
+
+            if ($(this).hasClass('active')) {
+                $thisBox.addClass('show');
+            } else {
+                $thisBox.removeClass('show');
+            }
+        });
+        $('.close-button').on('click', function () {
+            $desktopMenu.removeClass('show');
+            $categoryLists.removeClass('active');
+            $categoryBoxes.removeClass('show');
+        });
+        $(document).on('click', function (e) {
+            if (!$(e.target).closest('.desktop-menu-st').length &&
+                !$(e.target).closest('.dropdown-category').length) {
+                $desktopMenu.removeClass('show');
+                $categoryLists.removeClass('active');
+                $categoryBoxes.removeClass('show');
+            }
+        });
+        $categoryBoxes.on('click', function (e) {
+            e.stopPropagation();
+        });
+    });
+</script>
+@endif

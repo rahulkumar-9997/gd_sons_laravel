@@ -152,6 +152,15 @@ class DashboardController extends Controller
 
     public function getVisitorList(){
         $data['visitor_list'] = VisitorTracking::orderBy('id', 'desc')->paginate(50);
+        $data['page_counts'] = VisitorTracking::selectRaw('
+                page_name, 
+                COUNT(*) as visitor_count'
+            )
+            ->groupBy('page_name')
+            ->get()
+            ->keyBy(function($item) {
+                return $item->page_name;
+            });
         return view('backend.dashboard.visitor-list', compact('data')); 
     }
 }

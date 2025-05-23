@@ -18,13 +18,13 @@ class VisitorTrackingController extends Controller
         $pageName = $request->input('page_name');
         $location = GeoIP::getLocation($ipAddress)->city;
         $timeSpent = $request->input('time_spent');
-        Log::info('Tracking Data Received:', [
-            'ip_address' => $ipAddress,
-            'browser' => $browser,
-            'page_name' => $pageName,
-            'location' => $location,
-            'time_spent' => $timeSpent
-        ]);
+        // Log::info('Tracking Data Received:', [
+        //     'ip_address' => $ipAddress,
+        //     'browser' => $browser,
+        //     'page_name' => $pageName,
+        //     'location' => $location,
+        //     'time_spent' => $timeSpent
+        // ]);
         if (!$timeSpent || !is_numeric($timeSpent)) {
             return response()->json(['error' => 'Invalid time_spent value'], 400);
         }

@@ -1271,7 +1271,7 @@ a.cntshop {
       font-size: 14px;
   }
   header.mobile-header .header-nav .header-nav-left .category-dropdown .category-list{
-    gap: 15px;
+    gap: 0px;
     padding: 15px 25px;
   }
   .shop-section .show-button .filter-button-group{

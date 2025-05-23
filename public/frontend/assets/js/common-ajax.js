@@ -509,5 +509,4 @@ $(document).ready(function () {
     $(window).resize(updateFooterWidth);
 });
 
-/**submut button fixed after scroll */
 

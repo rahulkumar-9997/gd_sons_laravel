@@ -12,5 +12,6 @@ class ImageStorage extends Model
     protected $fillable = [
         'id',
         'image_storage_path',
+        'comments'
     ];
 }

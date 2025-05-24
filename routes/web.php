@@ -370,6 +370,7 @@ Route::group(['middleware' => ['admin']], function () {
     Route::post('whatsapp-conversation-sendmessage/{id}', [WhatsappConversationController::class, 'sendAgainMsgModalSubmit'])->name('whatsapp-conversation.sendmessage');
     Route::get('manage-storage', [StorageController::class, 'index'])->name('manage-storage');
     Route::get('manage-storage/create', [StorageController::class, 'create'])->name('manage-storage.create');
+    Route::post('manage-storage/comment/submit/{id}', [StorageController::class, 'storageCommentSubmit'])->name('manage-storage.comment.submit');
     Route::post('manage-storage/submit', [StorageController::class, 'store'])->name('manage-storage.submit');
     Route::delete('manage-storage/{id}',  [StorageController::class, 'destroy'])->name('manage-storage.delete');
     Route::post('mapped-image-to-product/submit', [StorageController::class, 'mappedImageToProductSubmit'])->name('mapped-image-to-product.submit');

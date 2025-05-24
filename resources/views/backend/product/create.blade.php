@@ -684,7 +684,7 @@
          /*attributes select  */
          //updateAttributeOptions();
          /**copy paste additional value */
-         $(document).on('paste', '.add-more-additional-feature-append .form-control', function (e) {
+         /*$(document).on('paste', '.add-more-additional-feature-append .form-control', function (e) {
             e.preventDefault();
             const pastedText = (e.originalEvent.clipboardData || window.clipboardData).getData('text').trim();
             const words = pastedText.split(/\s+/);
@@ -699,10 +699,7 @@
                });
                currentRow = currentRow.next('.row');
             }
-         });
-
-
-         /**copy paste additional value */
+         });*/
       });
 
       

@@ -255,4 +255,48 @@ $(document).ready(function () {
     /**storage image delete */
     
 });
+/*Image storage comment submit */
+$(document).on('click', '.comment-submit-btn', function() {
+    var btn = $(this);
+    var storageId = btn.data('storageid');
+    var url = btn.data('route');
+    var commentInput = $('#storage_comment_' + storageId);
+    var comment = commentInput.val();
+    btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Saving...');
+
+    $.ajax({
+        url: url,
+        method: 'POST',
+        data: {
+            storage_comment: comment,
+            _token: $('meta[name="csrf-token"]').attr('content'),
+        },
+        success: function(response) {
+            btn.prop('disabled', false).html('Submit');
+            if (response.status === 'success') {
+                Toastify({
+                    text: response.message,
+                    duration: 3000,
+                    gravity: 'top',
+                    position: 'right',
+                    className: 'bg-success',
+                    close: true
+                }).showToast();
+            }
+        },
+        error: function(xhr) {
+            btn.prop('disabled', false).html('Submit');
+            Toastify({
+                text: xhr.responseJSON?.message || 'An error occurred.',
+                duration: 3000,
+                gravity: 'top',
+                position: 'right',
+                className: 'bg-danger',
+                close: true
+            }).showToast();
+        }
+    });
+});
+
+/*Image storage comment submit */
 

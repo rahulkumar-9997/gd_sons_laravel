@@ -187,5 +187,40 @@ class StorageController extends Controller
             return response()->json(['error' => 'Failed to delete the image.'], 500);
         }
     }
+
+    public function storageCommentSubmit(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'storage_comment' => 'required|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Comment field required.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $image = ImageStorage::findOrFail($id);
+            $image->comments = $request->input('storage_comment');
+            $image->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Comment saved successfully.',
+            ]);
+        } catch (\Exception $e) {
+            //Log::error('Error saving comment for image ID ' . $id . ': ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to save comment. Please try again later.',
+            ], 500);
+        }
+    }
+
+
     
 }

@@ -41,6 +41,17 @@
                     </div>
                     <div class="rounded-bottom">
                         <div class="mt-1">
+                            <div class="d-flex gap-2 mb-2" id="storage_img_area_{{ $image_storage->id }}">
+                                <div>
+                                    <input type="text" placeholder="Enter image comments..." id="storage_comment_{{ $image_storage->id }}" name="storage_comment" class="form-control" value="{{ $image_storage->comments}}">
+                                </div>
+                                <div>
+                                    <button type="submit"
+                                    data-storageid="{{ $image_storage->id}}"
+                                    data-route="{{ route('manage-storage.comment.submit', $image_storage->id) }}"
+                                    class="btn btn-primary w-100 comment-submit-btn">Submit</button>
+                                </div>
+                            </div>
                             <div class="d-flex gap-2">
                                 <a href="javascript:void(0);" 
                                     data-url="{{ route('manage-storage.delete', ['id' => $image_storage->id]) }}"

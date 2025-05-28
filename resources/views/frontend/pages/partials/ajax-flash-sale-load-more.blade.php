@@ -1,86 +1,92 @@
-
 @php
-    $customerId = auth('customer')->id();
-    $wishlistProductIds = \App\Models\Wishlist::where('customer_id', $customerId)
-        ->pluck('product_id')
-        ->toArray();
+$customerId = auth('customer')->id();
+$wishlistProductIds = \App\Models\Wishlist::where('customer_id', $customerId)
+->pluck('product_id')
+->toArray();
 @endphp
 @foreach($products as $product)
 @php
-    $firstImage = $product->images->get(0);
-    $secondImage = $product->images->get(1);
-    $attributes_value ='na';
-    if($product->ProductAttributesValues->isNotEmpty()){
-        $attributes_value = $product->ProductAttributesValues->first()->attributeValue->slug;
-    }
-    $purchase_rate = $product->purchase_rate;
-    $offer_rate = $product->offer_rate;
-    $mrp = $product->mrp;
-    $group_offer_rate = null;
-    $special_offer_rate = null;
+$firstImage = $product->images->get(0);
+$secondImage = $product->images->get(1);
+$attributes_value ='na';
+if($product->ProductAttributesValues->isNotEmpty()){
+$attributes_value = $product->ProductAttributesValues->first()->attributeValue->slug;
+}
+$purchase_rate = $product->purchase_rate;
+$offer_rate = $product->offer_rate;
+$mrp = $product->mrp;
+$group_offer_rate = null;
+$special_offer_rate = null;
 
-    /* Group price calculation*/
-    if ($groupCategory && $offer_rate !== null) {
-        $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-        if ($group_percentage > 0) {
-            $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-            $group_offer_rate = floor($group_offer_rate);
-        }
-    }
+/* Group price calculation*/
+if ($groupCategory && $offer_rate !== null) {
+$group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+if ($group_percentage > 0) {
+$group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+$group_offer_rate = floor($group_offer_rate);
+}
+}
 
-    /* Special offer (from array) */
-    if (isset($specialOffers[$product->id])) {
-        $special_offer_rate = (float) $specialOffers[$product->id];
-    }
+/* Special offer (from array) */
+if (isset($specialOffers[$product->id])) {
+$special_offer_rate = (float) $specialOffers[$product->id];
+}
 
-    /* Final price: lowest among all available */
-    $final_offer_rate = collect([
-        $offer_rate,
-        $group_offer_rate,
-        $special_offer_rate
-    ])->filter()->min();
+/* Final price: lowest among all available */
+$final_offer_rate = collect([
+$offer_rate,
+$group_offer_rate,
+$special_offer_rate
+])->filter()->min();
 
-    /* Discount calculation */
-    $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
-        ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
-        : 0;
+/* Discount calculation */
+$discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
+? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+: 0;
 @endphp
 <div>
     <div class="product-box h-100">
         <div class="product-header">
             <div class="product-image">
                 @if ($discountPercentage>0)
-                    <div class="label-flex">
-                        <div class="discount">
-                            <label>
-                                Save {{ $discountPercentage }}%
-                            </label>
-                        </div>
+                <div class="label-flex">
+                    <div class="discount">
+                        <label>
+                            Save {{ $discountPercentage }}%
+                        </label>
                     </div>
+                </div>
                 @endif
                 <div class="product-img">
                     <a href="{{ url('products/'.$product['slug'].'/'.$attributes_value) }}">
-                    @if ($firstImage)
-                    <img class="img-fluid blur-up lazyload" 
-                        data-src="{{ asset('images/product/thumb/'. $firstImage->image_path) }}" 
-                        src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}" 
-                        srcset="{{ asset('images/product/thumb/'. $firstImage->image_path) }} 600w, 
-                                {{ asset('images/product/thumb/'. $firstImage->image_path) }} 1200w"
-                        sizes="(max-width: 600px) 600px, 1200px"
-                        alt="{{ $product->title }}" 
-                        title="{{ $product->title }}" 
-                        loading="lazy">
-                    @else
-                    <img class="img-fluid blur-up lazyload" 
-                        src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}" 
-                        alt="{{ $product->title }}" 
-                        title="{{ $product->title }}" 
-                        loading="lazy">
-                    @endif
+                        @if ($firstImage)
+                        <picture>
+                            <source
+                                media="(max-width: 767px)"
+                                srcset="{{ asset('images/product/icon/' . $firstImage->image_path) }}">
 
-
+                            <img
+                                class="img-fluid blur-up lazyload"
+                                data-src="{{ asset('images/product/thumb/' . $firstImage->image_path) }}"
+                                src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                srcset="{{ asset('images/product/thumb/' . $firstImage->image_path) }} 600w, 
+                                {{ asset('images/product/thumb/' . $firstImage->image_path) }} 1200w"
+                                sizes="(max-width: 600px) 600px, 1200px"
+                                alt="{{ $product->title }}"
+                                title="{{ $product->title }}"
+                                loading="lazy">
+                        </picture>
+                        @else
+                        <img
+                            class="img-fluid blur-up lazyload"
+                            src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                            alt="{{ $product->title }}"
+                            title="{{ $product->title }}"
+                            loading="lazy">
+                        @endif
                     </a>
                 </div>
+
                 <!--<ul class="product-option">
                     <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
                         <a href="javascript:void(0)" data-url="{{route('quick.view')}}" data-product-id="{{$product->id}}" class="quick-view">
@@ -115,13 +121,13 @@
                 </a>
                 <h5 class="price">
                     @if ($final_offer_rate === null)
-                        <span class="theme-color">Price not available</span>
+                    <span class="theme-color">Price not available</span>
                     @else
-                        <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
+                    <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
                     @endif
 
                     @if ($mrp !== null)
-                        <del>Rs. {{ $mrp }}</del>
+                    <del>Rs. {{ $mrp }}</del>
                     @endif
                 </h5>
                 <div class="add-to-cart-box bg-white">

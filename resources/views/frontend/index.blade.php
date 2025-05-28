@@ -57,9 +57,47 @@
                 </div>
             </div>
             <div class="col-xl-4 ratio_65 banner-side two-banner-home">
-                <div class="row g-2">
+                <div class="row g-2 h-100">
+                    @if (!isset($_SERVER['HTTP_USER_AGENT']) || !preg_match('/(android|iphone|ipod|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])))
+                    <div class="single-bn-mo-dnone h-100">
+                        <div class="home-enquiry-form h-100">
+                            <div class="home-enquiry-title text-center">
+                                <h3>
+                                    Request a Product or Item
+                                </h3>
+                            </div>
+                            <div class="form">
+                                <form action="{{ route('request.product.enquiry.submit')}}" method="post" id="requestAproductEnquiry">
+                                    @csrf
+                                    <div class="mb-md-4 mb-3 custom-form">
+                                        <!-- <label for="name" class="form-label">Name</label> -->
+                                        <div class="custom-input">
+                                            <input type="text" class="form-control" id="name" placeholder="Enter your name *" name="name">
 
-                    <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dnone">
+                                        </div>
+                                    </div>
+                                    <div class="mb-md-4 mb-3 custom-form">
+                                        <!-- <label for="phone" class="form-label">Phone Number</label> -->
+                                        <div class="custom-input">
+                                            <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number *" maxlength="10" oninput="javascript: if (this.value.length > this.maxLength) this.value =
+                                                this.value.slice(0, this.maxLength);" name="phone">
+
+                                        </div>
+                                    </div>
+                                    <div class="mb-md-4 mb-3 custom-form">
+                                        <!-- <label for="message" class="form-label">Message</label> -->
+                                        <div class="custom-textarea">
+                                            <textarea class="form-control" id="message" placeholder="Enter your message" rows="3" name="message"></textarea>
+
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-animation btn-md fw-bold ms-auto" type="submit">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                    <!--<div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dnone">
                         <div class="home-contain">
                             <img src="{{asset('frontend/assets/images/side-banner-1.png')}}" class="img-responsive blur-up lazyload"
                                 alt="side banner" loading="lazy">
@@ -88,7 +126,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>-->
                     <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dblock">
                         <div class="row">
                             <div class="col-md-6 col-6">
@@ -111,8 +149,12 @@
                                 </a>
                             </div>
                             <div class="col-md-6 col-6">
-                                <a href="https://www.gdsons.co.in/about-us" class="btn theme-bg-color btn-md fw-bold text-white">
-                                    Know more About us
+                                <a href="javascript:void(0)"
+                                    data-url="{{ route('request.product.enquiry.form') }}" data-title="Request a Product or Item"
+                                    data-pageurl="{{url()->current()}}"
+                                    data-size="md"
+                                    class="btn theme-bg-color btn-md fw-bold text-white requestProductBtn">
+                                    Need Something ?
                                 </a>
                             </div>
                         </div>
@@ -120,9 +162,9 @@
                     <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dblock">
                         <div class="row justify-content-center">
                             <div class="col-md-6 col-6 mobile-flash-sale-div">
-                                 <a href="{{ route('flash.sale')}}" class="flash-sale-button">
+                                <a href="{{ route('flash.sale')}}" class="flash-sale-button">
                                     Flash Sale <small>Only Limited Time</small>
-                                 </a>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -348,19 +390,27 @@
                                                 <div class="product-img">
                                                     <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
                                                         @if ($firstImage)
-                                                        <img
-                                                            class="img-fluid blur-up lazyload"
-                                                            data-src="{{ asset('images/product/thumb/'. $firstImage->image_path) }}"
-                                                            src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                            srcset="{{ asset('images/product/thumb/'. $firstImage->image_path) }} 600w, 
-                                                                    {{ asset('images/product/thumb/'. $firstImage->image_path) }} 1200w"
-                                                            sizes="(max-width: 600px) 600px, 1200px"
-                                                            alt="{{ $popular_product_row->title }}"
-                                                            title="{{ $popular_product_row->title }}"
-                                                            loading="lazy"
-                                                            width="300"
-                                                            height="300"
-                                                            onload="this.style.opacity=1">
+                                                        <picture>
+                                                            {{-- Mobile image from "icon" folder --}}
+                                                            <source
+                                                                media="(max-width: 767px)"
+                                                                srcset="{{ asset('images/product/icon/' . $firstImage->image_path) }}">
+
+                                                            {{-- Desktop image from "thumb" folder --}}
+                                                            <img
+                                                                class="img-fluid blur-up lazyload"
+                                                                data-src="{{ asset('images/product/thumb/' . $firstImage->image_path) }}"
+                                                                src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                                                srcset="{{ asset('images/product/thumb/' . $firstImage->image_path) }} 600w, 
+                                                                {{ asset('images/product/thumb/' . $firstImage->image_path) }} 1200w"
+                                                                sizes="(max-width: 600px) 600px, 1200px"
+                                                                alt="{{ $popular_product_row->title }}"
+                                                                title="{{ $popular_product_row->title }}"
+                                                                loading="lazy"
+                                                                width="300"
+                                                                height="300"
+                                                                onload="this.style.opacity=1">
+                                                        </picture>
                                                         @else
                                                         <img
                                                             src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
@@ -370,9 +420,9 @@
                                                             width="300"
                                                             height="300">
                                                         @endif
-
                                                     </a>
                                                 </div>
+
 
                                             </div>
                                             <div class="product-detail">
@@ -409,9 +459,9 @@
                                 </div>
                             </div>
                         </div>
-                </div>
-                
-                @endif
+                    </div>
+
+                    @endif
                     @if ($data['trending_products'] && $data['trending_products']->isNotEmpty())
                     <div class="title d-block text-center">
                         <h2>Trending Products</h2>
@@ -484,21 +534,26 @@
                                                     </div>
                                                     @endif
                                                     <div class="product-img">
-                                                        <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value)}}">
+                                                        <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value) }}">
                                                             @if ($firstImageTrending)
-                                                            <img
-                                                                class="img-fluid blur-up lazyload"
-                                                                data-src="{{ asset('images/product/thumb/'. $firstImageTrending->image_path) }}"
-                                                                src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                                srcset="{{ asset('images/product/thumb/'. $firstImageTrending->image_path) }} 600w, 
-                                                                        {{ asset('images/product/thumb/'. $firstImageTrending->image_path) }} 1200w"
-                                                                sizes="(max-width: 600px) 600px, 1200px"
-                                                                alt="{{ $trending_products_row->title }}"
-                                                                title="{{ $trending_products_row->title }}"
-                                                                loading="lazy"
-                                                                width="300"
-                                                                height="300"
-                                                                onload="this.style.opacity=1">
+                                                            <picture>
+                                                                <source
+                                                                    media="(max-width: 767px)"
+                                                                    srcset="{{ asset('images/product/icon/' . $firstImageTrending->image_path) }}">
+                                                                <img
+                                                                    class="img-fluid blur-up lazyload"
+                                                                    data-src="{{ asset('images/product/thumb/' . $firstImageTrending->image_path) }}"
+                                                                    src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                                                    srcset="{{ asset('images/product/thumb/' . $firstImageTrending->image_path) }} 600w, 
+                                                                    {{ asset('images/product/thumb/' . $firstImageTrending->image_path) }} 1200w"
+                                                                    sizes="(max-width: 600px) 600px, 1200px"
+                                                                    alt="{{ $trending_products_row->title }}"
+                                                                    title="{{ $trending_products_row->title }}"
+                                                                    loading="lazy"
+                                                                    width="300"
+                                                                    height="300"
+                                                                    onload="this.style.opacity=1">
+                                                            </picture>
                                                             @else
                                                             <img
                                                                 src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
@@ -509,9 +564,9 @@
                                                                 height="300"
                                                                 onload="this.style.opacity=1">
                                                             @endif
-
                                                         </a>
                                                     </div>
+
 
                                                 </div>
                                                 <div class="product-detail">
@@ -625,7 +680,6 @@
             observer.observe(el);
         });
     });
-    
 </script>
 <!-- <script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}"></script>
 <script src="{{asset('frontend/assets/js/pages/quick-view.js')}}"></script>

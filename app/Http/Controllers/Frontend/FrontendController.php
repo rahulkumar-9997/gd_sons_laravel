@@ -22,6 +22,7 @@ use App\Models\WhatsappConversation;
 use App\Models\Counter;
 use App\Models\Customer;
 use App\Models\SpecialOffer;
+use App\Models\ProductEnquiry; 
 use Vinkla\Hashids\Facades\Hashids;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -1608,124 +1609,81 @@ class FrontendController extends Controller
         return view('frontend.pages.flash-sale', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list'));
     }
 
-    public function flashSaleOld(Request $request)
+    public function requestProductEnquiryForm(Request $request){
+        $form = '
+        <form method="POST" action="' . route('request.product.enquiry.submit') . '" accept-charset="UTF-8" enctype="multipart/form-data" id="productEnquiryForm">
+            ' . csrf_field() . '
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-md-4 mb-3 custom-form">
+                        <div class="custom-input">
+                            <input type="text" class="form-control" id="name" placeholder="Enter your name *" name="name">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="mb-md-4 mb-3 custom-form">
+                        <div class="custom-input">
+                            <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number *" maxlength="10" oninput="javascript: if (this.value.length > this.maxLength) this.value =
+                            this.value.slice(0, this.maxLength);" name="phone">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="mb-md-4 mb-3 custom-form">
+                        <div class="custom-textarea">
+                            <textarea class="form-control" id="message" placeholder="Enter your message" rows="3" name="message"></textarea>
+
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <div class="modal-footer pb-0">
+                    <!--<button type="button" class="btn btn-animation btn-md fw-bold" data-bs-dismiss="modal">Close</button>-->
+                    <button style="color:#ffffff;" type="submit" class="btn btn-2-animation btn-md fw-bold">Submit</button>
+                </div>
+            </div>
+        </form>
+        ';
+        return response()->json([
+            'message' => 'Form created successfully',
+            'form' => $form,
+        ]);
+    }
+
+    public function requestProductSubmit(Request $request)
     {
-        $flashLabel = Label::where('title', 'Flash Sale')->first();
-        $flash_label_id = $flashLabel->id;
-        $specialOffers = getCustomerSpecialOffers();
-        $query = Product::where('product_status', 1)
-            ->where('label_id', $flash_label_id)
-            ->with([
-                'images' => function ($query) {
-                    $query->select('id', 'product_id', 'image_path')->orderBy('sort_order');
-                },
-                'category',
-                'attributes.attribute',
-                'attributes.values.attributeValue',
-            ])
-            ->leftJoin('inventories', function ($join) {
-                $join->on('products.id', '=', 'inventories.product_id')
-                    ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-            })
-            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku');
-        /**filter */
-        if ($request->hasAny(array_keys($request->all()))) {
-            foreach ($request->all() as $attributeSlug => $valueSlugs) {
-                if (strpos($attributeSlug, 'price') === false && $attributeSlug !== 'sort') {
-                    $valueSlugsArray = explode(',', $valueSlugs);
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'phone' => 'required|digits:10',
+            'message' => 'nullable|string|max:1000',
+        ]);
 
-                    $query->whereHas('attributes.values.attributeValue', function ($q) use ($attributeSlug, $valueSlugsArray) {
-                        $q->whereHas('attribute', function ($q) use ($attributeSlug) {
-                            $q->where('slug', $attributeSlug);
-                        })->whereIn('slug', $valueSlugsArray);
-                    });
-                }
-            }
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
         }
-
-        // Apply sorting
-        if ($request->has('sort')) {
-            $sortOption = $request->get('sort');
-            switch ($sortOption) {
-                case 'new-arrivals':
-                    $query->orderBy('created_at', 'desc');
-                    break;
-                case 'price-low-to-high':
-                    $query->orderByRaw('ISNULL(inventories.mrp), inventories.mrp ASC');
-                    break;
-                case 'price-high-to-low':
-                    $query->orderByRaw('ISNULL(inventories.mrp), inventories.mrp DESC');
-                    break;
-                case 'a-to-z-order':
-                    $query->orderBy('products.title', 'asc');
-                    break;
-                default:
-                    $query->orderBy('products.id', 'desc');
-                    break;
-            }
-        } else {
-            $query->orderBy('created_at', 'desc');
+        DB::beginTransaction();
+        try {
+            ProductEnquiry::create([
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'message' => $request->message,
+            ]);
+            DB::commit();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Your enquiry has been submitted successfully. Our team contact you shortly.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('ProductEnquiry Error: '.$e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong. Please try again later.'
+            ], 500);
         }
-
-        $products = $query->get();
-        /**filter */
-        $attributes_with_values_for_filter_list = [];
-        foreach ($products as $product) {
-            foreach ($product->attributes as $attributeRelation) {
-                $attribute = $attributeRelation->attribute;
-
-                if (!$attribute) continue;
-
-                $attrId = $attribute->id;
-                $attrSlug = $attribute->slug;
-                $attrTitle = $attribute->title;
-
-                if (!isset($attributes_with_values_for_filter_list[$attrId])) {
-                    $attributes_with_values_for_filter_list[$attrId] = [
-                        'attribute_title' => $attrTitle,
-                        'attribute_slug' => $attrSlug,
-                        'values' => [],
-                    ];
-                }
-
-                foreach ($attributeRelation->values as $valueRelation) {
-                    $attributeValue = $valueRelation->attributeValue;
-                    if ($attributeValue && !isset($attributes_with_values_for_filter_list[$attrId]['values'][$attributeValue->id])) {
-                        if ($attributeValue->name !== 'NA') {
-                            $attributes_with_values_for_filter_list[$attrId]['values'][$attributeValue->id] = [
-                                'id' => $attributeValue->id,
-                                'name' => $attributeValue->name ?? $attributeValue->slug,
-                                'slug' => $attributeValue->slug,
-                            ];
-                        }
-                    }
-                }
-            }
-        }
-
-
-        // Optional: sort values alphabetically
-        // foreach ($attributes_with_values_for_filter_list as &$attr) {
-        //     $attr['values'] = collect($attr['values'])->sortBy('name')->values()->all();
-        // }
-        //unset($attr);
-        //return response()->json($attributes_with_values_for_filter_list);
-        //return response()->json($products);
-        DB::disconnect();
-        if ($request->ajax()) {
-            $view = $request->input('view', 'filter');
-            if ($view === 'filter') {
-                return response()->json([
-                    'html' => view('frontend.pages.partials.ajax-flash-sale-load-more', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list'))->render(),
-                ]);
-            } else {
-                return response()->json([
-                    'html' => view('frontend.pages.partials.ajax-flash-sale-load-more', compact('products'))->render(),
-                    'hasMore' => false
-                ]);
-            }
-        }
-
-        return view('frontend.pages.flash-sale', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list'));
     }
 }

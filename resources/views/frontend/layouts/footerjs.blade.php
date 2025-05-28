@@ -12,7 +12,7 @@
 <!-- <script src="{{asset('frontend/assets/js/wow.min.js')}}"></script> -->
 <!-- <script src="{{asset('frontend/assets/js/custom-wow.js')}}"></script> -->
 <script src="{{asset('frontend/assets/js/script.js')}}"></script>
-<script src="{{asset('frontend/assets/js/gd.js')}}"></script>
+<script src="{{asset('frontend/assets/js/gd.js')}}?v={{ time() }}"></script>
 <script src="{{asset('frontend/assets/js/pages/search.js')}}"></script>
 <script src="{{asset('frontend/assets/js/cart-drawer.min.js')}}"></script>
 <!-- <script src="{{asset('frontend/assets/js/pages/notifications.js')}}"></script> -->

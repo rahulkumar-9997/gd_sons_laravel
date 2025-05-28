@@ -7,7 +7,7 @@
                 <th>Sr. No.</th>
                 <th>IP Address</th>
                 <th>Device Name</th>
-                <th>Page Url</th>
+                <!--th>Page Url</th-->
                 <th>Page Title</th>
                 <th>Total Visits</th>
                 <th>Customer Name</th>
@@ -22,18 +22,22 @@
             @php
                 $pageKey = $visitor->page_name;
                 $visitCount = $data['page_counts'][$pageKey]->visitor_count ?? 0;
+				if($visitor->page_title == 'Best Kitchen Retail Store in Varanasi now goes Online')
+					$visitor->page_title = 'Home Page';
+				else
+					$visitor->page_title = $visitor->page_title;
             @endphp
             <tr>
                 <td>{{ $srNo }}</td>
                 <td>{{ $visitor->ip_address }}</td>
                 <td>{{ $visitor->device_category }}</td>
-                <td style="width: 15%;">
+                <!--td style="width: 15%;">
                     <div class="overflow-auto" style="max-width: 250px; white-space: nowrap;">
                         {{ $visitor->page_name }}
                     </div>
-                </td>
+                </td-->
                 <td style="width: 15%;">
-                    <div class="overflow-auto" style="max-width: 250px; white-space: nowrap;">
+                    <div class="overflow-auto" style="max-width: 350px;">
                         {{ $visitor->page_title }}
                     </div>
                 </td>
@@ -46,7 +50,8 @@
                     {{ $visitor->customer_name }}
                 </td>
                 <td style="width: 15%;">
-                    {{ \Carbon\Carbon::parse($visitor->visited_at)->format('d M Y, h:i:s A') }}
+                    {{ \Carbon\Carbon::parse($visitor->visited_at)->format('d M Y') }}<br>
+                    {{ \Carbon\Carbon::parse($visitor->visited_at)->format('h:i:s A') }}
                 </td>
             </tr>
             @php

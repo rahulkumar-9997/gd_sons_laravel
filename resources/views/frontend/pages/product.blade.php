@@ -185,7 +185,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         <div>
                                             <div class="sidebar-image">
                                                 @if(!empty($image->image_path))
-                                                <img src="{{ asset('images/product/thumb/' . $image->image_path) }}"
+                                                <img src="{{ asset('images/product/icon/' . $image->image_path) }}"
                                                     class="img-fluid blur-up lazyload" alt="">
                                                 @else
                                                 <img src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"

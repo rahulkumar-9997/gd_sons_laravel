@@ -81,7 +81,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        Log::info("MenuComposer is being executed");
+        //Log::info("MenuComposer is being executed");
         View::composer('frontend.layouts.header-menu', MenuComposer::class);
         View::composer(
             ['frontend.pages.partials.cart-drawer', 'frontend.layouts.footer'],

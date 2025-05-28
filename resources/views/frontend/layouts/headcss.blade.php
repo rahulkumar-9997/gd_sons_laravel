@@ -30,8 +30,8 @@
 <link rel="stylesheet" href="{{asset('frontend/assets/css/animate.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/bulk-style.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/vendors/animate.css')}}">
-<link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/style.css')}}">
-<link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/gd-style.css')}}">
+<link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/style.css')}}?v={{ time() }}">
+<link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/gd-style.css')}}?v={{ time() }}">
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/cart-drawer.css')}}">
 @if (!isset($_SERVER['HTTP_USER_AGENT']) || !preg_match('/(android|iphone|ipod|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])))
   <style>
@@ -62,6 +62,7 @@
       overflow-y: scroll;
       overflow-x: hidden;
       border-radius: unset;
+      opacity: 0;
   }
 
   /* Submenu base styles */

@@ -18,11 +18,11 @@ $group_offer_rate = null;
 $special_offer_rate = null;
 
 if ($groupCategory && $offer_rate !== null) {
-    $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-    if ($group_percentage > 0) {
-        $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-        $group_offer_rate = floor($group_offer_rate);
-    }
+$group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+if ($group_percentage > 0) {
+$group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+$group_offer_rate = floor($group_offer_rate);
+}
 }
 
 if (isset($specialOffers[$product->id])) {
@@ -45,21 +45,31 @@ $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
             <div class="product-image">
                 <a href="{{ url('products/'.$product['slug'].'/'.$attributes_value) }}">
                     @if ($firstImage)
-                    <img
-                        class="img-fluid blur-up lazyload"
-                        data-src="{{ asset('images/product/thumb/'. $firstImage->image_path) }}"
-                        src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                        srcset="{{ asset('images/product/thumb/'. $firstImage->image_path) }} 600w, {{ asset('images/product/thumb/'. $firstImage->image_path) }} 1200w"
-                        sizes="(max-width: 600px) 600px, 1200px"
-                        alt="{{ $product->title }}"
-                        title="{{ $product->title }}"
-                        loading="lazy">
-                    @else
-                    <img src="{{asset('frontend/assets/gd-img/product/no-image.png')}}"
-                        class="img-fluid blur-up lazyload" alt="{{ $product->title }}" loading="lazy">
-                    @endif
+                    <picture>
+                        <source
+                            media="(max-width: 767px)"
+                            srcset="{{ asset('images/product/icon/' . $firstImage->image_path) }}">
 
+                        <img
+                            class="img-fluid blur-up lazyload"
+                            data-src="{{ asset('images/product/thumb/' . $firstImage->image_path) }}"
+                            src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                            srcset="{{ asset('images/product/thumb/' . $firstImage->image_path) }} 600w, 
+                            {{ asset('images/product/thumb/' . $firstImage->image_path) }} 1200w"
+                            sizes="(max-width: 600px) 600px, 1200px"
+                            alt="{{ $product->title }}"
+                            title="{{ $product->title }}"
+                            loading="lazy">
+                    </picture>
+                    @else
+                    <img
+                        src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                        class="img-fluid blur-up lazyload"
+                        alt="{{ $product->title }}"
+                        loading="lazy">
+                    @endif
                 </a>
+
                 <!--<ul class="product-option">
                     <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
                         <a href="javascript:void(0)" data-url="{{route('quick.view')}}" data-product-id="{{$product->id}}" class="quick-view">

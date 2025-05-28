@@ -43,6 +43,7 @@ use App\Http\Controllers\Backend\SocialMediaTrackController;
 use App\Http\Controllers\Backend\LandingPageController;
 use App\Http\Controllers\Backend\StorageController;
 use App\Http\Controllers\Backend\VideoController;
+use App\Http\Controllers\Backend\EnquiryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -147,6 +148,8 @@ Route::middleware([TrackVisitor::class])->group(function () {
         });
     });
 });
+Route::get('request-product-enquiry-form', [FrontendController::class, 'requestProductEnquiryForm'])->name('request.product.enquiry.form');
+Route::post('request-product-enquiry-submit', [FrontendController::class, 'requestProductSubmit'])->name('request.product.enquiry.submit');
 Route::get('/confirmwa/yes/{value}', [WhatsappConfirmationController::class, 'confirmWhatsappYes'])->name('confirmwa.yes');
 Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 Route::post('/update-counter', [FrontendController::class, 'updateCounter'])->name('update.counter');
@@ -374,4 +377,6 @@ Route::group(['middleware' => ['admin']], function () {
     Route::post('manage-storage/submit', [StorageController::class, 'store'])->name('manage-storage.submit');
     Route::delete('manage-storage/{id}',  [StorageController::class, 'destroy'])->name('manage-storage.delete');
     Route::post('mapped-image-to-product/submit', [StorageController::class, 'mappedImageToProductSubmit'])->name('mapped-image-to-product.submit');
+    Route::get('/manage-enquiry/request-product-list', [EnquiryController::class, 'requestProductList'])->name('manage-enquiry.request.product.list');
+    Route::delete('/manage-enquiry/request-product-list/{id}', [EnquiryController::class, 'requestProductListDestroy'])->name('manage-enquiry.request.product.destroy');
 });

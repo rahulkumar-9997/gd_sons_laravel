@@ -1259,8 +1259,12 @@ a.cntshop {
     -ms-flex-positive: 1;
     flex-grow: 1;
     /* padding: 20px 24px; */
-    overflow-y: auto;
-    max-height: 100%;
+    overflow-y: scroll;
+    height: 500px;
+    min-height: 100px;
+  }
+  .mobile-menu ul li.active::before{
+    display: none;
   }
   header.mobile-header .onhover-category-list .onhover-category-box{
     overflow: hidden;
@@ -1340,7 +1344,7 @@ a.cntshop {
   }
   .floating-buttons{
     bottom: 70px;
-    right: 10px;
+    left: 10px;
   }
   .float-btn{
     width: 50px;
@@ -1592,6 +1596,19 @@ a.cntshop {
   max-height: 100%;
   padding: 1px;
 } */
+.home-enquiry-form{
+  padding: 10px 15px 10px 15px;
+  border-radius: 10px;
+  background-color: #ff6680;
+  /* background: linear-gradient(145deg, #d6091a 3.03%, #ee3d43 27.62%, #fda31b 76.39%, #fda31b 112.44%); */
+}
+#requestAproductEnquiry button{
+  border: 1px solid #fff;
+}
+.home-enquiry-title h3{
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
 
 @media (max-width: 768px) {
   .gd5 .col-xl-20 {

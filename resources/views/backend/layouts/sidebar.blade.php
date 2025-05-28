@@ -192,6 +192,22 @@
                </ul>
             </div>
          </li>
+         <li class="nav-item">
+            <a class="nav-link menu-arrow" href="#sidebar_manage_enquiry" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebar_manage_enquiry">
+               <span class="nav-icon">
+                     <iconify-icon icon="solar:question-circle-bold-duotone"></iconify-icon>
+               </span>
+               <span class="nav-text">Manage Enquiry</span>
+            </a>
+            <div class="collapse" id="sidebar_manage_enquiry">
+               <ul class="nav sub-navbar-nav">
+                     <li class="sub-nav-item">
+                        <a class="sub-nav-link" href="{{ route('manage-enquiry.request.product.list') }}">Request a Product or Item</a>
+                     </li>
+               </ul>
+            </div>
+         </li>
+
          
          
          

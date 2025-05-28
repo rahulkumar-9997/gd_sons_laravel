@@ -1665,25 +1665,80 @@ class FrontendController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
+
         DB::beginTransaction();
         try {
-            ProductEnquiry::create([
+            $enquiry = ProductEnquiry::create([
                 'name' => $request->name,
                 'phone' => $request->phone,
                 'message' => $request->message,
             ]);
+
+            $basePayload = [
+                'apiKey' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY',
+                'userName' => 'Girdhar Das and Sons',
+                'source' => 'new-landing-page form',
+                'media' => new \stdClass(),
+                'buttons' => [],
+                'carouselCards' => [],
+                'location' => new \stdClass(),
+                'attributes' => new \stdClass(),
+                'paramsFallbackValue' => [
+                    'FirstName' => 'user'
+                ]
+            ];
+
+            /*Send message to Customer*/
+            $customerPayload = array_merge($basePayload, [
+                'campaignName' => 'confirm_product_enq_upd_3',
+                'destination' => '91' . $request->phone,
+                'templateParams' => [
+                    $request->name,
+                    $request->message
+                ],
+            ]);
+
+            $customerResponse = Http::withHeaders([
+                'Content-Type' => 'application/json'
+            ])->post('https://backend.aisensy.com/campaign/t1/api/v2', $customerPayload);
+
+            /* Send message to Admin*/
+            $adminPayload = array_merge($basePayload, [
+                'campaignName' => 'General Enquiry to Admin',
+                'destination' => '919935070000',
+                'templateParams' => [
+                    $request->name,
+                    $request->phone,
+                    $request->message ?? 'No message provided'
+                ],
+            ]);
+
+            $adminResponse = Http::withHeaders([
+                'Content-Type' => 'application/json'
+            ])->post('https://backend.aisensy.com/campaign/t1/api/v2', $adminPayload);
+
+            if (!$customerResponse->successful() || !$adminResponse->successful()) {
+                throw new \Exception('Failed to send one or more AiSensy messages.');
+            }
+
             DB::commit();
             return response()->json([
                 'status' => 'success',
-                'message' => 'Your enquiry has been submitted successfully. Our team contact you shortly.'
+                'message' => 'Your enquiry has been submitted successfully. Our team will contact you shortly.'
             ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('ProductEnquiry Error: '.$e->getMessage());
+            Log::error('ProductEnquiry Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'Something went wrong. Please try again later.'
+                'message' => 'Something went wrong while processing your enquiry. Please try again later.'
             ], 500);
         }
     }
+
+
 }

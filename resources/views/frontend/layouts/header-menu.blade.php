@@ -342,9 +342,18 @@ $search_value = !empty($query) ? $query : '';
                   </div>
                </div>
                <div class="header-nav-right">
-                  <a class="btn deal-button" href="https://wa.me/919935070000?text=Hello,+I+am+interested+in+learning+more+about+your+Services">
+                  <!-- <a class="btn deal-button" href="https://wa.me/919935070000?text=Hello,+I+am+interested+in+learning+more+about+your+Services">
                      <i class="fab fa-whatsapp"></i>
-                     <!-- <span>Deal Today</span> -->
+                  </a> -->
+                  <a 
+                  class="btn deal-button requestProductBtn"
+                  href="javascript:void(0)"
+                  data-url="{{ route('request.product.enquiry.form') }}"
+                  data-title="Request a Product or Item"
+                  data-pageurl="{{url()->current()}}"
+                  data-size="md"
+                  >
+                     Need Something ?
                   </a>
                </div>
             </div>

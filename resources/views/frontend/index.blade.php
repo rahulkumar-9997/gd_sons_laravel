@@ -12,7 +12,7 @@
                 <div class="home-contain h-1001">
                     <!-- data-bs-ride="carousel" data-bs-interval="3000" -->
                     @if ($data['banner'] && $data['banner']->isNotEmpty())
-                    <div id="homeBannerCarousel" class="carousel slide silk-carousel-wrapper home-banner-carousel">
+                    <div id="homeBannerCarousel" class="carousel slide silk-carousel-wrapper home-banner-carousel" data-bs-ride="carousel" data-bs-interval="3000">
                         <!-- Indicators/Dots -->
                         <div class="carousel-indicators">
                             @foreach ($data['banner'] as $index => $banner)
@@ -58,7 +58,7 @@
             </div>
             <div class="col-xl-4 ratio_65 banner-side two-banner-home">
                 <div class="row g-2 h-100">
-                    @if (!isset($_SERVER['HTTP_USER_AGENT']) || !preg_match('/(android|iphone|ipod|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])))
+                    <!-- @if (!isset($_SERVER['HTTP_USER_AGENT']) || !preg_match('/(android|iphone|ipod|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])))
                     <div class="single-bn-mo-dnone h-100">
                         <div class="home-enquiry-form h-100">
                             <div class="home-enquiry-title text-center">
@@ -70,14 +70,12 @@
                                 <form action="{{ route('request.product.enquiry.submit')}}" method="post" id="requestAproductEnquiry">
                                     @csrf
                                     <div class="mb-md-4 mb-3 custom-form">
-                                        <!-- <label for="name" class="form-label">Name</label> -->
                                         <div class="custom-input">
                                             <input type="text" class="form-control" id="name" placeholder="Enter your name *" name="name">
 
                                         </div>
                                     </div>
                                     <div class="mb-md-4 mb-3 custom-form">
-                                        <!-- <label for="phone" class="form-label">Phone Number</label> -->
                                         <div class="custom-input">
                                             <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number *" maxlength="10" oninput="javascript: if (this.value.length > this.maxLength) this.value =
                                                 this.value.slice(0, this.maxLength);" name="phone">
@@ -85,7 +83,6 @@
                                         </div>
                                     </div>
                                     <div class="mb-md-4 mb-3 custom-form">
-                                        <!-- <label for="message" class="form-label">Message</label> -->
                                         <div class="custom-textarea">
                                             <textarea class="form-control" id="message" placeholder="Enter your message" rows="3" name="message"></textarea>
 
@@ -96,8 +93,8 @@
                             </div>
                         </div>
                     </div>
-                    @endif
-                    <!--<div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dnone">
+                    @endif -->
+                    <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dnone">
                         <div class="home-contain">
                             <img src="{{asset('frontend/assets/images/side-banner-1.png')}}" class="img-responsive blur-up lazyload"
                                 alt="side banner" loading="lazy">
@@ -126,7 +123,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>-->
+                    </div>
                     <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dblock">
                         <div class="row">
                             <div class="col-md-6 col-6">

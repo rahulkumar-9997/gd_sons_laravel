@@ -1824,18 +1824,7 @@ a.cntshop {
     opacity: 0.3;
     pointer-events: none;
 }
-.highlighted_product {
-    cursor: grab;
-    user-select: none;
-}
 
-.highlighted_product:active {
-    cursor: grabbing;
-}
-
-.highlighted_product img {
-    pointer-events: none; 
-}
 /* Responsive adjustments */
 @media (max-width: 767px) {
     .highlighted-products-container {

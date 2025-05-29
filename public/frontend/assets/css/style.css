@@ -20237,7 +20237,7 @@ span {
 
 .category-section-2 .category-slider .shop-category-box {
     position: relative;
-    padding-top: 14px
+    padding-top: 0px
 }
 
 .category-section-2 .category-slider .shop-category-box:hover a::before {
@@ -20273,7 +20273,8 @@ span {
 .category-section-2 .category-slider .shop-category-box a::before {
     content: "";
     position: absolute;
-    top: -14px;
+    /* top: -14px; */
+    top: 0px;
     left: 0;
     width: 100%;
     height: 100%;
@@ -20282,13 +20283,13 @@ span {
     transition: all .3s ease-in-out
 }
 
-.category-section-2 .category-slider .shop-category-box a img {
+/* .category-section-2 .category-slider .shop-category-box a img {
     position: relative;
     width: calc(87px + 23*(100vw - 320px)/1600);
     margin: 0 auto;
     -webkit-transition: all .3s ease-in-out;
     transition: all .3s ease-in-out
-}
+} */
 
 .category-section-2 .category-slider .shop-category-box .category-name {
     position: relative;
@@ -20301,15 +20302,15 @@ span {
     -webkit-transition: all .3s ease-in-out;
     transition: all .3s ease-in-out;
     margin: 0 auto;
-    font-size: calc(13px + 2*(100vw - 320px)/1600);
-    letter-spacing: .7px;
+    font-size: 15px;
+    /* letter-spacing: .7px; */
     line-height: 1.3;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
     -webkit-line-clamp: 3;
     margin-bottom: 0;
-    font-weight: 500
+    font-weight: 600
 }
 
 .category-section-3 .category-box-list {
@@ -31117,6 +31118,7 @@ body.rtl .menu-label {
     overflow: hidden;
     background-color: #f9f9fb;
     padding-inline: 8px;
+    margin-bottom: 10px;
 }
 
 
@@ -31376,7 +31378,7 @@ body.rtl .menu-label {
     line-height: 22px;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
-    display: -webkit-box;
+    /* display: -webkit-box; */
     overflow: hidden
 }
 

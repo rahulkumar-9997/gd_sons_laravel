@@ -56,14 +56,14 @@ class SearchController extends Controller
             $join->on('products.id', '=', 'inventories.product_id')
                 ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
         })
-            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
-            ->whereRaw("MATCH(title) AGAINST(? IN BOOLEAN MODE)", [$booleanQuery])
-            ->orWhere(function ($query) use ($searchTerms) {
-                foreach ($searchTerms as $term) {
-                    $query->where('title', 'like', '%' . $term . '%');
-                }
-            })
-            ->with('firstImage');
+        ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+        ->whereRaw("MATCH(title) AGAINST(? IN BOOLEAN MODE)", [$booleanQuery])
+        ->orWhere(function ($query) use ($searchTerms) {
+            foreach ($searchTerms as $term) {
+                $query->where('title', 'like', '%' . $term . '%');
+            }
+        })
+        ->with('firstImage');
 
         if ($category) {
             $categoryIds = explode(',', $category);
@@ -89,8 +89,12 @@ class SearchController extends Controller
         $query = $request->get('query');
         $category = $request->get('category');
 
-        if (!$query) {
-           // return redirect('/');
+        if (empty($query)) {
+            return view('frontend.pages.search-catalog', [
+                'products' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 100),
+                'categories' => collect(),
+                'query' => $query
+            ]);
         }
 
         $searchTerms = explode(' ', $query);

@@ -8,7 +8,7 @@
 <script src="{{asset('frontend/assets/js/lazysizes.min.js')}}" defer></script>
 <script src="{{asset('frontend/assets/js/slick/slick.js')}}" defer></script>
 <script src="{{asset('frontend/assets/js/slick/slick-animation.min.js')}}" defer></script>
-<script src="{{asset('frontend/assets/js/slick/custom_slick.js')}}" defer></script>
+<script src="{{asset('frontend/assets/js/slick/custom_slick.js')}}?v={{ time() }}" defer></script>
 <!-- <script src="{{asset('frontend/assets/js/wow.min.js')}}"></script> -->
 <!-- <script src="{{asset('frontend/assets/js/custom-wow.js')}}"></script> -->
 <script src="{{asset('frontend/assets/js/script.js')}}"></script>

@@ -4,6 +4,47 @@
 @section('keywords', 'Best Kitchen Retail Store in Varanasi now goes Online')
 
 @section('main-content')
+@if(isset($data['category_list']) && count($data['category_list']) > 0)
+<section class="category-section-2 home-category-section">
+    <div class="container-fluid-lg">
+        <div class="row">
+            <div class="col-12 position-relative">
+                <button class="category-slider-arrow category-slider-prev" aria-label="Previous">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+
+                <div class="category-slider-wrapper">
+                    <div class="category-slider arrow-slider category-slider-home">
+                        @foreach($data['category_list'] as $index => $category)
+                        <div class="category-item-home">
+                            <div class="shop-category-box border-0">
+                                <a href="{{ route('categories', ['categorySlug' => $category->slug]) }}" class="category-link circle-{{ ($index % 4) + 1 }}">
+                                    <div class="category-img-container">
+                                        @if($category->image)
+                                        <img src="{{ asset('images/category/icon/'.$category->image) }}" class="img-fluid blur-up lazyload"
+                                            alt="{{ $category->title }}" loading="lazy">
+                                        @else
+                                        <img src="https://themes.pixelstrap.com/fastkart/assets/images/veg-3/category/1.png" class="img-fluid blur-up lazyload" alt="{{ $category->title }}" loading="lazy">
+                                        @endif
+                                    </div>
+                                </a>
+                                <div class="category-name">
+                                    <h6>{{ $category->title }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <button class="category-slider-arrow category-slider-next" aria-label="Next">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+@endif
 <!-- Home Section Start -->
 <section class="home-section pt-2">
     <div class="container-fluid-lg">
@@ -273,7 +314,6 @@
 <section class="product-section">
     <div class="container-fluid-lg">
         <div class="row g-sm-4 g-3">
-
             @if ($data['primary_category'] && $data['primary_category']->isNotEmpty())
             <div class="highlighted-products">
                 <div class="title d-block text-center">
@@ -283,22 +323,52 @@
                     </div>
                 </div>
                 <div class="section-b-space h-button-area">
-                    <ul class="list text-center">
-                        @php
-                        $colors = [
-                        '#FF5733', '#a1521b', '#FF69B4',
-                        '#8A2BE2', '#efab49', '#00CED1', '#DC143C',
-                        '#4682B4', '#FF8C00', '#8B008B', '#2E8B57'
-                        ];
-                        @endphp
-                        @foreach ($data['primary_category'] as $index =>$primary_category_row)
-                        <li>
-                            <a class="btn text-white" href="{{$primary_category_row->link}}" style="background-color: {{ $colors[$index % count($colors)] }};">
-                                {{$primary_category_row->title}}
-                            </a>
-                        </li>
-                        @endforeach
-                    </ul>
+                    <div class="highlighted-products-container">
+                        <button class="product-slider-arrow product-slider-prev" aria-label="Previous">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+
+                        <div class="highlighted_product_wrapper">
+                            <div class="highlighted_product" data-current-position="0">
+                                @foreach ($data['primary_category'] as $index => $primary_category_row)
+                                @php
+                                $imageUrl = asset('images/primary-category/' . $primary_category_row->image_path);
+                                $link = url($primary_category_row->link); // assuming 'link' is a relative URL
+                                @endphp
+                                <div class="product-box-item">
+                                    <div class="product-box">
+                                        <div class="product-image">
+                                            <div class="product-img">
+                                                <a href="{{ $link }}" tabindex="0">
+                                                    <picture>
+                                                        <img class="img-fluid blur-up lazyload"
+                                                            data-src="{{ $imageUrl }}"
+                                                            alt="{{ $primary_category_row->title }}"
+                                                            title="{{ $primary_category_row->title }}"
+                                                            loading="lazy"
+                                                            width="300"
+                                                            height="300">
+                                                    </picture>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="product-detail">
+                                            <a href="{{ $link }}" tabindex="0">
+                                                <h6 class="name">{{ $primary_category_row->title }}</h6>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+
+                            </div>
+                        </div>
+
+                        <button class="product-slider-arrow product-slider-next" aria-label="Next">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    
                 </div>
             </div>
             @endif

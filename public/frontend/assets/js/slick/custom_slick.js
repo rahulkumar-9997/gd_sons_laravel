@@ -1,7 +1,7 @@
 /**=====================
     Custom Slick js
 ==========================**/
-$('.category-slider').slick({
+$('.category-slider-old').slick({
     arrows: true,
     infinite: true,
     slidesToShow: 8,

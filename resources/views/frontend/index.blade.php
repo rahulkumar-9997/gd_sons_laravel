@@ -307,8 +307,6 @@
         </div>
     </div>
 </section>
-
-
 <!-- Banner Section End -->
 <!-- Product Section Start -->
 <section class="product-section">

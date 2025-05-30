@@ -1770,7 +1770,7 @@ a.cntshop {
 
 .product-box-item {
     flex: 0 0 auto;
-    width: 250px; 
+    width: 241px; 
     min-width: 160px;
 }
 .product-detail .name {
@@ -1824,6 +1824,12 @@ a.cntshop {
     opacity: 0.3;
     pointer-events: none;
 }
+.highlighted_product_wrapper .product-img:before {
+    padding-bottom: 80%;
+}
+.highlighted_product_wrapper .product-detail .name{
+  font-size: 18px;
+}
 
 /* Responsive adjustments */
 @media (max-width: 767px) {
@@ -1846,6 +1852,9 @@ a.cntshop {
     }
     .product-detail .name{
       font-size: 14px;
+    }
+    .highlighted_product_wrapper .product-detail .name{
+      font-size: 15px;
     }
 }
 /*Highlighted Products*/

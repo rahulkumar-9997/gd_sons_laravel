@@ -327,48 +327,65 @@
                         <button class="product-slider-arrow product-slider-prev" aria-label="Previous">
                             <i class="fas fa-chevron-left"></i>
                         </button>
-
                         <div class="highlighted_product_wrapper">
                             <div class="highlighted_product" data-current-position="0">
                                 @foreach ($data['primary_category'] as $index => $primary_category_row)
-                                @php
-                                $imageUrl = asset('images/primary-category/' . $primary_category_row->image_path);
-                                $link = url($primary_category_row->link); // assuming 'link' is a relative URL
-                                @endphp
-                                <div class="product-box-item">
-                                    <div class="product-box">
-                                        <div class="product-image">
-                                            <div class="product-img">
+                                    @php
+                                        $link = url($primary_category_row->link);
+                                        $title = $primary_category_row->title;
+                                        $mobileImage = null;
+                                        $desktopImage = null;
+                                        $altText = $title;
+                                        if ($primary_category_row->product && $primary_category_row->product->firstSortedImage) {
+                                            $imageBase = $primary_category_row->product->firstSortedImage->image_path;
+                                            $mobileImage = asset('images/product/icon/' . $imageBase);
+                                            $desktopImage = asset('images/product/thumb/' . $imageBase);
+                                        } else {
+                                            $mobileImage = asset('frontend/assets/gd-img/product/no-image.png');
+                                            $desktopImage = asset('frontend/assets/gd-img/product/no-image.png');
+                                        }
+                                    @endphp
+                                    <div class="product-box-item">
+                                        <div class="product-box">
+                                            <div class="product-image">
+                                                <div class="product-img">
+                                                    <a href="{{ $link }}" tabindex="0">
+                                                        <picture>
+                                                            <source 
+                                                            media="(max-width: 767px)" 
+                                                            srcset="{{ $mobileImage }}">
+                                                            <img class="img-fluid blur-up lazyload"
+                                                                data-src="{{ $desktopImage }}"
+                                                                src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                                                srcset="{{ $desktopImage }} 600w, 
+                                                                        {{ $desktopImage }} 1200w"
+                                                                sizes="(max-width: 600px) 600px, 1200px"
+                                                                alt="{{ $primary_category_row->product->title }}"
+                                                                title="{{ $primary_category_row->product->title }}"
+                                                                loading="lazy"
+                                                                width="300"
+                                                                height="300"
+                                                                onload="this.style.opacity=1">
+                                                        </picture>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div class="product-detail">
                                                 <a href="{{ $link }}" tabindex="0">
-                                                    <picture>
-                                                        <img class="img-fluid blur-up lazyload"
-                                                            data-src="{{ $imageUrl }}"
-                                                            alt="{{ $primary_category_row->title }}"
-                                                            title="{{ $primary_category_row->title }}"
-                                                            loading="lazy"
-                                                            width="300"
-                                                            height="300">
-                                                    </picture>
+                                                    <h6 class="name">
+                                                        {{ $primary_category_row->title }}
+                                                    </h6>
                                                 </a>
                                             </div>
                                         </div>
-                                        <div class="product-detail">
-                                            <a href="{{ $link }}" tabindex="0">
-                                                <h6 class="name">{{ $primary_category_row->title }}</h6>
-                                            </a>
-                                        </div>
                                     </div>
-                                </div>
                                 @endforeach
-
                             </div>
                         </div>
-
                         <button class="product-slider-arrow product-slider-next" aria-label="Next">
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
-                    
                 </div>
             </div>
             @endif
@@ -458,12 +475,9 @@
                                                     <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
                                                         @if ($firstImage)
                                                         <picture>
-                                                            {{-- Mobile image from "icon" folder --}}
                                                             <source
                                                                 media="(max-width: 767px)"
                                                                 srcset="{{ asset('images/product/icon/' . $firstImage->image_path) }}">
-
-                                                            {{-- Desktop image from "thumb" folder --}}
                                                             <img
                                                                 class="img-fluid blur-up lazyload"
                                                                 data-src="{{ asset('images/product/thumb/' . $firstImage->image_path) }}"

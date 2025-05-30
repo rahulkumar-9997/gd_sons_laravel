@@ -45,10 +45,19 @@ class FrontendController extends Controller
         $trending_label_id = $labels['Trending Product']->id ?? null;
         $data['category_list'] = Category::where('status', 'on')->get(['id', 'title', 'slug', 'image']);
         $data['primary_category'] = PrimaryCategory::where('status', 1)
-            ->whereNotNull('image_path')
-            ->where('image_path', '!=', '')
-            ->orderBy('title')
-            ->get(['id', 'title', 'link', 'image_path']);
+            ->whereNotNull('product_id')
+            ->where('product_id', '<>', '')
+            ->with([
+                'product' => function($query) {
+                    $query->select('id', 'title');
+                },
+                'product.firstSortedImage' => function($query) {
+                    $query->select('id', 'product_id', 'image_path');
+                }
+            ])
+        ->orderBy('title')
+        ->get(['id', 'title', 'link', 'product_id']);
+        //return response()->json($data['primary_category']); 
         $data['banner'] = Banner::orderBy('id', 'desc')->get(['id', 'image_path_desktop', 'link_desktop', 'title']);
         $data['video'] = Video::inRandomOrder()->select('video_url')->take(10)->get();
         /* Fetch all required products in one query */

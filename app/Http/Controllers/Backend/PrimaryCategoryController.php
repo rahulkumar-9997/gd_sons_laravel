@@ -11,7 +11,17 @@ use App\Models\PrimaryCategory;
 class PrimaryCategoryController extends Controller
 {
     public function index(){
-        $primaryCategory = PrimaryCategory::orderBy('id', 'desc')->get();
+        $primaryCategory = PrimaryCategory::with([
+            'product' => function($query) {
+                $query->select('id', 'title');
+            },
+            'product.firstSortedImage' => function($query) {
+                $query->select('id', 'product_id', 'image_path');
+            }
+        ])
+        ->orderBy('id', 'desc')
+        ->get();
+        //return response()->json($primaryCategory);
         return view('backend.primary-category.index', compact('primaryCategory'));
     }
 
@@ -35,9 +45,22 @@ class PrimaryCategoryController extends Controller
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <div class="mb-2">
-                            <label for="image_path" class="form-label">Images</label>
-                            <input type="file" id="image_path" name="image_path" class="form-control">
+                        <div class="mb-2 render-autocomplete">
+                            <label for="image_path" class="form-label">
+                                Select a Product 
+                            </label>
+                            <div class="position-relative">
+                                <div class="input-group">
+                                    <input type="text" id="product_name" name="product_name" class="form-control product-autocomplete">
+                                    <span class="input-group-text">
+                                        <i class="ti ti-refresh"></i>
+                                        <div class="spinner-border spinner-border-sm product-loader" role="status" style="display: none;">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </span>
+                                </div>
+                                <input type="hidden" name="product_id" class="product_id">
+                            </div>
                         </div>
                     </div>
 
@@ -68,7 +91,8 @@ class PrimaryCategoryController extends Controller
             'title' => 'required|string|max:255',
             'path' => 'required|url|max:255',
             'description' => 'nullable|string',
-            'image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB max
+            'product_id' => 'nullable|integer|exists:products,id', 
+            'product_name' => 'nullable|string' 
         ]);
 
         if ($validator->fails()) {
@@ -83,7 +107,7 @@ class PrimaryCategoryController extends Controller
             'link' => $validated['path'],
             'primary_category_description' => $validated['description'] ?? null,
         ];
-        if ($request->hasFile('image_path')) {
+        /*if ($request->hasFile('image_path')) {
             $image = $request->file('image_path');
             $imageName = Str::slug($validated['title']) . '-' . time() . '.webp';
             $destinationPath = public_path('images/primary-category');
@@ -96,6 +120,9 @@ class PrimaryCategoryController extends Controller
                 $constraint->upsize();
             })->encode('webp', 75)->save($destinationPath . '/' . $imageName);
             $data['image_path'] = $imageName;
+        }*/
+        if (!empty($validated['product_id'])) {
+            $data['product_id'] = $validated['product_id'];
         }
         $primaryCategory = PrimaryCategory::create($data);
         return response()->json([
@@ -106,22 +133,25 @@ class PrimaryCategoryController extends Controller
 
 
     public function edit(Request $request, $id){
-        $primary_category_row = PrimaryCategory::findOrFail($id);
+        $primary_category_row = PrimaryCategory::with(['product'])->findOrFail($id);
+        if ($primary_category_row->product) {
+            $product_name = $primary_category_row->product->title;
+            $product_id = $primary_category_row->product->id;
+        } else {
+            $product_name = null;
+            $product_id = null;
+        }
         $imagePreview = '';
-        if ($primary_category_row->image_path) {
+        /*if ($primary_category_row->image_path) {
             $imageUrl = asset('images/primary-category/'.$primary_category_row->image_path);
             $imagePreview = '
             <div class="mb-2">
                 <label class="form-label">Current Image</label>
                 <div>
-                    <img src="'.$imageUrl.'" alt="Current Image" style="max-width: 200px; max-height: 200px;" class="img-thumbnail">
-                    <div class="form-check mt-2">
-                        <input class="form-check-input" type="checkbox" name="remove_image" id="removeImage" value="1">
-                        <label class="form-check-label" for="removeImage">Remove current image</label>
-                    </div>
+                    <img src="'.$imageUrl.'" alt="Current Image" style="max-width: 150px; max-height: 150px;" class="img-thumbnail">
                 </div>
             </div>';
-        }
+        }*/
         $form ='
         <div class="modal-body">
             <form method="POST" action="'.route('manage-primary-category.update', ['manage_primary_category' => $primary_category_row->id]).'" accept-charset="UTF-8" enctype="multipart/form-data" id="editPrimaryCategory">
@@ -142,10 +172,22 @@ class PrimaryCategoryController extends Controller
                         </div>
                     </div>
                     <div class="col-md-12">
-                        '.$imagePreview.'
-                        <div class="mb-2">
-                            <label for="image_path" class="form-label">Images</label>
-                            <input type="file" id="image_path" name="image_path" class="form-control">
+                        <div class="mb-2 render-autocomplete">
+                            <label for="image_path" class="form-label">
+                                Select a Product 
+                            </label>
+                            <div class="position-relative">
+                                <div class="input-group">
+                                    <input type="text" id="product_name" name="product_name" class="form-control product-autocomplete" value="'.$product_name.'">
+                                    <span class="input-group-text">
+                                        <i class="ti ti-refresh"></i>
+                                        <div class="spinner-border spinner-border-sm product-loader" role="status" style="display: none;">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </span>
+                                </div>
+                                <input type="hidden" name="product_id" value="'.$product_id.'" class="product_id">
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-12">
@@ -180,7 +222,8 @@ class PrimaryCategoryController extends Controller
             'title' => 'required|string|max:255',
             'path' => 'required|url|max:255',
             'description' => 'nullable|string',
-            'image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'product_id' => 'nullable|integer|exists:products,id', 
+            'product_name' => 'nullable|string'
         ]);
 
         if ($validator->fails()) {
@@ -198,7 +241,7 @@ class PrimaryCategoryController extends Controller
             'primary_category_description' => $validated['description'] ?? null,
         ];
         
-        if ($request->hasFile('image_path')) {
+        /*if ($request->hasFile('image_path')) {
             if ($primaryCategory->image_path) {
                 $oldImagePath = public_path('images/primary-category/'.$primaryCategory->image_path);
                 if (file_exists($oldImagePath)) {
@@ -219,6 +262,9 @@ class PrimaryCategoryController extends Controller
             })->encode('webp', 75)->save($destinationPath . '/' . $imageName);
             
             $data['image_path'] = $imageName;
+        }*/
+        if (!empty($validated['product_id'])) {
+            $data['product_id'] = $validated['product_id'];
         }
         $primaryCategory->update($data);
         return response()->json([

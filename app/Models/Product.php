@@ -112,6 +112,11 @@ class Product extends Model
     {
         return $this->hasOne(ProductImages::class, 'product_id')->orderBy('id', 'asc');
     }
+
+    public function firstSortedImage()
+    {
+        return $this->hasOne(ProductImages::class, 'product_id')->orderBy('sort_order', 'asc');
+    }
     
     public function orderLines()
     {

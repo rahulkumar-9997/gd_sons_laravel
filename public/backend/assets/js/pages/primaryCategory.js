@@ -210,6 +210,81 @@ $(document).ready(function () {
         });
     });
     /**Primary category update status */
+    /*Autocomplete for primary category */
+    var baseUrl = $('meta[name="base-url"]').attr('content');
+    var selectedProductIds = [];
+    $(document).on('focus', '.product-autocomplete', function () {
+        var $input = $(this);
+        var $loader = $(this).siblings('.input-group-text').find('.product-loader');
+        var $refreshIcon = $(this).siblings('.input-group-text').find('i');
+        $input.removeClass('autocomplete-loading');
+        $loader.hide();
+        $refreshIcon.show();
+        $(this).autocomplete({
+            appendTo: $input.closest('.modal'),
+            source: function (request, response) {
+                $input.addClass('autocomplete-loading');
+                $loader.show();
+                $refreshIcon.hide();
+                $.ajax({
+                    url: baseUrl + '/autocomplete/products-whatsapp',
+                    data: {
+                        query: request.term,
+                        page: 1,
+                        selected_ids: selectedProductIds || []
+                    },
+                    success: function (data) {
+                        /*alert(JSON.stringify(data));*/
+                        $input.removeClass('autocomplete-loading');
+                        $loader.hide();
+                        $refreshIcon.show();
+                        var filteredData = data.filter(function (product) {
+                            return !selectedProductIds.includes(product.id.toString());
+                        });
+                        response(filteredData.map(function (product) {
+                            return {
+                                label: product.title,
+                                value: product.title,
+                                id: product.id,
+                            };
+                        }));
+                    },
+                    error: function () {
+                        console.error('Error fetching autocomplete data');
+                        $input.removeClass('autocomplete-loading');
+                        $loader.hide();
+                        $refreshIcon.show();
+                    }
+                });
+            },
+            minLength: 0,
+            select: function (event, ui) {
+                var row = $(this).closest('.render-autocomplete'); 
+                row.find('.product_id').val(ui.item.id);
+                selectedProductIds.push(ui.item.id.toString());
+            },
+
+        }).autocomplete('instance')._renderItem = function (ul, item) {
+            var term = $.ui.autocomplete.escapeRegex($input.val().toLowerCase());
+            var matcher = new RegExp('(' + term + ')', 'i');
+            var highlightedText = item.label.replace(matcher, '<span style="color: blck; font-weight: bold;">$1</span>');
+            return $('<li>')
+                .append('<div>' + highlightedText + '</div>')
+                .appendTo(ul);
+        };
+    });
+    /*If autocomplete value remove than product id value also remove */
+    $(document).on('input', '.product-autocomplete', function () {
+        if ($(this).val() === '') {
+            var row = $(this).closest('.render-autocomplete'); 
+            var productId = row.find('.product_id').val();
+            row.find('.product_id').val('');
+
+            selectedProductIds = selectedProductIds.filter(function(id) {
+                return id !== productId;
+            });
+        }
+    });
 });
    
 function initializeQuillEditorsTwo() {

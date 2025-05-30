@@ -67,7 +67,6 @@ $(document).ready(function () {
         $input.removeClass('autocomplete-loading');
         $loader.hide(); 
         $refreshIcon.show(); 
-
         $(this).autocomplete({
             source: function (request, response) {
                 $input.addClass('autocomplete-loading');

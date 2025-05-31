@@ -1627,6 +1627,7 @@ class FrontendController extends Controller
         $form = '
         <form method="POST" action="' . route('request.product.enquiry.submit') . '" accept-charset="UTF-8" enctype="multipart/form-data" id="productEnquiryForm">
             ' . csrf_field() . '
+            <input type="hidden" name="check_spam">
             <div class="row">
                 <div class="col-md-12">
                     <div class="mb-md-4 mb-3 custom-form">
@@ -1670,6 +1671,12 @@ class FrontendController extends Controller
 
     public function requestProductSubmit(Request $request)
     {
+        if ($request->filled('check_spam')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Spam detected. Submission rejected.'
+            ], 400);
+        }
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'phone' => 'required|digits:10',

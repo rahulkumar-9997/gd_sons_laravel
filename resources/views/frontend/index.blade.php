@@ -312,7 +312,7 @@
 <section class="product-section">
     <div class="container-fluid-lg">
         <div class="row g-sm-4 g-3">
-            @if ($data['primary_category'] && $data['primary_category']->isNotEmpty())
+            <!-- @if ($data['primary_category'] && $data['primary_category']->isNotEmpty())
             <div class="highlighted-products">
                 <div class="title d-block text-center">
                     <div>
@@ -322,68 +322,95 @@
                 </div>
                 <div class="section-b-space h-button-area">
                     <div class="highlighted-products-container">
-                        <button class="product-slider-arrow product-slider-prev" aria-label="Previous">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
                         <div class="highlighted_product_wrapper">
                             <div class="highlighted_product" data-current-position="0">
-                                @foreach ($data['primary_category'] as $index => $primary_category_row)
-                                    @php
-                                        $link = url($primary_category_row->link);
-                                        $title = $primary_category_row->title;
-                                        $mobileImage = null;
-                                        $desktopImage = null;
-                                        $altText = $title;
-                                        if ($primary_category_row->product && $primary_category_row->product->firstSortedImage) {
-                                            $imageBase = $primary_category_row->product->firstSortedImage->image_path;
-                                            $mobileImage = asset('images/product/icon/' . $imageBase);
-                                            $desktopImage = asset('images/product/thumb/' . $imageBase);
-                                        } else {
-                                            $mobileImage = asset('frontend/assets/gd-img/product/no-image.png');
-                                            $desktopImage = asset('frontend/assets/gd-img/product/no-image.png');
-                                        }
-                                    @endphp
-                                    <div class="product-box-item">
-                                        <div class="product-box">
-                                            <div class="product-image">
-                                                <div class="product-img">
-                                                    <a href="{{ $link }}" tabindex="0">
-                                                        <picture>
-                                                            <source 
-                                                            media="(max-width: 767px)" 
-                                                            srcset="{{ $mobileImage }}">
-                                                            <img class="img-fluid blur-up lazyload"
-                                                                data-src="{{ $desktopImage }}"
-                                                                src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                                srcset="{{ $desktopImage }} 600w, 
-                                                                        {{ $desktopImage }} 1200w"
-                                                                sizes="(max-width: 600px) 600px, 1200px"
-                                                                alt="{{ $primary_category_row->product->title }}"
-                                                                title="{{ $primary_category_row->product->title }}"
-                                                                loading="lazy"
-                                                                width="300"
-                                                                height="300"
-                                                                onload="this.style.opacity=1">
-                                                        </picture>
-                                                    </a>
+                                <div class="row g-sm-4 g-3 row-cols-xxl-5 row-cols-xl-3 row-cols-lg-5 row-cols-md-3 row-cols-2">
+                                    @foreach ($data['primary_category'] as $index => $primary_category_row)
+                                        @php
+                                            $link = url($primary_category_row->link);
+                                            $title = $primary_category_row->title;
+                                            $mobileImage = null;
+                                            $desktopImage = null;
+                                            $altText = $title;
+                                            if ($primary_category_row->product && $primary_category_row->product->firstSortedImage) {
+                                                $imageBase = $primary_category_row->product->firstSortedImage->image_path;
+                                                $mobileImage = asset('images/product/icon/' . $imageBase);
+                                                $desktopImage = asset('images/product/thumb/' . $imageBase);
+                                            } else {
+                                                $mobileImage = asset('frontend/assets/gd-img/product/no-image.png');
+                                                $desktopImage = asset('frontend/assets/gd-img/product/no-image.png');
+                                            }
+                                        @endphp
+                                        <div>
+                                            <div class="product-box-item">
+                                                <div class="product-box">
+                                                    <div class="product-image">
+                                                        <div class="product-img">
+                                                            <a href="{{ $link }}" tabindex="0">
+                                                                <picture>
+                                                                    <source 
+                                                                    media="(max-width: 767px)" 
+                                                                    srcset="{{ $mobileImage }}">
+                                                                    <img class="img-fluid blur-up lazyload"
+                                                                        data-src="{{ $desktopImage }}"
+                                                                        src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                                                        srcset="{{ $desktopImage }} 600w, 
+                                                                                {{ $desktopImage }} 1200w"
+                                                                        sizes="(max-width: 600px) 600px, 1200px"
+                                                                        alt="{{ $primary_category_row->product->title }}"
+                                                                        title="{{ $primary_category_row->product->title }}"
+                                                                        loading="lazy"
+                                                                        width="300"
+                                                                        height="300"
+                                                                        onload="this.style.opacity=1">
+                                                                </picture>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="product-detail">
+                                                        <a href="{{ $link }}" tabindex="0">
+                                                            <h6 class="name">
+                                                                {{ $primary_category_row->title }}
+                                                            </h6>
+                                                        </a>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="product-detail">
-                                                <a href="{{ $link }}" tabindex="0">
-                                                    <h6 class="name">
-                                                        {{ $primary_category_row->title }}
-                                                    </h6>
-                                                </a>
-                                            </div>
                                         </div>
-                                    </div>
-                                @endforeach
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
-                        <button class="product-slider-arrow product-slider-next" aria-label="Next">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
+                        
                     </div>
+                </div>
+            </div>
+            @endif -->
+            @if ($data['primary_category'] && $data['primary_category']->isNotEmpty())
+            <div class="highlighted-products">
+                <div class="title d-block text-center">
+                    <div>
+                        <h2>Highlighted Products</h2>
+                        <span class="title-leaf"></span>
+                    </div>
+                </div>
+                <div class="section-b-space h-button-area">
+                    <ul class="list text-center">
+                        @php
+                        $colors = [
+                        '#FF5733', '#a1521b', '#FF69B4',
+                        '#8A2BE2', '#efab49', '#00CED1', '#DC143C',
+                        '#4682B4', '#FF8C00', '#8B008B', '#2E8B57'
+                        ];
+                        @endphp
+                        @foreach ($data['primary_category'] as $index =>$primary_category_row)
+                        <li>
+                            <a class="btn text-white" href="{{$primary_category_row->link}}" style="background-color: {{ $colors[$index % count($colors)] }};">
+                                {{$primary_category_row->title}}
+                            </a>
+                        </li>
+                        @endforeach
+                    </ul>
                 </div>
             </div>
             @endif
@@ -393,11 +420,7 @@
                     <div>
                         <h2>Popular Products</h2>
                         <span class="title-leaf">
-                            <!-- <svg class="icon-width">
-                                <use xlink:href="{{asset('frontend/assets/svg/leaf.svg#leaf')}}"></use>
-                            </svg> -->
                         </span>
-                        <!-- <p>Don't miss this opportunity at a special discount just for this week.</p> -->
                     </div>
                 </div>
                 <div class="section-b-space">

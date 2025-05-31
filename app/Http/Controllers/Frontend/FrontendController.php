@@ -44,7 +44,7 @@ class FrontendController extends Controller
         $popular_label_id = $labels['Popular Product']->id ?? null;
         $trending_label_id = $labels['Trending Product']->id ?? null;
         $data['category_list'] = Category::where('status', 'on')->get(['id', 'title', 'slug', 'image']);
-        $data['primary_category'] = PrimaryCategory::where('status', 1)
+        /*$data['primary_category'] = PrimaryCategory::where('status', 1)
             ->whereNotNull('product_id')
             ->where('product_id', '<>', '')
             ->with([
@@ -57,6 +57,10 @@ class FrontendController extends Controller
             ])
         ->orderBy('title')
         ->get(['id', 'title', 'link', 'product_id']);
+        */
+        $data['primary_category'] = PrimaryCategory::where('status', 1)
+        ->orderBy('title')
+        ->get(['id', 'title', 'link']);
         //return response()->json($data['primary_category']); 
         $data['banner'] = Banner::orderBy('id', 'desc')->get(['id', 'image_path_desktop', 'link_desktop', 'title']);
         $data['video'] = Video::inRandomOrder()->select('video_url')->take(10)->get();

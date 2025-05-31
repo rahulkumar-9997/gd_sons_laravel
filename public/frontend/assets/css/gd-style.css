@@ -1761,18 +1761,15 @@ a.cntshop {
 }
 
 .highlighted_product {
-    display: flex;
-    flex-flow: row nowrap;
-    gap: 15px;
     transition: transform 0.3s ease;
     scroll-behavior: smooth;
 }
-
-.product-box-item {
-    flex: 0 0 auto;
-    width: 241px; 
-    min-width: 160px;
+.product-box-item .product-box{
+    border-radius: 15px;
+    background-color: #f1f1f3;
 }
+
+
 .product-detail .name {
     font-size: 16px;
     font-weight: 500;
@@ -1783,47 +1780,7 @@ a.cntshop {
     text-overflow: ellipsis;
 }
 
-.product-slider-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: white;
-    border: 1px solid #ddd;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 10;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    transition: all 0.3s;
-    border: none;
-    outline: none;
-}
 
-.product-slider-arrow:hover {
-    background: #f5f5f5;
-}
-
-.product-slider-arrow i {
-    font-size: 14px;
-    color: #333;
-}
-
-.product-slider-prev {
-    left: 0;
-}
-
-.product-slider-next {
-    right: 0;
-}
-
-.product-slider-arrow[disabled] {
-    opacity: 0.3;
-    pointer-events: none;
-}
 .highlighted_product_wrapper .product-img:before {
     padding-bottom: 80%;
 }
@@ -1846,10 +1803,7 @@ a.cntshop {
         height: 150px;
     }
     
-    .product-slider-arrow {
-        width: 30px;
-        height: 30px;
-    }
+    
     .product-detail .name{
       font-size: 14px;
     }

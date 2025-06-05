@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\AdminConfirmationLoginMail;
 class SendAdminNotificationOnCustomerLogin
 {
+    
     /**
      * Handle the event.
      */

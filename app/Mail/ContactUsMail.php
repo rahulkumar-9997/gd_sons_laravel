@@ -19,7 +19,7 @@ class ContactUsMail extends Mailable
             'name' => $this->data->name,
             'email' => $this->data->email,
             'phone' => $this->data->phone,
-            'message' => $this->data->message,
+            'userMessage' => $this->data->message,
         ]);
     }
 }

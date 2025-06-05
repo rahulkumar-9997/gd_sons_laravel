@@ -8,7 +8,7 @@ if (substr($categorytitle, -1) === 's')
 if ($data['product_details']->meta_title) {
 $meta_title = $data['product_details']->meta_title;
 } else {
-$meta_title = removeDuplicateWords(ucwords(strtolower($categorytitle . ' ' . $data['attributes_value_name']->name. ' ' . $data['product_details']->title))). ' Best Online Rate';
+$meta_title = removeDuplicateWords(ucwords(strtolower($categorytitle . ' ' . $data['attributes_value_name']->name. ' ' . $data['product_details']->title)));
 }
 
 if ($data['product_details']->meta_description) {

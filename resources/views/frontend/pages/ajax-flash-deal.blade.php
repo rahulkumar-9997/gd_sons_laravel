@@ -28,11 +28,22 @@
             </div>
         </div>
         @php
-        $selectedFilters = [];
-        $queryParams = request()->query();
-        foreach ($queryParams as $attributeSlug => $valueSlugs) {
-            $selectedFilters[$attributeSlug] = explode(',', $valueSlugs);
-        }
+            $selectedFilters = [];
+            if (request()->has('filter')) {
+                $queryParams = request()->query();
+                foreach ($queryParams as $attributeSlug => $valueSlugs) {
+                    /*Skip special parameters*/
+                    if (in_array($attributeSlug, ['filter', 'sort', 'page', 'load_more']))
+                    {
+                        continue;
+                    }
+                    if (is_string($valueSlugs)) {
+                        $selectedFilters[$attributeSlug] = explode(',', $valueSlugs);
+                    } else {
+                        $selectedFilters[$attributeSlug] = (array)$valueSlugs;
+                    }
+                }
+            }
         @endphp
         @if (!empty($selectedFilters))
         <div class="filter-category filter-bar-desktop secondary-bar">

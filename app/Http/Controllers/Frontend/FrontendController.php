@@ -465,8 +465,8 @@ class FrontendController extends Controller
             });
 
             // Apply additional filters from the request
-            $filters = $request->query();
-            if (!empty($filters)) {
+            if ($request->has('filter')) {
+                $filters = $request->except(['filter', 'sort', 'page']);
                 foreach ($filters as $filterAttributeSlug => $filterValueSlugs) {
                     if ($filterAttributeSlug !== $attribute_top->slug) {
                         if (is_string($filterValueSlugs)) {
@@ -865,8 +865,9 @@ class FrontendController extends Controller
             $productsQuery = Product::where('category_id', $category->id)->where('product_status', 1);
 
             /** for filter code */
-            $filters = $request->query();
-            if (!empty($filters)) {
+            
+            if ($request->has('filter')) {
+                $filters = $request->except(['filter', 'sort', 'page']);
                 foreach ($filters as $attributeSlug => $valueSlugs) {
                     if (is_string($valueSlugs)) {
                         $valueSlugs = explode(',', $valueSlugs);
@@ -1539,19 +1540,23 @@ class FrontendController extends Controller
             ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku');
 
         /*Apply filters*/
-        if ($request->hasAny(array_keys($request->all()))) {
+        
+        if ($request->has('filter')) {
             foreach ($request->all() as $attributeSlug => $valueSlugs) {
-                if (strpos($attributeSlug, 'price') === false && $attributeSlug !== 'sort') {
-                    $valueSlugsArray = explode(',', $valueSlugs);
-                    
-                    $query->whereHas('attributes.values.attributeValue', function($q) use ($attributeSlug, $valueSlugsArray) {
-                        $q->whereHas('attribute', function($q) use ($attributeSlug) {
-                            $q->where('slug', $attributeSlug);
-                        })->whereIn('slug', $valueSlugsArray);
-                    });
+                if ($attributeSlug === 'filter' || $attributeSlug === 'sort' || strpos($attributeSlug, 'price') !== false) {
+                    continue;
                 }
+
+                $valueSlugsArray = array_filter(explode(',', $valueSlugs));
+
+                $query->whereHas('attributes.values.attributeValue', function($q) use ($attributeSlug, $valueSlugsArray) {
+                    $q->whereHas('attribute', function($q) use ($attributeSlug) {
+                        $q->where('slug', $attributeSlug);
+                    })->whereIn('slug', $valueSlugsArray);
+                });
             }
         }
+
 
         // Apply sorting
         if ($request->has('sort')) {

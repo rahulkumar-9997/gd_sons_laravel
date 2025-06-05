@@ -1,8 +1,6 @@
 @extends('frontend.layouts.master')
-@section('title','Gd Sons - Conatact Us')
-@section('description', '')
-<!-- @section('keywords', 'Laravel Ecommerce') -->
-
+@section('title','Contact Us | Girdhar Das & Sons – Best Kitchenware Store in Varanasi')
+@section('description', 'Have a question or need assistance? Contact Girdhar Das & Sons, the best retail shop in Varanasi for kitchenware. Call, email, or visit us — we’re here to help!')
 @section('main-content')
 <!-- Breadcrumb Section Start -->
 <section class="breadcrumb-section pt-0">
@@ -37,7 +35,7 @@
 
                         <div class="col-xl-12">
                             <div class="contact-title">
-                                <h3>Get In Touch</h3>
+                                <h3>Get in Touch with Girdhar Das & Sons</h3>
                             </div>
 
                             <div class="contact-detail">
@@ -111,7 +109,13 @@
                     <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d14427.266304698423!2d82.988604!3d25.310366!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x398e2dfedadc2c7f%3A0x39b7ab6d0a627287!2sGirdhar%20Das%20%26%20Sons%20-%20Kitchenware%20%26%20Dinnerware!5e0!3m2!1sen!2sin!4v1681237820627!5m2!1sen!2sin" width="100%" height="350" frameborder="0" style="border:0" allowfullscreen></iframe>
                 </div>
             </div>
-
+            <div class="col-lg-12">
+                <div class="contactus-contect">
+                    <p>
+                        We’re always happy to hear from you! Whether you need help with an order, have a question about our kitchenware products, or want to learn more about our great offers, the Girdhar Das & Sons team is here to assist. Reach out via phone, email, or drop by our Varanasi store — we promise quick and friendly support every time.
+                    </p>
+                </div>
+            </div>
 
         </div>
     </div>

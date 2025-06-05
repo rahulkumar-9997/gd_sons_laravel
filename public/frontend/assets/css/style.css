@@ -18801,9 +18801,9 @@ li {
 }
 
 p {
-    font-size: 16px;
+    font-size: 18px;
     color: #4a5568;
-    line-height: 22px
+    line-height: 25px
 }
 
 a {
@@ -31375,7 +31375,7 @@ body.rtl .menu-label {
 
 .product-box .product-detail a h6.name, .product-box .product-detail a h6.name-title {
     font-weight: 600;
-    line-height: 22px;
+    line-height: 24px;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     /* display: -webkit-box; */

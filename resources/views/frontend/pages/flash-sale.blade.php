@@ -1,6 +1,6 @@
 @extends('frontend.layouts.master')
-@section('title','GD Sons : Flash Sale')
-@section('description', 'Best Kitchen Retail Store in Varanasi now goes Online')
+@section('title','Flash Sale | Best Kitchenware Deals Online – Girdhar Das & Sons, Varanasi')
+@section('description', 'Enjoy unbeatable discounts on top kitchenware brands during our Flash Sale at Girdhar Das & Sons – the Best Retail Shop in Varanasi. Great offers, fast delivery & store pickup available!')
 @section('main-content')
 <!-- Breadcrumb Section Start -->
 <section class="breadcrumb-section pt-0">
@@ -31,7 +31,7 @@
          <div class="col-lg-12">
             <div class="h1-heading">
                <h1>
-                  Flash Sale
+                  Flash Sale on Best Kitchenware in Varanasi
                </h1>
             </div>
          </div>
@@ -94,6 +94,23 @@
             @include('frontend.pages.ajax-flash-deal', [
             'products' => $products,
             ])
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-lg-12">
+            <div class="flash-content">
+                  <h3>Unmissable Flash Sale on Premium Kitchenware!</h3>
+                  <p>
+                     Welcome to the Flash Sale section at Girdhar Das & Sons – your one-stop destination for unbeatable deals on top-quality kitchen essentials. Whether you're upgrading your cooking setup or gifting something useful to loved ones, this is the perfect time to shop. From advanced induction cooktops and stylish gas stoves to high-performance chimneys and kitchen tools, everything is available at jaw-dropping prices for a limited time only.
+                  </p>
+                  <h4>Great Offers, Limited Stock – Act Fast!</h4>
+                  <p>
+                  At Girdhar Das & Sons, we believe in delivering not just products, but value. That’s why our flash sale includes top brands like Milton, Hindware, and Sujata – trusted by thousands of Indian households. Enjoy exclusive discounts, combo offers, and group savings that are hard to beat. With fast home delivery and store pickup options available across Varanasi, you can shop with confidence and convenience.
+                  </p>
+                  <p>
+                  Don't miss this opportunity to revamp your kitchen with premium products at slashed prices. Our flash deals are updated regularly, so keep checking back for new offers before they're gone. Shop now and experience why we’re known as the Best Retail Shop in Varanasi for kitchenware!
+                  </p>
+            </div>
          </div>
       </div>
    </div>
@@ -169,7 +186,7 @@
       });
 
       function updateURL() {
-         const filterParams = [];
+         const filterParams = ['filter=1'];
          $.each(filters, function(attributeSlug, valueSlugs) {
             filterParams.push(attributeSlug + '=' + valueSlugs.join(','));
          });

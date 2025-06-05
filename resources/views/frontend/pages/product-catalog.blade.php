@@ -176,7 +176,7 @@
 
         /*Function to update the URL based on filters*/
         function updateURL() {
-            const filterParams = [];
+            const filterParams = ['filter=1'];
             $.each(filters, function(attributeSlug, valueSlugs) {
                 filterParams.push(attributeSlug + '=' + valueSlugs.join(','));
             });

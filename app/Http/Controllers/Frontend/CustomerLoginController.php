@@ -91,50 +91,25 @@ class CustomerLoginController extends Controller
                 Mail::to($input)->queue(new CustomerOtpMail($otp));
             } elseif ($isMobile) {
                 $sessionData['phone_number'] = $input;
-                $mobile_number = '91' . $input;
+                $mobile_number = $input;
+
                 Log::info('mobile Number:', ['no' => $mobile_number]);
                 Log::info('oTP:', ['no' => $otp]);
-                $apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY";
-                
-                $response = Http::post('https://backend.aisensy.com/campaign/t1/api/v2', [
-                    'apiKey' => $apiKey,
-                    'campaignName' => 'gdsons_login_otp',
-                    'destination' =>$mobile_number,
-                    'userName' => $mobile_number,
-                    'templateParams' => [$otp],
-                    'source' => 'new-landing-page form',
-                    'media' => new \stdClass(),
-                    'buttons' => [
-                        [
-                            'type' => 'button',
-                            'sub_type' => 'url',
-                            'index' => 0,
-                            'parameters' => [
-                                [
-                                    'type' => 'text',
-                                    'text' => $otp
-                                ]
-                            ]
-                        ]
-                    ],
-                    'carouselCards' => [],
-                    'location' => new \stdClass(),
-                    'attributes' => new \stdClass(),
-                    'paramsFallbackValue' => [
-                        'FirstName' => 'user'
-                    ]
-                ]);
-        
-                if ($response->failed()) {
-                    $errorResponse = $response->json();
-                    Log::error('AiSensy OTP API Error:', $errorResponse);
-                
+
+                $otpSent = sendSmsOtp($mobile_number, $otp);
+                if (!$otpSent) {
                     return response()->json([
                         'success' => false,
-                        'message' => $errorResponse,
-                        'error' => $errorResponse,
+                        'message' => 'Failed to send OTP',
                     ]);
                 }
+
+                Session::put('otp', $sessionData);
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'contact' => $input,
+                ]);
             }
             Session::put('otp', $sessionData);
             return response()->json([
@@ -217,7 +192,11 @@ class CustomerLoginController extends Controller
             Mail::to($sessionOtp['email'])->queue(new CustomerOtpMail($otp));
             $message = 'OTP resent successfully to your email.';
         } elseif (!empty($sessionOtp['phone_number'])) {
-            $this->sendSmsOtp($sessionOtp['phone_number'], $otp);
+            /*$this->sendSmsOtp($sessionOtp['phone_number'], $otp);*/
+            $otpSent = sendSmsOtp($sessionOtp['phone_number'], $otp);
+            if (!$otpSent) {
+                $message = 'Failed to send OTP.';
+            }
             $message = 'OTP resent successfully to your mobile number.';
         }
 

@@ -1,6 +1,8 @@
 <?php
 use App\Models\SpecialOffer;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 if (!function_exists('numberToWords')) {
     function numberToWords($number) {
@@ -44,6 +46,7 @@ if (!function_exists('getCustomerSpecialOffers')) {
         return $specialOffers;
     }
 }
+
 function removeDuplicateWords($sentence) {
     $words = explode(' ', $sentence);
     $seen = [];
@@ -59,5 +62,29 @@ function removeDuplicateWords($sentence) {
     
     return implode(' ', $result);
 }
+
+function sendSmsOtp($phoneNumber, $otp)
+{
+    $otpMessage = "$otp is your OTP to log in into website https://www.gdsons.co.in. Please do not share this with anyone.";
+
+    $url = "http://fastgosms.in/http-tokenkeyapi.php?" . http_build_query([
+        'authentic-key' => '3135676972646861723130301749132263',
+        'senderid' => 'GDNSON',
+        'route' => '16',
+        'number' => $phoneNumber,
+        'message' => $otpMessage,
+        'templateid' => '1707174913259233425'
+    ]);
+
+    $response = Http::get($url);
+
+    if ($response->failed()) {
+        Log::error('FastGoSMS OTP API Error:', ['response' => $response->body()]);
+        return false;
+    }
+
+    return true;
+}
+
 
 

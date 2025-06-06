@@ -1344,7 +1344,7 @@ a.cntshop {
   }
   .floating-buttons{
     bottom: 70px;
-    left: 10px;
+    right: 10px;
   }
   .float-btn{
     width: 50px;
@@ -1853,8 +1853,14 @@ a.cntshop {
   .gd5 .row{
     justify-content: center;
   }
-  /* .product-box{
-    max-width: 224px;
-    max-height: 224px;
-  } */
+  
+  .breadcrumb-section.order-page-breadcrumb {
+    display: block;
+  }
+  .gd-shadow-top.order-page-breadcrumb {
+      box-shadow: unset;
+  }
+  .order-page-breadcrumb .success-order-btn a{
+    margin-bottom: 10px;
+  }
 }

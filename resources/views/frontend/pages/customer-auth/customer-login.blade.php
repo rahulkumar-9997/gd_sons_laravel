@@ -160,7 +160,7 @@
                                 <div class="col-12">
                                     <div class="form-floating theme-form-floating log-in-form">
                                         <input type="text" class="form-control" id="emailOrWhatssappNo" placeholder="Email Id Or Whatts app Number">
-                                        <label for="email">Email Id Or whatsapp Number</label>
+                                        <label for="email">Email Id Or Whats App Number</label>
                                     </div>
                                 </div>
                                 <div class="col-12">

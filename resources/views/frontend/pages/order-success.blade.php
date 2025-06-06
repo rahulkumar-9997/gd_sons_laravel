@@ -5,7 +5,7 @@
 
 @section('main-content')
 <!-- Breadcrumb Section Start -->
-<section class="breadcrumb-section pt-0 gd-shadow-top">
+<section class="breadcrumb-section pt-0 gd-shadow-top order-page-breadcrumb">
     <div class="container-fluid-lg">
         <div class="row">
             <div class="col-12">
@@ -65,14 +65,14 @@
                         </div>
 
                         <div class="order-contain">
-                            <h3 class="theme-color">Order Success</h3>
-                            <h5 class="text-content">Payment Is Successfully And Your Order Is Processing</h5>
+                            <h3 class="theme-color">Your order successfully placed.</h3>
+                            <!-- <h5 class="text-content">Payment Is Successfully And Your Order Is Processing</h5> -->
                             <!-- <h6>Transaction ID: 1708031724431131</h6> -->
                             <h6>Order ID: {{$order->order_id}}</h6>
                         </div>
                         <div class="success-order-btn">
                             <div class="mt-4 d-sm-flex gap-3 justify-content-center">
-                                <a href="{{route('order')}}" class="btn btn-animation proceed-btn fw-bold">View Order </a>
+                                <a href="{{route('order')}}" class="btn btn-animation proceed-btn fw-bold">View Order Details </a>
                                 <a href="{{URL::to('')}}" class="btn btn-light shopping-button text-dark" style="background-color: #ececec;">Back To Home </a>
                             </div>
                         </div>

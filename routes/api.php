@@ -2,7 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Api\MenuController;
+use App\Http\Controllers\Api\FrontHomeController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -13,7 +14,9 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
+    
+Route::get('/menu', [MenuController::class, 'getCategoriesWithAttributes']);
+Route::get('/catalog/{categorySlug}/{attributeSlug}/{valueSlug}', [FrontHomeController::class, 'showProductCatalog']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });

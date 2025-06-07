@@ -148,5 +148,6 @@ class MenuComposer
 
         $view->with('categoriesWithMappedAttributesAndValues', $formattedCategories);
     }
+    
 }
 

@@ -156,6 +156,8 @@ Route::post('/update-counter', [FrontendController::class, 'updateCounter'])->na
 Route::get('/wp-otp-form', [FrontendController::class, 'WhatAppClickShowOtpForm'])->name('wp.otp.form');
 Route::post('/wp-verify-otp', [FrontendController::class, 'WhatappVerifyOtp'])->name('wp.verify.otp');
 
+Route::post('click-tracker', [FrontendController::class, 'clickTracker'])->name('click.tracker');
+
 
 
 
@@ -200,6 +202,7 @@ Route::group(['middleware' => ['admin']], function () {
     ->name('dashboard.filtered-data');
     Route::get('get-visitor-stats', [DashboardController::class, 'getVisitorStats'])->name('get-visitor-stats');
     Route::get('get-visitor-list', [DashboardController::class, 'getVisitorList'])->name('get-visitor-list');
+     Route::get('click-details', [DashboardController::class, 'getClickDetails'])->name('get-click-details');
 
     Route::get('brand', [BrandController::class, 'index'])->name('brand');
     Route::post('brand/create', [BrandController::class, 'create'])->name('brand.create');
@@ -379,4 +382,5 @@ Route::group(['middleware' => ['admin']], function () {
     Route::post('mapped-image-to-product/submit', [StorageController::class, 'mappedImageToProductSubmit'])->name('mapped-image-to-product.submit');
     Route::get('/manage-enquiry/request-product-list', [EnquiryController::class, 'requestProductList'])->name('manage-enquiry.request.product.list');
     Route::delete('/manage-enquiry/request-product-list/{id}', [EnquiryController::class, 'requestProductListDestroy'])->name('manage-enquiry.request.product.destroy');
+   
 });

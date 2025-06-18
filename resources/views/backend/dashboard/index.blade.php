@@ -234,6 +234,31 @@
                      </div>
                   @endforeach
                @endif
+
+               <div class="col-md-3">
+                  <div class="card overflow-hidden">
+                     <div class="card-body">
+                        <a href="{{route('get-click-details')}}">
+                           <div class="row">
+                              <div class="col-3">
+                                 <div class="avatar-md bg-soft-primary rounded">
+                                    <i class="bx ti-hand-click avatar-title text-primary fs-24"></i>
+                                 </div>
+                              </div>
+                              <!-- end col -->
+                              <div class="col-9 text-end">
+                                 <p class="mb-0 text-danger">Button Link Click</p>
+                                 <h3 class="text-dark mt-1 mb-0">{{ $data['click_tracker'] }} Click</h3>
+                              </div>
+                              <!-- end col -->
+                           </div>
+                        </a>
+                        <!-- end row-->
+                     </div>
+                     
+                  </div>
+                  <!-- end card -->
+               </div>
                <!-- end col -->
             </div>
             <!-- end row -->

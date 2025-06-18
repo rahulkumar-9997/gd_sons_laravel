@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
@@ -14,9 +16,7 @@ use App\Models\Customer;
 use App\Models\Orders;
 use App\Models\OrderStatus;
 use App\Models\VisitorTracking;
-
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use App\Models\ClickTrackers;
 use App\Models\Counter;
 use Image;
 class DashboardController extends Controller
@@ -32,6 +32,7 @@ class DashboardController extends Controller
         $data['order_count'] = Orders::count();
         $data['order_status_count'] = OrderStatus::withCount('orders')->get();
         $data['button_counter'] = Counter::all();
+        $data['click_tracker'] = ClickTrackers::count();
         return view('backend.dashboard.index', compact('data'));
     }
 
@@ -162,5 +163,11 @@ class DashboardController extends Controller
                 return $item->page_name;
             });
         return view('backend.dashboard.visitor-list', compact('data')); 
+    }
+
+    public function getClickDetails()
+    {
+        $data['click-link'] = ClickTrackers::orderBy('click_time', 'desc')->get();
+        return view('backend.dashboard.click-list', compact('data'));
     }
 }

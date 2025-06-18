@@ -222,7 +222,31 @@
             });
         });
 
-        /**Request a Product Enquiry form home page */          
+        /**Request a Product Enquiry form home page */ 
+        /*Track btn click ajax code*/ 
+        $(document).on('click', 'a[data-track-click="true"], button[data-track-click="true"]', function(e) {
+            var url = $(this).data('track-route');
+            var btn_type = $(this).data('track-btn-type');
+            var page_url = window.location.href;            
+            var data = {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                url: url,
+                btn_type: btn_type,
+                page_url: page_url,
+            };            
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: data,
+                success: function (data) {
+                    
+                },
+                error: function (data) {
+                    
+                }
+            });
+        });        
+        /*Track btn click ajax code*/         
     });
 
     function showNotificationAll(type, title, message) {
@@ -351,7 +375,7 @@ $(document).ready(function() {
 });
 /**category slider js code  */
 /*Highlighted Products */
-$(document).ready(function() {
+/*$(document).ready(function() {
     const $slider = $('.highlighted_product');
     const $wrapper = $('.highlighted_product_wrapper');
     const $prevBtn = $('.product-slider-prev');
@@ -444,6 +468,7 @@ $(document).ready(function() {
         updateSlider();
     });
 });
+*/
 /* Highlighted Products*/
     
 

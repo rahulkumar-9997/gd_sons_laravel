@@ -346,7 +346,11 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 @if (auth()->guard('customer')->check())
                                 @if(intval($data['product_details']->mrp) > 0 && intval($data['product_details']->stock_quantity) > 0)
                                 <button class="add-to-cart btn btn-md bg-dark cart-button text-white w-100" data-url="{{route('add.to.cart')}}" data-pid="{{$data['product_details']->id}}"
-                                    data-mrp="{{$data['product_details']->mrp}}">
+                                    data-mrp="{{$data['product_details']->mrp}}" 
+                                    data-track-btn-type="Add to cart after login"
+                                    data-track-click="true"
+                                    data-track-route="{{route('click.tracker')}}"
+                                    >
                                     Add To Cart
                                 </button>
                                 @else
@@ -357,7 +361,11 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 @else
                                 @if(intval($data['product_details']->mrp) > 0 && intval($data['product_details']->stock_quantity) > 0)
                                 <button onclick="location.href = '{{ route('logincustomer') }}?redirect={{ url()->current() }}';"
-                                    class="btn btn-md bg-dark cart-button text-white w-100">Add To Cart
+                                    class="btn btn-md bg-dark cart-button text-white w-100"
+                                    data-track-btn-type="Add to cart before login"
+                                    data-track-click="true"
+                                    data-track-route="{{route('click.tracker')}}"
+                                    >Add To Cart
                                 </button>
                                 @else
                                 <button disabled class="btn btn-md bg-dark cart-button text-white w-100">
@@ -380,6 +388,9 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                     data-cuid="{{ $customerId }}"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
+                                    data-track-btn-type="Add To Wishlist"
+                                    data-track-click="true"
+                                    data-track-route="{{route('click.tracker')}}"
                                     title="Wishlist">
                                     @if ($isInWishlist)
                                     <i class="feather-icon heart-icon filled" data-feather="heart"></i>
@@ -395,7 +406,11 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                     data-pid="{{ $data['product_details']->id }}"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
-                                    title="Wishlist">
+                                    title="Wishlist"
+                                    data-track-btn-type="Add To Wishlist"
+                                    data-track-click="true"
+                                    data-track-route="{{route('click.tracker')}}"
+                                    >
                                     <i data-feather="heart"></i>
                                     <span>Add To Wishlist</span>
                                 </a>
@@ -403,7 +418,16 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                             </div>
                             <div class="whatsapp-area">
                                 <div class="whatapp-enquirybtn">
-                                    <a class="product_detail_whattsapp btn mr-10 btn-md" data-title="{{ucwords(strtolower($data['product_details']->title))}}" data-pid="{{$data['product_details']->id}}" data-url="{{route('product-enquiry-modal-form')}}" data-pageurl="{{url()->current()}}" data-size="md" href="javascript:void(0);">
+                                    <a 
+                                    class="product_detail_whattsapp btn mr-10 btn-md" 
+                                    data-title="{{ucwords(strtolower($data['product_details']->title))}}" data-pid="{{$data['product_details']->id}}"
+                                    data-url="{{route('product-enquiry-modal-form')}}"
+                                    data-pageurl="{{url()->current()}}"
+                                    data-size="md" href="javascript:void(0);"
+                                    data-track-btn-type="Send Enquiry through WhatsApp"
+                                    data-track-click="true"
+                                    data-track-route="{{route('click.tracker')}}"
+                                    >
                                         <i class="fa fa-whatsapp"></i> Send Enquiry through WhatsApp
                                     </a>
                                 </div>
@@ -669,7 +693,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
             $container.addClass(isShort ? 'short' : 'regular');
             const params = {
                 autoplay: 1,
-                mute: 1,
+                mute: 0,
                 enablejsapi: 1,
                 playsinline: 1,
                 rel: 0,
@@ -681,7 +705,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
             }
 
             const iframe = $('<iframe/>', {
-                src: `https://www.youtube-nocookie.com/embed/${videoId}?${$.param(params)}`,
+                src: `https://www.youtube.com/embed/${videoId}?${$.param(params)}`,
                 allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
                 allowfullscreen: '',
                 loading: 'lazy'

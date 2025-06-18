@@ -10,6 +10,15 @@ use App\Models\Attribute_values;
 use App\Models\Attribute;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
+use Vinkla\Hashids\Facades\Hashids;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
+use Jenssegers\Agent\Agent;
 use App\Models\Inventory;
 use App\Models\Blog;
 use App\Models\BlogCategory;
@@ -22,15 +31,8 @@ use App\Models\WhatsappConversation;
 use App\Models\Counter;
 use App\Models\Customer;
 use App\Models\SpecialOffer;
-use App\Models\ProductEnquiry; 
-use Vinkla\Hashids\Facades\Hashids;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Auth;
+use App\Models\ProductEnquiry;
+use App\Models\ClickTrackers;
 
 class FrontendController extends Controller
 {
@@ -63,7 +65,7 @@ class FrontendController extends Controller
         ->get(['id', 'title', 'link']);
         //return response()->json($data['primary_category']); 
         $data['banner'] = Banner::orderBy('id', 'desc')->get(['id', 'image_path_desktop', 'link_desktop', 'title']);
-        $data['video'] = Video::inRandomOrder()->select('video_url')->take(10)->get();
+        $data['video'] = Video::inRandomOrder()->select('video_url')->take(2)->get();
         /* Fetch all required products in one query */
         $products = Product::where('product_status', 1)
             ->whereIn('label_id', [$popular_label_id, $trending_label_id])
@@ -1763,6 +1765,34 @@ class FrontendController extends Controller
                 'status' => 'error',
                 'message' => 'Something went wrong while processing your enquiry. Please try again later.'
             ], 500);
+        }
+    }
+
+    public function clickTracker(Request $request)
+    {
+        $validated = $request->validate([
+            'btn_type' => 'required|string',
+            'page_url' => 'required|url',
+        ]);
+        $agent = new Agent();
+        ClickTrackers::create([
+            'button_type' => $request->btn_type,
+            'page_url' => $request->page_url,
+            'ip_address' => $request->ip(),
+            'click_time' => now()->setTimezone('Asia/Kolkata'),
+            'device_type' => $this->getDeviceType($agent),
+        ]);
+        return response()->json(['success' => true]);
+    }
+    
+    protected function getDeviceType($agent)
+    {
+        if ($agent->isMobile()) {
+            return 'mobile';
+        } elseif ($agent->isTablet()) {
+            return 'tablet';
+        } else {
+            return 'desktop';
         }
     }
 

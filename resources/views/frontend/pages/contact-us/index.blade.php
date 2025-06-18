@@ -106,14 +106,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="map-box">
-                   <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d14427.266304698423!2d82.988604!3d25.310366!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x398e2dfedadc2c7f%3A0x39b7ab6d0a627287!2sGirdhar%20Das%20%26%20Sons%20-%20Kitchenware%20%26%20Dinnerware!5e0!3m2!1sen!2sin!4v1681237820627!5m2!1sen!2sin" 
-                    width="100%" 
-                    height="350" 
-                    style="border:0" 
-                    allowfullscreen 
-                    loading="lazy">
-                    </iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d14427.266304698423!2d82.988604!3d25.310366!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x398e2dfedadc2c7f%3A0x39b7ab6d0a627287!2sGirdhar%20Das%20%26%20Sons%20-%20Kitchenware%20%26%20Dinnerware!5e0!3m2!1sen!2sin!4v1681237820627!5m2!1sen!2sin" width="100%" height="350" frameborder="0" style="border:0" allowfullscreen></iframe>
                 </div>
             </div>
             <div class="col-lg-12">

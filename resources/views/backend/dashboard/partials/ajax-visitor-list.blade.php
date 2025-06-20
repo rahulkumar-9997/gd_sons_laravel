@@ -38,7 +38,7 @@
                 </td-->
                 <td style="width: 15%;">
                     <div class="overflow-auto" style="max-width: 350px;">
-                        {{ $visitor->page_title }}
+                        <a target="_blank" href="{{ $visitor->page_name }}">{{ $visitor->page_title }}</a>
                     </div>
                 </td>
                 <td>

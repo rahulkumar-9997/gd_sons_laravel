@@ -88,7 +88,9 @@ class SearchController extends Controller
     public function searchListProduct(Request $request){
         $query = $request->get('query');
         $category = $request->get('category');
-
+		$cleanedQuery = preg_replace('/[^a-zA-Z0-9\s]/', ' ', $query);
+		$cleanedQuery = preg_replace('/\s+/', ' ', $cleanedQuery);
+		$searchTerms = array_filter(explode(' ', trim($cleanedQuery)));
         if (empty($query)) {
             return view('frontend.pages.search-catalog', [
                 'products' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 100),
@@ -96,9 +98,8 @@ class SearchController extends Controller
                 'query' => $query
             ]);
         }
-
-        $searchTerms = explode(' ', $query);
-        $booleanQuery = '+' . implode(' +', $searchTerms);
+        $booleanQuery = count($searchTerms) > 0 ? '+' . implode(' +', $searchTerms) : '';
+        //$booleanQuery = '+' . implode(' +', $searchTerms);
 
         $productsQuery = Product::leftJoin('inventories', function ($join) {
             $join->on('products.id', '=', 'inventories.product_id')
@@ -112,7 +113,6 @@ class SearchController extends Controller
                 }
             })
             ->with([
-                //'firstImage',
                 'images' => function($query) {$query->orderBy('sort_order');},
                 'ProductImagesFront:id,product_id,image_path',
                 'ProductAttributesValues' => function ($query) {

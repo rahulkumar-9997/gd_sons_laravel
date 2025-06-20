@@ -3,28 +3,7 @@
         setTimeout(function () {
             $('.sticky-user').addClass('animate');
         }, 1000);
-        /**Sticky user animation */
-        // $('.silk-carousel').slick({
-        //     infinite: true, 
-        //     slidesToShow: 1,
-        //     slidesToScroll: 1,
-        //     autoplay: false, 
-        //     autoplaySpeed: 4000,
-        //     arrows: true, 
-        //     prevArrow: '.slick-prev',
-        //     nextArrow: '.slick-next',
-        //     dots: true, 
-        //     touchMove: true, 
-        //     responsive: [
-        //         {
-        //             breakpoint: 600,
-        //             settings: {
-        //                 slidesToShow: 1,
-        //                 slidesToScroll: 1
-        //             }
-        //         }
-        //     ]
-        // });
+        
         
        
         $('.qty-right-plus').click(function () {
@@ -227,7 +206,7 @@
         $(document).on('click', 'a[data-track-click="true"], button[data-track-click="true"]', function(e) {
             var url = $(this).data('track-route');
             var btn_type = $(this).data('track-btn-type');
-            var page_url = window.location.href;            
+            var page_url = window.location.href;
             var data = {
                 _token: $('meta[name="csrf-token"]').attr('content'),
                 url: url,
@@ -239,10 +218,11 @@
                 type: 'POST',
                 data: data,
                 success: function (data) {
+					console.log(data);
                     
                 },
                 error: function (data) {
-                    
+                    console.log(data);
                 }
             });
         });        

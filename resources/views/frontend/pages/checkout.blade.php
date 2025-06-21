@@ -37,7 +37,6 @@
         </div>
     </div>
 </section>
-
 <!-- Checkout section End -->
 <!---ADD NEW ADDRESS MODAL -->
 <div class="modal fade theme-modal" id="addAddressModal" tabindex="-1">

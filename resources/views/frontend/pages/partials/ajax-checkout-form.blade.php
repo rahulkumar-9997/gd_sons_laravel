@@ -15,7 +15,7 @@ $customerPhone = '';
 <form action="{{route('checkout.submit')}}" method="POST" accept-charset="UTF-8" enctype="multipart/form-data" id="checkoutFormSubmit">
     @csrf
     <input type="hidden" name="pick_up_status" value="pick_up_online">
-    <div class="row g-sm-4 g-3">
+    <div class="row">
         <div class="col-lg-8">
             <div class="left-sidebar-checkout">
                 <div class="checkout-detail-box">
@@ -30,10 +30,10 @@ $customerPhone = '';
                             </div>
                             <div class="checkout-box">
                                 <div class="checkout-title">
-                                    <h4>Delivery Address</h4>
+                                    <h4>Billing & Shipping</h4>
                                 </div>
                                 <div class="checkout-detail">
-                                    <div class="row g-4">
+                                    <div class="row">
                                         <div class="col-lg-12">
                                             @if(isset($customer_address) && $customer_address->isNotEmpty())
                                             <div class="row" id="address-list">
@@ -103,7 +103,7 @@ $customerPhone = '';
                                             </div>
                                             @else
                                             <div class="col-xxl-12 col-lg-12 col-md-12 mb-2">
-                                                <div class="row g-2">
+                                                <div class="row">
                                                     <!-- Full Name -->
                                                     <div class="col-md-6">
                                                         <div class="form-floating mb-4 theme-form-floating">
@@ -187,9 +187,9 @@ $customerPhone = '';
                                             @endif
 
                                         </div>
+                                        <!--
                                         <div class="col-lg-12">
                                             <div class="accordion accordion-flush custom-accordion" id="billShip">
-                                                <!-- Same as Shipping Address Option -->
                                                 <div class="accordion-item">
                                                     <div class="accordion-header" id="flush-headingSameShip">
                                                         <button class="accordion-button same_ship collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseSameShip" aria-expanded="false" aria-controls="flush-collapseSameShip">
@@ -202,11 +202,9 @@ $customerPhone = '';
                                                         </button>
                                                     </div>
                                                     <div id="flush-collapseSameShip" class="accordion-collapse collapse" aria-labelledby="flush-headingSameShip" data-bs-parent="#billShip">
-                                                        <!-- Content for Same as Shipping Address, if any -->
+                                                       
                                                     </div>
                                                 </div>
-
-                                                <!-- Use a Different Billing Address Option -->
                                                 <div class="accordion-item">
                                                     <div class="accordion-header" id="flush-headingDifferentBill">
                                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseDifferentBill" aria-expanded="false" aria-controls="flush-collapseDifferentBill">
@@ -221,15 +219,12 @@ $customerPhone = '';
                                                     <div id="flush-collapseDifferentBill" class="accordion-collapse collapse" aria-labelledby="flush-headingDifferentBill" data-bs-parent="#billShip">
                                                         <div class="accordion-body">
                                                             <div class="row g-2">
-                                                                <!-- Full Name -->
                                                                 <div class="col-md-6">
                                                                     <div class="form-floating mb-4 theme-form-floating">
                                                                         <input type="text" class="form-control" name="bill_full_name" placeholder="Enter full name">
                                                                         <label for="full_name">Enter full name</label>
                                                                     </div>
                                                                 </div>
-
-                                                                <!-- Phone Number -->
                                                                 <div class="col-md-6">
                                                                     <div class="form-floating mb-4 theme-form-floating">
                                                                         <input type="text" class="form-control" name="bill_phone_number" placeholder="Enter phone number"
@@ -264,10 +259,6 @@ $customerPhone = '';
                                                                         </select>
                                                                         <label for="city">Select City</label>
                                                                     </div>
-                                                                    <!-- <div class="form-floating mb-4 theme-form-floating">
-                                                                        <input type="text" class="form-control" name="bill_city_name" placeholder="Enter city">
-                                                                        <label for="city_name">Enter city</label>
-                                                                    </div> -->
                                                                 </div>
                                                                 <div class="col-md-4">
                                                                     <div class="form-floating theme-form-floating">
@@ -289,6 +280,7 @@ $customerPhone = '';
                                                 </div>
                                             </div>
                                         </div>
+                                        -->
                                     </div>
                                 </div>
                             </div>
@@ -315,14 +307,14 @@ $customerPhone = '';
                                                     <div class="custom-form-check form-check mb-0">
                                                         <label class="form-check-label" for="payment_razorpay">
                                                             <input class="form-check-input mt-0" type="radio" name="payment_type" id="payment_razorpay" value="Razorpay" checked>
-                                                            Pay Online (Credit/Debit Card, UPI, Net Banking)
+                                                            Credit Card/Debit Card/NetBanking <img src="https://cdn.razorpay.com/static/assets/logo/rzp_payment_icon.svg" alt="Credit Card/Debit Card/NetBanking">
                                                         </label>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div id="flush-collapseRazorpay" class="accordion-collapse collapse show" data-bs-parent="#accordionFlushExample">
                                                 <div class="accordion-body">
-                                                    <div class="row g-2">
+                                                    <div class="row">
                                                         Secure payment via Razorpay
                                                     </div>
                                                 </div>
@@ -343,7 +335,7 @@ $customerPhone = '';
                                             </div>
                                             <div id="flush-collapseCOD" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                                                 <div class="accordion-body">
-                                                    <!-- You can add COD info here -->
+                                                     Pay with cash upon delivery.
                                                 </div>
                                             </div>
                                         </div>
@@ -362,7 +354,7 @@ $customerPhone = '';
                                             </div>
                                             <div id="flush-collapseStore" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                                                 <div class="accordion-body">
-                                                    <div class="row g-2">
+                                                    <div class="row">
                                                         You can pick up your order from our store during business hours.
                                                     </div>
                                                 </div>
@@ -387,13 +379,15 @@ $customerPhone = '';
                     </div>
                     <ul class="summery-contain">
                         @php
-                        $subtotal = 0;
+                            $subtotal = 0;
+                            $sessionCart = session('cart', []);
                         @endphp
                         @foreach ($carts as $cart)
                         @php
-                        $purchase_rate = $cart->product->purchase_rate ?? 0;
-                        $offer_rate = $cart->product->offer_rate ?? 0;
-                        $mrp = $cart->product->mrp ?? 0;
+                        $quantity = $sessionCart[$cart->id]['quantity'] ?? 1;
+                        $purchase_rate = $cart->purchase_rate ?? 0;
+                        $offer_rate = $cart->offer_rate ?? 0;
+                        $mrp = $cart->mrp ?? 0;
                         $group_offer_rate = null;
                         $special_offer_rate = null;
 
@@ -410,12 +404,7 @@ $customerPhone = '';
                         if (isset($specialOffers[$cart->product_id])) {
                         $special_offer_rate = (float) $specialOffers[$cart->product_id];
                         }
-                        //echo $offer_rate;
-                        //echo "<br>";
-                        //echo $group_offer_rate;
-                        //echo "<br>";
-                        //echo $special_offer_rate;
-                        /*Final offer rate (min of available rates)*/
+                       
                         $final_offer_rate = collect([
                         $offer_rate,
                         $group_offer_rate,
@@ -423,24 +412,24 @@ $customerPhone = '';
                         ])->filter()->min();
                         //echo $final_offer_rate;
                         /*Total calculation*/
-                        $totalPrice = $final_offer_rate * $cart->quantity;
+                        $totalPrice = $final_offer_rate * $quantity;
                         $subtotal += $totalPrice;
                         @endphp
-                        <input type="hidden" name="product_id[]" value="{{ $cart->product->id }}">
-                        <input type="hidden" name="cart_quantity[]" value="{{ $cart->quantity }}">
+                        <input type="hidden" name="product_id[]" value="{{ $cart->id }}">
+                        <input type="hidden" name="cart_quantity[]" value="{{  $quantity }}">
                         <input type="hidden" name="cart_offer_rate[]" value="{{ $final_offer_rate }}">
                         <input type="hidden" name="total_price[]" value="{{ $totalPrice }}">
                         <li>
-                            @if ($cart->product->images->first())
-                            <img src="{{ asset('images/product/thumb/' . $cart->product->images->first()->image_path) }}"
-                                class="img-fluid blur-up lazyloaded checkout-image" alt="{{ $cart->product->name }}" loading="lazy">
+                            @if ($cart->images->first())
+                            <img src="{{ asset('images/product/thumb/' . $cart->images->first()->image_path) }}"
+                                class="img-fluid blur-up lazyloaded checkout-image" alt="{{ $cart->name }}" loading="lazy">
                             @else
                             <img src="{{ asset('images/default.png') }}" class="img-fluid blur-up lazyloaded checkout-image" alt="Default Image" loading="lazy">
                             @endif
                             <h4>
-                                {{ ucwords(strtolower($cart->product->title)) }}
+                                {{ ucwords(strtolower($cart->title)) }}
                                 <p>
-                                    <span>{{$final_offer_rate}} X {{ $cart->quantity }}</span>
+                                    <span>{{$final_offer_rate}} X {{  $quantity }}</span>
                                 </p>
                             </h4>
                             <h4 class="price">

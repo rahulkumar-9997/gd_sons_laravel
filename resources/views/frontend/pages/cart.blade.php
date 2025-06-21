@@ -29,11 +29,9 @@
 <!-- Cart Section Start -->
 <section class="cart-section section-b-space">
     <div class="container-fluid-lg">
-        @if (isset($carts) && $carts->isNotEmpty())
-            <div class="row g-sm-5 g-3 cart-items-container">
-                @include('frontend.pages.partials.ajax-cart', ['carts' => $carts, 'specialOffers' => $specialOffers])
-            </div>
-        @endif
+        <div class="row g-sm-5 g-3 cart-items-container">
+            @include('frontend.pages.partials.ajax-cart', ['carts' => $carts, 'specialOffers' => $specialOffers])
+        </div>
     </div>
 </section>
 <!-- Cart Section End -->

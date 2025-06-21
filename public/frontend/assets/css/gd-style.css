@@ -962,7 +962,7 @@ section.banner-section{
   display: flex;
   flex-direction: column;
   gap: 10px;
-  z-index: 1000;
+  z-index: 99;
 }
 
 .float-btn {

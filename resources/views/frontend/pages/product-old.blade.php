@@ -343,20 +343,35 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         </button>
                                     </div>
                                 </div>
-                                
+                                @if (auth()->guard('customer')->check())
                                 @if(intval($data['product_details']->mrp) > 0 && intval($data['product_details']->stock_quantity) > 0)
-                                    <button class="add-to-cart btn btn-md bg-dark cart-button text-white w-100" data-url="{{route('add.to.cart')}}" data-pid="{{$data['product_details']->id}}"
-                                        data-mrp="{{$data['product_details']->mrp}}" 
-                                        data-track-btn-type="Add to cart after login"
-                                        data-track-click="true"
-                                        data-track-route="{{route('click.tracker')}}"
-                                        >
-                                        Add To Cart
-                                    </button>
+                                <button class="add-to-cart btn btn-md bg-dark cart-button text-white w-100" data-url="{{route('add.to.cart')}}" data-pid="{{$data['product_details']->id}}"
+                                    data-mrp="{{$data['product_details']->mrp}}" 
+                                    data-track-btn-type="Add to cart after login"
+                                    data-track-click="true"
+                                    data-track-route="{{route('click.tracker')}}"
+                                    >
+                                    Add To Cart
+                                </button>
                                 @else
-                                    <button disabled="" class="btn btn-md bg-dark cart-button text-white w-100">
-                                        Out Of Stock
-                                    </button>
+                                <button disabled="" class="btn btn-md bg-dark cart-button text-white w-100">
+                                    Out Of Stock
+                                </button>
+                                @endif
+                                @else
+                                @if(intval($data['product_details']->mrp) > 0 && intval($data['product_details']->stock_quantity) > 0)
+                                <button onclick="location.href = '{{ route('logincustomer') }}?redirect={{ url()->current() }}';"
+                                    class="btn btn-md bg-dark cart-button text-white w-100"
+                                    data-track-btn-type="Add to cart before login"
+                                    data-track-click="true"
+                                    data-track-route="{{route('click.tracker')}}"
+                                    >Add To Cart
+                                </button>
+                                @else
+                                <button disabled class="btn btn-md bg-dark cart-button text-white w-100">
+                                    Out Of Stock
+                                </button>
+                                @endif
                                 @endif
                             </div>
 

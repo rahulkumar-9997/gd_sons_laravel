@@ -96,6 +96,13 @@ Route::middleware([TrackVisitor::class])->group(function () {
     Route::get('privacy-policy', [FrontendController::class, 'privacyPolicy'])->name('privacy-policy');
     Route::get('terms-of-use', [FrontendController::class, 'termsOfUse'])->name('terms-of-use');
 
+    Route::post('add-to-cart', [CustomerController::class, 'addToCart'])->name('add.to.cart');
+    Route::match(['get', 'post'], 'cart', [CustomerController::class, 'cartList'])->name('cart');
+    Route::post('/cart/remove', [CustomerController::class, 'removeFromCart'])->name('cart.remove');
+    /**cart drawer route */
+    Route::get('/cart/change', [CustomerController::class, 'changeQuantityCartDrawer'])->name('cart.changeQuantity');
+    Route::get('checkout', [CustomerController::class, 'checkOut'])->name('checkout');
+    Route::post('checkout/submit', [OrderController::class, 'checkOutFormSubmit'])->name('checkout.submit');
     
     Route::group(['middleware' => ['auth.customer']], function() {
         //Route::get('/user-notifications', [CustomerLoginController::class, 'getNotifications']);
@@ -103,17 +110,10 @@ Route::middleware([TrackVisitor::class])->group(function () {
         Route::get('myaccount', [CustomerController::class, 'myaccount'])->name('myaccount');
         Route::Post('customer-logout', [CustomerLoginController::class, 'CustomerLogout'])->name('customer.logout');
         Route::post('upload-profile', [CustomerController::class, 'uploadProfileImg'])->name('upload.profile');
-        Route::post('add-to-cart', [CustomerController::class, 'addToCart'])->name('add.to.cart');
-        Route::match(['get', 'post'], 'cart', [CustomerController::class, 'cartList'])->name('cart');
+        
         /**WISHLIST ROUTE PENDING */
         Route::post('/wishlist/add', [CustomerController::class, 'addToWishlist'])->name('wishlist.add');
-        Route::post('/cart/remove', [CustomerController::class, 'removeFromCart'])->name('cart.remove');
-        /**cart drawer route */
-        Route::get('/cart/change', [CustomerController::class, 'changeQuantityCartDrawer'])->name('cart.changeQuantity');
-
-        /**cart drawer route */
-        Route::get('checkout', [CustomerController::class, 'checkOut'])->name('checkout');
-        Route::post('checkout/submit', [OrderController::class, 'checkOutFormSubmit'])->name('checkout.submit');
+       
         Route::post('pay-modal-form', [OrderController::class, 'payModalForm'])->name('pay-modal-form');
         Route::post('pay-modal-form/submit', [OrderController::class, 'payModalFormSubmit'])->name('pay-modal-form.submit');
         Route::post('/razorpay/callback', [OrderController::class, 'handleRazorpayCallback'])->name('razorpay.callback');

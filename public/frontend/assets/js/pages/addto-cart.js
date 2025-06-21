@@ -24,7 +24,7 @@ $(document).ready(function () {
             },
             success: function (response) {
                 if (response.success) {
-                    $('.drawer__body', '#drawer-cart-id').html(response.cartItems);
+                    $('.drawer__body', '#drawer-cart-id').html(response.cart_html);
                     $('.countCartDisplay, .minicart-header .cart-count').text(response.cart_count);
                     feather.replace();
                     $('#drawer-cart-id').addClass('drawer--is-visible');

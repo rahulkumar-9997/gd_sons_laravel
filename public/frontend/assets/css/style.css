@@ -36491,7 +36491,7 @@ body.rtl .menu-label {
 }
 
 .checkout-section-2 .left-sidebar-checkout .checkout-detail-box>ul>li .checkout-box {
-    padding: calc(14px + 15*(100vw - 320px)/1600);
+    padding: 20px 10px 20px 10px;
     background-color: #f8f8f8;
     border-radius: 8px;
     -webkit-box-shadow: 0 0 8px #eee;

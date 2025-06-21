@@ -3,7 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Models\Category;
+//use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
 use App\Http\ViewComposers\MenuComposer;
@@ -22,15 +23,13 @@ class AppServiceProvider extends ServiceProvider
     
     public function register()
     {
-        // Store Cart Data Singleton
         $this->app->singleton('customerGroupCategory', function () {
             $customer = Auth::guard('customer')->user();
             return $customer ? $customer->load(['customerGroup', 'groupCategory']) : null;
         });
 
-        // Store Cart Data Singleton
         $this->app->singleton('cartData', function () {
-            $customerId = Auth::guard('customer')->id();
+            /*$customerId = Auth::guard('customer')->id();
             $specialOffers = getCustomerSpecialOffers();
             if ($customerId) {
                 $cartItems = Cart::where('customer_id', $customerId)
@@ -62,11 +61,33 @@ class AppServiceProvider extends ServiceProvider
                 $cartCount = 0;
                 $specialOffers = $specialOffers;
             }
+            */
+            $sessionCart = session('cart', []);
+            $productIds = array_keys($sessionCart);
+            $specialOffers = getCustomerSpecialOffers();
+            $cartItems = Product::with([
+                    'ProductImagesFront:id,product_id,image_path',
+                    'ProductAttributesValues' => function ($query) {
+                        $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
+                            ->with([
+                                'attributeValue:id,slug'
+                            ])
+                            ->orderBy('id');
+                    }
+                ])
+                ->leftJoin('inventories', function ($join) {
+                    $join->on('products.id', '=', 'inventories.product_id')
+                        ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+                })
+                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+                ->whereIn('products.id', $productIds)
+                ->get();
+            
+            $cartCount = count($cartItems);
 
             return [
                 'cartItems' => $cartItems,
-                'cartCount' => $cartCount,
-                'isCartEmpty' => $cartCount == 0,
+                'cart_count' => $cartCount,
                 'specialOffers' => $specialOffers
             ];
         });

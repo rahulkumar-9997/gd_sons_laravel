@@ -1,8 +1,8 @@
 <!--Sticky user-->
+
 @include('frontend.pages.partials.cart-drawer', [
    'cartItems' => $cartItems,
-   'cartCount' => $cartCount,
-   'isCartEmpty' => $isCartEmpty
+   'cart_count' => $cart_count,
 ])
 
 @if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory))

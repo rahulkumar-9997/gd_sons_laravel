@@ -11,6 +11,5 @@ class CartComposer
     {
         $cartData = app('cartData');
         $view->with($cartData);
-
     }
 }

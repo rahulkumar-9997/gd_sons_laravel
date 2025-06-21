@@ -1,32 +1,35 @@
+@php
+	$subtotal = 0;
+	$sessionCart = session('cart', []);
+@endphp
 <div class="drawer dr-cart js-drawer" id="drawer-cart-id" tabindex="-1" aria-hidden="false">
 	<div class="drawer__overlay js-drawer__close" tabindex="-1"></div>
 	<div class="drawer__content bg-light inner-glow shadow-md flex flex-column" role="dialog" aria-labelledby="drawer-cart-title" aria-modal="true">
 		<header class="minicart-header border-bottom">
 			<h1 id="drawer-cart-title" class="text-base text-truncate">
-				Your Cart (<span class="cart-count">{{ $cartCount ?? 0 }}</span>)
+				Your Cart (<span class="cart-count">{{ $cart_count  ?? 0 }}</span>)
 			</h1>
 			<button class="drawer__close-btn js-drawer__close" aria-label="Close cart">
 				<i class="fa-solid fa-xmark"></i>
 			</button>
 		</header>
 		<div class="drawer__body minicart-content">
-			@php
-			$subtotal = 0;
-			@endphp
-			@if(!$isCartEmpty)
+			
+			@if($cart_count > 0)
 				<ol class="cart-items">
 				@foreach($cartItems as $item)
 					@php
+						$quantity = $sessionCart[$item->id]['quantity'] ?? 1;
 						$attributes_value ='na';
-						if($item->product->ProductAttributesValues->isNotEmpty()){
-							$attributes_value = $item->product->ProductAttributesValues->first()->attributeValue->slug;
+						if($item->ProductAttributesValues->isNotEmpty()){
+							$attributes_value = $item->ProductAttributesValues->first()->attributeValue->slug;
 						}
-						$quantity = $item->quantity;
+						
 					@endphp
 					@php
-						$purchase_rate = $item->product->purchase_rate;
-						$offer_rate = $item->product->offer_rate;
-						$mrp = $item->product->mrp;
+						$purchase_rate = $item->purchase_rate;
+						$offer_rate = $item->offer_rate;
+						$mrp = $item->mrp;
 						$group_offer_rate = null;
 						$special_offer_rate = null;
 						
@@ -39,9 +42,10 @@
 						}
 						}
 
-						// Special offer logic
-						if (isset($specialOffers[$item->product_id])) {
-							$special_offer_rate = (float) $specialOffers[$item->product_id];
+						if(!empty($specialOffers)){
+							if (isset($specialOffers[$item->product_id])) {
+								$special_offer_rate = (float) $specialOffers[$item->product_id];
+							}
 						}
 						$final_offer_rate = collect([
 							$offer_rate,
@@ -50,16 +54,16 @@
 						])->filter()->min();
 
 						
-						$totalPrice = $final_offer_rate * $item->quantity;
+						$totalPrice = $final_offer_rate * $quantity;
 						$subtotal += $totalPrice;
 					@endphp
 
 					<li class="item d-flex justify-content-center align-items-center">
-						<a class="product-image rounded-3" href="{{ url('products/'.$item->product->slug.'/'.$attributes_value) }}">
-							@if($item->product->images->isNotEmpty())
-							<img src="{{ asset('images/product/thumb/' . $item->product->images->first()->image_path) }}"
+						<a class="product-image rounded-3" href="{{ url('products/'.$item->slug.'/'.$attributes_value) }}">
+							@if($item->images->isNotEmpty())
+							<img src="{{ asset('images/product/thumb/' . $item->images->first()->image_path) }}"
 								class="blur-up lazyload"
-								alt="{{ $item->product->name }}" loading="lazy" width="120" height="170">
+								alt="{{ $item->name }}" loading="lazy" width="120" height="170">
 							@else
 							<img src="{{ asset('images/default.png') }}"
 								class="blur-up lazyload"
@@ -67,7 +71,7 @@
 							@endif
 						</a>
 						<div class="product-details">
-							<a class="product-title" href="{{ url('products/'.$item->product->slug.'/'.$attributes_value) }}">{{ucwords(strtolower($item->product->title))}}</a>
+							<a class="product-title" href="{{ url('products/'.$item->slug.'/'.$attributes_value) }}">{{ucwords(strtolower($item->title))}}</a>
 							<div class="priceRow">
 								<div class="product-price">
 									<span class="price">Rs. {{ number_format($final_offer_rate, 2) }}</span>
@@ -109,7 +113,7 @@
 			@endif
 		</div>
 							
-		@if(!$isCartEmpty)
+		@if($cart_count > 0)
 			<footer class="cart-footer border-top border-contrast-lower minicart-bottom">
 				<div class="subtotal clearfix">
 					<div class="totalInfo clearfix">

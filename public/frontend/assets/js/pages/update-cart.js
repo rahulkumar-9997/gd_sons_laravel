@@ -34,7 +34,7 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.success) {
                     $('.cart-items-container').html(response.cart_items_html);
-                    showNotificationAll("success", "Success", "Cart updated successfully.");
+                    showNotificationAll("warning", "Success", response.message);
                 } else {
                     showNotificationAll("warning", "Warning", response.message || "Something went wrong. Please try again.");
                 }
@@ -82,20 +82,19 @@ $(document).ready(function () {
     $(document).on('click', '.remove-cart', function (e) {
         e.preventDefault();
         let button = $(this);
-        let cartId = button.data('cart-id');
+        let productId = $(this).data('productid');
         let url = button.data('url');
         $.ajax({
             url: url,
             type: 'POST',
             data: {
-                cart_id: cartId,
+                productId: productId,
                 _token: $('meta[name="csrf-token"]').attr('content')
             },
             success: function (response) {
                 if (response.success) {
-                    let message = response.message || "Product removed from cart.";
-                    showNotificationAll("success", '', message);
-                    button.closest('.product-box-contain').remove();
+                    $('.cart-items-container').html(response.cart_items_html);
+                    showNotificationAll("success", "Success", response.message);
                 } else {
                     let message = response.message || "Failed to remove product from cart.";
                     showNotificationAll("warning", '', message);

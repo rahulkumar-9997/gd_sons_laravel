@@ -1775,13 +1775,22 @@ class FrontendController extends Controller
             'page_url' => 'required|url',
         ]);
         $agent = new Agent();
-        ClickTrackers::create([
-            'button_type' => $request->btn_type,
-            'page_url' => $request->page_url,
-            'ip_address' => $request->ip(),
-            'click_time' => now()->setTimezone('Asia/Kolkata'),
-            'device_type' => $this->getDeviceType($agent),
-        ]);
+        $ip = $request->ip();
+        $pageUrl = $request->page_url;
+        /* Check if the same IP+URL clicked in the last 5 minutes */
+        $recentClickExists = ClickTrackers::where('ip_address', $ip)
+            ->where('page_url', $pageUrl)
+            ->where('click_time', '>=', now()->subMinutes(5))
+            ->exists();
+        if (!$recentClickExists) {
+            ClickTrackers::create([
+                'button_type' => $request->btn_type,
+                'page_url' => $request->page_url,
+                'ip_address' => $request->ip(),
+                'click_time' => now()->setTimezone('Asia/Kolkata'),
+                'device_type' => $this->getDeviceType($agent),
+            ]);
+        }
         return response()->json(['success' => true]);
     }
     

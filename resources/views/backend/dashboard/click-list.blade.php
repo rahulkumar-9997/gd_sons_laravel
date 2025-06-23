@@ -42,6 +42,9 @@
                                 @endforeach
                             </tbody>
                         </table>
+                        <div class="my-pagination" id="pagination-links-visitor-click">
+                            {{ $data['click-link']->links('vendor.pagination.bootstrap-4') }}
+                        </div>
                     </div>
                     @endif
                 </div>

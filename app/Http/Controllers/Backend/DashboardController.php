@@ -167,7 +167,7 @@ class DashboardController extends Controller
 
     public function getClickDetails()
     {
-        $data['click-link'] = ClickTrackers::orderBy('click_time', 'desc')->get();
+        $data['click-link'] = ClickTrackers::orderBy('click_time', 'desc')->paginate(50);
         return view('backend.dashboard.click-list', compact('data'));
     }
 }

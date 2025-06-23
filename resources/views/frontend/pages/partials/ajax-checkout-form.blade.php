@@ -123,6 +123,13 @@ $customerPhone = '';
                                                             <label for="phone_number">Enter phone number</label>
                                                         </div>
                                                     </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-floating mb-4 theme-form-floating">
+                                                            <input type="email" class="form-control" name="ship_email" placeholder="Enter email id"
+                                                                value="{{  $customerEmail }}">
+                                                            <label for="ship_email">Enter email id</label>
+                                                        </div>
+                                                    </div>
 
                                                     <!-- Country -->
                                                     <div class="col-md-6">
@@ -139,12 +146,12 @@ $customerPhone = '';
 
                                                         <div class="form-floating mb-4 theme-form-floating">
                                                             <input type="text" class="form-control" name="ship_full_address" placeholder="Enter address">
-                                                            <label for="full_address">Enter address</label>
+                                                            <label for="full_address">Street address</label>
                                                         </div>
                                                     </div>
 
                                                     <!-- Apartment, Suite -->
-                                                    <div class="col-md-12">
+                                                    <div class="col-md-6">
                                                         <div class="form-floating mb-4 theme-form-floating">
                                                             <input type="text" class="form-control" name="ship_apartment" placeholder="Apartment, suite, etc. (optional)">
                                                             <label for="apartment">Apartment, suite, etc. (optional)</label>
@@ -154,10 +161,9 @@ $customerPhone = '';
                                                     <!-- City -->
                                                     <div class="col-md-4">
                                                         <div class="form-floating theme-form-floating">
-                                                            <select class="form-select theme-form-select" name="ship_city_name">
-                                                                <option value="Varanasi">Varanasi</option>
-                                                            </select>
-                                                            <label for="city">Select City</label>
+                                                            <input type="text" class="form-control" name="ship_city_name" placeholder="Town / City">
+
+                                                            <label for="ship_city_name">Town / City</label>
                                                         </div>
                                                         <!-- <div class="form-floating mb-4 theme-form-floating">
                                                                 <input type="text" class="form-control" name="ship_city_name" placeholder="Enter city">
@@ -307,7 +313,7 @@ $customerPhone = '';
                                                     <div class="custom-form-check form-check mb-0">
                                                         <label class="form-check-label" for="payment_razorpay">
                                                             <input class="form-check-input mt-0" type="radio" name="payment_type" id="payment_razorpay" value="Razorpay" checked>
-                                                            Credit Card/Debit Card/NetBanking <img src="https://cdn.razorpay.com/static/assets/logo/rzp_payment_icon.svg" alt="Credit Card/Debit Card/NetBanking">
+                                                            Credit Card/Debit Card/NetBanking <img src="https://cdn.razorpay.com/static/assets/logo/rzp_payment_icon.svg" alt="Credit Card/Debit Card/NetBanking" class="razorpayimg">
                                                         </label>
                                                     </div>
                                                 </div>
@@ -335,7 +341,7 @@ $customerPhone = '';
                                             </div>
                                             <div id="flush-collapseCOD" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                                                 <div class="accordion-body">
-                                                     Pay with cash upon delivery.
+                                                    Pay with cash upon delivery.
                                                 </div>
                                             </div>
                                         </div>
@@ -379,8 +385,8 @@ $customerPhone = '';
                     </div>
                     <ul class="summery-contain">
                         @php
-                            $subtotal = 0;
-                            $sessionCart = session('cart', []);
+                        $subtotal = 0;
+                        $sessionCart = session('cart', []);
                         @endphp
                         @foreach ($carts as $cart)
                         @php
@@ -404,7 +410,7 @@ $customerPhone = '';
                         if (isset($specialOffers[$cart->product_id])) {
                         $special_offer_rate = (float) $specialOffers[$cart->product_id];
                         }
-                       
+
                         $final_offer_rate = collect([
                         $offer_rate,
                         $group_offer_rate,
@@ -420,22 +426,28 @@ $customerPhone = '';
                         <input type="hidden" name="cart_offer_rate[]" value="{{ $final_offer_rate }}">
                         <input type="hidden" name="total_price[]" value="{{ $totalPrice }}">
                         <li>
-                            @if ($cart->images->first())
-                            <img src="{{ asset('images/product/thumb/' . $cart->images->first()->image_path) }}"
-                                class="img-fluid blur-up lazyloaded checkout-image" alt="{{ $cart->name }}" loading="lazy">
-                            @else
-                            <img src="{{ asset('images/default.png') }}" class="img-fluid blur-up lazyloaded checkout-image" alt="Default Image" loading="lazy">
-                            @endif
-                            <h4>
-                                {{ ucwords(strtolower($cart->title)) }}
-                                <p>
-                                    <span>{{$final_offer_rate}} X {{  $quantity }}</span>
-                                </p>
-                            </h4>
-                            <h4 class="price">
-                                Rs.
-                                {{ number_format($totalPrice, 2) }}
-                            </h4>
+                            <div class="flex-detail">
+                                <div class="cart-det-img">
+                                    @if ($cart->images->first())
+                                    <img src="{{ asset('images/product/thumb/' . $cart->images->first()->image_path) }}"
+                                        class="img-fluid blur-up lazyloaded checkout-image" alt="{{ $cart->name }}" loading="lazy">
+                                    @else
+                                    <img src="{{ asset('images/default.png') }}" class="img-fluid blur-up lazyloaded checkout-image" alt="Default Image" loading="lazy">
+                                    @endif
+                                </div>
+                                <h4>
+                                    {{ ucwords(strtolower($cart->title)) }}
+                                    <p>
+                                        <span>{{$final_offer_rate}} X {{ $quantity }}</span>
+                                    </p>
+                                </h4>
+                            </div>
+                            <div class="flex-detail">
+                                <h4 class="price">
+                                    Rs.
+                                    {{ number_format($totalPrice, 2) }}
+                                </h4>
+                            </div>
                         </li>
                         @endforeach
                     </ul>
@@ -450,9 +462,9 @@ $customerPhone = '';
                         </li>
                         <li>
                             <h4>Shipping</h4>
-                            <h4 class="price">Rs. 0</h4>
+                            <h4 class="price">Free shipping</h4>
                         </li>
-                        <li>
+                        <!-- <li>
                             <h4>Tax</h4>
                             <h4 class="price">Rs. 0</h4>
                         </li>
@@ -460,7 +472,7 @@ $customerPhone = '';
                         <li>
                             <h4>Coupon/Code</h4>
                             <h4 class="price">Rs. 0</h4>
-                        </li>
+                        </li> -->
 
                         <li class="list-total">
                             <h4>Total (Rs.)</h4>
@@ -500,5 +512,5 @@ $customerPhone = '';
             </div>
         </div>
     </div>
-    
+
 </form>

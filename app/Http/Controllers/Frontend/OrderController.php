@@ -4,14 +4,17 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-// use Intervention\Image\Facades\Image;
-// use App\Models\Customer;
-// use App\Models\Cart;
-// use App\Models\Product;
-// use App\Models\Inventory;
-// use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
-// use App\Models\Wishlist;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use App\Mail\OrderDetailsMail;
+use App\Mail\PaymentFailedMail;
+use Illuminate\Support\Facades\Mail;
+use Razorpay\Api\Api;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Address;
 use App\Models\ShippingAddress;
 use App\Models\BillingAddress;
@@ -21,16 +24,7 @@ use App\Models\OrderLines;
 use App\Models\Wishlist;
 use App\Models\Inventory;
 use App\Models\Cart;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
-// use App\Mail\OrderDetailsMail;
-use App\Mail\OrderDetailsMail;
-use App\Mail\PaymentFailedMail;
-use Illuminate\Support\Facades\Mail;
-use PhpParser\Node\Expr\FuncCall;
-use Razorpay\Api\Api;
+use App\Models\Customer;
 
 class OrderController extends Controller
 {
@@ -51,6 +45,7 @@ class OrderController extends Controller
                 $validatedData = $request->validate([
                     'ship_full_name' => 'required|string|max:255',
                     'ship_phone_number' => 'required|digits:10',
+                    'ship_email' => 'required|email',
                     'ship_country' => 'required',
                     'ship_full_address' => 'required',
                     'ship_city_name' => 'required|string',
@@ -74,19 +69,22 @@ class OrderController extends Controller
                 'total_price' => $cartTotalPrices[$index],
             ];
         }
-
+        Log::info('Checkout form data collect : ', ['form_data_collect' => $request->all()]);
         session([
             'checkout_data' => $request->all(),
             'cart_items' => $cartItems,
         ]);
 
-        if ($request->input('payment_type') == 'Cash on Delivery') {
+        if ($request->input('payment_type') == 'Cash on Delivery')
+        {
             $response = $this->storeOrderAfterPayment($request);
             return response()->json([
                 'data' => $response,
                 'status' => 'cash_on_delivery',
             ]);
-        } elseif ($request->input('payment_type') == 'Razorpay') {
+        }
+        elseif ($request->input('payment_type') == 'Razorpay')
+        {
             $orderResponse = $this->storeOrderAfterPayment($request);
             $responseData = json_decode($orderResponse->getContent(), true);
             if (!isset($responseData['order_id'])) {
@@ -113,7 +111,7 @@ class OrderController extends Controller
                     'order_id' => $razorpayOrder->id,
                     'amount' => $grandTotal,
                     'name' => auth('customer')->user()->name ?? $request->ship_full_name,
-                    'email' => auth('customer')->user()->email ?? '',
+                    'email' => auth('customer')->user()->email ?? $request->ship_email,
                     'contact' => auth('customer')->user()->phone_number ?? $request->ship_phone_number,
                     'callback_url' => route('razorpay.callback'),
                     'payment_failed_url' => route('payment.failed'),
@@ -126,7 +124,9 @@ class OrderController extends Controller
                     'message' => 'Razorpay error: ' . $e->getMessage()
                 ], 500);
             }
-        } else {
+        }
+        else
+        {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Session created successfully!',
@@ -175,9 +175,6 @@ class OrderController extends Controller
                     $inventory->decrement('stock_quantity', $orderLine->quantity);
                 }
             }
-
-            Cart::where('customer_id', $order->customer_id)->delete();
-
             $orderDetails = Orders::with([
                 'orderStatus',
                 'shippingAddress',
@@ -192,7 +189,7 @@ class OrderController extends Controller
 
             DB::commit();
             /* Clear session data */
-            session()->forget(['checkout_data', 'cart_items']);
+            session()->forget(['checkout_data', 'cart_items', 'cart']);
             $token = Str::random(32);
             $encodedOrderId = Crypt::encrypt($order->id);
             session(['order_token' => $token]);
@@ -396,11 +393,42 @@ class OrderController extends Controller
     {
 
         $checkoutData = session('checkout_data');
-        $customerId = auth('customer')->id();
         if (!$checkoutData) {
             Log::info('Checkout Data in: ', ['checkout_data' => $checkoutData]);
             return response()->json(['message' => 'No checkout data found in session.'], 400);
         }
+        if (auth()->guard('customer')->check())
+        {
+            $customerId = auth('customer')->id();
+        }
+        else
+        {
+            $identifierEmail = $checkoutData['ship_email'] ?? null;
+            $identifierPhone = $checkoutData['ship_phone_number'] ?? null;
+            $customer = Customer::where('email', $identifierEmail)
+                ->orWhere('phone_number', $identifierPhone)
+                ->first();
+            if ($customer) 
+            {
+                //Auth::guard('customer')->login($customer);
+                $customerId = $customer->id;
+            }
+            else
+            {
+                $randomPassword = Str::random(8);
+                $hashedPassword = Hash::make($randomPassword);
+                $customer_create = Customer::create([
+                    'email' => $checkoutData['ship_email'],
+                    'name' => $checkoutData['ship_full_name'],
+                    'phone_number' => $checkoutData['ship_phone_number'],
+                    'password' => $hashedPassword,
+                ]);
+                //Auth::guard('customer')->login($customer_create);
+                $customerId = $customer_create->id;
+            }
+
+        }
+       
         //Log::info('Calling storeOrderAfterPayment come order bahar');
         DB::beginTransaction();
         try {
@@ -442,7 +470,7 @@ class OrderController extends Controller
                         'customer_id' => $customerId,
                         'full_name' => $checkoutData['ship_full_name'],
                         'phone_number' => $checkoutData['ship_phone_number'],
-                        'email_id' => $checkoutData['email_id'] ?? null,
+                        'email_id' => $checkoutData['ship_email'],
                         'country' => $checkoutData['ship_country'],
                         'full_address' => $checkoutData['ship_full_address'],
                         'apartment' => $checkoutData['ship_apartment'] ?? null,
@@ -453,7 +481,8 @@ class OrderController extends Controller
                     $shippingAddressId = $shippingAddress->id;
                 }
                 /* Determine the billing address ID */
-                if ($checkoutData['same_ship_bill_address'] == 1) {
+                if (isset($checkoutData['same_ship_bill_address']) && $checkoutData['same_ship_bill_address'] == 1)
+                {
                     $billingAddress = BillingAddress::create([
                         'customer_id' => $customerId,
                         'full_name' => $checkoutData['bill_full_name'],
@@ -470,7 +499,9 @@ class OrderController extends Controller
                 } else {
                     $billingAddressId = null;
                 }
-            } else {
+            }
+            else
+            {
                 $shippingAddressId = null;
                 $billingAddressId = null;
             }
@@ -503,46 +534,29 @@ class OrderController extends Controller
                     'price' => $item['price'],
                     'total_price' => $item['total_price'],
                 ]);
-                /*Update inventory for the product after placing the order*/
-                // $inventory = Inventory::where('product_id', $item['product_id'])
-                //     ->where('mrp', $item['price'])
-                //     ->first();
-                // if ($inventory) {
-                //     $newStockQuantity = $inventory->stock_quantity - $item['quantity'];
-                //     $inventory->update([
-                //         'stock_quantity' => $newStockQuantity
-                //     ]);
-                // } else {
-                //     Log::warning('Inventory not found for product_id: ' . $item['product_id']);
-                // }
+                
             }
-            /*Delete cart after payment*/
-            //Cart::where('customer_id', $customerId)->delete();
-            /*Delete cart after payment*/
-            /* Clear session data */
-            //session()->forget(['checkout_data', 'cart_items']);
-            /**send mail process */
-            // $orderDetails = Orders::with([
-            //     'orderStatus',
-            //     'shippingAddress',
-            //     'billingAddress',
-            //     'orderLines.product',
-            //     'orderLines.product.images'
-            // ])->where('id', $order->id)->first();
-            // $customerName = auth('customer')->user()->name;
-
-            //Log::info('Sending order details email to customer: ' . auth('customer')->user()->email);
-            // Queue the email
-            // Mail::to(auth('customer')->user()->email)->queue(new OrderDetailsMail($orderDetails));
-            // Mail::to('akshat.gd@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
-            // Log::info('Order details email queued successfully to: ' . auth('customer')->user()->email);
-            /**send mail process */
+            if (isset($checkoutData['payment_type']) && $checkoutData['payment_type'] == 'Cash on Delivery')
+            {
+                /* Clear session data */
+                session()->forget(['checkout_data', 'cart_items', 'cart']);
+                $orderDetails = Orders::with([
+                    'orderStatus',
+                    'shippingAddress',
+                    'billingAddress',
+                    'orderLines.product',
+                    'orderLines.product.images'
+                ])->find($order->id);
+                
+                $customerName = $checkoutData['ship_full_name'];
+                Mail::to($checkoutData['ship_email'])->queue(new OrderDetailsMail($orderDetails));
+                Mail::to('akshat.gd@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
+            }
+            
             DB::commit();
             $token = Str::random(32);
             $encodedOrderId = Crypt::encrypt($order->id);
             session(['order_token' => $token]);
-
-            //ALTER TABLE failed_jobs MODIFY COLUMN id BIGINT AUTO_INCREMENT;
             return response()->json([
                 'message' => 'Order stored successfully!',
                 'order_id' => $order->id,

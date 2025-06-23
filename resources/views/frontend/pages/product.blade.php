@@ -347,7 +347,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 @if(intval($data['product_details']->mrp) > 0 && intval($data['product_details']->stock_quantity) > 0)
                                     <button class="add-to-cart btn btn-md bg-dark cart-button text-white w-100" data-url="{{route('add.to.cart')}}" data-pid="{{$data['product_details']->id}}"
                                         data-mrp="{{$data['product_details']->mrp}}" 
-                                        data-track-btn-type="Add to cart after login"
+                                        data-track-btn-type="Add to cart without login"
                                         data-track-click="true"
                                         data-track-route="{{route('click.tracker')}}"
                                         >

@@ -474,7 +474,25 @@ class CustomerController extends Controller
                 $customerId = $request->input('customer_id');
                 $customer_address = Address::where('customer_id', $customerId)->get();
                 $specialOffers = getCustomerSpecialOffers();
-                $carts = Cart::getCartDetailsWithRelations($customerId);
+                $session_cart = session()->get('cart', []);
+                Log::info('Cart Contents', ['cart' => $session_cart]);
+                $carts = Product::with([
+                    'category',
+                    'images',
+                    'ProductImagesFront:id,product_id,image_path',
+                    'ProductAttributesValues' => function ($query) {
+                        $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
+                            ->with(['attributeValue:id,slug'])
+                            ->orderBy('id');
+                    }
+                ])
+                    ->leftJoin('inventories', function ($join) {
+                        $join->on('products.id', '=', 'inventories.product_id')
+                            ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+                    })
+                    ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+                    ->whereIn('products.id', array_keys($session_cart))
+                    ->get();
                 return response()->json([
                     'success' => true,
                     'message' => 'Address added successfully.',
@@ -624,7 +642,25 @@ class CustomerController extends Controller
                 'zip_code' => $request->input('pin_code'),
             ]);
             $customer_address = Address::where('customer_id', $customerId)->get();
-            $carts = Cart::getCartDetailsWithRelations($customerId);
+            $session_cart = session()->get('cart', []);
+            Log::info('Cart Contents', ['cart' => $session_cart]);
+            $carts = Product::with([
+                    'category',
+                    'images',
+                    'ProductImagesFront:id,product_id,image_path',
+                    'ProductAttributesValues' => function ($query) {
+                        $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
+                            ->with(['attributeValue:id,slug'])
+                            ->orderBy('id');
+                    }
+                ])
+                ->leftJoin('inventories', function ($join) {
+                    $join->on('products.id', '=', 'inventories.product_id')
+                        ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+                })
+                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+                ->whereIn('products.id', array_keys($session_cart))
+                ->get();
             $specialOffers = getCustomerSpecialOffers();
             return response()->json([
                 'success' => true,

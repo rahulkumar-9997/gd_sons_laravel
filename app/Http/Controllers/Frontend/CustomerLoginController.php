@@ -316,7 +316,7 @@ class CustomerLoginController extends Controller
             'google_id' => 'required|unique:customers,google_id',
         ]);
 
-        $randomPassword = Str::random(16);
+        $randomPassword = Str::random(8);
         $hashedPassword = Hash::make($randomPassword);
 
         $user = Customer::create([

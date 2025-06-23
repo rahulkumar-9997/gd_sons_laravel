@@ -8,11 +8,6 @@ $(document).ready(function () {
         let cartId = button.data('id'); 
         let url = button.data('url'); 
         let quantity = button.hasClass('qty-right-plus-cart') ? currentQuantity + 1 : currentQuantity - 1;
-        if (quantity < 1) {
-            showNotificationAll("warning", "Warning", "Quantity must be at least 1.");
-            return;
-        }
-    
         if (quantity > 10) {
             showNotificationAll("warning", "Warning", "Quantity cannot exceed 10.");
             return;

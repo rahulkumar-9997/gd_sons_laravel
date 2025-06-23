@@ -103,6 +103,9 @@ Route::middleware([TrackVisitor::class])->group(function () {
     Route::get('/cart/change', [CustomerController::class, 'changeQuantityCartDrawer'])->name('cart.changeQuantity');
     Route::get('checkout', [CustomerController::class, 'checkOut'])->name('checkout');
     Route::post('checkout/submit', [OrderController::class, 'checkOutFormSubmit'])->name('checkout.submit');
+    Route::post('/razorpay/callback', [OrderController::class, 'handleRazorpayCallback'])->name('razorpay.callback');
+    Route::post('/payment-failed', [OrderController::class, 'handlePaymentFailed'])->name('payment.failed');
+    Route::get('order/success', [OrderController::class, 'showOrderSuccess'])->name('order.success');
     
     Route::group(['middleware' => ['auth.customer']], function() {
         //Route::get('/user-notifications', [CustomerLoginController::class, 'getNotifications']);
@@ -116,9 +119,7 @@ Route::middleware([TrackVisitor::class])->group(function () {
        
         Route::post('pay-modal-form', [OrderController::class, 'payModalForm'])->name('pay-modal-form');
         Route::post('pay-modal-form/submit', [OrderController::class, 'payModalFormSubmit'])->name('pay-modal-form.submit');
-        Route::post('/razorpay/callback', [OrderController::class, 'handleRazorpayCallback'])->name('razorpay.callback');
-        Route::post('/payment-failed', [OrderController::class, 'handlePaymentFailed'])->name('payment.failed');
-        Route::get('order/success', [OrderController::class, 'showOrderSuccess'])->name('order.success');
+        
         Route::post('add/address', [CustomerController::class, 'addAddressForm'])->name('add.address');
         Route::post('add/address/submit', [CustomerController::class, 'addAddressFormSubmit'])->name('add.address.submit');
         Route::post('edit/address/{id}', [CustomerController::class, 'editAddressForm'])->name('edit.address');

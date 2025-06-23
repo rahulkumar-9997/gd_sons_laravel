@@ -312,7 +312,7 @@
 <section class="product-section">
     <div class="container-fluid-lg">
         <div class="row g-sm-4 g-3">
-            
+
             @if ($data['primary_category'] && $data['primary_category']->isNotEmpty())
             <div class="highlighted-products">
                 <div class="title d-block text-center">
@@ -343,215 +343,70 @@
             @endif
             <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12">
                 @if ($data['popular_products'] && $data['popular_products']->isNotEmpty())
-                <div class="title d-block text-center">
-                    <div>
-                        <h2>Popular Products</h2>
-                        <span class="title-leaf">
-                        </span>
-                    </div>
-                </div>
-                <div class="section-b-space">
-                    <div class="non-product-border non-border-row no-overflow-hidden">
-                        <div class="product-box-slider no-arrow">
-                            @php
-                            $row_count = 0;
-                            $num_of_item_display_new = 3;
-                            @endphp
-                            <div>
-                                <div class="row m-0">
-                                    @foreach ($data['popular_products'] as $popular_product_row)
-                                    @php
-                                    $firstImage = $popular_product_row->images->get(0);
-                                    $secondImage = $popular_product_row->images->get(1);
-                                    $attributes_value ='na';
-                                    if($popular_product_row->ProductAttributesValues->isNotEmpty()){
-                                    $attributes_value = $popular_product_row->ProductAttributesValues->first()->attributeValue->slug;
-                                    }
-                                    @endphp
-                                    @php
-                                    $final_offer_rate = $popular_product_row->offer_rate;
-                                    $mrp = $popular_product_row->mrp;
-
-                                    $purchase_rate = $popular_product_row->purchase_rate;
-                                    $offer_rate = $popular_product_row->offer_rate;
-
-                                    $group_offer_rate = null;
-                                    $special_offer_rate = null;
-
-                                    /*Group Offer*/
-                                    if ($groupCategory && $offer_rate !== null) {
-                                    $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                    if ($group_percentage > 0) {
-                                    $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-                                    $group_offer_rate = floor($group_offer_rate);
-                                    }
-                                    }
-
-                                    /*Special Offer*/
-                                    if (isset($specialOffers[$popular_product_row->id])) {
-                                    $special_offer_rate = (float) $specialOffers[$popular_product_row->id];
-                                    }
-
-                                    /* Choose lowest rate */
-                                    $all_rates = array_filter([
-                                    $offer_rate,
-                                    $group_offer_rate,
-                                    $special_offer_rate
-                                    ]);
-                                    if (!empty($all_rates)) {
-                                    $final_offer_rate = min($all_rates);
-                                    }
-
-                                    /* Calculate discount */
-                                    $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
-                                    ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
-                                    : 0;
-                                    @endphp
-                                    <div class="col-12 px-1">
-                                        <div class="product-box mb-1">
-                                            <div class="product-image">
-                                                @if ($discountPercentage>0)
-                                                <div class="label-flex">
-                                                    <div class="discount">
-                                                        <label>
-                                                            Save {{ $discountPercentage }}%
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                @endif
-                                                <div class="product-img">
-                                                    <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
-                                                        @if ($firstImage)
-                                                        <picture>
-                                                            <source
-                                                                media="(max-width: 767px)"
-                                                                srcset="{{ asset('images/product/icon/' . $firstImage->image_path) }}">
-                                                            <img
-                                                                class="img-fluid blur-up lazyload"
-                                                                data-src="{{ asset('images/product/thumb/' . $firstImage->image_path) }}"
-                                                                src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                                srcset="{{ asset('images/product/thumb/' . $firstImage->image_path) }} 600w, 
-                                                                {{ asset('images/product/thumb/' . $firstImage->image_path) }} 1200w"
-                                                                sizes="(max-width: 600px) 600px, 1200px"
-                                                                alt="{{ $popular_product_row->title }}"
-                                                                title="{{ $popular_product_row->title }}"
-                                                                loading="lazy"
-                                                                width="300"
-                                                                height="300"
-                                                                onload="this.style.opacity=1">
-                                                        </picture>
-                                                        @else
-                                                        <img
-                                                            src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                            class="img-fluid blur-up lazyload"
-                                                            alt="{{ $popular_product_row->title }}"
-                                                            loading="lazy"
-                                                            width="300"
-                                                            height="300">
-                                                        @endif
-                                                    </a>
-                                                </div>
-
-
-                                            </div>
-                                            <div class="product-detail">
-                                                <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
-                                                    <h6 class="name">{{ ucwords(strtolower($popular_product_row->title)) }}</h6>
-                                                </a>
-                                                <h5 class="sold text-content">
-                                                    @if ($final_offer_rate === null)
-                                                    <span class="theme-color price">Price not available</span>
-                                                    @else
-                                                    <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
-                                                    @endif
-
-                                                    @if ($mrp !== null)
-                                                    <del>Rs. {{ $mrp }}</del>
-                                                    @endif
-                                                </h5>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    @php
-                                    $row_count++;
-                                    @endphp
-
-                                    @if ($row_count % $num_of_item_display_new == 0 && $row_count < count($data['popular_products']))
-                                        </div>
-                                </div>
-                                <div>
-                                    <div class="row m-0">
-                                        @endif
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="title d-block text-center">
+                        <div>
+                            <h2>Popular Products</h2>
+                            <span class="title-leaf"></span>
                         </div>
                     </div>
-
-                    @endif
-                    @if ($data['trending_products'] && $data['trending_products']->isNotEmpty())
-                    <div class="title d-block text-center">
-                        <h2>Trending Products</h2>
-                        <span class="title-leaf">
-                            <!-- <svg class="icon-width">
-                                <use xlink:href="{{asset('frontend/assets/svg/leaf.svg#leaf')}}"></use>
-                            </svg> -->
-                        </span>
-                        <!-- <p>A virtual assistant collects the products from your list</p> -->
-                    </div>
-                    <div class="home-trending-section">
-                        <div class="no-product-border no-overflow-hidden">
-                            <div class="product-box-slider no-arrow">
-                                @foreach ($data['trending_products'] as $trending_products_row)
+                    <div class="section-b-space">
+                        <div class="non-product-border non-border-row no-overflow-hidden">
+                            <div class="product-box-slider1 no-arrow1">
                                 @php
-                                $firstImageTrending = $trending_products_row->images->get(0);
-                                $secondImageTrending = $trending_products_row->images->get(1);
-                                $attributes_value ='na';
-                                if($trending_products_row->ProductAttributesValues->isNotEmpty()){
-                                $attributes_value = $trending_products_row->ProductAttributesValues->first()->attributeValue->slug;
-                                }
-                                @endphp
-                                @php
-                                $purchase_rate = $trending_products_row->purchase_rate;
-                                $offer_rate = $trending_products_row->offer_rate;
-                                $mrp = $trending_products_row->mrp;
-
-                                $group_offer_rate = null;
-                                $special_offer_rate = null;
-
-                                /* Group Price Calculation */
-                                if ($groupCategory && $offer_rate !== null) {
-                                $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                if ($group_percentage > 0) {
-                                $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-                                $group_offer_rate = floor($group_offer_rate);
-                                }
-                                }
-
-                                /* Special Offer from array */
-                                if (isset($specialOffers[$trending_products_row->id])) {
-                                $special_offer_rate = (float) $specialOffers[$trending_products_row->id];
-                                }
-
-                                /* Final Rate: Minimum of all */
-                                $all_rates = array_filter([
-                                $offer_rate,
-                                $group_offer_rate,
-                                $special_offer_rate
-                                ]);
-                                $final_offer_rate = !empty($all_rates) ? min($all_rates) : null;
-
-                                /* Discount Calculation */
-                                $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
-                                ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
-                                : 0;
+                                $row_count = 0;
                                 @endphp
                                 <div>
-                                    <div class="row m-1">
-                                        <div class="col-12 px-1">
-                                            <div class="product-box">
+                                    <div class="row g-sm-4 g-3 row-cols-xxl-5 row-cols-xl-3 row-cols-lg-5 row-cols-md-3 row-cols-2 m-0">
+                                        @foreach ($data['popular_products'] as $popular_product_row)
+                                        @php
+                                        $firstImage = $popular_product_row->images->get(0);
+                                        $secondImage = $popular_product_row->images->get(1);
+                                        $attributes_value ='na';
+                                        if($popular_product_row->ProductAttributesValues->isNotEmpty()){
+                                        $attributes_value = $popular_product_row->ProductAttributesValues->first()->attributeValue->slug;
+                                        }
+                                        @endphp
+                                        @php
+                                        $final_offer_rate = $popular_product_row->offer_rate;
+                                        $mrp = $popular_product_row->mrp;
+
+                                        $purchase_rate = $popular_product_row->purchase_rate;
+                                        $offer_rate = $popular_product_row->offer_rate;
+
+                                        $group_offer_rate = null;
+                                        $special_offer_rate = null;
+
+                                        /*Group Offer*/
+                                        if ($groupCategory && $offer_rate !== null) {
+                                        $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                        if ($group_percentage > 0) {
+                                        $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                                        $group_offer_rate = floor($group_offer_rate);
+                                        }
+                                        }
+
+                                        /*Special Offer*/
+                                        if (isset($specialOffers[$popular_product_row->id])) {
+                                        $special_offer_rate = (float) $specialOffers[$popular_product_row->id];
+                                        }
+
+                                        /* Choose lowest rate */
+                                        $all_rates = array_filter([
+                                        $offer_rate,
+                                        $group_offer_rate,
+                                        $special_offer_rate
+                                        ]);
+                                        if (!empty($all_rates)) {
+                                        $final_offer_rate = min($all_rates);
+                                        }
+
+                                        /* Calculate discount */
+                                        $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
+                                        ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+                                        : 0;
+                                        @endphp
+                                        <div>
+                                            <div class="product-box mb-1 h-100">
                                                 <div class="product-image">
                                                     @if ($discountPercentage>0)
                                                     <div class="label-flex">
@@ -563,21 +418,21 @@
                                                     </div>
                                                     @endif
                                                     <div class="product-img">
-                                                        <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value) }}">
-                                                            @if ($firstImageTrending)
+                                                        <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
+                                                            @if ($firstImage)
                                                             <picture>
                                                                 <source
                                                                     media="(max-width: 767px)"
-                                                                    srcset="{{ asset('images/product/icon/' . $firstImageTrending->image_path) }}">
+                                                                    srcset="{{ asset('images/product/icon/' . $firstImage->image_path) }}">
                                                                 <img
                                                                     class="img-fluid blur-up lazyload"
-                                                                    data-src="{{ asset('images/product/thumb/' . $firstImageTrending->image_path) }}"
+                                                                    data-src="{{ asset('images/product/thumb/' . $firstImage->image_path) }}"
                                                                     src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                                    srcset="{{ asset('images/product/thumb/' . $firstImageTrending->image_path) }} 600w, 
-                                                                    {{ asset('images/product/thumb/' . $firstImageTrending->image_path) }} 1200w"
+                                                                    srcset="{{ asset('images/product/thumb/' . $firstImage->image_path) }} 600w, 
+                                                            {{ asset('images/product/thumb/' . $firstImage->image_path) }} 1200w"
                                                                     sizes="(max-width: 600px) 600px, 1200px"
-                                                                    alt="{{ $trending_products_row->title }}"
-                                                                    title="{{ $trending_products_row->title }}"
+                                                                    alt="{{ $popular_product_row->title }}"
+                                                                    title="{{ $popular_product_row->title }}"
                                                                     loading="lazy"
                                                                     width="300"
                                                                     height="300"
@@ -587,25 +442,20 @@
                                                             <img
                                                                 src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
                                                                 class="img-fluid blur-up lazyload"
-                                                                alt="{{ $trending_products_row->title }}"
+                                                                alt="{{ $popular_product_row->title }}"
                                                                 loading="lazy"
                                                                 width="300"
-                                                                height="300"
-                                                                onload="this.style.opacity=1">
+                                                                height="300">
                                                             @endif
                                                         </a>
                                                     </div>
-
-
                                                 </div>
                                                 <div class="product-detail">
-                                                    <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value)}}">
-                                                        <h6 class="name h-100">
-                                                            {{ ucwords(strtolower($trending_products_row->title)) }}
-                                                        </h6>
+                                                    <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
+                                                        <h5 class="name">{{ ucwords(strtolower($popular_product_row->title)) }}</h5>
                                                     </a>
                                                     <h5 class="sold text-content">
-                                                        @if ($trending_products_row->offer_rate === null)
+                                                        @if ($final_offer_rate === null)
                                                         <span class="theme-color price">Price not available</span>
                                                         @else
                                                         <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
@@ -618,16 +468,153 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        @php
+                                        $row_count++;
+                                        @endphp
+                                        @endforeach
                                     </div>
                                 </div>
-                                @endforeach
                             </div>
                         </div>
-                        @endif
                     </div>
+                @endif
+                @if ($data['trending_products'] && $data['trending_products']->isNotEmpty())
+                <div class="title d-block text-center">
+                    <h2>Trending Products</h2>
+                    <span class="title-leaf">
+                        <!-- <svg class="icon-width">
+                                <use xlink:href="{{asset('frontend/assets/svg/leaf.svg#leaf')}}"></use>
+                            </svg> -->
+                    </span>
+                    <!-- <p>A virtual assistant collects the products from your list</p> -->
+                </div>
+                <div class="home-trending-section">
+                    <div class="no-product-border no-overflow-hidden">
+                        <div class="product-box-slider no-arrow">
+                            @foreach ($data['trending_products'] as $trending_products_row)
+                            @php
+                            $firstImageTrending = $trending_products_row->images->get(0);
+                            $secondImageTrending = $trending_products_row->images->get(1);
+                            $attributes_value ='na';
+                            if($trending_products_row->ProductAttributesValues->isNotEmpty()){
+                            $attributes_value = $trending_products_row->ProductAttributesValues->first()->attributeValue->slug;
+                            }
+                            @endphp
+                            @php
+                            $purchase_rate = $trending_products_row->purchase_rate;
+                            $offer_rate = $trending_products_row->offer_rate;
+                            $mrp = $trending_products_row->mrp;
+
+                            $group_offer_rate = null;
+                            $special_offer_rate = null;
+
+                            /* Group Price Calculation */
+                            if ($groupCategory && $offer_rate !== null) {
+                            $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                            if ($group_percentage > 0) {
+                            $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                            $group_offer_rate = floor($group_offer_rate);
+                            }
+                            }
+
+                            /* Special Offer from array */
+                            if (isset($specialOffers[$trending_products_row->id])) {
+                            $special_offer_rate = (float) $specialOffers[$trending_products_row->id];
+                            }
+
+                            /* Final Rate: Minimum of all */
+                            $all_rates = array_filter([
+                            $offer_rate,
+                            $group_offer_rate,
+                            $special_offer_rate
+                            ]);
+                            $final_offer_rate = !empty($all_rates) ? min($all_rates) : null;
+
+                            /* Discount Calculation */
+                            $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
+                            ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+                            : 0;
+                            @endphp
+                            <div>
+                                <div class="row m-1">
+                                    <div class="col-12 px-1">
+                                        <div class="product-box">
+                                            <div class="product-image">
+                                                @if ($discountPercentage>0)
+                                                <div class="label-flex">
+                                                    <div class="discount">
+                                                        <label>
+                                                            Save {{ $discountPercentage }}%
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                @endif
+                                                <div class="product-img">
+                                                    <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value) }}">
+                                                        @if ($firstImageTrending)
+                                                        <picture>
+                                                            <source
+                                                                media="(max-width: 767px)"
+                                                                srcset="{{ asset('images/product/icon/' . $firstImageTrending->image_path) }}">
+                                                            <img
+                                                                class="img-fluid blur-up lazyload"
+                                                                data-src="{{ asset('images/product/thumb/' . $firstImageTrending->image_path) }}"
+                                                                src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                                                srcset="{{ asset('images/product/thumb/' . $firstImageTrending->image_path) }} 600w, 
+                                                                    {{ asset('images/product/thumb/' . $firstImageTrending->image_path) }} 1200w"
+                                                                sizes="(max-width: 600px) 600px, 1200px"
+                                                                alt="{{ $trending_products_row->title }}"
+                                                                title="{{ $trending_products_row->title }}"
+                                                                loading="lazy"
+                                                                width="300"
+                                                                height="300"
+                                                                onload="this.style.opacity=1">
+                                                        </picture>
+                                                        @else
+                                                        <img
+                                                            src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                                            class="img-fluid blur-up lazyload"
+                                                            alt="{{ $trending_products_row->title }}"
+                                                            loading="lazy"
+                                                            width="300"
+                                                            height="300"
+                                                            onload="this.style.opacity=1">
+                                                        @endif
+                                                    </a>
+                                                </div>
+
+
+                                            </div>
+                                            <div class="product-detail">
+                                                <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value)}}">
+                                                    <h6 class="name h-100">
+                                                        {{ ucwords(strtolower($trending_products_row->title)) }}
+                                                    </h6>
+                                                </a>
+                                                <h5 class="sold text-content">
+                                                    @if ($trending_products_row->offer_rate === null)
+                                                    <span class="theme-color price">Price not available</span>
+                                                    @else
+                                                    <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
+                                                    @endif
+
+                                                    @if ($mrp !== null)
+                                                    <del>Rs. {{ $mrp }}</del>
+                                                    @endif
+                                                </h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
+    </div>
 </section>
 <!-- Product Section End -->
 @if (!empty($data['video']) && $data['video']->isNotEmpty())

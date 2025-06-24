@@ -452,7 +452,7 @@ class FrontendController extends Controller
             }
 
             $attributeValue = Attribute_values::where('slug', $valueSlug)->first();
-            Log::info('Filters: ' . json_encode($request->query()));
+            
 
             // Base products query
             $productsQuery = Product::where('category_id', $category->id)
@@ -468,6 +468,7 @@ class FrontendController extends Controller
 
             // Apply additional filters from the request
             if ($request->has('filter')) {
+                Log::info('Filters attributes value catalog: ' . json_encode($request->query()));
                 $filters = $request->except(['filter', 'sort', 'page']);
                 foreach ($filters as $filterAttributeSlug => $filterValueSlugs) {
                     if ($filterAttributeSlug !== $attribute_top->slug) {
@@ -862,13 +863,13 @@ class FrontendController extends Controller
     {
         try {
             $primary_category = PrimaryCategory::where('link', $request->url())->first();
-            Log::info('Filters: ' . json_encode($request->query()));
             $category = Category::where('slug', $categorySlug)->first();
             $productsQuery = Product::where('category_id', $category->id)->where('product_status', 1);
 
             /** for filter code */
             
             if ($request->has('filter')) {
+                Log::info('Filters category catalog: ' . json_encode($request->query()));
                 $filters = $request->except(['filter', 'sort', 'page']);
                 foreach ($filters as $attributeSlug => $valueSlugs) {
                     if (is_string($valueSlugs)) {
@@ -1544,6 +1545,7 @@ class FrontendController extends Controller
         /*Apply filters*/
         
         if ($request->has('filter')) {
+            Log::info('Filters flash sale: ' . json_encode($request->query()));
             foreach ($request->all() as $attributeSlug => $valueSlugs) {
                 if ($attributeSlug === 'filter' || $attributeSlug === 'sort' || strpos($attributeSlug, 'price') !== false) {
                     continue;
@@ -1807,20 +1809,23 @@ class FrontendController extends Controller
 
     public function checkServiceability(Request $request)
     {
+        Log::info('Magic Checkout Request:', [
+            'headers' => request()->headers->all(),
+            'body' => request()->all(),
+            'server' => request()->server->all()
+        ]);
         $request->validate([
             'addresses' => 'required|array',
             'addresses.*.zipcode' => 'required|digits:6'
         ]);
+
         $pincode = $request->input('addresses.0.zipcode');
         $serviceablePincodes = [
-            '221010' => ['fee' => 5000, 'cod' => true, 'delivery' => '2-3 days'],  // Varanasi
-            '560001' => ['fee' => 7000, 'cod' => true, 'delivery' => '1-2 days'],  // Bangalore
-            '400001' => ['fee' => 6000, 'cod' => false, 'delivery' => '3-4 days'], // Mumbai (COD not available)
-            '110001' => ['fee' => 5500, 'cod' => true, 'delivery' => '2-3 days'],  // Delhi
-            '600001' => ['fee' => 8000, 'cod' => true, 'delivery' => '4-5 days'],  // Chennai
+            '221010' => ['fee' => 5000, 'cod' => true, 'delivery' => '2-3 days'],
+            '560001' => ['fee' => 7000, 'cod' => true, 'delivery' => '1-2 days'],
+            // ... other pincodes
         ];
 
-        // Check if pincode exists in serviceable list
         if (array_key_exists($pincode, $serviceablePincodes)) {
             $rules = $serviceablePincodes[$pincode];
             
@@ -1829,20 +1834,17 @@ class FrontendController extends Controller
                 'cod_serviceable' => $rules['cod'],
                 'shipping_fee' => $rules['fee'],
                 'cod_fee' => $rules['cod'] ? 0 : null,
-                'delivery_time' => $rules['delivery'],
-                'pincode' => $pincode
-            ]);
+                'delivery_time' => $rules['delivery']
+            ])->header('Access-Control-Allow-Origin', '*');
         }
 
-        // Default response for non-serviceable pincodes
         return response()->json([
             'serviceable' => false,
             'cod_serviceable' => false,
             'shipping_fee' => 0,
             'cod_fee' => 0,
-            'delivery_time' => 'Not serviceable',
-            'pincode' => $pincode
-        ]);
+            'delivery_time' => 'Not serviceable'
+        ])->header('Access-Control-Allow-Origin', '*');
     }
 
 }

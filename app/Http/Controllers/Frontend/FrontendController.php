@@ -1778,11 +1778,11 @@ class FrontendController extends Controller
         $ip = $request->ip();
         $pageUrl = $request->page_url;
         /* Check if the same IP+URL clicked in the last 5 minutes */
-        $recentClickExists = ClickTrackers::where('ip_address', $ip)
-            ->where('page_url', $pageUrl)
-            ->where('click_time', '>=', now()->subMinutes(5))
-            ->exists();
-        if (!$recentClickExists) {
+        //$recentClickExists = ClickTrackers::where('ip_address', $ip)
+         //   ->where('page_url', $pageUrl)
+         //   ->where('click_time', '>=', now()->subMinutes(5))
+         //   ->exists();
+        //if (!$recentClickExists) {
             ClickTrackers::create([
                 'button_type' => $request->btn_type,
                 'page_url' => $request->page_url,
@@ -1790,7 +1790,7 @@ class FrontendController extends Controller
                 'click_time' => now()->setTimezone('Asia/Kolkata'),
                 'device_type' => $this->getDeviceType($agent),
             ]);
-        }
+        //}
         return response()->json(['success' => true]);
     }
     
@@ -1805,5 +1805,47 @@ class FrontendController extends Controller
         }
     }
 
+    public function checkServiceability(Request $request)
+    {
+        $request->validate([
+            'addresses' => 'required|array',
+            'addresses.*.zipcode' => 'required|digits:6'
+        ]);
+        $pincode = $request->input('addresses.0.zipcode');
+        $serviceablePincodes = [
+            '221010' => ['fee' => 5000, 'cod' => true, 'delivery' => '2-3 days'],  // Varanasi
+            '560001' => ['fee' => 7000, 'cod' => true, 'delivery' => '1-2 days'],  // Bangalore
+            '400001' => ['fee' => 6000, 'cod' => false, 'delivery' => '3-4 days'], // Mumbai (COD not available)
+            '110001' => ['fee' => 5500, 'cod' => true, 'delivery' => '2-3 days'],  // Delhi
+            '600001' => ['fee' => 8000, 'cod' => true, 'delivery' => '4-5 days'],  // Chennai
+        ];
+
+        // Check if pincode exists in serviceable list
+        if (array_key_exists($pincode, $serviceablePincodes)) {
+            $rules = $serviceablePincodes[$pincode];
+            
+            return response()->json([
+                'serviceable' => true,
+                'cod_serviceable' => $rules['cod'],
+                'shipping_fee' => $rules['fee'],
+                'cod_fee' => $rules['cod'] ? 0 : null,
+                'delivery_time' => $rules['delivery'],
+                'pincode' => $pincode
+            ]);
+        }
+
+        // Default response for non-serviceable pincodes
+        return response()->json([
+            'serviceable' => false,
+            'cod_serviceable' => false,
+            'shipping_fee' => 0,
+            'cod_fee' => 0,
+            'delivery_time' => 'Not serviceable',
+            'pincode' => $pincode
+        ]);
+    }
 
 }
+
+
+

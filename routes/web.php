@@ -73,9 +73,10 @@ Route::group(['middleware' => ['auth.customer']], function() {
     Route::get('/user-notifications', [CustomerLoginController::class, 'getNotifications']);
     Route::post('/notifications/{id}/read', [CustomerLoginController::class, 'markAsRead']);
 });
+Route::post('shipping-info', [FrontendController::class, 'checkServiceability'])->name('shipping-info');
 Route::middleware([TrackVisitor::class])->group(function () {
     Route::get('/', [FrontendController::class, 'home'])->name('home');
-     Route::get('flash-sale', [FrontendController::class, 'flashSale'])->name('flash.sale');
+    Route::get('flash-sale', [FrontendController::class, 'flashSale'])->name('flash.sale');
     Route::get('kitchen-catalog/{category}/{attribute}/{value}', [FrontendController::class, 'showProductCatalog'])->name('kitchen.catalog');
     Route::get('categories/{categorySlug}', [FrontendController::class, 'showCategoryProduct'])->name('categories')->withoutMiddleware('auth');
     Route::get('/product-catalog/filter', [FrontendController::class, 'filterProducts'])->name('product.filter');

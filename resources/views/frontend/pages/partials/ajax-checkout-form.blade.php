@@ -161,9 +161,10 @@ $customerPhone = '';
                                                     <!-- City -->
                                                     <div class="col-md-4">
                                                         <div class="form-floating theme-form-floating">
-                                                            <input type="text" class="form-control" name="ship_city_name" placeholder="Town / City">
-
-                                                            <label for="ship_city_name">Town / City</label>
+                                                            <select class="form-select theme-form-select" name="ship_city_name">
+                                                                <option value="Varanasi">Varanasi</option>
+                                                            </select>
+                                                            <label for="city">Select Town / City</label>
                                                         </div>
                                                         <!-- <div class="form-floating mb-4 theme-form-floating">
                                                                 <input type="text" class="form-control" name="ship_city_name" placeholder="Enter city">

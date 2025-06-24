@@ -452,13 +452,8 @@ class FrontendController extends Controller
             }
 
             $attributeValue = Attribute_values::where('slug', $valueSlug)->first();
-            
-
-            // Base products query
             $productsQuery = Product::where('category_id', $category->id)
                 ->where('product_status', 1);
-
-            // Apply the top attribute filter
             $productsQuery->whereHas('attributes', function ($query) use ($attribute_top, $attributeValue) {
                 $query->where('attributes_id', $attribute_top->id)
                     ->whereHas('values', function ($q) use ($attributeValue) {
@@ -497,10 +492,10 @@ class FrontendController extends Controller
                         $productsQuery->orderBy('created_at', 'desc');
                         break;
                     case 'price-low-to-high':
-                        $productsQuery->orderByRaw('ISNULL(inventories.mrp), inventories.mrp ASC');
+                        $productsQuery->orderByRaw('ISNULL(inventories.offer_rate), inventories.offer_rate ASC');
                         break;
                     case 'price-high-to-low':
-                        $productsQuery->orderByRaw('ISNULL(inventories.mrp), inventories.mrp DESC');
+                        $productsQuery->orderByRaw('ISNULL(inventories.offer_rate), inventories.offer_rate DESC');
                         break;
                     case 'a-to-z-order':
                         $productsQuery->orderBy('products.title', 'asc');
@@ -510,7 +505,6 @@ class FrontendController extends Controller
                         break;
                 }
             } else {
-                //$productsQuery->orderByRaw('ISNULL(inventories.mrp), inventories.mrp ASC');
                 $productsQuery->orderBy('created_at', 'desc');
             }
 
@@ -557,6 +551,7 @@ class FrontendController extends Controller
                     $join->on('products.id', '=', 'inventories.product_id')
                         ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
                 })
+                ->whereHas('images')/*only select which product whose images have (if all product selected than remove this line)*/
                 ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
                 ->paginate(32);
             /**special offer rate */
@@ -781,10 +776,10 @@ class FrontendController extends Controller
                         break;
                     case 'price-low-to-high':
                         Log::warning("Attribute not found for slug: {$sortOption}");
-                        $productsQuery->orderBy('inventories.mrp', 'asc');
+                        $productsQuery->orderBy('inventories.offer_rate', 'asc');
                         break;
                     case 'price-high-to-low':
-                        $productsQuery->orderBy('inventories.mrp', 'desc');
+                        $productsQuery->orderBy('inventories.offer_rate', 'desc');
                         break;
                     case 'a-to-z-order':
                         $productsQuery->orderBy('products.title', 'asc');
@@ -913,10 +908,10 @@ class FrontendController extends Controller
                         $productsQuery->orderBy('created_at', 'desc');
                         break;
                     case 'price-low-to-high':
-                        $productsQuery->orderByRaw('ISNULL(inventories.mrp), inventories.mrp ASC');
+                        $productsQuery->orderByRaw('ISNULL(inventories.offer_rate), inventories.offer_rate ASC');
                         break;
                     case 'price-high-to-low':
-                        $productsQuery->orderByRaw('ISNULL(inventories.mrp), inventories.mrp DESC');
+                        $productsQuery->orderByRaw('ISNULL(inventories.offer_rate), inventories.offer_rate DESC');
                         break;
                     case 'a-to-z-order':
                         $productsQuery->orderBy('products.title', 'asc');
@@ -949,6 +944,7 @@ class FrontendController extends Controller
                     $join->on('products.id', '=', 'inventories.product_id')
                         ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
                 })
+                ->whereHas('images')/*only select which product whose images have (if all product selected than remove this line)*/
                 ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
                 ->paginate(32);
             $specialOffers = getCustomerSpecialOffers();

@@ -301,12 +301,25 @@ $(document).ready(function() {
     const slider = $('.category-slider');
     const prevBtn = $('.category-slider-prev');
     const nextBtn = $('.category-slider-next');
-    const itemWidth = $('.category-item-home').outerWidth(true);
-    const visibleItems = Math.floor($('.category-slider-wrapper').width() / itemWidth);
-    const totalItems = $('.category-item-home').length;
+    const sliderWrapper = $('.category-slider-wrapper');
+    const items = $('.category-item-home');
+    let itemWidth, visibleItems, totalItems, currentPosition = 0, maxPosition;
+    let wrapperWidth = sliderWrapper.width();
+    function initSlider() {
+        itemWidth = items.first().outerWidth(true);
+        totalItems = items.length;
+        wrapperWidth = sliderWrapper.width();
+        visibleItems = Math.floor(wrapperWidth / itemWidth);
+        maxPosition = totalItems - visibleItems+1;
+        maxPosition = Math.max(0, maxPosition);
+        currentPosition = Math.min(currentPosition, maxPosition);        
+        updateSlider();
+        updateButtons();
+    }
     
-    let currentPosition = 0;
-    const maxPosition = totalItems - visibleItems;
+    function updateSlider() {
+        slider.css('transform', `translateX(-${currentPosition * itemWidth}px)`);
+    }
     
     function updateButtons() {
         prevBtn.prop('disabled', currentPosition <= 0);
@@ -315,43 +328,40 @@ $(document).ready(function() {
     
     function slideTo(position) {
         currentPosition = Math.max(0, Math.min(position, maxPosition));
-        slider.css('transform', `translateX(-${currentPosition * itemWidth}px)`);
+        updateSlider();
         updateButtons();
     }
-    
     prevBtn.on('click', function() {
         slideTo(currentPosition - 1);
     });
-    
     nextBtn.on('click', function() {
-        slideTo(currentPosition + 1);
-    });
-    $(window).on('resize', function() {
-        const newVisibleItems = Math.floor($('.category-slider-wrapper').width() / itemWidth);
-        if (newVisibleItems !== visibleItems) {
-            slideTo(0);
+        if (currentPosition < maxPosition) {
+            slideTo(currentPosition + 1);
         }
     });
-    updateButtons();
+    let resizeTimer;
+    $(window).on('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            initSlider();
+        }, 250);
+    });
     let touchStartX = 0;
-    let touchEndX = 0;
-    
     slider.on('touchstart', function(e) {
         touchStartX = e.changedTouches[0].screenX;
     });
     
     slider.on('touchend', function(e) {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-    });
-    
-    function handleSwipe() {
-        if (touchEndX < touchStartX - 50) {
-            slideTo(currentPosition + 1);
-        } else if (touchEndX > touchStartX + 50) {
-            slideTo(currentPosition - 1);
+        const touchEndX = e.changedTouches[0].screenX;
+        const diff = touchStartX - touchEndX;
+        
+        if (diff > 50) {
+            slideTo(Math.min(currentPosition + 1, maxPosition));
+        } else if (diff < -50) {
+            slideTo(Math.max(currentPosition - 1, 0));
         }
-    }
+    });
+    initSlider();
 });
 /**category slider js code  */
 /*Highlighted Products */

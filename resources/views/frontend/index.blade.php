@@ -12,7 +12,7 @@
                 <button class="category-slider-arrow category-slider-prev" aria-label="Previous">
                     <i class="fas fa-chevron-left"></i>
                 </button>
-
+                
                 <div class="category-slider-wrapper">
                     <div class="category-slider arrow-slider category-slider-home">
                         @foreach($data['category_list'] as $index => $category)

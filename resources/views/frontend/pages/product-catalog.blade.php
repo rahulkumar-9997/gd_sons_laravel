@@ -83,6 +83,105 @@
 </section>
 <!-- Shop Section End -->
 @endsection
+
+@push('schema')
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "@if($primary_category) Complete Range of {{ $primary_category->title }} in Varanasi @else Complete Range of {{ $attributeValue->name }} {{ $category->title }} in Varanasi @endif",
+    @if($primary_category)
+        "description": "{{ $primary_category->title }}",
+    @else
+        "description": "GD Sons - {{ $category->title }} : {{ $attributeValue->name }} - Shop the best quality products in Varanasi",
+    @endif
+    "url": "{{ url()->current() }}",
+    "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "{{ $category->title }} : {{ $attributeValue->name }}",
+                "item": "{{ url()->current() }}"
+            }
+        ]
+    },
+    "mainEntity": {
+        "@type": "ItemList",
+        "itemListElement": [
+            @foreach($products as $index => $product)
+            @php
+                $firstImage = $product->images->get(0);
+                $urlPath = Request::path();
+                $segments = explode('/', $urlPath);
+                $lastSegment = end($segments);                
+                $purchase_rate = $product->purchase_rate;
+                $offer_rate = $product->offer_rate;
+                $mrp = $product->mrp;
+                $final_offer_rate = $offer_rate;
+                $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
+                    ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+                    : 0;
+            @endphp
+            {
+                "@type": "ListItem",
+                "position": {{ $index + 1 }},
+                "item": {
+                    "@type": "Product",
+                    "name": "{{ addslashes($product->title) }}",
+                    "description": "{{ 'GD Sons - ' . $category->title . ' : ' . $attributeValue->name }}",                
+                    "brand": {
+                        "@type": "Brand",
+                        "name": "GD Sons"
+                    },
+                    "category": "{{ $product->category->title }}",
+                    "sku": "{{ $product->sku }}",
+                    "url": "{{ url('products/'.$product['slug'].'/'.$lastSegment) }}",
+                    @if($firstImage)
+                    "image": "{{ asset('images/product/thumb/' . $firstImage->image_path) }}",
+                    @endif
+                    "offers": {
+                        "@type": "Offer",
+                        "url": "{{ url('products/'.$product['slug'].'/'.$lastSegment) }}",
+                        "priceCurrency": "INR",
+                        "price": "{{ $final_offer_rate }}",
+                        "priceValidUntil": "{{ \Carbon\Carbon::now()->addYear()->format('Y-m-d') }}",
+                        "itemCondition": "https://schema.org/NewCondition",
+                        "availability": "https://schema.org/{{ $product->stock_quantity > 0 ? 'InStock' : 'OutOfStock' }}",
+                        @if($mrp > $final_offer_rate)
+                        "priceSpecification": {
+                            "@type": "UnitPriceSpecification",
+                            "price": "{{ $final_offer_rate }}",
+                            "priceCurrency": "INR",
+                            "referenceQuantity": {
+                                "@type": "QuantitativeValue",
+                                "value": "1",
+                                "unitCode": "C62"
+                            }
+                        },
+                        "listPrice": {
+                            "@type": "UnitPriceSpecification",
+                            "price": "{{ $mrp }}",
+                            "priceCurrency": "INR"
+                        }
+                        @endif
+                    }
+                }
+            }@if(!$loop->last),@endif
+            @endforeach
+        ]
+    }
+    
+}
+</script>
+@endpush
 @push('scripts')
 <script src="{{asset('frontend/assets/js/ion.rangeSlider.min.js')}}"></script>
 <!-- <script src="{{asset('frontend/assets/js/pages/load-more.js')}}"></script> -->

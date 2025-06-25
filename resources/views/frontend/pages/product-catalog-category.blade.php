@@ -81,6 +81,183 @@
 
 <!-- Shop Section End -->
 @endsection
+@push('schema')
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "@if($primary_category) Complete Range of {{ $primary_category->title }} in Varanasi @else Complete Range of {{ $category->title }} in Varanasi @endif",
+    "description": "GD Sons - {{ $category->title }} - Shop the best quality products in Varanasi",
+    "url": "{{ url()->current() }}",
+    "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "{{ $category->title }}",
+                "item": "{{ url()->current() }}"
+            }
+        ]
+    },
+    "mainEntity": [
+        @if($primary_category)
+        {
+            "@type": "ProductGroup",
+            "name": "{{ $primary_category->title }}",
+            "description": "{{ $category->category_heading }}",
+            "url": "{{ url()->current() }}",
+            "hasVariant": [
+                @foreach($products as $product)
+                @php
+                    $firstImage = $product->images->get(0);
+                    $attributes_value = $product->ProductAttributesValues->isNotEmpty() ? $product->ProductAttributesValues->first()->attributeValue->slug : 'na';
+                    $purchase_rate = $product->purchase_rate;
+                    $offer_rate = $product->offer_rate;
+                    $mrp = $product->mrp;
+                    $group_offer_rate = null;
+                    $special_offer_rate = null;
+                    
+                    if ($groupCategory && $offer_rate !== null) {
+                        $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                        if ($group_percentage > 0) {
+                            $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                            $group_offer_rate = floor($group_offer_rate);
+                        }
+                    }
+                    
+                    if (isset($specialOffers[$product->id])) {
+                        $special_offer_rate = (float) $specialOffers[$product->id];
+                    }
+                    
+                    $final_offer_rate = collect([
+                        $offer_rate,
+                        $group_offer_rate,
+                        $special_offer_rate
+                    ])->filter()->min();
+                    
+                    $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
+                        ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+                        : 0;
+                @endphp
+                {
+                    "@type": "Product",
+                    "name": "{{ $product->title }}",
+                    "description": "{{ 'GD Sons - ' . $category->title }}",
+                    "url": "{{ url('products/'.$product['slug'].'/'.$attributes_value) }}",
+                    "brand": {
+                        "@type": "Brand",
+                        "name": "GD Sons"
+                    },
+                    "category": "{{ $product->category->title }}",
+                    @if($firstImage)
+                    "image": "{{ asset('images/product/thumb/' . $firstImage->image_path) }}",
+                    @endif
+                    "hasDiscount": true,
+                    "discount": {
+                        "@type": "Discount",
+                        "name": "{{ $discountPercentage }}% off",
+                        "discountAmount": "{{ $mrp - $final_offer_rate }}",
+                        "discountPercentage": "{{ $discountPercentage }}"
+                    },
+                    "offers": {
+                        "@type": "Offer",
+                        "url": "{{ url('products/'.$product['slug'].'/'.$attributes_value) }}",
+                        "priceCurrency": "INR",
+                        "price": "{{ $final_offer_rate }}",
+                        "priceValidUntil": "{{ \Carbon\Carbon::now()->addYear()->format('Y-m-d') }}",
+                        "itemCondition": "https://schema.org/NewCondition",
+                        "availability": "https://schema.org/{{ $product->stock_quantity > 0 ? 'InStock' : 'OutOfStock' }}"
+                    }
+                }@if(!$loop->last),@endif
+                @endforeach
+            ]
+        }
+        @else
+        {
+            "@type": "CollectionPage",
+            "name": "{{ $category->title }}",
+            "description": "{{ $category->title }}",
+            "url": "{{ url()->current() }}",
+            "hasPart": [
+                @foreach($products as $product)
+                @php
+                    $firstImage = $product->images->get(0);
+                    $attributes_value = $product->ProductAttributesValues->isNotEmpty() ? $product->ProductAttributesValues->first()->attributeValue->slug : 'na';
+                    $purchase_rate = $product->purchase_rate;
+                    $offer_rate = $product->offer_rate;
+                    $mrp = $product->mrp;
+                    $group_offer_rate = null;
+                    $special_offer_rate = null;
+
+                    if ($groupCategory && $offer_rate !== null) {
+                        $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                        if ($group_percentage > 0) {
+                            $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                            $group_offer_rate = floor($group_offer_rate);
+                        }
+                    }
+
+                    if (isset($specialOffers[$product->id])) {
+                        $special_offer_rate = (float) $specialOffers[$product->id];
+                    }
+
+                    $final_offer_rate = collect([
+                        $offer_rate,
+                        $group_offer_rate,
+                        $special_offer_rate
+                    ])->filter()->min();
+
+                    $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
+                        ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+                        : 0;
+                @endphp
+                {
+                    "@type": "Product",
+                    "name": "{{ $product->title }}",
+                    "description": "{{ 'GD Sons - ' . $category->title }}",
+                    "url": "{{ url('products/'.$product['slug'].'/'.$attributes_value) }}",
+                    "brand": {
+                        "@type": "Brand",
+                        "name": "GD Sons"
+                    },
+                    "category": "{{ $product->category->title }}",
+                    @if($firstImage)
+                    "image": "{{ asset('images/product/thumb/' . $firstImage->image_path) }}",
+                    @endif
+                    @if($discountPercentage > 0)
+                        "hasDiscount": true,
+                        "discount": {
+                            "@type": "Discount",
+                            "name": "{{ $discountPercentage }}% off",
+                            "discountAmount": "{{ $mrp - $final_offer_rate }}",
+                            "discountPercentage": "{{ $discountPercentage }}"
+                        },
+                    @endif
+                    "offers": {
+                        "@type": "Offer",
+                        "url": "{{ url('products/'.$product['slug'].'/'.$attributes_value) }}",
+                        "priceCurrency": "INR",
+                        "price": "{{ $final_offer_rate }}",
+                        "priceValidUntil": "{{ \Carbon\Carbon::now()->addYear()->format('Y-m-d') }}",
+                        "itemCondition": "https://schema.org/NewCondition",
+                        "availability": "https://schema.org/{{ $product->stock_quantity > 0 ? 'InStock' : 'OutOfStock' }}"
+                    }
+                }@if(!$loop->last),@endif
+                @endforeach
+            ]
+        }
+        @endif
+    ]
+}
+</script>
+@endpush
 @push('scripts')
 <script src="{{asset('frontend/assets/js/ion.rangeSlider.min.js')}}"></script>
 <!-- <script src="{{asset('frontend/assets/js/pages/category-filter-load-more.js')}}"></script> -->

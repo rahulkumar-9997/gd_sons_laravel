@@ -11,6 +11,7 @@
 	
 		@include('frontend.layouts.footer')
 		<!-- @include('frontend.pages.partials.cart-drawer') -->
+		@stack('schema')
 		@include('frontend.layouts.footerjs')
 		@stack('scripts')
 	</body>

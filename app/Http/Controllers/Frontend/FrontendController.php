@@ -460,8 +460,7 @@ class FrontendController extends Controller
                         $q->where('attributes_value_id', $attributeValue->id);
                     });
             });
-
-            // Apply additional filters from the request
+            /* Apply additional filters from the request */
             if ($request->has('filter')) {
                 Log::info('Filters attributes value catalog: ' . json_encode($request->query()));
                 $filters = $request->except(['filter', 'sort', 'page']);
@@ -508,14 +507,13 @@ class FrontendController extends Controller
                 $productsQuery->orderBy('created_at', 'desc');
             }
 
-            // Fetch attributes with values for the filter list (mapped attributes and counts)
+            /* Fetch attributes with values for the filter list (mapped attributes and counts) */
             $attributes_with_values_for_filter_list = $category->attributes()
                 ->with(['AttributesValues' => function ($query) use ($category, $attribute_top, $attributeValue) {
                     $query->whereHas('map_attributes_value_to_categories', function ($q) use ($category) {
                         $q->where('category_id', $category->id);
                     })
                         ->withCount(['productAttributesValues' => function ($q) use ($category, $attribute_top, $attributeValue) {
-                            // Calculate counts based on the filtered products query
                             $q->whereHas('product', function ($q) use ($category, $attribute_top, $attributeValue) {
                                 $q->where('category_id', $category->id)
                                     ->whereHas('attributes', function ($query) use ($attribute_top, $attributeValue) {
@@ -531,8 +529,6 @@ class FrontendController extends Controller
                 }])
                 ->orderBy('title')
                 ->get();
-
-            // Fetch paginated products (dynamic filtering)
             $products = $productsQuery->with([
                 'category',
                 'images' => function ($query) {
@@ -547,16 +543,15 @@ class FrontendController extends Controller
                         ->orderBy('id');
                 },
             ])
-                ->leftJoin('inventories', function ($join) {
-                    $join->on('products.id', '=', 'inventories.product_id')
-                        ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-                })
-                ->whereHas('images')/*only select which product whose images have (if all product selected than remove this line)*/
-                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
-                ->paginate(32);
+            ->leftJoin('inventories', function ($join) {
+                $join->on('products.id', '=', 'inventories.product_id')
+                    ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+            })
+            ->whereHas('images')/*only select which product whose images have (if all product selected than remove this line)*/
+            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
+            ->paginate(32);
             /**special offer rate */
             $specialOffers = getCustomerSpecialOffers();
-            //dd($specialOffers);
             /**special offer rate */
             // Return JSON response for AJAX requests
             if ($request->ajax()) {
@@ -860,9 +855,7 @@ class FrontendController extends Controller
             $primary_category = PrimaryCategory::where('link', $request->url())->first();
             $category = Category::where('slug', $categorySlug)->first();
             $productsQuery = Product::where('category_id', $category->id)->where('product_status', 1);
-
-            /** for filter code */
-            
+            /** for filter code */            
             if ($request->has('filter')) {
                 Log::info('Filters category catalog: ' . json_encode($request->query()));
                 $filters = $request->except(['filter', 'sort', 'page']);
@@ -895,12 +888,10 @@ class FrontendController extends Controller
                                 $q->where('category_id', $category->id);
                             });
                         }])
-                        //->having('product_attributes_values_count', '>', 0)
                         ->orderBy('name');
                 }])
                 ->orderBy('title')
                 ->get();
-            // Sorting logic
             if ($request->has('sort')) {
                 $sortOption = $request->get('sort');
                 switch ($sortOption) {
@@ -921,11 +912,8 @@ class FrontendController extends Controller
                         break;
                 }
             } else {
-                //$productsQuery->orderByRaw('ISNULL(inventories.mrp), inventories.mrp ASC');
                 $productsQuery->orderBy('created_at', 'desc');
             }
-
-            // Fetching products with the necessary relationships
             $products = $productsQuery->with([
                 'category',
                 'images' => function ($query) {
@@ -945,9 +933,10 @@ class FrontendController extends Controller
                         ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
                 })
                 ->whereHas('images')/*only select which product whose images have (if all product selected than remove this line)*/
-                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
                 ->paginate(32);
             $specialOffers = getCustomerSpecialOffers();
+            //return response()->json($products); 
             //dd($specialOffers);
             if ($request->ajax()) {
                 if ($request->has('load_more') && $request->get('load_more') == true) {
@@ -1536,19 +1525,15 @@ class FrontendController extends Controller
                 $join->on('products.id', '=', 'inventories.product_id')
                     ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
             })
-            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku');
-
-        /*Apply filters*/
-        
+            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity');
+        /*Apply filters*/        
         if ($request->has('filter')) {
             Log::info('Filters flash sale: ' . json_encode($request->query()));
             foreach ($request->all() as $attributeSlug => $valueSlugs) {
                 if ($attributeSlug === 'filter' || $attributeSlug === 'sort' || strpos($attributeSlug, 'price') !== false) {
                     continue;
                 }
-
                 $valueSlugsArray = array_filter(explode(',', $valueSlugs));
-
                 $query->whereHas('attributes.values.attributeValue', function($q) use ($attributeSlug, $valueSlugsArray) {
                     $q->whereHas('attribute', function($q) use ($attributeSlug) {
                         $q->where('slug', $attributeSlug);
@@ -1556,8 +1541,6 @@ class FrontendController extends Controller
                 });
             }
         }
-
-
         // Apply sorting
         if ($request->has('sort')) {
             switch ($request->sort) {

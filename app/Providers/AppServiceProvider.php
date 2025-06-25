@@ -127,6 +127,8 @@ class AppServiceProvider extends ServiceProvider
                 'frontend.pages.customer.wishlist.index',
                 'frontend.pages.checkout-param-page',
                 'frontend.pages.pick-up-store-page',
+                'frontend.pages.product-catalog-category',
+                'frontend.pages.flash-sale',
 
             ],
             CustomerGroupCategoryComposer::class

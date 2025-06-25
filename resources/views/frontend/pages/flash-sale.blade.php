@@ -99,17 +99,17 @@
       <div class="row">
          <div class="col-lg-12">
             <div class="flash-content">
-                  <h3>Unmissable Flash Sale on Premium Kitchenware!</h3>
-                  <p>
-                     Welcome to the Flash Sale section at Girdhar Das & Sons – your one-stop destination for unbeatable deals on top-quality kitchen essentials. Whether you're upgrading your cooking setup or gifting something useful to loved ones, this is the perfect time to shop. From advanced induction cooktops and stylish gas stoves to high-performance chimneys and kitchen tools, everything is available at jaw-dropping prices for a limited time only.
-                  </p>
-                  <h4>Great Offers, Limited Stock – Act Fast!</h4>
-                  <p>
+               <h3>Unmissable Flash Sale on Premium Kitchenware!</h3>
+               <p>
+                  Welcome to the Flash Sale section at Girdhar Das & Sons – your one-stop destination for unbeatable deals on top-quality kitchen essentials. Whether you're upgrading your cooking setup or gifting something useful to loved ones, this is the perfect time to shop. From advanced induction cooktops and stylish gas stoves to high-performance chimneys and kitchen tools, everything is available at jaw-dropping prices for a limited time only.
+               </p>
+               <h4>Great Offers, Limited Stock – Act Fast!</h4>
+               <p>
                   At Girdhar Das & Sons, we believe in delivering not just products, but value. That’s why our flash sale includes top brands like Milton, Hindware, and Sujata – trusted by thousands of Indian households. Enjoy exclusive discounts, combo offers, and group savings that are hard to beat. With fast home delivery and store pickup options available across Varanasi, you can shop with confidence and convenience.
-                  </p>
-                  <p>
+               </p>
+               <p>
                   Don't miss this opportunity to revamp your kitchen with premium products at slashed prices. Our flash deals are updated regularly, so keep checking back for new offers before they're gone. Shop now and experience why we’re known as the Best Retail Shop in Varanasi for kitchenware!
-                  </p>
+               </p>
             </div>
          </div>
       </div>
@@ -118,6 +118,138 @@
 
 <!-- Shop Section End -->
 @endsection
+@push('schema')
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Flash Sale | Best Kitchenware Deals Online – Girdhar Das & Sons, Varanasi",
+    "description": "Enjoy unbeatable discounts on top kitchenware brands during our Flash Sale at Girdhar Das & Sons – the Best Retail Shop in Varanasi. Great offers, fast delivery & store pickup available!",
+    "url": "{{ url()->current() }}",
+    "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Flash Sale",
+                "item": "{{ url()->current() }}"
+            }
+        ]
+    },
+    "mainEntity": {
+        "@type": "ItemList",
+        "itemListElement": [
+            @foreach($products as $product)
+            @php
+                $firstImage = $product->images->get(0);
+                $attributes_value = $product->ProductAttributesValues->isNotEmpty() ? $product->ProductAttributesValues->first()->attributeValue->slug : 'na';
+                $purchase_rate = $product->purchase_rate;
+                $offer_rate = $product->offer_rate;
+                $mrp = $product->mrp;
+                $group_offer_rate = null;
+                $special_offer_rate = null;
+                
+                if ($groupCategory && $offer_rate !== null) {
+                    $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                    if ($group_percentage > 0) {
+                        $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                        $group_offer_rate = floor($group_offer_rate);
+                    }
+                }
+                
+                if (isset($specialOffers[$product->id])) {
+                    $special_offer_rate = (float) $specialOffers[$product->id];
+                }
+                
+                $final_offer_rate = collect([
+                    $offer_rate,
+                    $group_offer_rate,
+                    $special_offer_rate
+                ])->filter()->min();
+                
+                $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
+                    ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+                    : 0;
+            @endphp
+            {
+                "@type": "ListItem",
+                "position": "{{ $loop->iteration }}",
+                "item": {
+                    "@type": "Product",
+                    "name": "{{ addslashes($product->title) }}",
+                    "description": "{{ addslashes($product->title) }}",
+                    "url": "{{ url('products/'.$product['slug'].'/'.$attributes_value) }}",
+                    "brand": {
+                        "@type": "Brand",
+                        "name": "{{ addslashes($product->brand->title ?? 'GD Sons') }}"
+                    },
+                    "category": "{{ addslashes($product->category->title) }}",
+                    @if($firstImage)
+                    "image": "{{ asset('images/product/thumb/' . $firstImage->image_path) }}",
+                    @endif
+                    @if($discountPercentage > 0)
+                    "hasDiscount": true,
+                    "discount": {
+                        "@type": "Discount",
+                        "name": "{{ $discountPercentage }}% off",
+                        "discountAmount": "{{ $mrp - $final_offer_rate }}",
+                        "discountPercentage": "{{ $discountPercentage }}"
+                    },
+                    @endif
+                    "offers": {
+                        "@type": "Offer",
+                        "url": "{{ url('products/'.$product['slug'].'/'.$attributes_value) }}",
+                        "priceCurrency": "INR",
+                        "price": "{{ $final_offer_rate }}",
+                        "priceValidUntil": "{{ \Carbon\Carbon::now()->addDays(7)->format('Y-m-d') }}",
+                        "itemCondition": "https://schema.org/NewCondition",
+                        "availability": "https://schema.org/{{ $product->stock_quantity > 0 ? 'InStock' : 'OutOfStock' }}",
+                        "priceSpecification": {
+                            "@type": "UnitPriceSpecification",
+                            "price": "{{ $final_offer_rate }}",
+                            "priceCurrency": "INR",
+                            "referenceQuantity": {
+                                "@type": "QuantitativeValue",
+                                "value": "1"
+                            }
+                        }
+                    },
+                    @if($mrp)
+                    "aggregateOffer": {
+                        "@type": "AggregateOffer",
+                        "highPrice": "{{ $mrp }}",
+                        "lowPrice": "{{ $final_offer_rate }}",
+                        "offerCount": "1",
+                        "priceCurrency": "INR"
+                    },
+                    @endif
+                    "review": {
+                        "@type": "Review",
+                        "reviewRating": {
+                            "@type": "Rating",
+                            "ratingValue": "4.5",
+                            "bestRating": "5"
+                        },
+                        "author": {
+                            "@type": "Organization",
+                            "name": "GD Sons"
+                        }
+                    }
+                }
+            }@if(!$loop->last),@endif
+            @endforeach
+        ]
+    }
+}
+</script>
+@endpush
 @push('scripts')
 <script>
    $(document).ready(function() {

@@ -1,5 +1,4 @@
 @php
-
 $categorytitle = $data['product_details']->category->title;
 if (substr($categorytitle, -1) === 's')
 {

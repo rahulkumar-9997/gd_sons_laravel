@@ -439,63 +439,58 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                             @endif
                         </div>
                     </div>
-                    <div class="col-12">
-                        <div class="product-section-box description-box">
-                            <ul class="nav nav-tabs custom-nav" id="myTab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="info-tab" data-bs-toggle="tab"
-                                        data-bs-target="#additionalinfo" type="button" role="tab">Additional info</button>
-                                </li>
-                            </ul>
-                            <div class="tab-content custom-tab" id="myTabContent">
-                                <div class="tab-pane fade show active" id="additionalinfo" role="tabpanel">
-                                    <div class="table-responsive">
-                                        @if($data['product_details']->additionalFeatures->isNotEmpty())
-                                        <table class="table table">
-                                            @foreach($data['product_details']->additionalFeatures as $index => $additionalFeature)
-                                            <tr>
-                                                <td>
-                                                    {{ $additionalFeature->feature->title }}
-                                                </td>
-                                                <td>
-                                                    {{ $additionalFeature->product_additional_featur_value }}
-                                                </td>
-                                            </tr>
-                                            @endforeach
+                    @if($data['product_details']->additionalFeatures->isNotEmpty())
+                        <div class="col-12">
+                            <div class="product-section-box description-box">
+                                <ul class="nav nav-tabs custom-nav" id="myTab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="info-tab" data-bs-toggle="tab"
+                                            data-bs-target="#additionalinfo" type="button" role="tab">Additional info</button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content custom-tab" id="myTabContent">
+                                    <div class="tab-pane fade show active" id="additionalinfo" role="tabpanel">
+                                        <div class="table-responsive">
+                                            <table class="table table">
+                                                @foreach($data['product_details']->additionalFeatures as $index => $additionalFeature)
+                                                <tr>
+                                                    <td>
+                                                        {{ $additionalFeature->feature->title }}
+                                                    </td>
+                                                    <td>
+                                                        {{ $additionalFeature->product_additional_featur_value }}
+                                                    </td>
+                                                </tr>
+                                                @endforeach
 
-                                        </table>
-                                        @else
-                                        <span>No additional feature available !</span>
-                                        @endif
-
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-12 mt-1 mb-1">
-                        <div class="product-section-box description-box">
-                            <ul class="nav nav-tabs custom-nav" id="myTab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="info-tab" data-bs-toggle="tab"
-                                        data-bs-target="#description" type="button" role="tab">Product Description</button>
-                                </li>
-                            </ul>
-                            <div class="tab-content custom-tab" id="myTabContent">
-                                <div class="tab-pane fade show active" id="description" role="tabpanel">
-                                    <div class="table-responsive">
-                                        @if(!empty($data['product_details']->product_description))
-                                        <p>
-                                            {!! $data['product_details']->product_description !!}
-                                        </p>
-                                        @else
-                                        <p>Product description not available !</p>
-                                        @endif
+                    @endif
+                    @if(!empty($data['product_details']->product_description))
+                        <div class="col-12 mt-1 mb-1">
+                            <div class="product-section-box description-box">
+                                <ul class="nav nav-tabs custom-nav" id="myTab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="info-tab" data-bs-toggle="tab"
+                                            data-bs-target="#description" type="button" role="tab">Product Description</button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content custom-tab" id="myTabContent">
+                                    <div class="tab-pane fade show active" id="description" role="tabpanel">
+                                        <div class="table-responsive">
+                                            <p>
+                                                {!! $data['product_details']->product_description !!}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
                     @if($data['product_details']->video_id)
                     <div class="col-12">
                         <div class="product-video-section">

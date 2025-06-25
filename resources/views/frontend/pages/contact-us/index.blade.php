@@ -181,6 +181,80 @@
 
 </section>
 @endsection
+@push('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Contact Us | Girdhar Das & Sons – Best Kitchenware Store in Varanasi",
+  "description": "Have a question or need assistance? Contact Girdhar Das & Sons, the best retail shop in Varanasi for kitchenware. Call, email, or visit us — we're here to help!",
+  "url": "{{ url()->current() }}",
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "{{ url('/') }}"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Contact Us",
+        "item": "{{ url()->current() }}"
+      }
+    ]
+  },
+  "mainEntity": {
+    "@type": "LocalBusiness",
+    "name": "Girdhar Das & Sons",
+    "image": "{{ asset('frontend/assets/gd-img/fav-icon.png') }}",
+    "description": "Best Kitchenware Store in Varanasi offering premium quality products at competitive prices.",
+    "telephone": "+919935070000",
+    "email": "akshat.gd@gmail.com",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "W.H.Smith School Road, Sigra",
+      "addressLocality": "Varanasi",
+      "addressRegion": "Uttar Pradesh",
+      "postalCode": "221010",
+      "addressCountry": "IN"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "25.310366",
+      "longitude": "82.988604"
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "opens": "10:00",
+      "closes": "20:00"
+    },
+    "sameAs": [
+      "https://www.instagram.com/gdsons.vns/",
+      "https://www.youtube.com/@GirdharDasandSons",
+      "https://www.facebook.com/gdandsons"
+    ],
+    "potentialAction": {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "availableLanguage": ["English", "Hindi"],
+      "url": "{{ url()->current() }}"
+    }
+  }
+}
+</script>
+    
+@endpush
 @push('scripts')
 <script>
     $(document).off('submit', '#contact-us-form').on('submit', '#contact-us-form', function (event) {

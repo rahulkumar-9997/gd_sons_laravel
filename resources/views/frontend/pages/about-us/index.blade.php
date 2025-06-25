@@ -73,6 +73,60 @@
     </div>
 </section>
 @endsection
+@push('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Gd Sons - About Us",
+  "description": "Learn about Girdhar Das & Sons, established in 1939 as Varanasi's premier home appliance and kitchenware dealer located in Sigra Road.",
+  "url": "{{ url()->current() }}",
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "{{ url('/') }}"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "About Us",
+        "item": "{{ url()->current() }}"
+      }
+    ]
+  },
+  "mainEntity": {
+    "@type": "LocalBusiness",
+    "name": "Girdhar Das & Sons",
+    "image": "{{ asset('/frontend/assets/gd-img/about-us.jpg') }}",
+    "description": "Established in 1939, Girdhar Das & Sons is Varanasi's premier home appliance and kitchenware dealer located in Sigra Road.",
+    "foundingDate": "1939",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "W.H.Smith School Rd, Near Sigra Petrol Pump",
+      "addressLocality": "Varanasi",
+      "addressRegion": "Uttar Pradesh",
+      "postalCode": "221010",
+      "addressCountry": "IN"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "25.310366",
+      "longitude": "82.988604"
+    },
+    "telephone": "+919935070000",
+    "sameAs": [
+      "https://www.instagram.com/gdsons.vns/",
+      "https://www.youtube.com/@GirdharDasandSons",
+      "https://www.facebook.com/gdandsons"
+    ]
+  }
+}
+</script>  
+@endpush
 @push('scripts')
 
 @endpush

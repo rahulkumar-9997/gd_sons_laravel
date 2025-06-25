@@ -2,105 +2,6 @@
 @section('title','Best Kitchen Retail Store in Varanasi now goes Online')
 @section('description', 'Best Kitchen Retail Store in Varanasi now goes Online')
 @section('keywords', 'Best Kitchen Retail Store in Varanasi now goes Online')
-@push('schema')
-<!-- Organization Schema -->
-<script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "Girdhar Das & Sons",
-        "url": "https://gdsons.co.in",
-        "logo": "{{ asset('frontend/assets/images/logo.png') }}",
-        "description": "Best Kitchen Retail Store in Varanasi offering a wide range of kitchenware, dinnerware, and appliances.",
-        "address": {
-            "@type": "PostalAddress",
-            "streetAddress": "W.H.Smith School Road, Sigra, Varanasi",
-            "addressLocality": "Varanasi",
-            "addressRegion": "Uttar Pradesh",
-            "postalCode": "221010",
-            "addressCountry": "IN"
-        },
-        "contactPoint": {
-            "@type": "ContactPoint",
-            "telephone": "+919935070000",
-            "contactType": "customer service",
-            "areaServed": "IN",
-            "availableLanguage": ["en", "hi"]
-        },
-        "sameAs": [
-            "https://www.instagram.com/gdsons.vns/",
-            "https://www.youtube.com/@GirdharDasandSons",
-            "https://www.facebook.com/gdandsons"
-        ]
-    }
-</script>
-<!-- Website Schema -->
-<script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "Girdhar Das & Sons",
-        "url": "https://www.gdsons.co.in/",
-        "potentialAction": {
-            "@type": "SearchAction",
-            "target": "https://www.gdsons.co.in/search?query={search_term_string}",
-            "query-input": "required name=search_term_string"
-        }
-    }
-</script>
-<!-- Local Business Schema -->
-<script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "Store",
-        "name": "Girdhar Das & Sons",
-        "image": "{{ asset('frontend/assets/images/logo.png') }}",
-        "description": "Best Kitchen Retail Store in Varanasi now goes Online",
-        "address": {
-            "@type": "PostalAddress",
-            "streetAddress": "W.H.Smith School Road, Sigra, Varanasi",
-            "addressLocality": "Varanasi",
-            "addressRegion": "Uttar Pradesh",
-            "postalCode": "221010",
-            "addressCountry": "IN"
-        },
-        "geo": {
-            "@type": "GeoCoordinates",
-            "latitude": "25.3108",
-            "longitude": "83.0106"
-        },
-        "url": "https://www.gdsons.co.in/",
-        "telephone": "+919935070000",
-        "openingHoursSpecification": {
-            "@type": "OpeningHoursSpecification",
-            "dayOfWeek": [
-                "Monday",
-                "Tuesday",
-                "Wednesday",
-                "Thursday",
-                "Friday",
-                "Saturday"
-            ],
-            "opens": "10:00",
-            "closes": "20:00"
-        },
-        "priceRange": "₹₹"
-    }
-</script>
-<!-- Breadcrumb Schema -->
-<script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [{
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "https://www.gdsons.co.in/"
-        }]
-    }
-</script>
-@endpush
 @section('main-content')
 @if(isset($data['category_list']) && count($data['category_list']) > 0)
 <section class="category-section-2 home-category-section">
@@ -754,13 +655,94 @@
         </div>
     </div>
 </section>
-
 @endif
-
-
-
-
 @endsection
+@push('schema')
+<!-- Organization Schema -->
+<script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Girdhar Das & Sons",
+        "url": "https://gdsons.co.in",
+        "logo": "{{ asset('frontend/assets/gd-img/fav-icon.png') }}",
+        "description": "Best Kitchen Retail Store in Varanasi offering a wide range of kitchenware, dinnerware, and appliances.",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "W.H.Smith School Road, Sigra, Varanasi",
+            "addressLocality": "Varanasi",
+            "addressRegion": "Uttar Pradesh",
+            "postalCode": "221010",
+            "addressCountry": "IN"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+919935070000",
+            "contactType": "customer service",
+            "areaServed": "IN",
+            "availableLanguage": ["en", "hi"]
+        },
+        "sameAs": [
+            "https://www.instagram.com/gdsons.vns/",
+            "https://www.youtube.com/@GirdharDasandSons",
+            "https://www.facebook.com/gdandsons"
+        ]
+    }
+</script>
+<!-- Website Schema -->
+<script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Girdhar Das & Sons",
+        "url": "https://www.gdsons.co.in/",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://www.gdsons.co.in/search?query={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+</script>
+<!-- Local Business Schema -->
+<script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Store",
+        "name": "Girdhar Das & Sons",
+        "image": "{{ asset('frontend/assets/images/logo.png') }}",
+        "description": "Best Kitchen Retail Store in Varanasi now goes Online",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "W.H.Smith School Road, Sigra, Varanasi",
+            "addressLocality": "Varanasi",
+            "addressRegion": "Uttar Pradesh",
+            "postalCode": "221010",
+            "addressCountry": "IN"
+        },
+        "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "25.3108",
+            "longitude": "83.0106"
+        },
+        "url": "https://www.gdsons.co.in/",
+        "telephone": "+919935070000",
+        "openingHoursSpecification": {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday"
+            ],
+            "opens": "10:00",
+            "closes": "20:00"
+        },
+        "priceRange": "₹₹"
+    }
+</script>
+@endpush
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {

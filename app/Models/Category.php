@@ -20,7 +20,6 @@ class Category extends Model
         'status',
         'trending',
     ];
-
     public function mapCategoryAttributes()
     {
         return $this->hasMany(MapCategoryAttributes::class, 'category_id', 'id');

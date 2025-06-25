@@ -2,8 +2,11 @@
 namespace App\Http\Controllers\Backend;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 use App\Models\Category;
 use App\Models\Attribute;
+use App\Models\Subcategory;
+use App\Models\Product;
 use App\Models\MapCategoryAttributes;
 use App\Models\UpdateHsnGstWithAttributes;
 use Intervention\Image\Facades\Image;
@@ -14,7 +17,7 @@ class CategoryController extends Controller
 {
     public function index(){
         //$data['category_list'] = Category::with('attributes')->orderBy('id', 'desc')->get(); 
-        $data['category_list'] = Category::with('attributes')->orderBy('id', 'desc')->get();
+        $data['category_list'] = Category::withCount('products')->with('attributes')->orderBy('id', 'desc')->get();
         $existingMappings = UpdateHsnGstWithAttributes::select('category_id', 'attributes_id')
             ->get()
             ->map(function ($item) {
@@ -476,6 +479,41 @@ class CategoryController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Something went wrong. Please try again.');
+        }
+    }
+
+    public function deletaCategory($id)
+    {
+        DB::beginTransaction();
+        try {
+            $category = Category::with([
+                'mapCategoryAttributes',
+                'subCategories',
+                'products'
+            ])->findOrFail($id);
+            MapCategoryAttributes::where('category_id', $category->id)->delete();
+            Subcategory::where('category_id', $category->id)->delete();
+            Product::where('category_id', $category->id)->delete();
+            $this->deleteCategoryImages($category->image);
+            $category->delete();
+            DB::commit();
+            return redirect('category')->with('success', 'Category and all related data deleted successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Category deletion failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to delete category and its related data');
+        }
+    }
+
+    private function deleteCategoryImages($imageName)
+    {
+        if (empty($imageName)) return;
+        $sizes = ['large', 'small', 'thumb', 'icon', 'original'];
+        foreach ($sizes as $size) {
+            $path = public_path("images/category/{$size}/{$imageName}");
+            if (file_exists($path)) {
+                unlink($path);
+            }
         }
     }
 }

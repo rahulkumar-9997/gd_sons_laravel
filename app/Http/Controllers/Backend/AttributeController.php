@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class AttributeController extends Controller
 {
@@ -184,12 +185,14 @@ class AttributeController extends Controller
         $url = $request->input('url'); 
         $category_list = Category::orderBy('id', 'DESC')->get();
         $attributes_value_id = $request->input('attributes_value_id'); 
+        $attributes_id = $request->input('attributes_id'); 
         $attributes_value_row = Attribute_values::find($attributes_value_id);
         $mapped_attributes_value_category_ids = $attributes_value_row->map_attributes_value_to_categories->pluck('id')->toArray();
         $form = '
         <div class="modal-body">
             <form method="POST" action="' . route('attributes-value.update', $attributes_value_row->id) . '" accept-charset="UTF-8" enctype="multipart/form-data" id="uploadForm">
                 ' . csrf_field() . '
+                <input type="hidden" value="'.$attributes_id.'" name="attribute_id">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="mb-3">
@@ -224,23 +227,38 @@ class AttributeController extends Controller
         ]);
     }
 
-    public function updateAttributesValue(Request $request, $id){
+    public function updateAttributesValue(Request $request, $id)
+    {
         $request->validate([
-            'name' => 'required|string|max:255|unique:attributes,title,' . $id,
+            'name' => 'required|string|max:255',
+            'attribute_id' => 'required|exists:attributes,id',
         ]);
-        $attributes_value_row = Attribute_values::find($id);
-        if(!$attributes_value_row) {
-            return redirect()->back()->with('error', 'Attribute value not found.');
-        }
-        $input['name'] = $request->input('name');
-        $attributes_value_row_update = $attributes_value_row->update($input);
-        if($attributes_value_row_update){
-           // Sync selected categories with the attribute value
+        DB::beginTransaction();
+        try {
+            $attributes_value_row = Attribute_values::findOrFail($id);
+            $attributes_value_row->update([
+                'name' => $request->input('name')
+            ]);
             $selectedCategories = $request->input('mapped_attributes_value_to_category', []);
-            $attributes_value_row->map_attributes_value_to_categories()->sync($selectedCategories);
-            return redirect()->back()->with('success','Attributes value updated successfully');
-        }else{
-            return redirect()->back()->with('error','Somthings went wrong please try again !.');
+                $attributes_value_row->map_attributes_value_to_categories()->syncWithPivotValues(
+                $selectedCategories,
+                ['attributes_id' => $request->input('attribute_id')]
+            );
+            DB::commit();
+            return redirect()->back()->with('success', 'Attributes value updated successfully');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Attribute value not found.');
+
+        } catch (\Illuminate\Database\QueryException $e) {
+            DB::rollBack();
+            Log::error('Attribute value update failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Database error occurred.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Attribute value update error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Something went wrong. Please try again.');
         }
     }
 
@@ -461,6 +479,84 @@ class AttributeController extends Controller
             ]);
         } else {
             return response()->json(['error' => 'No data found'], 404);
+        }
+    }
+
+    public function showForm(Request $request){
+        $attributes_value_id = $request->input('attributes_value_id');
+        $attrValue = Attribute_values::find($attributes_value_id);
+        $image_pathe ='';
+        if($attrValue->images){
+            $imagePath = asset('images/attribute-values/' . $attrValue->images);
+            $image_pathe = '<img src="' . $imagePath . '" class="img-thumbnail" style="height: 120px;" alt="' . $attrValue->name . '">';
+        } 
+        $form ='
+        <div class="modal-body">
+            <form method="POST" action="'.route('attributes-value-upload-img.submit').'" accept-charset="UTF-8" enctype="multipart/form-data" id="attributesValueImageUpdate">
+                '.csrf_field().'
+                <input type="hidden" name="attributes_value_id" id="attributes_value_id" value="'.$attributes_value_id.'">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            '.$image_pathe.'
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Image File *</label>
+                            <input type="file" id="image" name="image" class="form-control">
+                        </div>
+                    </div>
+                    <div class="modal-footer pb-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        ';
+        return response()->json([
+            'message' => 'Form created successfully',
+            'form' => $form,
+        ]);
+    }
+
+    public function showFormSubmit(Request $request){
+        $request->validate([
+            'attributes_value_id' => 'required|exists:attributes_value,id',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ]);
+        DB::beginTransaction();    
+        try {
+            $attrValue = Attribute_values::find($request->attributes_value_id);
+            if ($attrValue->images) {
+                $oldImagePath = public_path('images/attribute-values/' . $attrValue->images);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+            $image = $request->file('image');
+            $webpImageName = 'himgiri-img-' . $attrValue->slug . '-' . uniqid() . '.webp';
+            $destinationPath = public_path('images/attribute-values/');
+            $img_original = Image::make($image->getRealPath());
+            $img_original->encode('webp', 75)->save($destinationPath . '/' . $webpImageName);
+            $attrValue->images = $webpImageName;
+            $attrValue->save();
+            DB::commit();
+            Cache::forget('attribute_value_' . $attrValue->id);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Image uploaded successfully.',
+            ]);
+    
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error uploading images: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong. Please try again later.',
+                'error_details' => $e->getMessage() 
+            ]);
         }
     }
 

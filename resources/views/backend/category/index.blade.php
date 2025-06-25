@@ -64,7 +64,7 @@
                                     <td>{{ $sr_no }}</td>
                                     <td>
                                        {{ $category_list_row->title }}
-                                       <br><a href="{{ route('category.show', ['id' => $category_list_row->id]) }}" data-bs-toggle="tooltip" class="badge bg-indigo text-light border py-1 px-2" data-bs-original-title="Mapped attributes to display in front">
+                                       <br><a href="{{ route('category.show', ['id' => $category_list_row->id]) }}" data-bs-toggle="tooltip" class="badge bg-primary text-light border py-1 px-2" data-bs-original-title="Mapped attributes to display in front">
                                        Mapped attributes to display in front
                                        </a>
                                     </td>
@@ -87,7 +87,7 @@
                                                       title="This attribute is already mapped" 
                                                       href="{{ route('update-hsn-gst-with-attributes-value', ['attributes_id' => $attribute->id, 'category_id' => $category_list_row->id]) }}"
                                                    >
-                                                      <span class="badge bg-success text-light border py-1 px-2">
+                                                      <span class="badge bg-danger text-light border py-1 px-2">
                                                          {{ $attribute->title }} 
                                                          <iconify-icon icon="solar:check-circle-bold" class="ms-1"></iconify-icon>
                                                       </span>
@@ -136,9 +136,16 @@
                                     </td>
                                     <td>
                                           <div class="d-flex gap-2">
-                                             <a href="javascript:void(0);" class="btn btn-soft-primary btn-sm editCategory" data-catid="{{ $category_list_row->id }}" data-size="lg" data-title="Edit Category" data-bs-toggle="tooltip" data-url="{{ route('category.edit', $category_list_row->id) }}">
+                                             <a href="javascript:void(0);" class="btn btn-soft-info btn-sm editCategory" data-catid="{{ $category_list_row->id }}" data-size="lg" data-title="Edit Category" data-bs-toggle="tooltip" data-url="{{ route('category.edit', $category_list_row->id) }}">
                                                 <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
                                              </a>
+                                             @if($category_list_row->products_count == 0)
+                                                <form method="POST" action="{{ route('category.delete', $category_list_row->id) }}">
+                                                   @csrf
+                                                   @method('DELETE')
+                                                   <button type="submit" data-name="{{ $category_list_row->title }}" class="btn btn-soft-danger btn-sm show_confirm"><i class="ti ti-trash"></i></button>
+                                                </form>
+                                             @endif
                                           </div>
                                     </td>
                                  </tr>
@@ -168,9 +175,9 @@
 <script>
    $(document).ready(function() {
       $('.show_confirm').click(function(event) {
-         var form = $(this).closest("form");  // Assuming there's a form related to this button
-         var name = $(this).data("name");     // You can use this data attribute if needed
-         event.preventDefault();              // Prevent default button action
+         var form = $(this).closest("form"); 
+         var name = $(this).data("name");
+         event.preventDefault();
 
          Swal.fire({
                title: `Are you sure you want to delete this ${name}?`,

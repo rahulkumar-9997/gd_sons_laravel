@@ -99,9 +99,9 @@
 <script>
    $(document).ready(function() {
       $('.show_confirm').click(function(event) {
-         var form = $(this).closest("form");  // Assuming there's a form related to this button
-         var name = $(this).data("name");     // You can use this data attribute if needed
-         event.preventDefault();              // Prevent default button action
+         var form = $(this).closest("form");
+         var name = $(this).data("name"); 
+         event.preventDefault(); 
 
          Swal.fire({
                title: `Are you sure you want to delete this ${name}?`,
@@ -113,7 +113,7 @@
                dangerMode: true,
          }).then((result) => {
                if (result.isConfirmed) {
-                  form.submit();  // Submit the form if confirmed
+                  form.submit();
                }
          });
       });

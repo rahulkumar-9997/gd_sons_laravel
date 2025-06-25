@@ -138,6 +138,7 @@ class OrderController extends Controller
     public function handleRazorpayCallback(Request $request)
     {
         $input = $request->all();
+        $checkoutData = session('checkout_data');
         Log::info('Razorpay callback input:', $input);
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
         DB::beginTransaction();
@@ -156,7 +157,7 @@ class OrderController extends Controller
             if (!$paidStatus) {
                 $paidStatus = OrderStatus::create(['status_name' => 'New']);
             }
-
+            $payment_status = 'Paid';
             $order->update([
                 'razorpay_payment_id' => $input['razorpay_payment_id'],
                 'payment_received' => true,
@@ -186,7 +187,7 @@ class OrderController extends Controller
             $customerName = $order->customer->name;
             Mail::to($order->customer->email)->queue(new OrderDetailsMail($orderDetails));
             Mail::to('akshat.gd@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
-
+            $this->sendWhatsAppNotifications($order->order_id, $payment_status, $checkoutData);
             DB::commit();
             /* Clear session data */
             session()->forget(['checkout_data', 'cart_items', 'cart']);
@@ -547,10 +548,11 @@ class OrderController extends Controller
                     'orderLines.product',
                     'orderLines.product.images'
                 ])->find($order->id);
-                
+                $payment_status = "Unpaid";
                 $customerName = $checkoutData['ship_full_name'];
                 Mail::to($checkoutData['ship_email'])->queue(new OrderDetailsMail($orderDetails));
                 Mail::to('akshat.gd@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
+                $this->sendWhatsAppNotifications($orderId, $payment_status, $checkoutData);
             }
             
             DB::commit();
@@ -569,6 +571,58 @@ class OrderController extends Controller
             DB::rollback();
             Log::info('Checkout Data in Exception: ', ['cache erro' => $e]);
             return response()->json(['message' => 'Failed to store order.', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+
+    protected function sendWhatsAppNotifications($orderId, $payment_status, array $checkoutData)
+    {
+        $apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY';
+        
+        /* Customer notification */
+        $this->sendWhatsAppMessage([
+            'apiKey' => $apiKey,
+            'campaignName' => 'Order Confirmation to Customer',
+            'destination' => $checkoutData['ship_phone_number'],
+            'userName' => $checkoutData['ship_full_name'],
+            'templateParams' => [
+                $checkoutData['ship_full_name'],
+                $orderId,
+                $checkoutData['grand_total_amount'],
+                now()->setTimezone('Asia/Kolkata')->subDays(2)->format('Y-m-d')
+            ],
+            'source' => 'new-landing-page form',
+            'paramsFallbackValue' => ['FirstName' => 'user']
+        ]);
+
+        /* Admin notification */
+        $this->sendWhatsAppMessage([
+            'apiKey' => $apiKey,
+            'campaignName' => 'Order Confirmation to Admin',
+            'destination' => '9935070000',
+            'userName' => 'Akshat Agrawal',
+            'templateParams' => [
+                $orderId,
+                $checkoutData['grand_total_amount'] . ' (' . $checkoutData['payment_type'] . ')',
+                $payment_status
+            ],
+            'source' => 'new-landing-page form',
+            'paramsFallbackValue' => ['FirstName' => 'user']
+        ]);
+    }
+
+    protected function sendWhatsAppMessage(array $data)
+    {
+        try {
+            $client = new \GuzzleHttp\Client();
+            $response = $client->post('https://backend.aisensy.com/campaign/t1/api/v2', [
+                'headers' => ['Content-Type' => 'application/json'],
+                'json' => $data
+            ]);
+            
+            Log::info('WhatsApp notification sent', ['response' => $response->getBody()]);
+        } catch (\Exception $e) {
+            Log::error('Failed to send WhatsApp notification', ['error' => $e->getMessage()]);
         }
     }
 

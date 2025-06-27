@@ -683,7 +683,7 @@ class FrontendController extends Controller
         /*First get the product and increment visitor count in one query*/
 
         if (!$attributeValue) {
-            $attributeValue = null;
+            abort(404);
         }
         $data['attributes_value_name'] = $attributeValue;
         $data['product_details'] = Product::with([

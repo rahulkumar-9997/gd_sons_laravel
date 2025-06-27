@@ -452,6 +452,11 @@ class FrontendController extends Controller
             }
 
             $attributeValue = Attribute_values::where('slug', $valueSlug)->first();
+            if (!$attributeValue) {
+                Log::error("No attribute value found for slug: {$valueSlug}");
+                return response()->json(['error' => 'Attribute value not found'], 404);
+            }
+
             $productsQuery = Product::where('category_id', $category->id)
                 ->where('product_status', 1);
             $productsQuery->whereHas('attributes', function ($query) use ($attribute_top, $attributeValue) {
@@ -678,7 +683,7 @@ class FrontendController extends Controller
         /*First get the product and increment visitor count in one query*/
 
         if (!$attributeValue) {
-            $attributeValue = '';
+            $attributeValue = null;
         }
         $data['attributes_value_name'] = $attributeValue;
         $data['product_details'] = Product::with([

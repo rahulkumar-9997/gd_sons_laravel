@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Subcategory;
 use Illuminate\Support\Str;
 class Category extends Model
 {
@@ -32,8 +33,10 @@ class Category extends Model
 
     public function subCategories()
     {
-        return $this->hasMany(SubCategory::class, 'category_id', 'id');
+        return $this->hasMany(Subcategory::class, 'category_id', 'id');
     }
+
+    
 
     public function products()
     {

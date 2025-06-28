@@ -15,6 +15,7 @@ class Attribute_values extends Model
         'slug',
         'attributes_id',
         'sort_order',
+        'images'
     ];
     
     public function product()

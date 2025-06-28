@@ -250,6 +250,9 @@ Route::group(['middleware' => ['admin']], function () {
     Route::post('merge-attributes-value', [AttributeController::class, 'mergeAttributesValue'])->name('merge-attributes-value');
     Route::post('merge-attributes-value/submit', [AttributeController::class, 'mergeAttributesValueFormSubmit'])->name('merge-attributes-value.submit');
 
+    Route::post('attributes-value-upload-img', [AttributeController::class, 'showForm'])->name('attributes-value-upload-img');
+    Route::post('attributes-value-upload-img/submit', [AttributeController::class, 'showFormSubmit'])->name('attributes-value-upload-img.submit');
+
     Route::post('/attributes-value', [AttributeController::class, 'attributesValueStore'])->name('attributes-value.store');
     Route::get('attributesvalue-list', [AttributeController::class, 'attributesValueList'])->name('attributesvalue-list');
     /**attributes value wise update gst and hsn code */

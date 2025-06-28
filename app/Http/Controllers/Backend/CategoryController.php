@@ -501,7 +501,7 @@ class CategoryController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Category deletion failed: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to delete category and its related data');
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 

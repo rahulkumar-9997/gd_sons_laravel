@@ -536,7 +536,7 @@ class AttributeController extends Controller
                 }
             }
             $image = $request->file('image');
-            $webpImageName = 'himgiri-img-' . $attrValue->slug . '-' . uniqid() . '.webp';
+            $webpImageName = 'gd-sons-img-' . $attrValue->slug . '-' . uniqid() . '.webp';
             $destinationPath = public_path('images/attribute-values/');
             $img_original = Image::make($image->getRealPath());
             $img_original->encode('webp', 75)->save($destinationPath . '/' . $webpImageName);

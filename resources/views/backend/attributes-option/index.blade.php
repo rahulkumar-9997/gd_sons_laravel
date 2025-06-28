@@ -58,20 +58,20 @@
                                     <span class="text-danger">This Attributes Value no mapped any Category, Please Edit & Mapped.</span>
                                 @endif
                             </h6>
-                            <span class="float-end">
-                                <button class="btn btn-sm btn-primary" data-url="{{ route('attributes-value-upload-img') }}" data-size="lg" data-attriid="{{ $attributes->id }}" data-attrivalid="{{ $value->id }}" data-title="Upload a image file of ({{ $value->name }})" data-bs-toggle="tooltip" title="Upload a image file" data-atvimg-popup="true">
+                            <span class="float-end" style="width: 25%;">
+                                <button class="btn btn-sm btn-primary mb1" data-url="{{ route('attributes-value-upload-img') }}" data-size="lg" data-attriid="{{ $attributes->id }}" data-attrivalid="{{ $value->id }}" data-title="Upload a image file of ({{ $value->name }})" data-bs-toggle="tooltip" title="Upload a image file" data-atvimg-popup="true">
                                     <i class="ti ti-file"></i>
                                 </button>
-                                <button class="btn btn-sm btn-warning mergeAttributesValue" data-url="{{ route('merge-attributes-value') }}" data-size="lg" data-attriid="{{ $attributes->id }}" data-attrivalid="{{ $value->id }}"  data-title="Merge this ({{ $value->name }}) Attribute Value" data-bs-toggle="tooltip" title="Merge this Attribute Value">
+                                <button class="btn btn-sm btn-warning mergeAttributesValue mb1" data-url="{{ route('merge-attributes-value') }}" data-size="lg" data-attriid="{{ $attributes->id }}" data-attrivalid="{{ $value->id }}"  data-title="Merge this ({{ $value->name }}) Attribute Value" data-bs-toggle="tooltip" title="Merge this Attribute Value">
                                     <i class="ti ti-arrow-merge"></i>
                                 </button>
-                                <button class="btn btn-sm btn-info editAttValue" data-url="{{ route('attributes-value.edit', $value->id) }}" data-size="md"   data-attrivid="{{$value->id}}" data-attributeid="{{ $attributes->id }}"  data-title="Edit Attribute Option" data-bs-toggle="tooltip" title="Edit Attribute Option">
+                                <button class="btn btn-sm btn-info editAttValue mb-1" data-url="{{ route('attributes-value.edit', $value->id) }}" data-size="md"   data-attrivid="{{$value->id}}" data-attributeid="{{ $attributes->id }}"  data-title="Edit Attribute Option" data-bs-toggle="tooltip" title="Edit Attribute Option">
                                 <i class="ti ti-pencil"></i>
                                 </button>
                                 <form method="POST" action="{{ route('attributes-value.delete', $value->id) }}" accept-charset="UTF-8" class="d-inline">
                                     @csrf
                                     <input name="_method" type="hidden" value="DELETE">
-                                    <button type="button" class="btn btn-sm btn-danger show_confirm" data-bs-toggle="tooltip"  data-name="{{ $value->name }}" title="Delete">
+                                    <button type="button" class="btn btn-sm btn-danger show_confirm mb-1" data-bs-toggle="tooltip"  data-name="{{ $value->name }}" title="Delete">
                                     <i class="ti ti-trash"></i>
                                     </button>
                                 </form>

@@ -13,7 +13,7 @@
                         <h2 class="accordion-header" id="headingFive">
                             <button class="accordion-button collapsed" type="button"
                                 data-bs-toggle="collapse" data-bs-target="#collapseFive-{{ $attributes->id}}">
-                                <span>{{ $attributes->title}}</span>
+                                <span>{{ $attributes->title}} </span>
                             </button>
                         </h2>
                         <div id="collapseFive-{{ $attributes->id}}" class="accordion-collapse collapse hide">

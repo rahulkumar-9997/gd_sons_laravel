@@ -573,6 +573,47 @@ class FrontendController extends Controller
                 }
             }
             DB::disconnect();
+			
+			$transformedstr = '';
+			$l1 = 0;			
+			foreach ($attributes_with_values_for_filter_list as $arritem) {
+				$l2 = 0;
+				$transformedstr .= $arritem['title'].'s like ';
+				foreach($arritem->AttributesValues as $aval)
+				{
+					if($aval->name == 'NA' || $aval->name == 'N/A')
+					{
+						continue;
+					}
+					$transformedstr .= $aval->name.' ';
+					$l2++;
+					if($l2 >= 3)
+					{
+						break;
+					}
+				}
+				$l1++;
+				if($l1 >= 3)
+				{
+					
+					break;
+				}
+			}
+			
+			/*
+			$transformedstr = $attributes_with_values_for_filter_list
+				->take(3)
+				->map(function($item) {
+					$values = $item->AttributesValues
+						->reject(fn($aval) => in_array($aval->name, ['NA', 'N/A']))
+						->take(3)
+						->pluck('name')
+						->implode(' ');
+					return "{$item->title}s like {$values}";
+				})
+				->implode(' ');
+			*/
+			
             // Return view for non-AJAX requests
             return view('frontend.pages.product-catalog', compact(
                 'products',
@@ -581,12 +622,16 @@ class FrontendController extends Controller
                 'attribute_top',
                 'primary_category',
                 'specialOffers',
-                'attributes_with_values_for_filter_list'
+                'attributes_with_values_for_filter_list', 'transformedstr'
             ));
         } catch (\Exception $e) {
             Log::error('Error fetching product catalog: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
-            return response()->json(['error' => 'Something went wrong.'], 500);
+			return response()->json([
+				'error' => $e->getMessage(),
+				'file' => $e->getFile(),
+				'line' => $e->getLine(),
+			], 500);
         }
     }
 
@@ -957,11 +1002,44 @@ class FrontendController extends Controller
                 }
             }
             DB::disconnect();
-            return view('frontend.pages.product-catalog-category', compact('products', 'specialOffers', 'category', 'attributes_with_values_for_filter_list', 'primary_category'));
+			// return response()->json($attributes_with_values_for_filter_list);
+			 
+			$transformedstr = '';
+			$l1 = 0;
+			foreach ($attributes_with_values_for_filter_list as $arritem) {
+				$l2 = 0;
+				$transformedstr .= $arritem['title'].'s like ';
+				foreach($arritem->AttributesValues as $aval)
+				{
+					if($aval->name == 'NA' || $aval->name == 'N/A')
+					{
+						continue;
+					}
+					$transformedstr .= $aval->name.' ';
+					$l2++;
+					if($l2 >= 3)
+					{
+						break;
+					}
+				}
+				$l1++;
+				if($l1 >= 3)
+				{
+					
+					break;
+				}
+			}
+
+			// return response()->json($transformedData);
+            return view('frontend.pages.product-catalog-category', compact('products', 'specialOffers', 'category', 'attributes_with_values_for_filter_list', 'primary_category', 'transformedstr'));
         } catch (\Exception $e) {
             Log::error('Error fetching product catalog: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
-            return response()->json(['error' => 'Something went wrong.'], 500);
+			return response()->json([
+				'error' => $e->getMessage(),
+				'file' => $e->getFile(),
+				'line' => $e->getLine(),
+			], 500);
         }
     }
 

@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers\Frontend;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Category;
@@ -16,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class SearchController extends Controller
 {
-    public function searchSuggestions(Request $request){
+    public function searchSuggestionsOld(Request $request){
         $query = $request->get('query');
         $searchTerms = explode(' ', $query);
         $booleanQuery = '+' . implode(' +', $searchTerms);
@@ -41,49 +40,188 @@ class SearchController extends Controller
         return response()->json(['suggestions' => $suggestions]);
     }
 
-    public function searchListProduct_old(Request $request){
+    public function searchSuggestions_OLD(Request $request) {
         $query = $request->get('query');
-        $category = $request->get('category');
-
-        if (!$query) {
-           // return redirect('/');
-        }
-
         $searchTerms = explode(' ', $query);
+        
+        // Search products
         $booleanQuery = '+' . implode(' +', $searchTerms);
+        $products = Product::whereRaw("MATCH(title) AGAINST(? IN BOOLEAN MODE)", [$booleanQuery])
+            ->orWhere(function ($query) use ($searchTerms) {
+                foreach ($searchTerms as $term) {
+                    $query->where('title', 'like', '%' . $term . '%');
+                }
+            })
+            ->with('firstImage')
+            ->limit(5) // Reduced limit to make room for other types
+            ->get(['id', 'title']);
 
-        $productsQuery = Product::leftJoin('inventories', function ($join) {
-            $join->on('products.id', '=', 'inventories.product_id')
-                ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-        })
-        ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
-        ->whereRaw("MATCH(title) AGAINST(? IN BOOLEAN MODE)", [$booleanQuery])
-        ->orWhere(function ($query) use ($searchTerms) {
-            foreach ($searchTerms as $term) {
-                $query->where('title', 'like', '%' . $term . '%');
-            }
-        })
-        ->with('firstImage');
+        // Search categories
+        $categories = Category::where(function ($query) use ($searchTerms) {
+                foreach ($searchTerms as $term) {
+                    $query->where('title', 'like', '%' . $term . '%');
+                }
+            })
+            ->limit(5)
+            ->get(['id', 'title']);
 
-        if ($category) {
-            $categoryIds = explode(',', $category);
-            $productsQuery->whereIn('category_id', $categoryIds);
-        }
+        // Search attributes
+        $attributes = Attribute::where(function ($query) use ($searchTerms) {
+                foreach ($searchTerms as $term) {
+                    $query->where('title', 'like', '%' . $term . '%');
+                }
+            })
+            ->limit(5)
+            ->get(['id', 'title']);
 
-        $products = $productsQuery->paginate(100);
+        // Search attribute values
+        $attributeValues = Attribute_values::where(function ($query) use ($searchTerms) {
+                foreach ($searchTerms as $term) {
+                    $query->where('name', 'like', '%' . $term . '%');
+                }
+            })
+            ->limit(5)
+            ->get(['id', 'name as title', 'attributes_id']);
 
-        $categories = Category::whereHas('products', function ($query) use ($searchTerms) {
-            foreach ($searchTerms as $term) {
-                $query->where('title', 'like', '%' . $term . '%');
-            }
-        })->get();
+        // Format all results
+        $suggestions = collect();
+        
+        // Add products
+        $suggestions = $suggestions->merge($products->map(function ($product) {
+            $image = $product->firstImage;
+            return [
+                'type' => 'product',
+                'title' => ucwords(strtolower($product->title)),
+                'image' => $image ? asset('images/product/icon/' . $image->image_path) : null,
+            ];
+        }));
+        
+        // Add categories
+        $suggestions = $suggestions->merge($categories->map(function ($category) {
+            return [
+                'type' => 'category',
+                'title' => ucwords(strtolower($category->title)),
+                'image' => null,
+            ];
+        }));
+        
+        // Add attributes
+        $suggestions = $suggestions->merge($attributes->map(function ($attribute) {
+            return [
+                'type' => 'attribute',
+                'title' => ucwords(strtolower($attribute->title)),
+                'image' => null,
+            ];
+        }));
+        
+        // Add attribute values
+        $suggestions = $suggestions->merge($attributeValues->map(function ($value) {
+            return [
+                'type' => 'attribute_value',
+                'title' => ucwords(strtolower($value->title)),
+                'image' => null,
+            ];
+        }));
 
-        return view('frontend.pages.search-catalog', [
-            'products' => $products,
-            'categories' => $categories,
-            'query' => $query
-        ]);
+        DB::disconnect();
+        return response()->json(['suggestions' => $suggestions]);
     }
+
+    public function searchSuggestions(Request $request)
+    {
+        $query = $request->get('query');
+        $searchTerms = explode(' ', $query);
+        /* Search products */
+        $booleanQuery = '+' . implode(' +', $searchTerms);
+        $products = Product::whereRaw("MATCH(title) AGAINST(? IN BOOLEAN MODE)", [$booleanQuery])
+            ->orWhere(function ($query) use ($searchTerms) {
+                foreach ($searchTerms as $term) {
+                    $query->where('title', 'like', '%' . $term . '%');
+                }
+            })
+            ->with([
+                'firstImage',
+                'category',
+                'ProductAttributesValues' => function ($query) {
+                    $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
+                        ->with(['attributeValue:id,slug'])
+                        ->orderBy('id');
+                }
+            ])
+            ->leftJoin('inventories', function ($join) {
+                $join->on('products.id', '=', 'inventories.product_id')
+                    ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+            })
+            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+            ->limit(5)
+            ->get(['id', 'title', 'slug']); 
+
+        /* Search categories */
+        $categories = Category::where(function ($query) use ($searchTerms) {
+                foreach ($searchTerms as $term) {
+                    $query->where('title', 'like', '%' . $term . '%');
+                }
+            })
+            ->limit(5)
+            ->get(['id', 'title']);
+
+        /* Search attribute values */
+        $attributeValues = Attribute_values::where(function ($query) use ($searchTerms) {
+                foreach ($searchTerms as $term) {
+                    $query->where('name', 'like', '%' . $term . '%');
+                }
+            })
+            ->with('attribute')
+            ->limit(5)
+            ->get(['id', 'name as title', 'attributes_id']);
+        $suggestions = collect();
+        
+        /* Add attribute values (as suggestions) */
+        $suggestions = $suggestions->merge($attributeValues->map(function ($value) {
+            return [
+                'type' => 'suggestion',
+                'title' => ucwords(strtolower($value->title)),
+                'image' => null,
+            ];
+        }));
+        
+        /* Add categories (as suggestions) */
+        $suggestions = $suggestions->merge($categories->map(function ($category) {
+            return [
+                'type' => 'suggestion',
+                'title' =>  ucwords(strtolower($category->title)),
+                'image' => null,
+            ];
+        }));
+        $attributes_value = null;
+        $suggestions = $suggestions->merge($products->map(function ($product) {
+            $image = $product->firstImage;
+            if($product->ProductAttributesValues->isNotEmpty()){
+                $attributes_value = $product->ProductAttributesValues->first()->attributeValue->slug;
+            }
+            if ($product->offer_rate)
+            {
+                $offer_rate = 'Rs. ' . $product->offer_rate;
+            }
+            else
+            {
+                $offer_rate = 'Price not available';
+            }
+            return [
+                'type' => 'product',
+                'title' => ucwords(strtolower($product->title)),
+                'slug' => $product->slug,
+                'attributes_value' => $attributes_value,
+                'category' => $product->category->title,
+                'offer_rate' => $offer_rate,
+                'image' => $image ? asset('images/product/icon/' . $image->image_path) : null,
+                'slug' => $product->slug,
+            ];
+        }));
+
+        return response()->json(['suggestions' => $suggestions]);
+    }
+
 
     public function searchListProduct(Request $request){
         $query = $request->get('query');

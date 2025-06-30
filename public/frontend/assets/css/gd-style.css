@@ -283,8 +283,10 @@
     box-shadow: 0 0 5px 2px #c4c1c1;
     /* max-height: 200px;
     overflow-y: auto; */
-    overflow: hidden;
+    overflow: auto;
     white-space: nowrap;
+    max-height: 80vh;
+    width: 100%;
 
   }
   
@@ -329,7 +331,7 @@
     color: #222;
 }
 .suggestion-item i, .suggestion-item img{
-  padding-right: 10px;
+  padding-right: 0px;
 }
 .suggestions-list .highlight {
   color: #000000;

@@ -87,9 +87,6 @@ $search_value = !empty($query) ? $query : '';
 
                            <div class="input-group">
                               <input type="search" id="search-input" class="form-control" placeholder="Search for Products" value="{{$search_value}}">
-                              <!-- <button class="btn" type="button" id="button-addon2">
-                                 <i data-feather="search"></i>
-                              </button> -->
                               <ul class="suggestions-list suggestions"></ul>
                            </div>
                         </form>

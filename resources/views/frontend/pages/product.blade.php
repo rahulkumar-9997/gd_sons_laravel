@@ -1,4 +1,5 @@
 @php
+$brand = '';
 $categorytitle = $data['product_details']->category->title;
 if (substr($categorytitle, -1) === 's')
 {
@@ -225,6 +226,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         @php
                                         $product = $data['product_details'];
                                         $final_offer_rate = null;
+										$schema_offer = null;
                                         $offer_rate_display = '';
                                         $special_offer_rate = null;
                                         $group_offer_rate = null;
@@ -278,6 +280,9 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 
                                             {{-- Show crossed MRP --}}
                                             @if($product->mrp)
+												@php
+													$schema_offer = $final_offer_rate;
+												@endphp
                                             <br><span>M.R.P.</span><del class="text-content">
                                                 Rs. {{ number_format($product->mrp, 2) }}
                                             </del>
@@ -426,6 +431,12 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         @foreach($data['product_details']->attributes as $attribute)
                                         @if(isset($attribute->values) && $attribute->values->isNotEmpty())
                                         <li>
+                                            @php
+                                                if($attribute->attribute->title == 'Brand')
+                                                {
+                                                    $brand = $attribute->attribute->title;
+                                                }
+                                            @endphp
                                             {{ $attribute->attribute->title }} :
                                             @foreach($attribute->values as $value)
                                             <a href="javascript:void(0)">{{ $value->attributeValue->name }}</a>@if(!$loop->last),@endif
@@ -652,6 +663,38 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 <!-- Sticky Cart Box End -->
 <!--sticky cart code -->
 @endsection
+
+
+@push('schema')
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Product",
+  "name": "{{ $data['product_details']->title }}",
+  "description": "{{$meta_description}}",
+  "image": "{{ $data['product_details']->images->first()->image_path }}",
+  "sku": "{{$data['product_details']->id}}",
+  "price": "{{ $schema_offer }}",
+  "priceCurrency": "INR",
+  "category": "{{ $categorytitle }}",
+  "brand": "{{$data['attributes_value_name']->name}}",
+  "offers": {
+    "@type": "Offer",
+    "price": "{{ $schema_offer }}",
+    "priceCurrency": "INR",
+    "url": "{{ url()->current() }}",
+	"priceValidUntil": "2025-12-31",
+	"priceSpecification": {
+      "@type": "PriceSpecification",
+      "price": "{{ $product->mrp }}",  // MRP (Maximum Retail Price)
+      "priceCurrency": "INR",
+      "gstIncluded": "true"
+    },
+    "availability": "http://schema.org/InStock"
+  }
+}</script>
+@endpush
+
 @push('scripts')
 <script src="{{asset('frontend/assets/js/jquery.elevatezoom.js')}}"></script>
 <script src="{{asset('frontend/assets/js/zoom-filter.js')}}"></script>

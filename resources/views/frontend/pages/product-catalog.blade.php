@@ -4,7 +4,7 @@
 @else
     @section('title', 'Complete Range of ' . $category->title . ' ' . $attributeValue->name . ' in Varanasi.')
 @endif
-@section('description', 'GD Sons - ' . $category->title . ' : ' . $attributeValue->name)
+@section('description', 'Complete Range of ' . $category->title . ' ' . $attributeValue->name . ' in Varanasi. '.$transformedstr)
 @section('keywords', 'GD Sons - ' . $category->title . ' : ' . $attributeValue->name)
 @section('main-content')
 <!-- Breadcrumb Section Start -->

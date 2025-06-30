@@ -4,7 +4,6 @@
 @else
     @section('title', 'Complete Range of '. $category->title.' in Varanasi.')
 @endif
-@section('description', 'GD Sons - ' . $category->title)
 @section('keywords', 'GD Sons, ' . $category->title . ', Girdar das and sons')
 
 @section('main-content')
@@ -51,6 +50,9 @@
       </div>
         <div class="row" id="product-catalog-frontend">
             @include('frontend.pages.ajax-product-category-catalog', [$products, $attributes_with_values_for_filter_list])
+			
+			
+						
         </div>
         @if($primary_category)
         <div class="row justify-content-md-center primary-category-div">
@@ -71,6 +73,8 @@
                     <div class="delivery-list-category">
                         <p class="text-content">
                         {{ $category->description }}
+						
+						
                         </p>
                     </div>
                 </div>
@@ -78,6 +82,7 @@
         @endif
    </div>
 </section>
+@section('description', 'Explore a wide range of '. $category->title.' at Girdhar Das and Sons, featuring '.$transformedstr.'. Girdhar Das and Sons offers best selection in Varanasi. Shop now for unbeatable deals and quality!')
 
 <!-- Shop Section End -->
 @endsection

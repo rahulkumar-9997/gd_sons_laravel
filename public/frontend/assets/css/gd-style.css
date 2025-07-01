@@ -1619,37 +1619,43 @@ a.cntshop {
 }
 
 .category-slider-wrapper {
-    width: calc(100% - 80px);
+    width: 100%;
     margin: 0 auto;
     overflow: hidden;
+    padding-top: 10px;
 }
 
 .category-section-2 .category-slider {
     display: flex;
-    flex-flow: row nowrap;
-    gap: 15px;
-    transition: transform 0.3s ease;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    padding: 5px 0;
+    flex-wrap: wrap;
+    margin-left: -10px;
+    margin-right: -10px;
+    word-break: break-word;
 }
 
 .category-section-2 .category-slider::-webkit-scrollbar {
     display: none;
 }
 
-.category-slider-home .category-item-home {
-    flex: 0 0 auto;
-    width: 120px;
-    min-width: 100px;
-    cursor: pointer;
-    transition: transform 0.2s;
+[data-view="6-3"] .grid-item {
+    flex: 0 0 11.66667%;
+}
+
+.category-item-home {
+    align-items: stretch;
+    display: flex;
+    flex: 0 0 100%;
+    margin-bottom: 10px;
+    padding-inline: 8px;
 }
 
 .category-slider-home .category-item-home:hover {
     transform: translateY(-5px);
 }
 
+.collection_list {
+    justify-content: center;
+}
 .category-link {
     display: block;
     text-align: center;
@@ -1657,8 +1663,8 @@ a.cntshop {
 }
 
 .category-img-container {
-    width: 80px;
-    height: 80px;
+    width: 125px;
+    height: 125px;
     margin: 0 auto;
     border-radius: 50%;
     overflow: hidden;
@@ -1690,6 +1696,15 @@ a.cntshop {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+@media only screen and (max-width: 768px) {
+    [data-view="6-3"] .grid-item {
+        flex: 0 0 23.33333%;
+    }
+    .grid-item {
+        padding-left: 6px;
+        padding-right: 6px;
+    }
 }
 
 .category-slider-arrow {
@@ -1744,12 +1759,26 @@ a.cntshop {
     }
     
     .category-img-container {
-        width: 70px;
-        height: 70px;
+        width: 98px;
+        height: 98px;
     }
     .category-section-2.home-category-section {
       padding: 6px 0;
     }
+}
+@media (min-width: 576px) {
+  .flash-sale-button{
+    padding: 6px 13px;
+  }
+  header .navbar.navbar-expand-xl .navbar-nav .nav-item+.nav-item{
+    margin-left: calc(20px + 10 * (100vw - 1200px) / 720);
+  }
+  .product-box-3 .product-header .product-image img {
+      height: 145px;
+  }
+  .header-top .varanasi-top{
+    display: block !important;
+  }
 }
 /*category*/
 /*Highlighted Products*/

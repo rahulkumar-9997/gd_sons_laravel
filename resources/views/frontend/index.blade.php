@@ -8,14 +8,10 @@
     <div class="container-fluid-lg">
         <div class="row">
             <div class="col-12 position-relative">
-                <button class="category-slider-arrow category-slider-prev" aria-label="Previous">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-
-                <div class="category-slider-wrapper">
-                    <div class="category-slider arrow-slider category-slider-home">
+                <div class="category-slider-wrapper new-grid">
+                    <div class="category-slider arrow-slider category-slider-home collection_list" data-view="6-3">
                         @foreach($data['category_list'] as $index => $category)
-                        <div class="category-item-home">
+                        <div class="category-item-home grid-item">
                             <div class="shop-category-box border-0">
                                 <a href="{{ route('categories', ['categorySlug' => $category->slug]) }}" class="category-link circle-{{ ($index % 4) + 1 }}">
                                     <div class="category-img-container">
@@ -35,25 +31,19 @@
                         @endforeach
                     </div>
                 </div>
-
-                <button class="category-slider-arrow category-slider-next" aria-label="Next">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
             </div>
         </div>
     </div>
 </section>
 @endif
 <!-- Home Section Start -->
-<section class="home-section pt-2">
+<!--<section class="home-section pt-2">
     <div class="container-fluid-lg">
         <div class="row g-2">
             <div class="col-xl-8 ratio_65">
                 <div class="home-contain h-1001">
-                    <!-- data-bs-ride="carousel" data-bs-interval="3000" -->
                     @if ($data['banner'] && $data['banner']->isNotEmpty())
                     <div id="homeBannerCarousel" class="carousel slide silk-carousel-wrapper home-banner-carousel" data-bs-ride="carousel" data-bs-interval="3000">
-                        <!-- Indicators/Dots -->
                         <div class="carousel-indicators">
                             @foreach ($data['banner'] as $index => $banner)
                             <button type="button" data-bs-target="#homeBannerCarousel" data-bs-slide-to="{{ $index }}"
@@ -61,8 +51,6 @@
                                 aria-label="Slide {{ $index + 1 }}"></button>
                             @endforeach
                         </div>
-
-                        <!-- Carousel Inner -->
                         <div class="carousel-inner">
                             @foreach ($data['banner'] as $index => $banner)
                             <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
@@ -81,8 +69,6 @@
                             </div>
                             @endforeach
                         </div>
-
-                        <!-- Controls -->
                         <button class="carousel-control-prev" type="button" data-bs-target="#homeBannerCarousel" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Previous</span>
@@ -98,42 +84,6 @@
             </div>
             <div class="col-xl-4 ratio_65 banner-side two-banner-home">
                 <div class="row g-2 h-100">
-                    <!-- @if (!isset($_SERVER['HTTP_USER_AGENT']) || !preg_match('/(android|iphone|ipod|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])))
-                    <div class="single-bn-mo-dnone h-100">
-                        <div class="home-enquiry-form h-100">
-                            <div class="home-enquiry-title text-center">
-                                <h3>
-                                    Request a Product or Item
-                                </h3>
-                            </div>
-                            <div class="form">
-                                <form action="{{ route('request.product.enquiry.submit')}}" method="post" id="requestAproductEnquiry">
-                                    @csrf
-                                    <div class="mb-md-4 mb-3 custom-form">
-                                        <div class="custom-input">
-                                            <input type="text" class="form-control" id="name" placeholder="Enter your name *" name="name">
-
-                                        </div>
-                                    </div>
-                                    <div class="mb-md-4 mb-3 custom-form">
-                                        <div class="custom-input">
-                                            <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number *" maxlength="10" oninput="javascript: if (this.value.length > this.maxLength) this.value =
-                                                this.value.slice(0, this.maxLength);" name="phone">
-
-                                        </div>
-                                    </div>
-                                    <div class="mb-md-4 mb-3 custom-form">
-                                        <div class="custom-textarea">
-                                            <textarea class="form-control" id="message" placeholder="Enter your message" rows="3" name="message"></textarea>
-
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-animation btn-md fw-bold ms-auto" type="submit">Submit</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    @endif -->
                     <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dnone">
                         <div class="home-contain">
                             <img src="{{asset('frontend/assets/images/side-banner-1.png')}}" class="img-responsive blur-up lazyload"
@@ -164,47 +114,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dblock">
-                        <div class="row">
-                            <div class="col-md-6 col-6">
-                                <a href="https://maps.app.goo.gl/8hPKnwQUX2Z3cT7GA" target="_blank" class="btn theme-bg-color btn-md fw-bold text-white">
-                                    Visit our Store
-                                </a>
-                            </div>
-                            <div class="col-md-6 col-6">
-                                <a class="btn theme-bg-color btn-md fw-bold text-white mobile-category">
-                                    Explore All Products
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dblock">
-                        <div class="row">
-                            <div class="col-md-6 col-6">
-                                <a href="tel:+918318894257" class="btn theme-bg-color btn-md fw-bold text-white">
-                                    Call us Now
-                                </a>
-                            </div>
-                            <div class="col-md-6 col-6">
-                                <a href="javascript:void(0)"
-                                    data-url="{{ route('request.product.enquiry.form') }}" data-title="Request a Product or Item"
-                                    data-pageurl="{{url()->current()}}"
-                                    data-size="md"
-                                    class="btn theme-bg-color btn-md fw-bold text-white requestProductBtn">
-                                    Need Something ?
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dblock">
-                        <div class="row justify-content-center">
-                            <div class="col-md-6 col-6 mobile-flash-sale-div">
-                                <a href="{{ route('flash.sale')}}" class="flash-sale-button">
-                                    Flash Sale <small>Only Limited Time</small>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -214,6 +124,53 @@
                     <h1 class="class-h1-tags">
                         Best Kitchen Retail Store in Varanasi now goes Online.
                     </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>-->
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dblock">
+                <div class="row">
+                    <div class="col-md-6 col-6 mb-2">
+                        <a href="https://maps.app.goo.gl/8hPKnwQUX2Z3cT7GA" target="_blank" class="btn theme-bg-color btn-md fw-bold text-white">
+                            Visit our Store
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-6 mb-2">
+                        <a class="btn theme-bg-color btn-md fw-bold text-white mobile-category">
+                            Explore All Products
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dblock">
+                <div class="row">
+                    <div class="col-md-6 col-6 mb-2">
+                        <a href="tel:+918318894257" class="btn theme-bg-color btn-md fw-bold text-white">
+                            Call us Now
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-6 mb-2">
+                        <a href="javascript:void(0)"
+                            data-url="{{ route('request.product.enquiry.form') }}" data-title="Request a Product or Item"
+                            data-pageurl="{{url()->current()}}"
+                            data-size="md"
+                            class="btn theme-bg-color btn-md fw-bold text-white requestProductBtn">
+                            Need Something ?
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dblock">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 col-6 mobile-flash-sale-div">
+                        <a href="{{ route('flash.sale')}}" class="flash-sale-button">
+                            Flash Sale <small>Only Limited Time</small>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -355,7 +312,7 @@
                             $row_count = 0;
                             @endphp
                             <div>
-                                <div class="row g-sm-4 g-3 row-cols-xxl-5 row-cols-xl-3 row-cols-lg-5 row-cols-md-3 row-cols-2 m-0">
+                                <div class="row g-sm-4 g-3 row-cols-xxl-5 row-cols-xl-5 row-cols-lg-5 row-cols-md-3 row-cols-2 m-0">
                                     @foreach ($data['popular_products'] as $popular_product_row)
                                     @php
                                     $firstImage = $popular_product_row->images->get(0);

@@ -65,7 +65,7 @@
     </div>
 </div>
 @if (isset($products) && $products->isNotEmpty())
-    <div class="row g-sm-4 g-3 row-cols-xxl-4 row-cols-xl-3 row-cols-lg-3 row-cols-md-3 row-cols-2 product-list-section" id="load-more-append-flash-deal">
+    <div class="row g-sm-4 g-3 row-cols-xxl-4 row-cols-xl-4 row-cols-lg-4 row-cols-md-3 row-cols-2 product-list-section" id="load-more-append-flash-deal">
         @include('frontend.pages.partials.ajax-flash-sale-load-more', [$products])
     </div>
 @else

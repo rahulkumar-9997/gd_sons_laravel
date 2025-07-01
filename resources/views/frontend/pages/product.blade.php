@@ -82,6 +82,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                     $offer_rate_display = '';
                                     $special_offer_rate = null;
                                     $group_offer_rate = null;
+                                    $schema_offer = null;
 
                                     // Default offer rate from product
                                     if ($product->offer_rate) {
@@ -120,6 +121,9 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                     @endphp
 
                                     @if($final_offer_rate)
+                                    @php
+                                        $schema_offer = $final_offer_rate;
+                                    @endphp
                                     <div>
                                         Rs. {{ number_format($final_offer_rate, 2) }}
 
@@ -213,7 +217,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                     <div class="col-xl-6" data-wow-delay="0.1s">
                         <div class="right-box-contain">
                             @if(preg_match('/(android|iphone|ipod|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])))
-
+                                    $schema_offer = null;
                             @else
                             <div class="for-desktop-price">
                                 <h1 class="name">{{$data['product_details']->title}}</h1>
@@ -272,6 +276,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                             @if($product->mrp)
                                             @php
                                             $discountPercentage = round((($product->mrp - $final_offer_rate) / $product->mrp) * 100, 2);
+
                                             @endphp
                                             <span class="offer theme-color">
                                                 ({{ $discountPercentage }}% off)

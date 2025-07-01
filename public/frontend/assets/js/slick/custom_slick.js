@@ -1315,13 +1315,13 @@ $('.product-box-slider').slick({
     {
         breakpoint: 1400,
         settings: {
-            slidesToShow: 4,
+            slidesToShow: 5,
         }
     },
     {
         breakpoint: 1200,
         settings: {
-            slidesToShow: 4,
+            slidesToShow: 5,
         }
     }, {
         breakpoint: 992,

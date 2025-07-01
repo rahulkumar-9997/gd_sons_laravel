@@ -297,7 +297,7 @@
 });
 
 /**category slider js code  */
-$(document).ready(function() {
+/*$(document).ready(function() {
     const slider = $('.category-slider');
     const prevBtn = $('.category-slider-prev');
     const nextBtn = $('.category-slider-next');
@@ -363,6 +363,7 @@ $(document).ready(function() {
     });
     initSlider();
 });
+*/
 /**category slider js code  */
 /*Highlighted Products */
 /*$(document).ready(function() {

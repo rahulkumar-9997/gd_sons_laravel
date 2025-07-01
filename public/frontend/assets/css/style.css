@@ -20299,18 +20299,15 @@ span {
 }
 
 .category-section-2 .category-slider .shop-category-box .category-name h6 {
-    -webkit-transition: all .3s ease-in-out;
-    transition: all .3s ease-in-out;
+    
     margin: 0 auto;
     font-size: 15px;
-    /* letter-spacing: .7px; */
     line-height: 1.3;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    -webkit-line-clamp: 3;
-    margin-bottom: 0;
-    font-weight: 600
+    font-weight: 600;
+    display: block;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .category-section-3 .category-box-list {

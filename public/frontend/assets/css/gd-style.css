@@ -1700,6 +1700,7 @@ a.cntshop {
 @media only screen and (max-width: 768px) {
     [data-view="6-3"] .grid-item {
         flex: 0 0 23.33333%;
+        flex: 1;
     }
     .grid-item {
         padding-left: 6px;
@@ -1750,7 +1751,7 @@ a.cntshop {
 
 @media (max-width: 767px) {
     .category-slider-wrapper {
-        width: calc(100% - 0px);
+        overflow: unset;
     }
     
     .category-slider-arrow {
@@ -1765,6 +1766,10 @@ a.cntshop {
     .category-section-2.home-category-section {
       padding: 6px 0;
     }
+    .category-slider-wrapper .collection_list {
+      justify-content: unset;
+    }
+
 }
 @media (min-width: 576px) {
   .flash-sale-button{

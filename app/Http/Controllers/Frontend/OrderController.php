@@ -551,8 +551,9 @@ class OrderController extends Controller
                 $payment_status = "Unpaid";
                 $customerName = $checkoutData['ship_full_name'];
                 Mail::to($checkoutData['ship_email'])->queue(new OrderDetailsMail($orderDetails));
-                Mail::to('akshat.gd@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
-                $this->sendWhatsAppNotifications($orderId, $payment_status, $checkoutData);
+				Mail::to('akshat.gd@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
+				//Mail::to('rahulkumarmaurya464@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
+				$this->sendWhatsAppNotifications($orderId, $payment_status, $checkoutData);
             }
             
             DB::commit();
@@ -578,7 +579,13 @@ class OrderController extends Controller
     protected function sendWhatsAppNotifications($orderId, $payment_status, array $checkoutData)
     {
         $apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY';
-        
+		$date_whatsapp = now()->setTimezone('Asia/Kolkata')->addDays(2)->format('d-m-Y');
+		Log::info('sendWhatsAppNotifications Function', [
+			'order_id' => $orderId,
+			'payment_status' => $payment_status,
+			'checkout_data' => $checkoutData,
+			'delivery_date' => $date_whatsapp,
+		]);
         /* Customer notification */
         $this->sendWhatsAppMessage([
             'apiKey' => $apiKey,
@@ -589,7 +596,7 @@ class OrderController extends Controller
                 $checkoutData['ship_full_name'],
                 $orderId,
                 $checkoutData['grand_total_amount'],
-                now()->setTimezone('Asia/Kolkata')->subDays(2)->format('Y-m-d')
+                $date_whatsapp
             ],
             'source' => 'new-landing-page form',
             'paramsFallbackValue' => ['FirstName' => 'user']

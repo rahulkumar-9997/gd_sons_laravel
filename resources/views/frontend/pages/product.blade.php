@@ -3,7 +3,7 @@ $brand = '';
 $categorytitle = $data['product_details']->category->title;
 if (substr($categorytitle, -1) === 's')
 {
-    $categorytitle = substr($categorytitle, 0, -1);
+$categorytitle = substr($categorytitle, 0, -1);
 }
 if ($data['product_details']->meta_title) {
 $meta_title = $data['product_details']->meta_title;
@@ -122,7 +122,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 
                                     @if($final_offer_rate)
                                     @php
-                                        $schema_offer = $final_offer_rate;
+                                    $schema_offer = $final_offer_rate;
                                     @endphp
                                     <div>
                                         Rs. {{ number_format($final_offer_rate, 2) }}
@@ -217,7 +217,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                     <div class="col-xl-6" data-wow-delay="0.1s">
                         <div class="right-box-contain">
                             @if(preg_match('/(android|iphone|ipod|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])))
-                                    $schema_offer = null;
+                            $schema_offer = null;
                             @else
                             <div class="for-desktop-price">
                                 <h1 class="name">{{$data['product_details']->title}}</h1>
@@ -230,7 +230,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         @php
                                         $product = $data['product_details'];
                                         $final_offer_rate = null;
-										$schema_offer = null;
+                                        $schema_offer = null;
                                         $offer_rate_display = '';
                                         $special_offer_rate = null;
                                         $group_offer_rate = null;
@@ -285,9 +285,9 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 
                                             {{-- Show crossed MRP --}}
                                             @if($product->mrp)
-												@php
-													$schema_offer = $final_offer_rate;
-												@endphp
+                                            @php
+                                            $schema_offer = $final_offer_rate;
+                                            @endphp
                                             <br><span>M.R.P.</span><del class="text-content">
                                                 Rs. {{ number_format($product->mrp, 2) }}
                                             </del>
@@ -352,20 +352,19 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         </button>
                                     </div>
                                 </div>
-                                
+
                                 @if(intval($data['product_details']->mrp) > 0 && intval($data['product_details']->stock_quantity) > 0)
-                                    <button class="add-to-cart btn btn-md bg-dark cart-button text-white w-100" data-url="{{route('add.to.cart')}}" data-pid="{{$data['product_details']->id}}"
-                                        data-mrp="{{$data['product_details']->mrp}}" 
-                                        data-track-btn-type="Add to cart without login"
-                                        data-track-click="true"
-                                        data-track-route="{{route('click.tracker')}}"
-                                        >
-                                        Add To Cart
-                                    </button>
+                                <button class="add-to-cart btn btn-md bg-dark cart-button text-white w-100" data-url="{{route('add.to.cart')}}" data-pid="{{$data['product_details']->id}}"
+                                    data-mrp="{{$data['product_details']->mrp}}"
+                                    data-track-btn-type="Add to cart without login"
+                                    data-track-click="true"
+                                    data-track-route="{{route('click.tracker')}}">
+                                    Add To Cart
+                                </button>
                                 @else
-                                    <button disabled="" class="btn btn-md bg-dark cart-button text-white w-100">
-                                        Out Of Stock
-                                    </button>
+                                <button disabled="" class="btn btn-md bg-dark cart-button text-white w-100">
+                                    Out Of Stock
+                                </button>
                                 @endif
                             </div>
 
@@ -403,8 +402,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                     title="Wishlist"
                                     data-track-btn-type="Add To Wishlist"
                                     data-track-click="true"
-                                    data-track-route="{{route('click.tracker')}}"
-                                    >
+                                    data-track-route="{{route('click.tracker')}}">
                                     <i data-feather="heart"></i>
                                     <span>Add To Wishlist</span>
                                 </a>
@@ -412,16 +410,15 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                             </div>
                             <div class="whatsapp-area">
                                 <div class="whatapp-enquirybtn">
-                                    <a 
-                                    class="product_detail_whattsapp btn mr-10 btn-md" 
-                                    data-title="{{ucwords(strtolower($data['product_details']->title))}}" data-pid="{{$data['product_details']->id}}"
-                                    data-url="{{route('product-enquiry-modal-form')}}"
-                                    data-pageurl="{{url()->current()}}"
-                                    data-size="md" href="javascript:void(0);"
-                                    data-track-btn-type="Send Enquiry through WhatsApp"
-                                    data-track-click="true"
-                                    data-track-route="{{route('click.tracker')}}"
-                                    >
+                                    <a
+                                        class="product_detail_whattsapp btn mr-10 btn-md"
+                                        data-title="{{ucwords(strtolower($data['product_details']->title))}}" data-pid="{{$data['product_details']->id}}"
+                                        data-url="{{route('product-enquiry-modal-form')}}"
+                                        data-pageurl="{{url()->current()}}"
+                                        data-size="md" href="javascript:void(0);"
+                                        data-track-btn-type="Send Enquiry through WhatsApp"
+                                        data-track-click="true"
+                                        data-track-route="{{route('click.tracker')}}">
                                         <i class="fa fa-whatsapp"></i> Send Enquiry through WhatsApp
                                     </a>
                                 </div>
@@ -437,10 +434,10 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         @if(isset($attribute->values) && $attribute->values->isNotEmpty())
                                         <li>
                                             @php
-                                                if($attribute->attribute->title == 'Brand')
-                                                {
-                                                    $brand = $attribute->attribute->title;
-                                                }
+                                            if($attribute->attribute->title == 'Brand')
+                                            {
+                                            $brand = $attribute->attribute->title;
+                                            }
                                             @endphp
                                             {{ $attribute->attribute->title }} :
                                             @foreach($attribute->values as $value)
@@ -456,56 +453,56 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                         </div>
                     </div>
                     @if($data['product_details']->additionalFeatures->isNotEmpty())
-                        <div class="col-12">
-                            <div class="product-section-box description-box">
-                                <ul class="nav nav-tabs custom-nav" id="myTab" role="tablist">
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link" id="info-tab" data-bs-toggle="tab"
-                                            data-bs-target="#additionalinfo" type="button" role="tab">Additional info</button>
-                                    </li>
-                                </ul>
-                                <div class="tab-content custom-tab" id="myTabContent">
-                                    <div class="tab-pane fade show active" id="additionalinfo" role="tabpanel">
-                                        <div class="table-responsive">
-                                            <table class="table table">
-                                                @foreach($data['product_details']->additionalFeatures as $index => $additionalFeature)
-                                                <tr>
-                                                    <td>
-                                                        {{ $additionalFeature->feature->title }}
-                                                    </td>
-                                                    <td>
-                                                        {{ $additionalFeature->product_additional_featur_value }}
-                                                    </td>
-                                                </tr>
-                                                @endforeach
+                    <div class="col-12">
+                        <div class="product-section-box description-box">
+                            <ul class="nav nav-tabs custom-nav" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="info-tab" data-bs-toggle="tab"
+                                        data-bs-target="#additionalinfo" type="button" role="tab">Additional info</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content custom-tab" id="myTabContent">
+                                <div class="tab-pane fade show active" id="additionalinfo" role="tabpanel">
+                                    <div class="table-responsive">
+                                        <table class="table table">
+                                            @foreach($data['product_details']->additionalFeatures as $index => $additionalFeature)
+                                            <tr>
+                                                <td>
+                                                    {{ $additionalFeature->feature->title }}
+                                                </td>
+                                                <td>
+                                                    {{ $additionalFeature->product_additional_featur_value }}
+                                                </td>
+                                            </tr>
+                                            @endforeach
 
-                                            </table>
-                                        </div>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
                     @endif
                     @if(!empty($data['product_details']->product_description))
-                        <div class="col-12 mt-1 mb-1">
-                            <div class="product-section-box description-box">
-                                <ul class="nav nav-tabs custom-nav" id="myTab" role="tablist">
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link" id="info-tab" data-bs-toggle="tab"
-                                            data-bs-target="#description" type="button" role="tab">Product Description</button>
-                                    </li>
-                                </ul>
-                                <div class="tab-content custom-tab" id="myTabContent">
-                                    <div class="tab-pane fade show active" id="description" role="tabpanel">
-                                        <div class="table-responsive">
-                                            <p>
-                                                {!! $data['product_details']->product_description !!}
-                                            </p>
-                                        </div>
+                    <div class="col-12 mt-1 mb-1">
+                        <div class="product-section-box description-box">
+                            <ul class="nav nav-tabs custom-nav" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="info-tab" data-bs-toggle="tab"
+                                        data-bs-target="#description" type="button" role="tab">Product Description</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content custom-tab" id="myTabContent">
+                                <div class="tab-pane fade show active" id="description" role="tabpanel">
+                                    <div class="table-responsive">
+                                        <p>
+                                            {!! $data['product_details']->product_description !!}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
                     @endif
                     @if($data['product_details']->video_id)
                     <div class="col-12">
@@ -524,7 +521,6 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                     @endif
                 </div>
             </div>
-
             <div class="col-xxl-3 col-xl-4 col-lg-5 d-lg-block mb-5">
                 <div class="right-sidebar-box">
                     <div class="pt-25">
@@ -600,8 +596,284 @@ $firstImage = $data['product_details']->images->isNotEmpty()
         </div>
     </div>
 </section>
-<!-- Product Left Sidebar End -->
-<!--sticky cart code -->
+<!--product review-->
+<section class="product-section-box review-section">
+    <div class="container-fluid-lg">
+        <div class="review-box">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="review-header">
+                        <h2 class="jdgm-rev-widg__title">Customer Reviews</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xl-5">
+                    <div class="product-rating-box">
+                        <div class="row">
+                            <div class="col-xl-12">
+                                <div class="product-main-rating">
+                                    <h2>3.40
+                                        <i data-feather="star"></i>
+                                    </h2>
+
+                                    <h5>5 Overall Rating</h5>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-12">
+                                <ul class="product-rating-list">
+                                    <li>
+                                        <div class="rating-product">
+                                            <h5>
+                                                <span class="re-star-icon-on">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-on">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-on">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-on">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-on">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                            </h5>
+                                            <div class="progress">
+                                                <div class="progress-bar" style="width: 40%;">
+                                                </div>
+                                            </div>
+                                            <h5 class="total">2</h5>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="rating-product">
+                                            <h5>
+                                                <span class="re-star-icon-on">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-on">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-on">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-on">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-off">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                            </h5>
+                                            <div class="progress">
+                                                <div class="progress-bar" style="width: 20%;">
+                                                </div>
+                                            </div>
+                                            <h5 class="total">1</h5>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="rating-product">
+                                            <h5>
+                                                <span class="re-star-icon-on">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-on">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-on">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-off">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-off">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                            </h5>
+                                            <div class="progress">
+                                                <div class="progress-bar" style="width: 0%;">
+                                                </div>
+                                            </div>
+                                            <h5 class="total">0</h5>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="rating-product">
+                                            <h5>
+                                                <span class="re-star-icon-on">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-on">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-off">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-off">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-off">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                            </h5>
+                                            <div class="progress">
+                                                <div class="progress-bar" style="width: 20%;">
+                                                </div>
+                                            </div>
+                                            <h5 class="total">1</h5>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="rating-product">
+                                            <h5>
+                                                <span class="re-star-icon-on">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-off">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-off">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-off">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                                <span class="re-star-icon-off">
+                                                    <i data-feather="star"></i>
+                                                </span>
+                                            </h5>
+                                            <div class="progress">
+                                                <div class="progress-bar" style="width: 20%;">
+                                                </div>
+                                            </div>
+                                            <h5 class="total">1</h5>
+                                        </div>
+                                    </li>
+
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="write-re-btn">
+                        <a href="javascript:void(0);" class="write-rev-link" role="button" aria-expanded="false">Write a review</a>
+                    </div>
+                </div>
+            </div>
+            <div class="review-form-section" style="display: none;">
+                <div class="row justify-content-md-center">
+                    <div class="col-lg-6">
+                        <form class="review-form" action="{{ route('product.review.store') }}" method="POST" id="reviewForm" accept-charset="UTF-8" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $data['product_details']->id }}">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="mb-2 custom-form">
+                                        <label for="rating-stars" class="form-label">Your Rating *</label>
+                                        <div class="form-group">
+                                            <div class="stars-box" id="rating-stars">
+                                                <i class="star fa fa-star" title="1 star" data-message="Poor" data-value="1"></i>
+                                                <i class="star fa fa-star" title="2 stars" data-message="Too bad" data-value="2"></i>
+                                                <i class="star fa fa-star" title="3 stars" data-message="Average quality" data-value="3"></i>
+                                                <i class="star fa fa-star" title="4 stars" data-message="Nice" data-value="4"></i>
+                                                <i class="star fa fa-star" title="5 stars" data-message="Very good quality" data-value="5"></i>
+                                            </div>
+                                            <input type="hidden" name="rating" id="rating-value" required>
+                                            <div id="rating_error" class="invalid-feedback-error" style="display: none;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="mb-md-4 mb-2 custom-form">
+                                        <label for="review_title" class="form-label">Review Title</label>
+                                        <div class="custom-input">
+                                            <input type="text" name="review_title" class="form-control" id="review_title" placeholder="Give your review title">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="mb-md-4 mb-2 custom-form">
+                                        <label for="review_message" class="form-label">Review *</label>
+                                        <div class="custom-textarea">
+                                            <textarea class="form-control" id="review_message" placeholder="Write your comments here" name="review_message" rows="3"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-lg-12">
+                                    <div class="mb-md-4 mb-2 custom-form">
+                                        <label for="review_pic_or_video" class="form-label">Picture/Video (optional)</label>
+                                        <div class="custom-input">
+                                            <input type="file" class="form-control" id="review_pic_or_video" name="review_pic_or_video" placeholder="Picture or video file">
+                                        </div>
+                                    </div>
+                                </div> -->
+                                <div class="col-lg-12">
+                                    <div class="mb-md-4 mb-2 custom-form">
+                                        <label for="review_pic_or_video" class="form-label">Picture/Video (optional)</label>
+
+                                        <div class="jdgm-media-fieldset__container">
+                                            <div class="jdgm-picture-fieldset__box jdgm-picture-fieldset__box--input">
+                                                <div class="jdgm-picture-fieldset__box-wrapper">
+                                                    <div class="jdgm-media-fieldset__icon">
+                                                        <i class="fa fa-upload" style="font-size: 24px; color: #aaa;"></i>
+                                                    </div>
+                                                </div>
+                                                <input
+                                                    type="file"
+                                                    name="review_pic_or_video[]"
+                                                    id="review_pic_or_video"
+                                                    class="jdgm-media-fieldset__input"
+                                                    multiple
+                                                    accept="image/gif,image/jpeg,image/jpg,image/png,image/webp,video/mp4,video/quicktime"
+                                                    aria-label="Choose a review picture/video (optional)">
+                                                <div style="display: none !important;" aria-label="Choose a review picture/video (optional)">
+                                                    Choose a review picture/video (optional)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="preview-container" style="margin-top: 10px;" class="preview-flex"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="mb-md-4 mb-2 custom-form">
+                                        <label for="review_name" class="form-label">Name *</label>
+                                        <div class="custom-input">
+                                            <input type="text" class="form-control" id="review_name" name="review_name" placeholder="Enter your name (public)">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="mb-md-4 mb-2 custom-form">
+                                        <label for="review_email" class="form-label">Email *</label>
+                                        <div class="custom-input">
+                                            <input type="email" class="form-control" id="review_email" name="review_email" placeholder="Enter your email (private)">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="review_btn">
+                                        <a href="javascript:void(0);" role="button" class="cancel-review-btn">Cancel review</a>
+                                        <button type="submit" class="review-submit">Submit Review</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--product review-->
 <!-- Sticky Cart Box Start -->
 <div class="sticky-bottom-cart">
     <div class="container-fluid-lg">
@@ -672,44 +944,53 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 
 @push('schema')
 <script type="application/ld+json">
-{
-  "@context": "http://schema.org",
-  "@type": "Product",
-  "name": "{{ $data['product_details']->title }}",
-  "description": "{{$meta_description}}",
-  "image": "{{ $data['product_details']->images->first()->image_path }}",
-  "sku": "{{$data['product_details']->id}}",
-  "price": "{{ $schema_offer }}",
-  "priceCurrency": "INR",
-  "category": "{{ $categorytitle }}",
-  "brand": "{{$data['attributes_value_name']->name}}",
-  "offers": {
-    "@type": "Offer",
-    "price": "{{ $schema_offer }}",
-    "priceCurrency": "INR",
-    "url": "{{ url()->current() }}",
-	"priceValidUntil": "2025-12-31",
-	"priceSpecification": {
-      "@type": "PriceSpecification",
-      "price": "{{ $product->mrp }}",  // MRP (Maximum Retail Price)
-      "priceCurrency": "INR",
-      "gstIncluded": "true"
-    },
-    "availability": "http://schema.org/InStock"
-  }
-}</script>
+    {
+        @php
+        $imageschema = '';
+        if (!empty($data['product_details']->images->first()->image_path)) {
+            $imageschema = asset('images/product/large/'.$data['product_details']->images->first()->image_path);
+        } else {
+            $imageschema = "https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png";
+        }
+        @endphp
+
+            "@context": "http://schema.org",
+            "@type": "Product",
+            "name": "{{ $data['product_details']->title }}",
+            "description": "{{$meta_description}}",
+            "image": "{{ $imageschema }}",
+            "sku": "{{$data['product_details']->id}}",
+            "price": "{{ $schema_offer }}",
+            "priceCurrency": "INR",
+            "category": "{{ $categorytitle }}",
+            "brand": "{{$data['attributes_value_name']->name}}",
+            "offers": {
+                "@type": "Offer",
+                "price": "{{ $schema_offer }}",
+                "priceCurrency": "INR",
+                "url": "{{ url()->current() }}",
+                "priceValidUntil": "2025-12-31",
+                "priceSpecification": {
+                    "@type": "PriceSpecification",
+                    "price": "{{ $product->mrp }}", // MRP (Maximum Retail Price)
+                    "priceCurrency": "INR",
+                    "gstIncluded": "true"
+                },
+                "availability": "http://schema.org/InStock"
+            }
+    }
+</script>
 @endpush
 
 @push('scripts')
 <script src="{{asset('frontend/assets/js/jquery.elevatezoom.js')}}"></script>
 <script src="{{asset('frontend/assets/js/zoom-filter.js')}}"></script>
-<!-- Sticky-bar js -->
 <script src="{{asset('frontend/assets/js/sticky-cart-bottom.js')}}"></script>
 <script src="{{asset('frontend/assets/js/pages/addto-cart.js')}}"></script>
 <script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}"></script>
+<script src="{{asset('frontend/assets/js/pages/review.js')}}"></script>
 <script>
     $(document).ready(function() {
-
         function isYouTubeShort(videoId) {
             return videoId.length === 11;
         }
@@ -763,4 +1044,35 @@ $firstImage = $data['product_details']->images->isNotEmpty()
         initVideoObserver();
     });
 </script>
+<script>
+    const stars = document.querySelectorAll('.stars-box .star');
+    const ratingInput = document.getElementById('rating-value');
+    let selectedRating = 0;
+    stars.forEach((star, index) => {
+        star.addEventListener('mouseover', () => {
+            updateStars(index + 1, 'hovered');
+        });
+
+        star.addEventListener('mouseout', () => {
+            updateStars(selectedRating, 'selected');
+        });
+
+        star.addEventListener('click', () => {
+            selectedRating = index + 1;
+            ratingInput.value = selectedRating;
+            updateStars(selectedRating, 'selected');
+        });
+    });
+
+    function updateStars(rating, className) {
+        stars.forEach((star, index) => {
+            star.classList.remove('selected', 'hovered');
+            if (index < rating) {
+                star.classList.add(className);
+            }
+        });
+    }
+    
+</script>
+
 @endpush

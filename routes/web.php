@@ -11,6 +11,7 @@ use App\Http\Controllers\Frontend\FrontLandingPageController;
 use App\Http\Controllers\Frontend\SitemapController;
 use App\Http\Controllers\Frontend\WhatsappConfirmationController;
 use App\Http\Controllers\Frontend\RazorpayController;
+use App\Http\Controllers\Frontend\ProductReviewController;
 
 use App\Http\Controllers\Backend\LoginController;
 use App\Http\Controllers\Backend\ForgotPasswordController;
@@ -150,6 +151,7 @@ Route::middleware([TrackVisitor::class])->group(function () {
         });
     });
 });
+Route::post('/submit-product-review', [ProductReviewController::class, 'store'])->name('product.review.store');
 Route::get('request-product-enquiry-form', [FrontendController::class, 'requestProductEnquiryForm'])->name('request.product.enquiry.form');
 Route::post('request-product-enquiry-submit', [FrontendController::class, 'requestProductSubmit'])->name('request.product.enquiry.submit');
 Route::get('/confirmwa/yes/{value}', [WhatsappConfirmationController::class, 'confirmWhatsappYes'])->name('confirmwa.yes');

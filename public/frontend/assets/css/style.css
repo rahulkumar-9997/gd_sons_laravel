@@ -16352,14 +16352,14 @@ body.rtl .delivery-modal .modal-dialog .modal-content .modal-body.policy-body ul
 }
 
 .product-section-box .review-box .product-rating-box .product-rating-list li:last-child .rating-product .progress .progress-bar {
-    background-color: #ff4f4f
+    background-color: #ffa53b
 }
 
 .product-section-box .review-box .product-rating-box .product-rating-list li .rating-product {
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
-    gap: 12px;
+    gap: 70px;
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center
@@ -16387,17 +16387,16 @@ body.rtl .delivery-modal .modal-dialog .modal-content .modal-body.policy-body ul
 .product-section-box .review-box .product-rating-box .product-rating-list li .rating-product h5 .feather {
     width: 15px;
     height: 15px;
-    fill: #222
 }
 
 .product-section-box .review-box .product-rating-box .product-rating-list li .rating-product .progress {
-    width: calc(100% - 12px - 28px - 15px);
+    width: 100%;
     height: 9px;
     border-radius: 100px
 }
 
 .product-section-box .review-box .product-rating-box .product-rating-list li .rating-product .progress .progress-bar {
-    background-color: var(--theme-color);
+    background-color: #ffa53b;
     border-radius: 100px
 }
 

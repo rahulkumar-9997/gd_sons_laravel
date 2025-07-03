@@ -12,7 +12,6 @@ $(document).ready(function () {
         var addToCartButton = $(this);
         var originalButtonText = addToCartButton.html();
         addToCartButton.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Adding...');
-        
         $.ajax({
             url: cartUrl,
             method: 'POST',

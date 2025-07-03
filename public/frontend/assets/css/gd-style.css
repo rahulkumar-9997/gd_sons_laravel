@@ -2372,5 +2372,8 @@ a.cntshop {
   font-size: 0.875em;
   color: #dc3545;
 }
+.review-list-item{
+  padding: 16px 0;
+}
 
 /*review css*/

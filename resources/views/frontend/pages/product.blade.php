@@ -870,6 +870,38 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                     </div>
                 </div>
             </div>
+            <div class="product-reviewlist-section">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="review-list-container">
+                            <div class="review-list-item">
+                                <div class="review-list-header">
+                                    <div class="review-list-rating">
+                                        <span class="re-star-icon-on">
+                                            <i data-feather="star"></i>
+                                        </span>
+                                        <span class="re-star-icon-on">
+                                            <i data-feather="star"></i>
+                                        </span>
+                                        <span class="re-star-icon-on">
+                                            <i data-feather="star"></i>
+                                        </span>
+                                        <span class="re-star-icon-on">
+                                            <i data-feather="star"></i>
+                                        </span>
+                                        <span class="re-star-icon-on">
+                                            <i data-feather="star"></i>
+                                        </span>
+                                    </div>
+                                    <div class="review-list-profile">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -1072,7 +1104,6 @@ $firstImage = $data['product_details']->images->isNotEmpty()
             }
         });
     }
-    
 </script>
 
 @endpush

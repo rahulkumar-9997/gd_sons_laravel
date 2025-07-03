@@ -90,20 +90,12 @@ $(document).ready(function () {
                     form[0].reset();
                     $('#preview-container').empty();
                     $('.star').removeClass('active');
-
-                    Toastify({
-                        text: response.message,
-                        duration: 10000,
-                        gravity: "top",
-                        position: "right",
-                        className: "bg-success",
-                        escapeMarkup: false,
-                        close: true,
-                        onClick: function () { }
-                    }).showToast();
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
+                    showNotificationAll("success", "", response.message);
+                    $formSection.slideUp(400, function () {
+                        $('html, body').animate({
+                            scrollTop: $writeReviewBtn.offset().top - 100
+                        }, 400);
+                    });
                 }
             },
             error: function (xhr, status, error) {
@@ -122,28 +114,10 @@ $(document).ready(function () {
                             }
                         });
                     } else {
-                        Toastify({
-                            text: 'An error occurred. Please try again.',
-                            duration: 10000,
-                            gravity: "top",
-                            position: "right",
-                            className: "bg-danger",
-                            escapeMarkup: false,
-                            close: true,
-                            onClick: function () { }
-                        }).showToast();
+                        showNotificationAll("warning", "", "An error occurred. Please try again");
                     }
                 } catch (e) {
-                    Toastify({
-                        text: 'An unexpected error occurred.',
-                        duration: 10000,
-                        gravity: "top",
-                        position: "right",
-                        className: "bg-danger",
-                        escapeMarkup: false,
-                        close: true,
-                        onClick: function () { }
-                    }).showToast();
+                    showNotificationAll("warning", "", "An unexpected error occurred.");
                 }
             }
         });

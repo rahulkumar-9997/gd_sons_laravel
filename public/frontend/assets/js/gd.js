@@ -99,8 +99,7 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    submitButton.prop('disabled', false).html('Submit');
-                    
+                    submitButton.prop('disabled', false).html('Submit');                    
                     if (response.status === 'success') {
                         showNotificationAll("success", "", response.message);
                         form[0].reset();

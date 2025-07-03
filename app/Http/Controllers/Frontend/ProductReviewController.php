@@ -102,7 +102,7 @@ class ProductReviewController extends Controller
             DB::commit();
             return response()->json([
                 'status' => 'success',
-                'message' => 'Thank you for your review! It will be visible after approval.',
+                'message' => 'Thank you! Your review will be published as soon as it is approved by the shop admin',
             ]);
 
         } catch (\Exception $e) {

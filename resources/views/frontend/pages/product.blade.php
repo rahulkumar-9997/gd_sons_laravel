@@ -613,149 +613,66 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                         <div class="row">
                             <div class="col-xl-12">
                                 <div class="product-main-rating">
-                                    <h2>3.40
-                                        <i data-feather="star"></i>
-                                    </h2>
+                                    @if($data['review_stats']['average_rating'] >0)
+                                        <h2>
+                                            {{ $data['review_stats']['average_rating'] ?? 0 }}
+                                            <i data-feather="star"></i>
+                                        </h2>
 
-                                    <h5>5 Overall Rating</h5>
+                                        <h5>
+                                            {{ ($data['review_stats']['total_reviews'] ?? 0) }}
+                                            {{ ($data['review_stats']['total_reviews'] ?? 0) == 1 ? 'Review' : 'Overall Rating' }}
+                                        </h5>
+                                    @else
+                                        <h2 class="no-review">
+                                            <i data-feather="star"></i>
+                                            <i data-feather="star"></i>
+                                            <i data-feather="star"></i>
+                                            <i data-feather="star"></i>
+                                            <i data-feather="star"></i>
+                                            <i data-feather="star"></i>
+                                        </h2>
+                                    @endif
                                 </div>
                             </div>
-
-                            <div class="col-xl-12">
-                                <ul class="product-rating-list">
-                                    <li>
-                                        <div class="rating-product">
-                                            <h5>
-                                                <span class="re-star-icon-on">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-on">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-on">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-on">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-on">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                            </h5>
-                                            <div class="progress">
-                                                <div class="progress-bar" style="width: 40%;">
+                            @if(($data['review_stats']['total_reviews'] ?? 0) > 0)
+                                <div class="col-xl-12">
+                                    <ul class="product-rating-list">
+                                        @for($i = 5; $i >= 1; $i--)
+                                        <li>
+                                            <div class="rating-product">
+                                                <h5>
+                                                    @for($j = 1; $j <= 5; $j++)
+                                                        @if($j <= $i)
+                                                            <span class="re-star-icon-on">
+                                                                <i data-feather="star"></i>
+                                                            </span>
+                                                        @else
+                                                            <span class="re-star-icon-off">
+                                                                <i data-feather="star"></i>
+                                                            </span>
+                                                        @endif
+                                                    @endfor
+                                                </h5>
+                                                <div class="progress">
+                                                    @php
+                                                        $totalReviews = $data['review_stats']['total_reviews'];
+                                                        $starCount = $data['review_stats']['star_counts'][$i] ?? 0;
+                                                        $percentage = $totalReviews > 0 ? ($starCount / $totalReviews) * 100 : 0;
+                                                    @endphp
+                                                    <div class="progress-bar" style="width: {{ $percentage }}%;"></div>
                                                 </div>
+                                                <h5 class="total">{{ $starCount }}</h5>
                                             </div>
-                                            <h5 class="total">2</h5>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="rating-product">
-                                            <h5>
-                                                <span class="re-star-icon-on">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-on">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-on">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-on">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-off">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                            </h5>
-                                            <div class="progress">
-                                                <div class="progress-bar" style="width: 20%;">
-                                                </div>
-                                            </div>
-                                            <h5 class="total">1</h5>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="rating-product">
-                                            <h5>
-                                                <span class="re-star-icon-on">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-on">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-on">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-off">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-off">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                            </h5>
-                                            <div class="progress">
-                                                <div class="progress-bar" style="width: 0%;">
-                                                </div>
-                                            </div>
-                                            <h5 class="total">0</h5>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="rating-product">
-                                            <h5>
-                                                <span class="re-star-icon-on">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-on">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-off">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-off">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-off">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                            </h5>
-                                            <div class="progress">
-                                                <div class="progress-bar" style="width: 20%;">
-                                                </div>
-                                            </div>
-                                            <h5 class="total">1</h5>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="rating-product">
-                                            <h5>
-                                                <span class="re-star-icon-on">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-off">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-off">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-off">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                                <span class="re-star-icon-off">
-                                                    <i data-feather="star"></i>
-                                                </span>
-                                            </h5>
-                                            <div class="progress">
-                                                <div class="progress-bar" style="width: 20%;">
-                                                </div>
-                                            </div>
-                                            <h5 class="total">1</h5>
-                                        </div>
-                                    </li>
-
-                                </ul>
-                            </div>
+                                        </li>
+                                        @endfor
+                                    </ul>
+                                </div>
+                            @else
+                                <div class="col-xl-12">
+                                    <p class="text-muted">Be the first to write a review</p>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -870,38 +787,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                     </div>
                 </div>
             </div>
-            <div class="product-reviewlist-section">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="review-list-container">
-                            <div class="review-list-item">
-                                <div class="review-list-header">
-                                    <div class="review-list-rating">
-                                        <span class="re-star-icon-on">
-                                            <i data-feather="star"></i>
-                                        </span>
-                                        <span class="re-star-icon-on">
-                                            <i data-feather="star"></i>
-                                        </span>
-                                        <span class="re-star-icon-on">
-                                            <i data-feather="star"></i>
-                                        </span>
-                                        <span class="re-star-icon-on">
-                                            <i data-feather="star"></i>
-                                        </span>
-                                        <span class="re-star-icon-on">
-                                            <i data-feather="star"></i>
-                                        </span>
-                                    </div>
-                                    <div class="review-list-profile">
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @include('frontend.pages.partials.ajax-product-review-list', ['data' => $data])
         </div>
     </div>
 </section>

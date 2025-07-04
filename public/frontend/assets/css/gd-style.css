@@ -1579,6 +1579,14 @@ a.cntshop {
   .other-page-list li {
     padding: 0px 5px;
   }
+  .review-form-section .write-rev-link, 
+  .review-form-section .review-submit,
+  .review-form-section .cancel-review-btn{
+    padding: 12px 15px;
+  }
+  .review_btn{
+    margin-top: 20px;
+  }
 }
 
 @media (max-width: 767px) {}
@@ -2372,8 +2380,73 @@ a.cntshop {
   font-size: 0.875em;
   color: #dc3545;
 }
+.review-list-container{
+  padding-top: 25px;
+}
 .review-list-item{
   padding: 16px 0;
+  border-top: 1px solid rgba(16, 132, 116, 0.1);
 }
+.rating-dis-flex{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.review-list-rating .re-star-icon-on .feather{
+    width: 15px;
+    height: 15px;
+    stroke: #ffb321;
+    fill: #ffb321;
+}
+.review-list-rating .re-star-icon-off .feather{
+    width: 15px;
+    height: 15px;
+    stroke: #ffb321;
+}
+.review-list-header .rate-di-date{
+  font-size: 16px;
+}
+.review-name{
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 5px 0;
+}
+.review-name h6{
+  font-size: 20px;
+}
+.review-dis-img-section{
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: -10px;
+    margin-right: -10px;
+    word-break: break-word;
+    padding: 10px 0;
+}
+.rate-collection{
+  justify-content: left;
+}
+[data-view="6-3"] .re-img {
+    flex: 0 0 8.66667%;
+}
+.re-img{
+    align-items: stretch;
+    display: flex;
+    flex: 0 0 100%;
+    margin-bottom: 10px;
+    padding-inline: 8px;
+}
+.re-img img{
+  width: 100%;
+}
+.review_d_title h6{
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+.review-message p{
+  margin-bottom: 5px;
+  font-size: 17px;
+}
+
 
 /*review css*/

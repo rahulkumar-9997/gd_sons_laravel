@@ -43,6 +43,7 @@ use App\Http\Controllers\Backend\WhatsappConversationController;
 use App\Http\Controllers\Backend\SocialMediaTrackController;
 use App\Http\Controllers\Backend\LandingPageController;
 use App\Http\Controllers\Backend\StorageController;
+use App\Http\Controllers\Backend\ProductReviewBackendController;
 use App\Http\Controllers\Backend\VideoController;
 use App\Http\Controllers\Backend\EnquiryController;
 
@@ -389,5 +390,13 @@ Route::group(['middleware' => ['admin']], function () {
     Route::post('mapped-image-to-product/submit', [StorageController::class, 'mappedImageToProductSubmit'])->name('mapped-image-to-product.submit');
     Route::get('/manage-enquiry/request-product-list', [EnquiryController::class, 'requestProductList'])->name('manage-enquiry.request.product.list');
     Route::delete('/manage-enquiry/request-product-list/{id}', [EnquiryController::class, 'requestProductListDestroy'])->name('manage-enquiry.request.product.destroy');
+
+    Route::get('manage-rating', [ProductReviewBackendController::class, 'index'])->name('manage-rating');
+    Route::post('manage-rating/{id}/status', [ProductReviewBackendController::class, 'updateStatus'])->name('manage-rating.status');
+
+    Route::get('manage-rating/{id}', [ProductReviewBackendController::class, 'show'])->name('manage-rating.show');
+    Route::get('manage-rating/{id}/edit', [ProductReviewBackendController::class, 'edit'])->name('manage-rating.edit');
+    Route::put('manage-rating/{id}', [ProductReviewBackendController::class, 'update'])->name('manage-rating.update');
+    Route::delete('manage-rating/{id}', [ProductReviewBackendController::class, 'destroy'])->name('manage-rating.destroy');
    
 });

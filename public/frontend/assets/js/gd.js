@@ -241,8 +241,8 @@
             newest_on_top: false,
             showProgressbar: false,
             placement: {
-                from: "top",
-                align: "right",
+                from: "bottom",
+                align: "center",
             },
             offset: 20,
             spacing: 5,

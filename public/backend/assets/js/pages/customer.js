@@ -1,5 +1,5 @@
 $(document).ready(function () {
-   $('.show_confirm_customer').click(function (event) {
+   $(document).on('click', '.show_confirm_customer', function (event) {
       var form = $(this).closest("form");
       var name = $(this).data("name");
       event.preventDefault();
@@ -179,7 +179,7 @@ $(document).ready(function () {
       e.preventDefault();
       const page = $(this).attr('href').split('page=')[1];
       fetchCustomer(page);
-  });
+   });
    /*Customer pagination */
 });
 

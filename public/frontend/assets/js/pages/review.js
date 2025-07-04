@@ -69,6 +69,7 @@ $(document).ready(function () {
     $(document).off('submit', '#reviewForm').on('submit', '#reviewForm', function (event) {
         event.preventDefault();
         var form = $(this);
+        var $formSection = $('.review-form-section');
         var submitButton = form.find('button[type="submit"]');
         $('.form-control').removeClass('is-invalid');
         $('.invalid-feedback').remove();

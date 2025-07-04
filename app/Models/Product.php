@@ -132,8 +132,11 @@ class Product extends Model
         return $this->hasMany(SpecialOffer::class, 'product_id');
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class)->where('status', '1');
+    }
     
-
     /** 
      * Write code on Method
      *

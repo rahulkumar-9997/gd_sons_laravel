@@ -4,7 +4,6 @@
             <th>#</th>
             <th style="width: 20%;">Product Name</th>
             <th>Rating</th>
-            <th>Review Title</th>
             <th>Reviewer Name</th>
             <th>Review Date</th>
             <th>Status</th>
@@ -27,9 +26,9 @@
                     <i class="ti ti-star text-warning"></i>
                     @endif
                 @endfor
+                <br>
                 ({{ $review->rating_star_value }})
             </td>
-            <td>{{ $review->review_title }}</td>
             <td>{{ $review->review_name }}</td>
             <td>
                 {{ \Carbon\Carbon::parse($review->review_post_date)->format('d M Y h:i A') }}
@@ -37,7 +36,7 @@
             <td>
                 <div class="form-check form-switch">
                     <input class="form-check-input productReviewStatus" data-pid="{{ $review->id }}" data-url="{{ route('manage-rating.status', $review->id) }}" type="checkbox" role="switch"
-                        @if($review->status == 1) checked @endif>
+                    @if($review->status == 1) checked @endif>
                 </div>
                 @if($review->status == 1)
                 <span class="badge bg-success">Approved</span>

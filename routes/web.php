@@ -398,5 +398,6 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('manage-rating/{id}/edit', [ProductReviewBackendController::class, 'edit'])->name('manage-rating.edit');
     Route::put('manage-rating/{id}', [ProductReviewBackendController::class, 'update'])->name('manage-rating.update');
     Route::delete('manage-rating/{id}', [ProductReviewBackendController::class, 'destroy'])->name('manage-rating.destroy');
-   
+    Route::get('/review-files/{file}', [ProductReviewBackendController::class, 'destroyFile'])
+    ->name('review.files.destroy');
 });

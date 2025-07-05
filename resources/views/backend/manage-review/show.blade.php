@@ -10,7 +10,7 @@
         <div class="col-xl-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center gap-1">
-                    <a href="{{ url()->previous() }}" class="btn btn-sm btn-outline-primary" title="Back">
+                    <a href="{{ route('manage-rating') }}" class="btn btn-sm btn-outline-primary" title="Back">
                         <i class="ti ti-arrow-left"></i> Back to previous page
                     </a>
                     <h4 class="card-title flex-grow-1">
@@ -92,9 +92,14 @@
                                             <div class="re-img mb-2" style="max-width: 150px;">
                                                 <a href="{{ asset('images/review/'.$file->review_file) }}" data-fancybox="review-gallery">
                                                     <img src="{{ asset('images/review/' . $file->review_file) }}"
-                                                    class="img-thumbnail img-fluid"
-                                                    alt="Review image"
-                                                    loading="lazy">
+                                                        class="img-thumbnail img-fluid"
+                                                        alt="Review image"
+                                                        loading="lazy">
+                                                </a>
+                                                <a href="{{ route('review.files.destroy', $file->id) }}"
+                                                    class="mt-2 btn btn-soft-danger btn-sm show_confirm"
+                                                    title="Delete this file">
+                                                    <i class="ti ti-trash"></i>
                                                 </a>
                                             </div>
                                             @else
@@ -104,9 +109,14 @@
                                                         type="video/{{ pathinfo($file->review_file, PATHINFO_EXTENSION) }}">
                                                     Your browser does not support the video tag.
                                                 </video>
+                                                <a href="{{ route('review.files.destroy', $file->id) }}"
+                                                    class="mt-2 btn btn-soft-danger btn-sm show_confirm"
+                                                    title="Delete this file">
+                                                    <i class="ti ti-trash"></i>
+                                                </a>
                                             </div>
                                             @endif
-                                            
+
                                             @endforeach
                                         </div>
                                         @endif

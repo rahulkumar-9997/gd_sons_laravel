@@ -92,7 +92,7 @@
     "@context": "https://schema.org",
     "@type": "WebPage",
     "name": "@if($primary_category) Complete Range of {{ $primary_category->title }} in Varanasi @else Complete Range of {{ $category->title }} in Varanasi @endif",
-    "description": "GD Sons - {{ $category->title }} - Shop the best quality products in Varanasi",
+    "description": "Explore a wide range of {{ $category->title }} at Girdhar Das and Sons, featuring {{ $transformedstr }}. Girdhar Das and Sons offers best selection in Varanasi. Shop now for unbeatable deals and quality!",
     "url": "{{ url()->current() }}",
     "breadcrumb": {
         "@type": "BreadcrumbList",
@@ -114,15 +114,29 @@
     "mainEntity": [
         @if($primary_category)
         {
-            "@type": "ProductGroup",
+            "@type": "ItemList",
             "name": "{{ $primary_category->title }}",
-            "description": "{{ $category->category_heading }}",
+			"productGroupID": "{{ $categorySlug }}",
+            "description": "Explore a wide range of {{ $category->title }} at Girdhar Das and Sons, featuring {{ $transformedstr }}. Girdhar Das and Sons offers best selection in Varanasi. Shop now for unbeatable deals and quality!",
             "url": "{{ url()->current() }}",
+
+
             "hasVariant": [
                 @foreach($products as $product)
                 @php
                     $firstImage = $product->images->get(0);
+					
                     $attributes_value = $product->ProductAttributesValues->isNotEmpty() ? $product->ProductAttributesValues->first()->attributeValue->slug : 'na';
+					$brand = '';
+					foreach($product->ProductAttributesValues as $oneProductAV)
+					{
+						if($oneProductAV->productAttribute->attributes_id == 18)
+						{
+							$brand = $oneProductAV->attributeValue->slug;
+						}
+						// $brand = $product->ProductAttributesValues->attributeValue->slug;
+					}
+					
                     $purchase_rate = $product->purchase_rate;
                     $offer_rate = $product->offer_rate;
                     $mrp = $product->mrp;
@@ -154,12 +168,13 @@
                 {
                     "@type": "Product",
                     "name": "{{ $product->title }}",
-                    "description": "{{ 'GD Sons - ' . $category->title }}",
+					
+                    "description": "{{ $product->title . ' is best among all ' . $category->title . ' in Varanasi' }}",
                     "url": "{{ url('products/'.$product['slug'].'/'.$attributes_value) }}",
                     "brand": {
-                        "@type": "Brand",
-                        "name": "GD Sons"
-                    },
+					  "@type": "Brand",
+					  "name": "{{ $brand }}"
+					},
                     "category": "{{ $product->category->title }}",
                     @if($firstImage)
                     "image": "{{ asset('images/product/thumb/' . $firstImage->image_path) }}",
@@ -176,25 +191,54 @@
                         "url": "{{ url('products/'.$product['slug'].'/'.$attributes_value) }}",
                         "priceCurrency": "INR",
                         "price": "{{ $final_offer_rate }}",
+						"priceSpecification": {
+							"@type": "PriceSpecification",
+							"price": "{{ $final_offer_rate }}",
+							"priceCurrency": "INR",
+							"valueAddedTaxIncluded": true
+						  },
                         "priceValidUntil": "{{ \Carbon\Carbon::now()->addYear()->format('Y-m-d') }}",
                         "itemCondition": "https://schema.org/NewCondition",
                         "availability": "https://schema.org/{{ $product->stock_quantity > 0 ? 'InStock' : 'OutOfStock' }}"
-                    }
+                    },
+					"additionalProperty": [
+						  {
+							"@type": "PropertyValue",
+							"name": "MRP",
+							"value": "{{ $mrp }}"
+						  },
+						  {
+							"@type": "PropertyValue",
+							"name": "Discount",
+							"value": "{{ $mrp - $final_offer_rate }}"
+						  }
+						]
                 }@if(!$loop->last),@endif
                 @endforeach
             ]
         }
         @else
         {
-            "@type": "CollectionPage",
+            "@type": "ItemList",
             "name": "{{ $category->title }}",
-            "description": "{{ $category->title }}",
+            "description": "Explore a wide range of {{ $category->title }} at Girdhar Das and Sons, featuring {{ $transformedstr }}. Girdhar Das and Sons offers best selection in Varanasi. Shop now for unbeatable deals and quality!",
             "url": "{{ url()->current() }}",
             "hasPart": [
                 @foreach($products as $product)
                 @php
                     $firstImage = $product->images->get(0);
                     $attributes_value = $product->ProductAttributesValues->isNotEmpty() ? $product->ProductAttributesValues->first()->attributeValue->slug : 'na';
+					
+					$brand = '';
+					foreach($product->ProductAttributesValues as $oneProductAV)
+					{
+						if($oneProductAV->productAttribute->attributes_id == 18)
+						{
+							$brand = $oneProductAV->attributeValue->slug;
+						}
+						// $brand = $product->ProductAttributesValues->attributeValue->slug;
+					}
+					
                     $purchase_rate = $product->purchase_rate;
                     $offer_rate = $product->offer_rate;
                     $mrp = $product->mrp;
@@ -226,12 +270,13 @@
                 {
                     "@type": "Product",
                     "name": "{{ $product->title }}",
-                    "description": "{{ 'GD Sons - ' . $category->title }}",
+					"productGroupID": "{{ $categorySlug }}",
+                    "description": "{{ $product->title . ' is best among all ' . $category->title . ' in Varanasi' }}",
                     "url": "{{ url('products/'.$product['slug'].'/'.$attributes_value) }}",
                     "brand": {
-                        "@type": "Brand",
-                        "name": "GD Sons"
-                    },
+					  "@type": "Brand",
+					  "name": "{{ $brand }}"
+					},
                     "category": "{{ $product->category->title }}",
                     @if($firstImage)
                     "image": "{{ asset('images/product/thumb/' . $firstImage->image_path) }}",
@@ -250,10 +295,28 @@
                         "url": "{{ url('products/'.$product['slug'].'/'.$attributes_value) }}",
                         "priceCurrency": "INR",
                         "price": "{{ $final_offer_rate }}",
+						"priceSpecification": {
+							"@type": "PriceSpecification",
+							"price": "{{ $final_offer_rate }}",
+							"priceCurrency": "INR",
+							"valueAddedTaxIncluded": true
+						  },
                         "priceValidUntil": "{{ \Carbon\Carbon::now()->addYear()->format('Y-m-d') }}",
                         "itemCondition": "https://schema.org/NewCondition",
                         "availability": "https://schema.org/{{ $product->stock_quantity > 0 ? 'InStock' : 'OutOfStock' }}"
-                    }
+                    },
+					"additionalProperty": [
+						  {
+							"@type": "PropertyValue",
+							"name": "MRP",
+							"value": "{{ $mrp }}"
+						  },
+						  {
+							"@type": "PropertyValue",
+							"name": "Discount",
+							"value": "{{ $mrp - $final_offer_rate }}"
+						  }
+						]
                 }@if(!$loop->last),@endif
                 @endforeach
             ]

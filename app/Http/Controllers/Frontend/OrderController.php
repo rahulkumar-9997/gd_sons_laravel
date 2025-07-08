@@ -551,7 +551,7 @@ class OrderController extends Controller
                 $payment_status = "Unpaid";
                 $customerName = $checkoutData['ship_full_name'];
                 Mail::to($checkoutData['ship_email'])->queue(new OrderDetailsMail($orderDetails));
-				Mail::to('akshat.gd@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
+				Mail::to('akshat@gdsons.co.in')->queue(new OrderDetailsMail($orderDetails, $customerName));
 				//Mail::to('rahulkumarmaurya464@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
 				$this->sendWhatsAppNotifications($orderId, $payment_status, $checkoutData);
             }

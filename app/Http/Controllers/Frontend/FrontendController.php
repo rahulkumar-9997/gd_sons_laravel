@@ -907,7 +907,7 @@ class FrontendController extends Controller
                 'ProductAttributesValues' => function ($query) {
                     $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
                         ->with([
-                            'attributeValue:id,slug'
+                            'attributeValue:id,slug', 'productAttribute:id,attributes_id'
                         ])
                         ->orderBy('id');
                 }
@@ -940,8 +940,14 @@ class FrontendController extends Controller
 			 
 			$transformedstr = '';
 			$l1 = 0;
+			
+			$brand = '';
 			foreach ($attributes_with_values_for_filter_list as $arritem) {
 				$l2 = 0;
+				// if($arritem['title'] == 'Brand')
+				// {
+					// $brand = 
+				// }
 				$transformedstr .= $arritem['title'].'s like ';
 				foreach($arritem->AttributesValues as $aval)
 				{
@@ -964,8 +970,8 @@ class FrontendController extends Controller
 				}
 			}
 
-			// return response()->json($transformedData);
-            return view('frontend.pages.product-catalog-category', compact('products', 'specialOffers', 'category', 'attributes_with_values_for_filter_list', 'primary_category', 'transformedstr'));
+			// return response()->json($products);
+            return view('frontend.pages.product-catalog-category', compact('products', 'specialOffers', 'category', 'attributes_with_values_for_filter_list', 'primary_category', 'transformedstr', 'categorySlug'));
         } catch (\Exception $e) {
             Log::error('Error fetching product catalog: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());

@@ -90,11 +90,8 @@
     "@context": "https://schema.org",
     "@type": "WebPage",
     "name": "@if($primary_category) Complete Range of {{ $primary_category->title }} in Varanasi @else Complete Range of {{ $attributeValue->name }} {{ $category->title }} in Varanasi @endif",
-    @if($primary_category)
-        "description": "{{ $primary_category->title }}",
-    @else
-        "description": "GD Sons - {{ $category->title }} : {{ $attributeValue->name }} - Shop the best quality products in Varanasi",
-    @endif
+    "description": "Complete Range of {{ $category->title }} {{ $attributeValue->name }} in Varanasi. {{ $transformedstr }}",
+
     "url": "{{ url()->current() }}",
     "breadcrumb": {
         "@type": "BreadcrumbList",

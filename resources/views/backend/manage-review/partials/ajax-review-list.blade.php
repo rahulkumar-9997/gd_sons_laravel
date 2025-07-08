@@ -36,7 +36,7 @@
             <td>
                 <div class="form-check form-switch">
                     <input class="form-check-input productReviewStatus" data-pid="{{ $review->id }}" data-url="{{ route('manage-rating.status', $review->id) }}" type="checkbox" role="switch"
-                    @if($review->status == 1) checked @endif>
+                        @if($review->status == 1) checked @endif>
                 </div>
                 @if($review->status == 1)
                 <span class="badge bg-success">Approved</span>

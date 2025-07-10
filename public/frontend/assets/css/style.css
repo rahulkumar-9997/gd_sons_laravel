@@ -31583,7 +31583,7 @@ body.rtl .menu-label {
     -webkit-box-align: center;
     -ms-flex-align: center;
     align-items: center;
-    height: 80px;
+    /* height: 80px; */
     position: relative
 }
 
@@ -31638,12 +31638,12 @@ body.rtl .menu-label {
 }
 
 .product-list li .offer-product .offer-image {
-    width: 80px
+    width: 60px
 }
 
 @media(max-width: 1660px) {
     .product-list li .offer-product .offer-image {
-        width: 90px
+        width: 60px
     }
 }
 
@@ -31671,16 +31671,17 @@ body.rtl .menu-label {
 }
 
 .product-list li .offer-product .offer-detail {
-    width: calc(100% - 80px);
-    height: 80px;
-    padding-left: calc(12px + 11*(100vw - 320px)/1600);
+    /* width: calc(100% - 80px); */
+    /* height: 80px; */
+    padding-left: calc(10px + 11*(100vw - 320px)/1600);
     position: relative;
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
     -webkit-box-align: center;
     -ms-flex-align: center;
-    align-items: center
+    align-items: center;
+    padding-bottom: 10px;
 }
 
 [dir=rtl] .product-list li .offer-product .offer-detail {
@@ -31698,10 +31699,10 @@ body.rtl .menu-label {
 }
 
 .product-list li .offer-product .offer-detail a .name {
-    -webkit-line-clamp: 1;
+    /* -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     display: -webkit-box;
-    overflow: hidden;
+    overflow: hidden; */
     font-weight: 600;
     margin-top: -1px;
     -webkit-transition: all .3s ease-in-out;
@@ -31716,9 +31717,9 @@ body.rtl .menu-label {
 }
 
 .product-list li .offer-product .offer-detail .price {
-    margin-top: 6px;
+    margin-top: 0px;
     font-weight: 600;
-    margin-bottom: -2px
+    margin-bottom: 5px
 }
 
 .product-category {
@@ -42678,11 +42679,11 @@ body.rtl .question-answer li .question-box .link-dislike-box {
 .category-list li .category-list-box .form-check-label .name {
     font-size: 16px;
     color: #222;
-    -webkit-line-clamp: 1;
+    /* -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     display: -webkit-box;
-    overflow: hidden;
-    width: 80%
+    overflow: hidden; */
+    width: 100%
 }
 
 .category-list li .category-list-box .form-check-label .number {
@@ -45099,7 +45100,7 @@ body.rtl .question-answer li .question-box .link-dislike-box {
 
 .product-section .right-sidebar-box .product-right-sidebar li+li::after {
     top: -14px;
-    width: calc(100% - 103px)
+    width: 100%;
 }
 
 .related-product-2 .related-product .product-title-2 {

@@ -436,7 +436,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                             @php
                                             if($attribute->attribute->title == 'Brand')
                                             {
-                                            $brand = $attribute->attribute->title;
+												$brand = $attribute->values->first()->attributeValue->name;
                                             }
                                             @endphp
                                             {{ $attribute->attribute->title }} :
@@ -881,21 +881,39 @@ $firstImage = $data['product_details']->images->isNotEmpty()
             "price": "{{ $schema_offer }}",
             "priceCurrency": "INR",
             "category": "{{ $categorytitle }}",
-            "brand": "{{$data['attributes_value_name']->name}}",
+            "brand": "{{ $brand }}",
             "offers": {
                 "@type": "Offer",
                 "price": "{{ $schema_offer }}",
                 "priceCurrency": "INR",
                 "url": "{{ url()->current() }}",
-                "priceValidUntil": "2025-12-31",
                 "priceSpecification": {
                     "@type": "PriceSpecification",
-                    "price": "{{ $product->mrp }}", // MRP (Maximum Retail Price)
+                    "price": "{{ $schema_offer }}", // MRP (Maximum Retail Price)
                     "priceCurrency": "INR",
-                    "gstIncluded": "true"
+                    "valueAddedTaxIncluded": "true"
                 },
-                "availability": "http://schema.org/InStock"
-            }
+                "availability": "http://schema.org/InStock",
+				"itemCondition": "https://schema.org/NewCondition",
+				"priceValidUntil": "{{ \Carbon\Carbon::now()->addYear()->format('Y-m-d') }}"
+            },
+			"additionalProperty": [
+			  {
+				"@type": "PropertyValue",
+				"name": "MRP",
+				"value": "{{ $product->mrp }}"
+			  },
+			  {
+				"@type": "PropertyValue",
+				"name": "Discount",
+				"value": "{{ $product->mrp - $schema_offer }}"
+			  }
+			],
+			"aggregateRating": {
+			  "@type": "AggregateRating",
+			  "ratingValue": "{{ $data['review_stats']['average_rating'] }}",
+			  "reviewCount": "{{ $data['review_stats']['total_reviews'] }}"
+			}
     }
 </script>
 @endpush

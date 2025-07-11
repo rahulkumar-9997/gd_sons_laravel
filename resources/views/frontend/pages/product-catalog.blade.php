@@ -118,7 +118,8 @@
                 $firstImage = $product->images->get(0);
                 $urlPath = Request::path();
                 $segments = explode('/', $urlPath);
-                $lastSegment = end($segments);                
+                $lastSegment = end($segments);
+                
                 $purchase_rate = $product->purchase_rate;
                 $offer_rate = $product->offer_rate;
                 $mrp = $product->mrp;
@@ -126,6 +127,17 @@
                 $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
                     ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
                     : 0;
+					
+				$attributes_value = $product->ProductAttributesValues->isNotEmpty() ? $product->ProductAttributesValues->first()->attributeValue->slug : 'na';
+					$brand = '';
+					foreach($product->ProductAttributesValues as $oneProductAV)
+					{
+						if($oneProductAV->productAttribute->attributes_id == 18)
+						{
+							$brand = $oneProductAV->attributeValue->slug;
+						}
+						// $brand = $product->ProductAttributesValues->attributeValue->slug;
+					}
             @endphp
             {
                 "@type": "ListItem",
@@ -136,7 +148,7 @@
                     "description": "{{ 'GD Sons - ' . $category->title . ' : ' . $attributeValue->name }}",                
                     "brand": {
                         "@type": "Brand",
-                        "name": "GD Sons"
+                        "name": "{{ $brand }}"
                     },
                     "category": "{{ $product->category->title }}",
                     "sku": "{{ $product->sku }}",
@@ -144,6 +156,7 @@
                     @if($firstImage)
                     "image": "{{ asset('images/product/thumb/' . $firstImage->image_path) }}",
                     @endif
+
                     "offers": {
                         "@type": "Offer",
                         "url": "{{ url('products/'.$product['slug'].'/'.$lastSegment) }}",
@@ -154,22 +167,31 @@
                         "availability": "https://schema.org/{{ $product->stock_quantity > 0 ? 'InStock' : 'OutOfStock' }}",
                         @if($mrp > $final_offer_rate)
                         "priceSpecification": {
-                            "@type": "UnitPriceSpecification",
-                            "price": "{{ $final_offer_rate }}",
-                            "priceCurrency": "INR",
-                            "referenceQuantity": {
-                                "@type": "QuantitativeValue",
-                                "value": "1",
-                                "unitCode": "C62"
-                            }
-                        },
+							"@type": "PriceSpecification",
+							"price": "{{ $final_offer_rate }}",
+							"priceCurrency": "INR",
+							"valueAddedTaxIncluded": true
+						  },
                         "listPrice": {
                             "@type": "UnitPriceSpecification",
                             "price": "{{ $mrp }}",
                             "priceCurrency": "INR"
                         }
                         @endif
-                    }
+                    },
+					"additionalProperty": [
+						  {
+							"@type": "PropertyValue",
+							"name": "MRP",
+							"value": "{{ $mrp }}"
+						  },
+						  {
+							"@type": "PropertyValue",
+							"name": "Discount",
+							"value": "{{ $mrp - $final_offer_rate }}"
+						  }
+						]
+
                 }
             }@if(!$loop->last),@endif
             @endforeach

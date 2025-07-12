@@ -6,9 +6,9 @@
 	<div class="drawer__overlay js-drawer__close" tabindex="-1"></div>
 	<div class="drawer__content bg-light inner-glow shadow-md flex flex-column" role="dialog" aria-labelledby="drawer-cart-title" aria-modal="true">
 		<header class="minicart-header border-bottom">
-			<h1 id="drawer-cart-title" class="text-base text-truncate">
+			<h4 id="drawer-cart-title" class="text-base text-truncate">
 				Your Cart (<span class="cart-count">{{ $cart_count  ?? 0 }}</span>)
-			</h1>
+			</h4>
 			<button class="drawer__close-btn js-drawer__close" aria-label="Close cart">
 				<i class="fa-solid fa-xmark"></i>
 			</button>

@@ -543,7 +543,7 @@ class FrontendController extends Controller
                 'ProductAttributesValues' => function ($query) {
                     $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
                         ->with([
-                            'attributeValue:id,slug',
+                            'attributeValue:id,slug', 'productAttribute:id,attributes_id'
                         ])
                         ->orderBy('id');
                 },
@@ -555,6 +555,24 @@ class FrontendController extends Controller
             ->whereHas('images')/*only select which product whose images have (if all product selected than remove this line)*/
             ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
             ->paginate(32);
+			
+			
+			// $products = $productsQuery->with([
+                // 'category',
+                // 'images' => function ($query) {
+                    // $query->select('id', 'product_id', 'image_path')
+                        // ->orderBy('sort_order');
+                // },
+                // 'ProductAttributesValues' => function ($query) {
+                    // $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
+                        // ->with([
+                            // 'attributeValue:id,slug', 'productAttribute:id,attributes_id'
+                        // ])
+                        // ->orderBy('id');
+                // }
+            // ])
+			
+			
             /**special offer rate */
             $specialOffers = getCustomerSpecialOffers();
             /**special offer rate */

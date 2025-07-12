@@ -37,8 +37,9 @@
 </section>
 @endif
 <!-- Home Section Start -->
-<!--<section class="home-section pt-2">
+<section class="home-section pt-2">
     <div class="container-fluid-lg">
+		<!--
         <div class="row g-2">
             <div class="col-xl-8 ratio_65">
                 <div class="home-contain h-1001">
@@ -118,7 +119,8 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        -->
+		<div class="row">
             <div class="col-lg-12">
                 <div class="text-center mt-2">
                     <h1 class="class-h1-tags">
@@ -128,7 +130,7 @@
             </div>
         </div>
     </div>
-</section>-->
+</section>
 <section>
     <div class="container">
         <div class="row">

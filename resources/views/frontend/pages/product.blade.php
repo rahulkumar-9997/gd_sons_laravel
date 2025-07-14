@@ -1,5 +1,6 @@
 @php
 $brand = '';
+$schema_offer = 0;
 $categorytitle = $data['product_details']->category->title;
 if (substr($categorytitle, -1) === 's')
 {
@@ -212,9 +213,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                     <div class="col-xl-6" data-wow-delay="0.1s">
                         <div class="right-box-contain">
                             @if(preg_match('/(android|iphone|ipod|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])))
-                            @php
-                                 $schema_offer = null;
-                            @endphp                           
+                          
                             @else
                             <div class="for-desktop-price">
                                 <h1 class="name">{{$data['product_details']->title}}</h1>
@@ -227,7 +226,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         @php
                                         $product = $data['product_details'];
                                         $final_offer_rate = null;
-                                        $schema_offer = null;
+                                        
                                         $offer_rate_display = '';
                                         $special_offer_rate = null;
                                         $group_offer_rate = null;
@@ -272,7 +271,8 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                             {{-- Discount --}}
                                             @if($product->mrp)
                                             @php
-                                            $discountPercentage = round((($product->mrp - $final_offer_rate) / $product->mrp) * 100, 2);
+												$discountPercentage = round((($product->mrp - $final_offer_rate) / $product->mrp) * 100, 2);
+												$schema_offer = $final_offer_rate;
 
                                             @endphp
                                             <span class="offer theme-color">
@@ -282,9 +282,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 
                                             {{-- Show crossed MRP --}}
                                             @if($product->mrp)
-                                            @php
-                                            $schema_offer = $final_offer_rate;
-                                            @endphp
+
                                             <br><span>M.R.P.</span><del class="text-content">
                                                 Rs. {{ number_format($product->mrp, 2) }}
                                             </del>
@@ -874,9 +872,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
             "name": "{{ $data['product_details']->title }}",
             "description": "{{$meta_description}}",
             "image": "{{ $imageschema }}",
-            "sku": "{{$data['product_details']->id}}",
-            "price": "{{ $schema_offer }}",
-            "priceCurrency": "INR",
+            "sku": "{{$data['product_details']->sku}}",
             "category": "{{ $categorytitle }}",
             "brand": "{{ $brand }}",
             "offers": {
@@ -886,9 +882,10 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                 "url": "{{ url()->current() }}",
                 "priceSpecification": {
                     "@type": "PriceSpecification",
-                    "price": "{{ $schema_offer }}", // MRP (Maximum Retail Price)
+                    "price": "{{ $product->mrp }}",
                     "priceCurrency": "INR",
-                    "valueAddedTaxIncluded": "true"
+                    "valueAddedTaxIncluded": "true",
+					"priceType": "ListPrice"
                 },
                 "availability": "http://schema.org/InStock",
 				"itemCondition": "https://schema.org/NewCondition",
@@ -904,13 +901,25 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 				"@type": "PropertyValue",
 				"name": "Discount",
 				"value": "{{ $product->mrp - $schema_offer }}"
+			  },
+			  {
+				"@type": "PropertyValue",
+				"name": "Product type",
+				"value": "{{ $categorytitle }}"
 			  }
-			],
+			]
+			@php
+				if($data['review_stats']['total_reviews'] > 0)
+				{
+			@endphp,
 			"aggregateRating": {
 			  "@type": "AggregateRating",
 			  "ratingValue": "{{ $data['review_stats']['average_rating'] }}",
 			  "reviewCount": "{{ $data['review_stats']['total_reviews'] }}"
 			}
+			@php
+				}
+			@endphp
     }
 </script>
 @endpush

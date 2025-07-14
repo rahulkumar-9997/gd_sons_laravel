@@ -22350,6 +22350,11 @@ table .product-row.highlighted{
 }
 
 /*filter*/
+.multiple-filter-wraperd-flex{
+ display: flex;
+ align-items: center;
+ justify-content: end;
+}
 .client-list-filter {
   border-radius: 5px;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
@@ -22357,7 +22362,11 @@ table .product-row.highlighted{
 .client-list-filter p {
   margin-bottom: 0 !important;
 }
-.client-list-filter input, .client-list-filter select {
+.client-list-filter input,
+.client-list-filter select,
+.multiple-filter-wraperd-flex input,
+.multiple-filter-wraperd-flex select
+ {
   width: auto;
   max-width: 170px;
 }

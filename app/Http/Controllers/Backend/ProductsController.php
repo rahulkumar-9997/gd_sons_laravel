@@ -1652,6 +1652,9 @@ class ProductsController extends Controller
             return view('backend.product.product-multiple-update.index', compact('criteria', 'products'));
         } elseif ($criteria == 'video-id') {
             $products = Product::with(['images'])->paginate(20);
+            return view('backend.product.product-multiple-update.index', compact('criteria', 'products'));        
+        } elseif ($criteria == 'g-tin-no') {
+            $products = Product::with(['images'])->paginate(20);
             return view('backend.product.product-multiple-update.index', compact('criteria', 'products'));
         }
         return view('backend.product.product-multiple-update.index', compact('criteria'));
@@ -1710,6 +1713,10 @@ class ProductsController extends Controller
                 case 'video-id':
                     if (isset($request->products_video_id[$key])) {
                         $rules["products_video_id.{$key}"] = 'nullable|string|max:255';
+                    }
+                case 'g-tin-no':
+                    if (isset($request->products_gtin_no[$key])) {
+                        $rules["products_gtin_no.{$key}"] = 'nullable|string|max:255';
                     }
                     break;
             }
@@ -1796,6 +1803,12 @@ class ProductsController extends Controller
                     $product->video_id = $request->products_video_id[$key];
                     $updated = true;
                     $msg ="Product Video id updated successfully.";
+                }
+
+                if ($criteria === 'g-tin-no' && isset($request->products_gtin_no[$key])) {
+                    $product->g_tin_no = $request->products_gtin_no[$key];
+                    $updated = true;
+                    $msg ="Product GTIN No. updated successfully.";
                 }
     
                 if ($updated) {

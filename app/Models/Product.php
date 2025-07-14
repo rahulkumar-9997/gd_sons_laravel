@@ -23,6 +23,7 @@ class Product extends Model
         'subcategory_id',
         'brand_id',
         'label_id',
+        'g_tin_no',
         'product_weight',
         'product_stock_status',
         'product_tags',

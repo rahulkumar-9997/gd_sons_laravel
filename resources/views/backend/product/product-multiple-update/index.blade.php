@@ -9,33 +9,67 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-xl-12">
-
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center gap-1">
                     <h4 class="card-title flex-grow-1">
-                        <div class="col-lg-5">
-                            <div class="dropdown">
-                                <select id="selecte-criteria" class="form-select">
-                                    <option value="">Select Criteria For Update</option>
-                                    <option value="product-name" {{ request('criteria') == 'product-name' ? 'selected' : '' }}>
-                                        Product Name
-                                    </option>
-                                    <option value="meta-title-description" {{ request('criteria') == 'meta-title-description' ? 'selected' : '' }}>
-                                        Meta Title, Meta Description
-                                    </option>
-                                    <option value="product-description" {{ request('criteria') == 'product-description' ? 'selected' : '' }}>
-                                        Product Description
-                                    </option>
-                                    <option value="product-specification" {{ request('criteria') == 'product-specification' ? 'selected' : '' }}>
-                                        Product Specification
-                                    </option>
-                                    <option value="product-image" { request('criteria')=='product-image' ? 'selected' : '' }}>
-                                        Product Image
-                                    </option>
-                                    <option value="video-id" { request('criteria')=='video-id' ? 'selected' : '' }}>
-                                        Product Video ID
-                                    </option>
-                                </select>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="dropdown">
+                                    <select id="selecte-criteria" class="form-select">
+                                        <option value="">Select Criteria For Update</option>
+                                        <option value="product-name" {{ request('criteria') == 'product-name' ? 'selected' : '' }}>
+                                            Product Name
+                                        </option>
+                                        <option value="meta-title-description" {{ request('criteria') == 'meta-title-description' ? 'selected' : '' }}>
+                                            Meta Title, Meta Description
+                                        </option>
+                                        <option value="product-description" {{ request('criteria') == 'product-description' ? 'selected' : '' }}>
+                                            Product Description
+                                        </option>
+                                        <option value="product-specification" {{ request('criteria') == 'product-specification' ? 'selected' : '' }}>
+                                            Product Specification
+                                        </option>
+                                        <option value="product-image" {{ request('criteria')=='product-image' ? 'selected' : '' }}>
+                                            Product Image
+                                        </option>
+                                        <option value="video-id" {{ request('criteria')=='video-id' ? 'selected' : '' }}>
+                                            Product Video ID
+                                        </option>
+                                        <option value="g-tin-no" {{ request('criteria')=='g-tin-no' ? 'selected' : '' }}>
+                                            Product GTIN (Global Trade Item Number) No.
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="multiple-filter-wraperd-flex flex-wrap align-items-center bg-white gap-1">
+                                    <div class="d-flex align-items-center border-end pe-1">
+                                        <p class="mb-0 me-2 text-dark-grey f-14">Category:</p>
+                                        <select id="category-filter" class="form-select form-select-md">
+                                            <option value="">All Categories</option>
+                                            <option value="4">Pressure Cookers</option>
+                                            <option value="5">Vacuum Flasks</option>
+                                            <option value="6">Mixers &amp; Juicers</option>
+                                            <option value="10">Cookware</option>
+                                            <option value="11">Toasters</option>
+                                            <option value="12">Electric Kettles</option>
+                                            <option value="13">Chimneys</option>
+                                            <option value="14">LPG Gas Stoves</option>
+                                            <option value="15">Lunchbox &amp; Tiffins</option>
+                                            <option value="16">Dinner Sets</option>
+                                            <option value="17">Oven Toaster Griller</option>
+                                            <option value="19">Air Fryers</option>
+                                            <option value="20">Cups &amp; Mugs</option>
+                                            <option value="21">Bottles</option>
+                                            <option value="22">Induction Cooktops</option>
+                                            <option value="23">Jars &amp; Containers</option>
+                                        </select>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <label class="mb-0 me-2 text-dark-grey f-14">Search:</label>
+                                        <input type="search" class="form-control form-control-md" id="product-search" placeholder="Search products">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </h4>
@@ -73,6 +107,8 @@
                                     <th>Product Image</th>
                                     @elseif ($criteria == 'video-id')
                                     <th>Product Video ID</th>
+                                    @elseif ($criteria == 'g-tin-no')
+                                    <th>Product GTIN No. (Global Trade Item Number)</th>
                                     <!-- <th>Upload Image</th> -->
                                     @endif
                                 </tr>
@@ -112,7 +148,7 @@
                                             {!! $product->product_description !!}
                                             </textarea>
                                         </div>
-                                       
+
                                     </td>
                                     @elseif ($criteria == 'product-specification')
                                     <td>
@@ -123,10 +159,10 @@
                                             {!! $product->product_specification !!}
                                             </textarea>
                                         </div>
-                                        
+
                                     </td>
                                     @elseif ($criteria == 'product-image')
-                                    
+
                                     <td>
                                         <input type="hidden" name="product_id[]" value="{{ $product->id }}">
                                         <input type="file" name="productsImage[{{$sr_no}}][]" class="form-control form-control-sm" multiple>
@@ -135,7 +171,13 @@
                                     <td>
                                         <input type="hidden" name="product_id[]" value="{{ $product->id }}">
                                         <input type="text" name="products_video_id[]" value="{{ $product->video_id }}" class="form-control form-control-sm" placeholder="Enter Video Id">
-                                        
+
+                                    </td>
+                                    @elseif ($criteria == 'g-tin-no')
+                                    <td>
+                                        <input type="hidden" name="product_id[]" value="{{ $product->id }}">
+                                        <input type="text" name="products_gtin_no[]" value="{{ $product->g_tin_no }}" class="form-control form-control-sm" placeholder="Enter Products GTIN No.">
+
                                     </td>
                                     @endif
                                 </tr>

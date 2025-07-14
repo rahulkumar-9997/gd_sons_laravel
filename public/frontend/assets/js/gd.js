@@ -244,7 +244,7 @@
                 from: "bottom",
                 align: "center",
             },
-            offset: 20,
+            offset: 30,
             spacing: 5,
             z_index: 1031,
             delay: 5000,

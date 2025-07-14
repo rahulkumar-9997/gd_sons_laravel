@@ -32,6 +32,7 @@
 <link rel="stylesheet" href="{{asset('frontend/assets/css/animate.min.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/bulk-style.css')}}">
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/vendors/animate.css')}}">
+<link rel="preload" as="style" href="{{asset('frontend/assets/css/style.css')}}?v={{ time() }}">
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/style.css')}}?v={{ time() }}">
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/gd-style.css')}}?v={{ time() }}">
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/cart-drawer.css')}}">

@@ -76,48 +76,43 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                             <div class="price-rating">
                                 <h3 class="theme-color price">
                                     @php
-                                    // Initialize variables
-                                    $product = $data['product_details'];
-                                    $final_offer_rate = null;
-                                    $offer_rate_display = '';
-                                    $special_offer_rate = null;
-                                    $group_offer_rate = null;
-                                    $schema_offer = null;
+                                        $product = $data['product_details'];
+                                        $final_offer_rate = null;
+                                        $offer_rate_display = '';
+                                        $special_offer_rate = null;
+                                        $group_offer_rate = null;
+                                        $schema_offer = null;
+                                        if ($product->offer_rate) {
+                                            $final_offer_rate = $product->offer_rate;
+                                        }
+                                        if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
+                                        $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                        if ($group_percentage > 0) {
+                                        $purchase_rate = $product->purchase_rate;
+                                        $offer_rate = $product->offer_rate;
+                                        // Calculate group offer rate based on the group's discount percentage
+                                        $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                                        $group_offer_rate = floor($group_offer_rate);
+                                        // Prepare the display for the regular (default) offer rate if the group offer is applied
+                                        $offer_rate_display = '<br><span>Regular offer price</span><del class="text-content"> Rs. ' . number_format($offer_rate, 2) . '</del>';
+                                        }
+                                        }
 
-                                    // Default offer rate from product
-                                    if ($product->offer_rate) {
-                                    $final_offer_rate = $product->offer_rate;
-                                    }
+                                        // Check for a special offer rate (provided by $specialOffers array)
+                                        if (isset($specialOffers[$product->id])) {
+                                        $special_offer_rate = (float) $specialOffers[$product->id];
+                                        }
 
-                                    // Group offer calculation (if customer logged in and group category exists)
-                                    if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
-                                    $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                    if ($group_percentage > 0) {
-                                    $purchase_rate = $product->purchase_rate;
-                                    $offer_rate = $product->offer_rate;
-                                    // Calculate group offer rate based on the group's discount percentage
-                                    $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-                                    $group_offer_rate = floor($group_offer_rate);
-                                    // Prepare the display for the regular (default) offer rate if the group offer is applied
-                                    $offer_rate_display = '<br><span>Regular offer price</span><del class="text-content"> Rs. ' . number_format($offer_rate, 2) . '</del>';
-                                    }
-                                    }
+                                        // Determine the minimum (best) offer from available offers
+                                        $all_offer_prices = array_filter([
+                                        $special_offer_rate,
+                                        $group_offer_rate,
+                                        $product->offer_rate,
+                                        ]);
 
-                                    // Check for a special offer rate (provided by $specialOffers array)
-                                    if (isset($specialOffers[$product->id])) {
-                                    $special_offer_rate = (float) $specialOffers[$product->id];
-                                    }
-
-                                    // Determine the minimum (best) offer from available offers
-                                    $all_offer_prices = array_filter([
-                                    $special_offer_rate,
-                                    $group_offer_rate,
-                                    $product->offer_rate,
-                                    ]);
-
-                                    if (!empty($all_offer_prices)) {
-                                    $final_offer_rate = min($all_offer_prices);
-                                    }
+                                        if (!empty($all_offer_prices)) {
+                                        $final_offer_rate = min($all_offer_prices);
+                                        }
                                     @endphp
 
                                     @if($final_offer_rate)
@@ -217,7 +212,9 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                     <div class="col-xl-6" data-wow-delay="0.1s">
                         <div class="right-box-contain">
                             @if(preg_match('/(android|iphone|ipod|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])))
-                            $schema_offer = null;
+                            @php
+                                 $schema_offer = null;
+                            @endphp                           
                             @else
                             <div class="for-desktop-price">
                                 <h1 class="name">{{$data['product_details']->title}}</h1>
@@ -368,7 +365,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 @endif
                             </div>
 
-                            <div class="buy-box">
+                            <!--<div class="buy-box">
                                 @if (auth()->guard('customer')->check())
                                 @php
                                 $customerId = auth('customer')->id();
@@ -407,7 +404,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                     <span>Add To Wishlist</span>
                                 </a>
                                 @endif
-                            </div>
+                            </div>-->
                             <div class="whatsapp-area">
                                 <div class="whatapp-enquirybtn">
                                     <a

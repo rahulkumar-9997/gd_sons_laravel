@@ -1632,34 +1632,66 @@ class ProductsController extends Controller
         }
     }
 
-    public function productMultipleUpdatePage(Request $request){
+    public function productMultipleUpdatePage(Request $request)
+    {
+        $categories = Category::all(); 
         $criteria = $request->query('criteria');
-        if ($criteria == 'product-name') {
-            $products = Product::with(['images'])->paginate(20);
-            return view('backend.product.product-multiple-update.index', compact('criteria', 'products'));
-        } elseif ($criteria == 'meta-title-description') {
-            $products = Product::with(['images'])->paginate(20);
-            return view('backend.product.product-multiple-update.index', compact('criteria', 'products'));
-        } elseif ($criteria == 'product-description') {
-            $products = Product::with(['images'])->paginate(20);
-            return view('backend.product.product-multiple-update.index', compact('criteria', 'products'));
-        } elseif ($criteria == 'product-specification') {
-            $products = Product::with(['images'])->paginate(20);
-            return view('backend.product.product-multiple-update.index', compact('criteria', 'products'));
-        } elseif ($criteria == 'product-image') {
-            $products = Product::with(['images'])->whereDoesntHave('images')->paginate(20);
-            //$products = Product::with(['images'])->paginate(20);
-            return view('backend.product.product-multiple-update.index', compact('criteria', 'products'));
-        } elseif ($criteria == 'video-id') {
-            $products = Product::with(['images'])->paginate(20);
-            return view('backend.product.product-multiple-update.index', compact('criteria', 'products'));        
-        } elseif ($criteria == 'g-tin-no') {
-            $products = Product::with(['images'])->paginate(20);
-            return view('backend.product.product-multiple-update.index', compact('criteria', 'products'));
-        }
-        return view('backend.product.product-multiple-update.index', compact('criteria'));
+        $products = null;
 
+        $allowedCriteria = [
+            'product-name',
+            'meta-title-description',
+            'product-description',
+            'product-specification',
+            'product-image',
+            'video-id',
+            'g-tin-no',
+        ];
+        if ($criteria && !in_array($criteria, $allowedCriteria)) {
+            $criteria = null;
+        }
+        try {
+            $query = Product::with(['images', 'category'])
+                ->select(['id', 'title', 'category_id', 'meta_title', 'meta_description', 'g_tin_no', 'slug', 'category_id', 'product_description', 'product_specification', 'video_id']); 
+            if ($criteria === 'product-image') {
+                $query->whereDoesntHave('images');
+            }
+            
+            if ($request->filled('category_id')) {
+                Log::error("search category term: " . $request->category_id);    
+                $query->where('category_id', $request->category_id);
+            }
+            if ($request->has('search') && $request->search) {
+                Log::error("search term: " . $request->search);    
+                $searchTerms = explode(' ', $request->search); 
+                $booleanQuery = '+' . implode(' +', $searchTerms);
+            
+                $query->whereRaw("MATCH(title) AGAINST(? IN BOOLEAN MODE)", [$booleanQuery]);
+                $query->orWhere(function ($query) use ($searchTerms) {
+                    foreach ($searchTerms as $term) {
+                        $query->where('title', 'like', '%' . $term . '%');
+                    }
+                });
+            }
+            $products = $query->paginate(20);
+            if ($request->ajax()) {
+                return view('backend.product.product-multiple-update.partials.list-table', compact('criteria', 'products'))->render();
+            }            
+            return view('backend.product.product-multiple-update.index', compact('criteria', 'products', 'categories'));
+        } catch (\Exception $e) {
+            Log::error("Product multiple update page error: " . $e->getMessage());            
+            if ($request->ajax()) {
+                return response()->json(['error' => 'An error occurred'], 500);
+            }
+            return view('backend.product.product-multiple-update.index', [
+                'criteria' => $criteria,
+                'products' => null,
+                'categories' => $categories,
+                'error' => 'An error occurred while loading products'
+            ]);
+        }
     }
+
 
     public function productMultipleUpdatePageSubmit(Request $request) {
         $criteria = $request->input('criteria');
@@ -1808,7 +1840,7 @@ class ProductsController extends Controller
                 if ($criteria === 'g-tin-no' && isset($request->products_gtin_no[$key])) {
                     $product->g_tin_no = $request->products_gtin_no[$key];
                     $updated = true;
-                    $msg ="Product GTIN No. updated successfully.";
+                    $msg ="Product GTIN No. {$request->products_gtin_no[$key]} updated successfully.";
                 }
     
                 if ($updated) {

@@ -168,9 +168,10 @@
                         @if($mrp > $final_offer_rate)
                         "priceSpecification": {
 							"@type": "PriceSpecification",
-							"price": "{{ $final_offer_rate }}",
+							"price": "{{ $mrp }}",
 							"priceCurrency": "INR",
-							"valueAddedTaxIncluded": true
+							"valueAddedTaxIncluded": true,
+							"priceType": "ListPrice"
 						  },
                         "listPrice": {
                             "@type": "UnitPriceSpecification",

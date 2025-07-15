@@ -873,6 +873,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
             "description": "{{$meta_description}}",
             "image": "{{ $imageschema }}",
             "sku": "{{$data['product_details']->sku}}",
+			"gtin": "{{$data['product_details']->g_tin_no}}",
             "category": "{{ $categorytitle }}",
             "brand": "{{ $brand }}",
             "offers": {

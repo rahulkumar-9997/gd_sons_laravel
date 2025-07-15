@@ -193,9 +193,10 @@
                         "price": "{{ $final_offer_rate }}",
 						"priceSpecification": {
 							"@type": "PriceSpecification",
-							"price": "{{ $final_offer_rate }}",
+							"price": "{{ $mrp }}",
 							"priceCurrency": "INR",
-							"valueAddedTaxIncluded": true
+							"valueAddedTaxIncluded": true,
+							"priceType": "ListPrice"
 						  },
                         "priceValidUntil": "{{ \Carbon\Carbon::now()->addYear()->format('Y-m-d') }}",
                         "itemCondition": "https://schema.org/NewCondition",
@@ -297,9 +298,10 @@
                         "price": "{{ $final_offer_rate }}",
 						"priceSpecification": {
 							"@type": "PriceSpecification",
-							"price": "{{ $final_offer_rate }}",
+							"price": "{{ $mrp }}",
 							"priceCurrency": "INR",
-							"valueAddedTaxIncluded": true
+							"valueAddedTaxIncluded": true,
+							"priceType": "ListPrice"
 						  },
                         "priceValidUntil": "{{ \Carbon\Carbon::now()->addYear()->format('Y-m-d') }}",
                         "itemCondition": "https://schema.org/NewCondition",

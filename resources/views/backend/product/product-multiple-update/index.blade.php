@@ -47,28 +47,19 @@
                                         <p class="mb-0 me-2 text-dark-grey f-14">Category:</p>
                                         <select id="category-filter" class="form-select form-select-md">
                                             <option value="">All Categories</option>
-                                            <option value="4">Pressure Cookers</option>
-                                            <option value="5">Vacuum Flasks</option>
-                                            <option value="6">Mixers &amp; Juicers</option>
-                                            <option value="10">Cookware</option>
-                                            <option value="11">Toasters</option>
-                                            <option value="12">Electric Kettles</option>
-                                            <option value="13">Chimneys</option>
-                                            <option value="14">LPG Gas Stoves</option>
-                                            <option value="15">Lunchbox &amp; Tiffins</option>
-                                            <option value="16">Dinner Sets</option>
-                                            <option value="17">Oven Toaster Griller</option>
-                                            <option value="19">Air Fryers</option>
-                                            <option value="20">Cups &amp; Mugs</option>
-                                            <option value="21">Bottles</option>
-                                            <option value="22">Induction Cooktops</option>
-                                            <option value="23">Jars &amp; Containers</option>
+                                            @foreach($categories as $category)
+                                                <option value="{{ $category->id }}">{{ $category->title }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                     <div class="d-flex align-items-center">
                                         <label class="mb-0 me-2 text-dark-grey f-14">Search:</label>
                                         <input type="search" class="form-control form-control-md" id="product-search" placeholder="Search products">
                                     </div>
+                                    <button id="reset-button" class="btn btn-danger" style="display:none;">
+                                        <svg class="svg-inline--fa fa-times-circle fa-w-16 mr-1" aria-hidden="true" focusable="false" data-prefix="fa" data-icon="times-circle" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm121.6 313.1c4.7 4.7 4.7 12.3 0 17L338 377.6c-4.7 4.7-12.3 4.7-17 0L256 312l-65.1 65.6c-4.7 4.7-12.3 4.7-17 0L134.4 338c-4.7-4.7-4.7-12.3 0-17l65.6-65-65.6-65.1c-4.7-4.7-4.7-12.3 0-17l39.6-39.6c4.7-4.7 12.3-4.7 17 0l65 65.7 65.1-65.6c4.7-4.7 12.3-4.7 17 0l39.6 39.6c4.7 4.7 4.7 12.3 0 17L312 256l65.6 65.1z"></path></svg>
+                                        Reset Filters
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -85,118 +76,9 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    @if (isset($criteria))
-                    <form action="{{ route('product-update-all') }}" method="POST" id="multipleUpdateProduct" accept-charset="UTF-8" enctype="multipart/form-data" novalidate>
-                        @csrf
-                        <table id="productListMultipleUpdate" class="table align-middle mb-0 table-hover table-centered">
-                            <thead class="bg-light-subtle">
-                                <tr>
-                                    <th style="width: 5%;">Sr. No.</th>
-                                    <th style="width: 35%;">Product Name</th>
-                                    <th>Category</th>
-                                    @if ($criteria == 'product-name')
-                                    <th>New Product Name</th>
-                                    @elseif ($criteria == 'meta-title-description')
-                                    <th>Meta Title</th>
-                                    <th>Meta Description</th>
-                                    @elseif ($criteria == 'product-description')
-                                    <th>Product Description</th>
-                                    @elseif ($criteria == 'product-specification')
-                                    <th>Product Specification</th>
-                                    @elseif ($criteria == 'product-image')
-                                    <th>Product Image</th>
-                                    @elseif ($criteria == 'video-id')
-                                    <th>Product Video ID</th>
-                                    @elseif ($criteria == 'g-tin-no')
-                                    <th>Product GTIN No. (Global Trade Item Number)</th>
-                                    <!-- <th>Upload Image</th> -->
-                                    @endif
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php $sr_no = 0; @endphp
-                                <input type="hidden" name="criteria" value="{{ $criteria }}">
-                                @foreach($products as $product)
-                                <tr>
-                                    <td>{{ $sr_no }}</td>
-                                    <td>
-                                        <a href="https://www.google.com/search?q={{ urlencode($product->title) }}&udm=2" target="_blank" class="text-primary">
-                                            {{ ucwords(strtolower($product->title)) }}
-                                        </a>
-                                    </td>
-                                    <td>{{ $product->category->title ?? 'No Category' }}</td>
-
-                                    @if ($criteria == 'product-name')
-                                    <td>
-                                        <input type="hidden" name="product_id[]" value="{{ $product->id }}">
-                                        <input type="text" name="products_name[]" value="{{ $product->title }}" class="form-control form-control-sm" placeholder="Enter new product name">
-                                    </td>
-                                    @elseif ($criteria == 'meta-title-description')
-                                    <input type="hidden" name="product_id[]" value="{{ $product->id }}">
-                                    <td>
-                                        <input type="text" name="products_meta_title[]" value="{{ $product->meta_title ?? '' }}" class="form-control form-control-sm" placeholder="Enter meta title">
-                                    </td>
-                                    <td>
-                                        <textarea name="products_meta_description[]" class="form-control form-control-sm" placeholder="Enter meta description">{{ $product->meta_description ?? '' }}</textarea>
-                                    </td>
-                                    @elseif ($criteria == 'product-description')
-                                    <td>
-                                        <input type="hidden" name="product_id[]" value="{{ $product->id }}">
-                                        <div class="mb-0">
-                                            <div class="snow-editor" style="height: 200px; width: 100%;">{!! $product->product_description !!}</div>
-                                            <textarea name="products_description[]" class="hidden-textarea" style="display:none;">
-                                            {!! $product->product_description !!}
-                                            </textarea>
-                                        </div>
-
-                                    </td>
-                                    @elseif ($criteria == 'product-specification')
-                                    <td>
-                                        <input type="hidden" name="product_id[]" value="{{ $product->id }}">
-                                        <div class="mb-0">
-                                            <div class="snow-editor" style="height: 200px; width: 100%;">{!! $product->product_specification !!}</div>
-                                            <textarea name="products_specification[]" class="hidden-textarea" style="display:none;">
-                                            {!! $product->product_specification !!}
-                                            </textarea>
-                                        </div>
-
-                                    </td>
-                                    @elseif ($criteria == 'product-image')
-
-                                    <td>
-                                        <input type="hidden" name="product_id[]" value="{{ $product->id }}">
-                                        <input type="file" name="productsImage[{{$sr_no}}][]" class="form-control form-control-sm" multiple>
-                                    </td>
-                                    @elseif ($criteria == 'video-id')
-                                    <td>
-                                        <input type="hidden" name="product_id[]" value="{{ $product->id }}">
-                                        <input type="text" name="products_video_id[]" value="{{ $product->video_id }}" class="form-control form-control-sm" placeholder="Enter Video Id">
-
-                                    </td>
-                                    @elseif ($criteria == 'g-tin-no')
-                                    <td>
-                                        <input type="hidden" name="product_id[]" value="{{ $product->id }}">
-                                        <input type="text" name="products_gtin_no[]" value="{{ $product->g_tin_no }}" class="form-control form-control-sm" placeholder="Enter Products GTIN No.">
-
-                                    </td>
-                                    @endif
-                                </tr>
-                                @php $sr_no++; @endphp
-                                @endforeach
-                            </tbody>
-                        </table>
-
-                        <div class="d-flex justify-content-end mt-3">
-                            <button type="submit" class="btn btn-primary btn-sm">
-                                <i class="ti ti-check"></i> Update All
-                            </button>
-                        </div>
-                    </form>
-                    <div class="my-pagination" id="multiple_update" style="margin-top: 20px;">
-                        {{ $products->appends(request()->query())->links('vendor.pagination.bootstrap-4') }}
+                    <div class="multiple_update" id="multiple_update">
+                        @include('backend.product.product-multiple-update.partials.list-table', ['criteria' => $criteria, 'products' =>$products])
                     </div>
-                    @endif
-
                 </div>
             </div>
         </div>
@@ -206,7 +88,11 @@
 @endsection
 @push('scripts')
 <script src="{{asset('backend/assets/js/components/form-quilljs.js')}}"></script>
+<script src="{{asset('backend/assets/js/pages/multiple-update.js')}}"></script>
 <script>
+    var routes = {
+        filterIndex: "{{ route('product-multiple-update') }}",
+    };
     $('#selecte-criteria').on('change', function() {
         var selectedValue = $(this).val();
         var url = new URL(window.location.href);
@@ -217,77 +103,6 @@
         }
         window.location.href = url.toString();
     });
-    $(document).off('submit', '#multipleUpdateProduct').on('submit', '#multipleUpdateProduct', function(e) {
-        e.preventDefault();
-        var form = $(this);
-        var url = form.attr('action');
-        var submitButton = form.find('button[type="submit"]');
-        $('.form-control').removeClass('is-invalid');
-        $('.invalid-feedback').remove();
-
-        submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...');
-        //console.log($(this).serializeArray());
-        $.ajax({
-            url: url,
-            method: 'POST',
-            data: new FormData(this),
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                submitButton.prop('disabled', false).html('<i class="ti ti-check"></i> Update All');
-                Toastify({
-                    text: response.message,
-                    duration: 10000,
-                    gravity: "top",
-                    position: "right",
-                    className: "bg-success",
-                    close: true,
-                    onClick: function() {}
-                }).showToast();
-                //$('#productListMultipleUpdate').load(location.href + " #productListMultipleUpdate");
-            },
-            error: function(xhr) {
-                submitButton.prop('disabled', false).html('<i class="ti ti-check"></i> Update All');
-                if (xhr.status === 422) {
-                    let errors = xhr.responseJSON.errors;
-                    let errorMessages = Object.values(errors).flat().join('<br>');
-                    Toastify({
-                        text: errorMessages || 'Please correct the errors in the form.',
-                        duration: 10000,
-                        gravity: "top",
-                        position: "right",
-                        className: "bg-danger",
-                        escapeMarkup: false,
-                        close: true,
-                        onClick: function() {}
-                    }).showToast();
-                    $.each(errors, function(field, messages) {
-                        if (field === 'product_id[]') {
-                            let input = form.find(`[name="${field}"]`);
-                            input.addClass('is-invalid');
-                            input.after(`<div class="invalid-feedback">${messages[0]}</div>`);
-                        } else {
-                            let inputName = field.replace('products.', '');
-                            let input = form.find(`[name="products[${inputName}]"]`);
-                            input.addClass('is-invalid');
-                            input.after(`<div class="invalid-feedback">${messages[0]}</div>`);
-                        }
-                    });
-                } else {
-                    let errorMessage = xhr.responseJSON.message || 'An error occurred. Please try again.';
-                    Toastify({
-                        text: errorMessage,
-                        duration: 10000,
-                        gravity: "top",
-                        position: "right",
-                        className: "bg-danger",
-                        close: true,
-                        escapeMarkup: false,
-                        onClick: function() {}
-                    }).showToast();
-                }
-            }
-        });
-    });
+    
 </script>
 @endpush

@@ -3,7 +3,6 @@
 @section('description', 'Best Kitchen Retail Store in Varanasi now goes Online')
 @section('keywords', 'Best Kitchen Retail Store in Varanasi now goes Online')
 @section('main-content')
-
 @if(isset($data['category_list']) && count($data['category_list']) > 0)
 <section class="category-section-2 home-category-section">
     <div class="container-fluid-lg">

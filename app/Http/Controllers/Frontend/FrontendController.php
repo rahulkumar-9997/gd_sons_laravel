@@ -444,8 +444,12 @@ class FrontendController extends Controller
         try {
             $primary_category = PrimaryCategory::where('link', $request->url())->first();
             $category = Category::where('slug', $categorySlug)->first();
-            $attribute_top = Attribute::where('slug', $attributeSlug)->first();
+            if (!$category) {
+                Log::error("No showProductCatalog category found for slug: {$categorySlug}");
+                return response()->json(['error' => 'Category not found'], 404);
+            }
 
+            $attribute_top = Attribute::where('slug', $attributeSlug)->first();
             if (!$attribute_top) {
                 Log::error("No attribute found for slug: {$attributeSlug}");
                 return response()->json(['error' => 'Attribute not found'], 404);
@@ -457,8 +461,9 @@ class FrontendController extends Controller
                 return response()->json(['error' => 'Attribute value not found'], 404);
             }
 
+
             $productsQuery = Product::where('category_id', $category->id)
-                ->where('product_status', 1);
+               ->where('product_status', 1);
             $productsQuery->whereHas('attributes', function ($query) use ($attribute_top, $attributeValue) {
                 $query->where('attributes_id', $attribute_top->id)
                     ->whereHas('values', function ($q) use ($attributeValue) {
@@ -856,6 +861,16 @@ class FrontendController extends Controller
         try {
             $primary_category = PrimaryCategory::where('link', $request->url())->first();
             $category = Category::where('slug', $categorySlug)->first();
+            if (!$primary_category) {
+                Log::error("No primary category found for URL: " . $request->url());
+                return response()->json(['error' => 'No primary category found for URL'], 404);
+            }
+
+            if (!$category) {
+                Log::error("No category found for slug: {$categorySlug}");
+                return response()->json(['error' => 'No category found for slug'], 404);
+            }
+
             $productsQuery = Product::where('category_id', $category->id)->where('product_status', 1);
             /** for filter code */            
             if ($request->has('filter')) {
@@ -1799,13 +1814,20 @@ class FrontendController extends Controller
         $agent = new Agent();
         $ip = $request->ip();
         $pageUrl = $request->page_url;
-        ClickTrackers::create([
-            'button_type' => $request->btn_type,
-            'page_url' => $request->page_url,
-            'ip_address' => $request->ip(),
-            'click_time' => now()->setTimezone('Asia/Kolkata'),
-            'device_type' => $this->getDeviceType($agent),
-        ]);
+        /* Check if the same IP+URL clicked in the last 5 minutes */
+        //$recentClickExists = ClickTrackers::where('ip_address', $ip)
+         //   ->where('page_url', $pageUrl)
+         //   ->where('click_time', '>=', now()->subMinutes(5))
+         //   ->exists();
+        //if (!$recentClickExists) {
+            ClickTrackers::create([
+                'button_type' => $request->btn_type,
+                'page_url' => $request->page_url,
+                'ip_address' => $request->ip(),
+                'click_time' => now()->setTimezone('Asia/Kolkata'),
+                'device_type' => $this->getDeviceType($agent),
+            ]);
+        //}
         return response()->json(['success' => true]);
     }
     

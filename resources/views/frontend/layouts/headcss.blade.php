@@ -28,6 +28,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://www.googletagmanager.com">
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/vendors/bootstrap.css')}}">
 <!-- (if use animation than this link uncomment) <link rel="stylesheet" href="{{asset('frontend/assets/css/animate.min.css')}}"> -->
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/bulk-style.css')}}">

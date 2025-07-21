@@ -863,7 +863,8 @@ class FrontendController extends Controller
             $category = Category::where('slug', $categorySlug)->first();
             if (!$primary_category) {
                 Log::error("No primary category found for URL: " . $request->url());
-                return response()->json(['error' => 'No primary category found for URL'], 404);
+                // continue;
+				//return response()->json(['error' => 'No primary category found for URL'], 404);
             }
 
             if (!$category) {
@@ -1668,48 +1669,115 @@ class FrontendController extends Controller
     }
 
     public function requestProductEnquiryForm(Request $request){
+        $action = $request->input('action');        
         $form = '
         <form method="POST" action="' . route('request.product.enquiry.submit') . '" accept-charset="UTF-8" enctype="multipart/form-data" id="productEnquiryForm">
             ' . csrf_field() . '
             <input type="hidden" name="check_spam">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="mb-md-4 mb-3 custom-form">
-                        <div class="custom-input">
-                            <input type="text" class="form-control" id="name" placeholder="Enter your name *" name="name">
-
+            ';
+            if ($action == 'PageReloadModal') {
+                $form .= '
+                <input type="hidden" name="page_reload" value="1">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="reload-section mb-3 text-center">
+                            <p>
+                                A Website only for Varanasi
+                            </p>
+                            <h3>
+                                GIRDHAR DAS AND SONS
+                            </h3>
+                            <h2>
+                                Best Kitchen Retail Store in Varanasi now goes Online.
+                            </h2>
+                            <h6>
+                                Need Somthing? Tell Us here ..
+                            </h6>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-12">
-                    <div class="mb-md-4 mb-3 custom-form">
-                        <div class="custom-input">
-                            <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number *" maxlength="10" oninput="javascript: if (this.value.length > this.maxLength) this.value =
-                            this.value.slice(0, this.maxLength);" name="phone">
+                    <div class="col-md-6">
+                        <div class="mb-md-4 mb-3 custom-form">
+                            <div class="custom-input">
+                                <input type="text" class="form-control" id="name" placeholder="Enter your name *" name="name">
 
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-12">
-                    <div class="mb-md-4 mb-3 custom-form">
-                        <div class="custom-textarea">
-                            <textarea class="form-control" id="message" placeholder="Enter your message" rows="3" name="message"></textarea>
+                    <div class="col-md-6">
+                        <div class="mb-md-4 mb-3 custom-form">
+                            <div class="custom-input">
+                                <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number *" maxlength="10" oninput="javascript: if (this.value.length > this.maxLength) this.value =
+                                this.value.slice(0, this.maxLength);" name="phone">
 
+                            </div>
                         </div>
                     </div>
+                    <div class="col-md-12">
+                        <div class="mb-md-1 mb-1 custom-form">
+                            <div class="custom-textarea">
+                                <textarea class="form-control" id="message" placeholder="Any product you want ?" rows="3" name="message"></textarea>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer pb-0">
+                        <button style="color:#ffffff;" type="submit" class="btn btn-2-animation btn-lg fw-bold">Submit</button>
+                    </div>
                 </div>
-                
-                
-                <div class="modal-footer pb-0">
-                    <!--<button type="button" class="btn btn-animation btn-md fw-bold" data-bs-dismiss="modal">Close</button>-->
-                    <button style="color:#ffffff;" type="submit" class="btn btn-2-animation btn-md fw-bold">Submit</button>
-                </div>
-            </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="reload-or-section text-center">
+                            <h3 class="mb-3 mt-3">
+                                Or
+                            </h3>
+                            <a class="btn text-white close-reload" href="javascript:void(0);" style="background-color: #ee3d43;">
+                                Check our Website first
+                            </a>
+                        </div>
+                    </div>
+                </div>';
+                $action = 'PageReloadModal';
+            }else{
+                $form .= '                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-md-4 mb-3 custom-form">
+                            <div class="custom-input">
+                                <input type="text" class="form-control" id="name" placeholder="Enter your name *" name="name">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-md-4 mb-3 custom-form">
+                            <div class="custom-input">
+                                <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number *" maxlength="10" oninput="javascript: if (this.value.length > this.maxLength) this.value =
+                                this.value.slice(0, this.maxLength);" name="phone">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-md-4 mb-3 custom-form">
+                            <div class="custom-textarea">
+                                <textarea class="form-control" id="message" placeholder="Any product you want ?" rows="3" name="message"></textarea>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer pb-0">
+                        <button style="color:#ffffff;" type="submit" class="btn btn-2-animation btn-lg fw-bold">Submit</button>
+                    </div>
+                </div>';
+                $action = 'Modal';
+            }
+        $form .= '
         </form>
         ';
         return response()->json([
             'message' => 'Form created successfully',
             'form' => $form,
+            'action' => $action
         ]);
     }
 
@@ -1737,7 +1805,9 @@ class FrontendController extends Controller
                 'name' => $request->name,
                 'phone' => $request->phone,
                 'message' => $request->message,
+                'reload_modal' => $request->input('page_reload') == '1' ? '1' : '0'
             ]);
+            
 
             $basePayload = [
                 'apiKey' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY',

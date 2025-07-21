@@ -2173,3 +2173,47 @@ a.cntshop {
   margin-bottom: 5px;
   font-size: 17px;
 }
+.reload-section p{
+  font-size: 18px;
+  line-height: 1.7;
+  color: #222;
+  margin-bottom: 5px;
+}
+.reload-section h3{
+    font-family: 'Playfair Display', serif;
+    margin-top: 0px;
+    font-weight: 600;
+    font-size: 26px;
+    margin-bottom: 10px;
+}
+.reload-section h2{
+    font-weight: 500;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+.reload-section h6{
+    font-weight: 400;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+.page-reload-modal .modal-footer{
+  justify-content: center;
+}
+.reload-or-section h3{
+  font-size: 22px;
+}
+
+.location-modal.page-reload-modal .modal-dialog .modal-content .modal-body{
+  padding-top: 0px;
+}
+
+@media (max-width: 767px) {
+    .reload-section h3 {
+        font-size: 22px;
+    }
+    .reload-section h2{
+      line-height: 24px;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+}

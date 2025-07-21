@@ -8,6 +8,7 @@
 <meta name="base-url" content="{{ url('/') }}">
 <meta name="author" content="GD Sons">
 <meta name="csrf-token" content="{{ csrf_token() }}">
+<meta name="product-enquiry-route" content="{{ route('request.product.enquiry.form') }}">
 <link rel="icon" href="{{asset('frontend/assets/gd-img/fav-icon.png')}}" type="image/x-icon">
 <title>@yield('title')</title>
 <!-- Global site tag (gtag.js) - Google Analytics and Ads -->

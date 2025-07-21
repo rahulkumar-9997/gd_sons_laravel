@@ -127,7 +127,7 @@ class SearchController extends Controller
         return response()->json(['suggestions' => $suggestions]);
     }
 
-    public function searchSuggestions_19_07_25_remove_id(Request $request)
+    public function searchSuggestions(Request $request)
     {
         $query = $request->get('query');
         if (empty(trim($query))) {
@@ -224,110 +224,6 @@ class SearchController extends Controller
         }));
 
         return response()->json(['suggestions' => $suggestions]);
-    }
-
-    public function searchSuggestions(Request $request)
-    {
-        try {
-            $query = trim($request->get('query', ''));
-            if (empty($query)) {
-                return response()->json(['suggestions' => []]);
-            }
-            Log::info('Search suggestion query: ' . $query);
-            $cleanedQuery = preg_replace('/[^a-zA-Z0-9\s]/', ' ', $query);
-            $cleanedQuery = preg_replace('/\s+/', ' ', $cleanedQuery);
-            $searchTerms = array_filter(explode(' ', $cleanedQuery), function($term) {
-                return strlen($term) >= 2; 
-            });
-            if (empty($searchTerms)) {
-                return response()->json(['suggestions' => []]);
-            }
-
-            /* Search products */
-            $booleanQuery = implode(' ', array_map(function($term) {
-                return '+' . $term . '*'; 
-            }, $searchTerms));
-
-            $products = Product::where(function($query) use ($booleanQuery, $searchTerms) {
-                    if (!empty($booleanQuery)) {
-                        $query->whereRaw("MATCH(title) AGAINST(? IN BOOLEAN MODE)", [$booleanQuery]);
-                    }
-                    foreach ($searchTerms as $term) {
-                        $query->orWhere('title', 'like', '%' . $term . '%');
-                    }
-                })
-                ->with([
-                    'firstImage',
-                    'category:id,title',
-                    'ProductAttributesValues' => function ($query) {
-                        $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
-                            ->with(['attributeValue:id,slug'])
-                            ->orderBy('id');
-                    }
-                ])
-                ->leftJoin('inventories', function ($join) {
-                    $join->on('products.id', '=', 'inventories.product_id')
-                        ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-                })
-                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
-                ->limit(5)
-                ->get(['id', 'title', 'slug', 'category_id']); 
-
-            /* Search categories */
-            $categories = Category::where(function ($query) use ($searchTerms) {
-                    foreach ($searchTerms as $term) {
-                        $query->orWhere('title', 'like', '%' . $term . '%');
-                    }
-                })
-                ->limit(5)
-                ->get(['id', 'title']);
-            /* Search attribute values */
-            $attributeValues = Attribute_values::where(function ($query) use ($searchTerms) {
-                    foreach ($searchTerms as $term) {
-                        $query->orWhere('name', 'like', '%' . $term . '%');
-                    }
-                })
-                ->with('attribute:id,name')
-                ->limit(5)
-                ->get(['id', 'name as title', 'attributes_id']);
-            $suggestions = collect();
-            $suggestions = $suggestions->merge($attributeValues->map(function ($value) {
-                return [
-                    'type' => 'suggestion',
-                    'title' => ucwords(strtolower($value->title)),
-                    'image' => null,
-                ];
-            }));
-            $suggestions = $suggestions->merge($categories->map(function ($category) {
-                return [
-                    'type' => 'suggestion',
-                    'title' => ucwords(strtolower($category->title)),
-                    'image' => null,
-                ];
-            }));
-            $suggestions = $suggestions->merge($products->map(function ($product) {
-                $attributes_value = null;
-                if ($product->ProductAttributesValues->isNotEmpty()) {
-                    $attributes_value = optional($product->ProductAttributesValues->first()->attributeValue)->slug;
-                }
-                return [
-                    'type' => 'product',
-                    'title' => ucwords(strtolower($product->title)),
-                    'slug' => $product->slug,
-                    'attributes_value' => $attributes_value,
-                    'category' => optional($product->category)->title,
-                    'offer_rate' => $product->offer_rate ? 'Rs. ' . $product->offer_rate : 'Price not available',
-                    'image' => optional($product->firstImage, function($image) {
-                        return asset('images/product/icon/' . $image->image_path);
-                    }),
-                ];
-            }));
-            return response()->json(['suggestions' => $suggestions]);
-
-        } catch (\Exception $e) {
-            Log::error('Search suggestion error: ' . $e->getMessage());
-            return response()->json(['suggestions' => [], 'error' => 'Unable to process search']);
-        }
     }
 
     public function searchListProduct(Request $request)

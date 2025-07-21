@@ -9,5 +9,5 @@ class ProductEnquiry extends Model
 {
     use HasFactory;
     protected $table = 'product_enquiries';
-    protected $fillable = ['name', 'phone', 'message'];
+    protected $fillable = ['name', 'phone', 'message', 'reload_modal'];
 }

@@ -286,7 +286,7 @@ $groupNames = $groupCategory->customerGroup->name;
 <!--Quick View modal--->
 <!--enquiry modal code-->
 <div class="modal location-modal fade theme-modal" id="commoanModal" tabindex="-1">
-   <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
+   <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
          <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel"></h5>

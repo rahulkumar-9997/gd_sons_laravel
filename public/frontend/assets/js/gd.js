@@ -80,7 +80,40 @@
                 }
             });
         });
-        /**enquiry modal code start */
+        $(document).on('click', '.requestProductBtn', function(e) {
+            var button = $(this);
+            var originalButtonText = button.html();
+            button.prop('disabled', true).html('Loading please wait...');
+            var title = $(this).data('title');
+            var size = ($(this).data('size') == '') ? 'md' : $(this).data('size');
+            var url = $(this).data('url');
+            var currentPageUrl = $(this).data('pageurl');
+            var data = {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                size: size,
+                url: url,
+                currentPageUrl: currentPageUrl
+            };
+            $('#commoanModal').removeClass('page-reload-modal');
+            $("#commoanModal .modal-title").html(title);
+            $("#commoanModal .modal-dialog").addClass('modal-' + size);
+            
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: data,
+                success: function (data) {
+                    $('#commoanModal .modal-render-data').html(data.form);
+                    $("#commoanModal").modal('show');
+                    button.prop('disabled', false).html(originalButtonText);
+                },
+                error: function (data) {
+                    data = data.responseJSON;
+                    button.prop('disabled', false).html(originalButtonText);
+                }
+            });
+        });
+        
         /**product enquiry form submit */
         $(document).off('submit', '#productEnquiryForm').on('submit', '#productEnquiryForm', function (event) {
             event.preventDefault();
@@ -103,6 +136,7 @@
                     if (response.status === 'success') {
                         showNotificationAll("success", "", response.message);
                         form[0].reset();
+                        localStorage.setItem('modalClosed', 'true');
                         $("#commoanModal").modal('hide');
                     }
                 },
@@ -121,44 +155,53 @@
                     }
                 }
             });
-        });
-        
+        });        
         /**product enquiry form submit */
-        /**Request a Product Enquiry form home page */
-        /**For model code mobile*/
-        $(document).on('click', '.requestProductBtn', function(e) {
-            var button = $(this);
-            var originalButtonText = button.html();
-            button.prop('disabled', true).html('Loading please wait...');
-            var title = $(this).data('title');
-            var size = ($(this).data('size') == '') ? 'md' : $(this).data('size');
-            var url = $(this).data('url');
-            var currentPageUrl = $(this).data('pageurl');
-            var data = {
-                _token: $('meta[name="csrf-token"]').attr('content'),
-                size: size,
-                url: url,
-                currentPageUrl: currentPageUrl
-            };
-            $("#commoanModal .modal-title").html(title);
-            $("#commoanModal .modal-dialog").addClass('modal-' + size);
-            
-            $.ajax({
-                url: url,
-                type: 'get',
-                data: data,
-                success: function (data) {
-                    $('#commoanModal .modal-render-data').html(data.form);
-                    $("#commoanModal").modal('show');
-                    button.prop('disabled', false).html(originalButtonText);
-                },
-                error: function (data) {
-                    data = data.responseJSON;
-                    button.prop('disabled', false).html(originalButtonText);
-                }
-            });
+        
+        /* Page reload modal open code  */
+        var productEnquiryRoute  = $('meta[name="product-enquiry-route"]').attr('content');
+        if (!localStorage.getItem('modalClosed')) {
+        setTimeout(function() {
+                loadAndShowModal();
+            }, 2000);
+        }
+        $(document).on('click', '.close-reload, .page-reload-modal .btn-close', function() {
+            localStorage.setItem('modalClosed', 'true');
+             $("#commoanModal").modal('hide');
         });
-        /**For model code mobile*/
+        function loadAndShowModal() {
+            if (!localStorage.getItem('modalClosed')) {
+                var url = productEnquiryRoute ;
+                var size = 'md';
+                var data = {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    size: size,
+                    url: url,
+                    action : 'PageReloadModal',
+                    currentPageUrl: window.location.href
+                };
+                
+                $.ajax({
+                    url: url,
+                    type: 'get',
+                    data: data,
+                    success: function (data) {
+                        $('#commoanModal .modal-render-data').html(data.form);
+                        $("#commoanModal .modal-dialog").addClass('modal-' + size);
+                        if (data.action === 'PageReloadModal') {
+                            $('#commoanModal').addClass('page-reload-modal');
+                        }
+                        $("#commoanModal").modal('show');
+                    },
+                    error: function (data) {
+                        console.error('Error loading modal:', data);
+                    }
+                });
+            }
+        }
+        /* Page reload modal open code  */
+
+        
         $(document).off('submit', '#requestAproductEnquiry').on('submit', '#requestAproductEnquiry', function (event) {
             event.preventDefault();
 
@@ -201,6 +244,7 @@
         });
 
         /**Request a Product Enquiry form home page */ 
+        
         /*Track btn click ajax code*/ 
         $(document).on('click', 'a[data-track-click="true"], button[data-track-click="true"]', function(e) {
             var url = $(this).data('track-route');

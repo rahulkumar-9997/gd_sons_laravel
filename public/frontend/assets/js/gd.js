@@ -160,15 +160,35 @@
         
         /* Page reload modal open code  */
         var productEnquiryRoute  = $('meta[name="product-enquiry-route"]').attr('content');
-        if (!localStorage.getItem('modalClosed')) {
-        setTimeout(function() {
+        function isModalClosedRecently() {
+            var modalData = localStorage.getItem('modalClosed');
+            if (!modalData) return false;
+            
+            try {
+                modalData = JSON.parse(modalData);
+                if (modalData.timestamp && modalData.value === 'true') {
+                    return (Date.now() - modalData.timestamp) < 86400000;
+                }
+            } catch (e) {
+                console.error('Error parsing modalClosed data:', e);
+            }
+            return false;
+        }
+        if (!isModalClosedRecently()) {
+            setTimeout(function() {
                 loadAndShowModal();
             }, 2000);
         }
+        
         $(document).on('click', '.close-reload, .page-reload-modal .btn-close', function() {
-            localStorage.setItem('modalClosed', 'true');
-             $("#commoanModal").modal('hide');
+            var modalData = {
+                value: 'true',
+                timestamp: Date.now()
+            };
+            localStorage.setItem('modalClosed', JSON.stringify(modalData));
+            $("#commoanModal").modal('hide');
         });
+
         function loadAndShowModal() {
             if (!localStorage.getItem('modalClosed')) {
                 var url = productEnquiryRoute ;

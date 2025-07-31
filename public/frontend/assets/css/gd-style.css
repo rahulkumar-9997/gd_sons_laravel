@@ -2206,6 +2206,14 @@ a.cntshop {
 .location-modal.page-reload-modal .modal-dialog .modal-content .modal-body{
   padding-top: 0px;
 }
+.primary_category_desc h3{
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 7px;
+}
+.primary_category_desc p{
+ text-align: justify;
+}
 
 @media (max-width: 767px) {
     .reload-section h3 {

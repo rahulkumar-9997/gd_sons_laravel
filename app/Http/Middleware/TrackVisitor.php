@@ -93,7 +93,8 @@ class TrackVisitor
      */
     private function trackVisitor(Request $request, ?string $content = null): void
     {
-        $ipAddress = $request->getClientIp();
+        //$ipAddress = $request->getClientIp();
+		$ipAddress = $request->ip();
         $browser = $request->header('User-Agent');
         $pageName = $request->fullUrl();
         $pageTitle = $this->extractPageTitle($request, $content);

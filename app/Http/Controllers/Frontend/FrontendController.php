@@ -661,6 +661,84 @@ class FrontendController extends Controller
     public function showProductDetails(Request $request, $slug, $attributes_value_slug)
     {
         
+        if ($request->has('token') && !auth()->guard('customer')->check()) {
+            $decoded = Hashids::decode($request->get('token'));
+            $customer_id = $decoded[0] ?? null;
+            $product_id = $decoded[1] ?? null;
+            $originalUrl = $request->fullUrl();
+            if (!is_null($customer_id) && !is_null($product_id))
+            {
+                $offer = SpecialOffer::where('customer_id', $customer_id)
+                    ->where('product_id', $product_id)
+                    ->first();
+                if ($offer) {
+                    $offer_url = $offer->url;
+                    if (!$offer_url) {
+                       // Log::warning('Offer URL is missing', ['offer_id' => $offer->id]);
+                        return redirect('/')->with('error', 'Invalid offer URL.');
+                    }
+                    //$customer = Customer::select('phone_number')->where('id', $customer_id)->first();
+                    $customer = Customer::where('id', $customer_id)->first();
+                    if ($customer)
+                    {
+                        Auth::shouldUse('customer');
+                        /*Manually set the customer in session before redirect*/
+                        session()->put('auth.customer_id', $customer->id);
+                        /*Force save the session*/
+                        session()->save(); 
+                        /*Now perform the actual login*/
+                        Auth::guard('customer')->login($customer);
+                        $cleanUrl = preg_replace('/([&?])token=[^&]+(&)?/', '$1', $originalUrl);
+                        $cleanUrl = rtrim($cleanUrl, '?&');
+                        if (auth()->guard('customer')->check()) {
+                            return redirect()->to($cleanUrl)
+                                ->with('success', 'Login successful!')
+                                ->withHeaders([
+                                    'Cache-Control' => 'no-store, no-cache, must-revalidate',
+                                    'Pragma' => 'no-cache'
+                                ]);
+                        } else {
+                            Log::error('Login verification failed', [
+                                'customer_id' => $customer_id,
+                                'session_id' => session()->getId()
+                            ]);
+                            return redirect('/')->with('error', 'Login failed. Please try again.');
+                        }                        
+                    } else {
+                        return redirect('/')->with('error', 'Customer not found!');
+                    }
+                    /*$phone_number = $customer->phone_number;
+                    $otp = (string) rand(100000, 999999);
+                    $sessionData = [
+                        'otp' => $otp,
+                        'expires_at' => now()->addMinutes(30),
+                        'phone_number' => $phone_number,
+                    ];
+                    session(['whatsapp_otp' => $sessionData]);
+                    $mobile_number = '91' . $phone_number;
+                    Log::info('mobile Number:', ['no' => $mobile_number]);
+                    Log::info('oTP:', ['no' => $otp]);
+                    $response = $this->whatappLinkSendWhatappOtp($mobile_number, $otp);
+                    
+                    if ($response->successful()) {
+                        return redirect()->route('wp.otp.form', ['redirect_to' => $originalUrl])->with([
+                            'success' => 'OTP sent successfully to your WhatsApp No.!',
+                            'phone_number' => $customer->phone_number,
+                        ]);
+                    } else {
+                        Log::error('OTP send failed:', $response->json());
+                        return redirect()->back()->with('error', 'Failed to send OTP. Try again.');
+                    }
+                    */
+                }
+            }
+            else
+            {
+                $cleanUrl = preg_replace('/([&?])token=[^&]+(&)?/', '$1', $originalUrl);
+                $clean_url = rtrim($cleanUrl, '?&');
+                return redirect($clean_url)->with('error', 'You did not get special offer rate!');
+            }
+        }
         $specialOffers = getCustomerSpecialOffers();
         $attributeValue = Attribute_values::where('slug', $attributes_value_slug)->first();
         /*First get the product and increment visitor count in one query*/

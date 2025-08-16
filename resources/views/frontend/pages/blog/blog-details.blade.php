@@ -43,15 +43,8 @@
                     </div>
                     <div class="blog-image-contain">
                         <h1>{{$blog->title}}</h1>
-                        <ul class="contain-comment-list">
-                            <li>
-                                <div class="user-list">
-                                    <i data-feather="calendar"></i>
-                                    <span>{{$blog->created_at->format('F j, Y')}}</span>
-                                </div>
-                            </li>
-
-                        </ul>
+                        
+                        
                     </div>
                 </div>
 

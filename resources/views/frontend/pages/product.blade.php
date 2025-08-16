@@ -9,7 +9,7 @@ $categorytitle = substr($categorytitle, 0, -1);
 if ($data['product_details']->meta_title) {
 $meta_title = $data['product_details']->meta_title;
 } else {
-$meta_title = removeDuplicateWords(ucwords(strtolower($categorytitle . ' ' . $data['attributes_value_name']->name. ' ' . $data['product_details']->title)));
+$meta_title = removeDuplicateWords($data['attributes_value_name']->name. ' ' .ucwords(strtolower($data['product_details']->title. ' ' .$categorytitle)));
 }
 
 if ($data['product_details']->meta_description) {

@@ -38,6 +38,9 @@
                                         <option value="g-tin-no" {{ request('criteria')=='g-tin-no' ? 'selected' : '' }}>
                                             Product GTIN (Global Trade Item Number) No.
                                         </option>
+                                        <option value="length-breadth-height-weight" {{ request('criteria')=='length-breadth-height-weight' ? 'selected' : '' }}>
+                                            Product Length, Breadth, Height, Weight
+                                        </option>
                                     </select>
                                 </div>
                             </div>

@@ -63,7 +63,7 @@
                                             </td>
                                             <td>
                                                 <a href="#!" class="link-primary fw-medium">{{ $order->customer->name }}</a>
-                                                <span class="badge border border-success text-success  px-2 py-1 fs-13">
+                                                <br><span class="badge border border-success text-success  px-2 py-1 fs-13">
                                                 {{ ucfirst(str_replace('_', ' ', $order->pick_up_status)) }}
                                                 </span>
                                             </td>

@@ -1646,13 +1646,14 @@ class ProductsController extends Controller
             'product-image',
             'video-id',
             'g-tin-no',
+            'length-breadth-height-weight',
         ];
         if ($criteria && !in_array($criteria, $allowedCriteria)) {
             $criteria = null;
         }
         try {
             $query = Product::with(['images', 'category'])
-                ->select(['id', 'title', 'category_id', 'meta_title', 'meta_description', 'g_tin_no', 'slug', 'category_id', 'product_description', 'product_specification', 'video_id']); 
+                ->select(['id', 'title', 'category_id', 'meta_title', 'meta_description', 'g_tin_no', 'slug', 'category_id', 'product_description', 'product_specification', 'video_id', 'length', 'breadth', 'height', 'weight']); 
             if ($criteria === 'product-image') {
                 $query->whereDoesntHave('images');
             }
@@ -1691,7 +1692,6 @@ class ProductsController extends Controller
             ]);
         }
     }
-
 
     public function productMultipleUpdatePageSubmit(Request $request) {
         $criteria = $request->input('criteria');
@@ -1739,18 +1739,33 @@ class ProductsController extends Controller
                     break;
                 case 'product-image':
                     if (isset($fileProducts[$key])) {
-                       // Log::info("Image {$key}: " . $fileProducts[$key]);
                         $rules["productsImage.{$key}.*"] = 'image|mimes:jpg,jpeg,png,gif,webp|max:2048';
                     }
+                    break;
                 case 'video-id':
                     if (isset($request->products_video_id[$key])) {
                         $rules["products_video_id.{$key}"] = 'nullable|string|max:255';
                     }
+                    break;
                 case 'g-tin-no':
                     if (isset($request->products_gtin_no[$key])) {
                         $rules["products_gtin_no.{$key}"] = 'nullable|string|max:255';
                     }
                     break;
+                case 'length-breadth-height-weight':
+                    if (isset($request->products_length[$key])) {
+                        $rules["products_length.{$key}"] = 'nullable|numeric|min:0';
+                    }
+                    if (isset($request->products_breadth[$key])) {
+                        $rules["products_breadth.{$key}"] = 'nullable|numeric|min:0';
+                    }
+                    if (isset($request->products_height[$key])) {
+                        $rules["products_height.{$key}"] = 'nullable|numeric|min:0';
+                    }
+                    if (isset($request->products_weight[$key])) {
+                        $rules["products_weight.{$key}"] = 'nullable|numeric|min:0';
+                    }
+                break;
             }
         }
         $validator = Validator::make($request->all(), $rules);
@@ -1841,6 +1856,26 @@ class ProductsController extends Controller
                     $product->g_tin_no = $request->products_gtin_no[$key];
                     $updated = true;
                     $msg ="Product GTIN No. {$request->products_gtin_no[$key]} updated successfully.";
+                }
+                if ($criteria === 'length-breadth-height-weight') {
+                    $updated = false;
+                    if (isset($request->products_length[$key])) {
+                        $product->length = $request->products_length[$key];
+                        $updated = true;
+                    }
+                    if (isset($request->products_breadth[$key])) {
+                        $product->breadth = $request->products_breadth[$key];
+                        $updated = true;
+                    }
+                    if (isset($request->products_height[$key])) {
+                        $product->height = $request->products_height[$key];
+                        $updated = true;
+                    }
+                    if (isset($request->products_weight[$key])) {
+                        $product->weight = $request->products_weight[$key];
+                        $updated = true;
+                    }
+                    $msg = "Product dimensions (Length × Breadth × Height × Weight) updated successfully.";
                 }
     
                 if ($updated) {

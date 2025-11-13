@@ -165,7 +165,7 @@ $(document).ready(function () {
         });
     });
     /**Primary category update status */
-    $('.primaryCategoryStatus').change(function() {
+	$(document).on('change', '.primaryCategoryStatus', function() {
         var $checkbox = $(this);
         var primaryCategoryId = $checkbox.data('pid');
         var updateUrl = $checkbox.data('url');

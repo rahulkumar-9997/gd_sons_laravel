@@ -33,7 +33,7 @@
 <section class="checkout-section-2 section-b-space">
     <div class="container-fluid-lg">
         <div class="checkout-form-container">
-            @include('frontend.pages.partials.ajax-checkout-form', ['customer_address' => $customer_address, 'states' =>$states])
+            @include('frontend.pages.partials.checkout.ajax-checkout-form', ['customer_address' => $customer_address, 'states' =>$states])
         </div>
     </div>
 </section>

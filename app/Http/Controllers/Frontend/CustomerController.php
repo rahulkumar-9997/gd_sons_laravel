@@ -504,7 +504,7 @@ class CustomerController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Address added successfully.',
-                    'customer_address' => view('frontend.pages.partials.ajax-checkout-form', [
+                    'customer_address' => view('frontend.pages.partials.checkout.ajax-checkout-form', [
                         'customer_address' => $customer_address,
                         'customerId' => $customerId,
                         'carts' => $carts,
@@ -673,7 +673,7 @@ class CustomerController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Address updated successfully.',
-                'customer_address' => view('frontend.pages.partials.ajax-checkout-form', [
+                'customer_address' => view('frontend.pages.partials.checkout.ajax-checkout-form', [
                     'customer_address' => $customer_address,
                     'customerId' => $customerId,
                     'carts' => $carts,

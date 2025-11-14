@@ -160,23 +160,28 @@ $customerPhone = '';
 
                                                     <!-- City -->
                                                     <div class="col-md-4">
-                                                        <div class="form-floating theme-form-floating">
+                                                        <!-- <div class="form-floating theme-form-floating">
                                                             <select class="form-select theme-form-select" name="ship_city_name">
                                                                 <option value="Varanasi">Varanasi</option>
                                                             </select>
                                                             <label for="city">Select Town / City</label>
+                                                        </div> -->
+                                                        <div class="form-floating mb-4 theme-form-floating">
+                                                            <input type="text" class="form-control" name="ship_city_name" placeholder="Enter city">
+                                                            <label for="city_name">Enter city name</label>
                                                         </div>
-                                                        <!-- <div class="form-floating mb-4 theme-form-floating">
-                                                                <input type="text" class="form-control" name="ship_city_name" placeholder="Enter city">
-                                                                <label for="city_name">Enter city</label>
-                                                            </div> -->
                                                     </div>
 
                                                     <!-- State -->
                                                     <div class="col-md-4">
                                                         <div class="form-floating theme-form-floating">
                                                             <select class="form-select theme-form-select" name="ship_state">
-                                                                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                                                <option value="">-- Select State --</option>
+                                                                @foreach($states as $state)
+                                                                    <option value="{{ $state->name }}">
+                                                                        {{ $state->name }}
+                                                                    </option>
+                                                                @endforeach
                                                             </select>
                                                             <label for="state">Select State</label>
                                                         </div>

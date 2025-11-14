@@ -33,6 +33,7 @@ use App\Models\Customer;
 use App\Models\SpecialOffer;
 use App\Models\ProductEnquiry;
 use App\Models\ClickTrackers;
+use Illuminate\Support\Facades\Cache;
 
 class FrontendController extends Controller
 {
@@ -658,6 +659,7 @@ class FrontendController extends Controller
         }
     }
 
+    
     public function showProductDetails(Request $request, $slug, $attributes_value_slug)
     {
         

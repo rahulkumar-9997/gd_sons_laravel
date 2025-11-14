@@ -5,18 +5,19 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
 use App\Models\Customer;
 use App\Models\Cart;
 use App\Models\Product;
 use App\Models\Inventory;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\DB;
 use App\Models\Wishlist;
 use App\Models\Address;
 use App\Models\Orders;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Cache;
+use App\Models\State;
 
 class CustomerController extends Controller
 {
@@ -176,6 +177,9 @@ class CustomerController extends Controller
                 'cart_html' => view('frontend.pages.partials.cart-drawer', [
                     'cartItems' => $cartItems,
                     'cart_count' => count($cart),
+                ])->render(),
+                'header_cart_count' => view('frontend.layouts.component.header-cart-count', [
+                    'cart_count' => count($cart),
                 ])->render()
             ]);
         } catch (\Exception $e) {
@@ -330,12 +334,16 @@ class CustomerController extends Controller
 
     public function checkOut(Request $request)
     {
-        $cart = session()->get('cart', []);
-        $productIds = array_keys($cart);
-        Log::info('Cart Contents', ['cart' => $cart]);
+        $session_cart = session()->get('cart', []);
+        if (empty($session_cart)) {
+            return redirect('/')->with('error', 'Your cart is empty. Please add items to proceed to checkout.');
+        }
+        $productIds = array_keys($session_cart);
+        Log::info('Cart Contents', ['cart' => $session_cart]);
         $customerId = auth('customer')->id();
         $customer_address = Address::where('customer_id', $customerId)->get();
         $specialOffers = getCustomerSpecialOffers();
+        $states = State::orderBy('name')->get();
         //dd($specialOffers);
         $carts = Product::with(['category', 'images'])
             ->leftJoin('inventories', function ($join) {
@@ -347,7 +355,7 @@ class CustomerController extends Controller
             ->get();
         //return response()->json($carts);
         //return view('frontend.emails.order_details_mail');
-        return view('frontend.pages.checkout', compact('customer_address', 'carts', 'specialOffers'));
+        return view('frontend.pages.checkout', compact('customer_address', 'carts', 'specialOffers', 'states'));
     }
 
     public function addAddressForm(Request $request)

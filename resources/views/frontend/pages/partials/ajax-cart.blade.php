@@ -186,10 +186,10 @@ $columnClass = $carts->isEmpty() ? 'col-md-12 col-lg-12' : 'col-md-9 col-lg-9';
                         <h4 class="price">(-) Rs. 0.00</h4>
                     </li>-->
 
-                <li class="align-items-start">
+                <!-- <li class="align-items-start">
                     <h4>Delivery Charges </h4>
                     <h4 class="price text-end">Rs. 0.00 (Free)</h4>
-                </li>
+                </li> -->
             </ul>
         </div>
 

@@ -131,16 +131,9 @@ $search_value = !empty($query) ? $query : '';
                               <i data-feather="heart"></i>
                            </a>
                         </li>
-                        <li class="right-side" id="cartItem">
-                             <div class="onhover-dropdown header-badge">
-                                 <button type="button" class="btn p-0 position-relative header-wishlist js-cart-drawer-open">
-                                    <i data-feather="shopping-cart"></i>
-                                    <!-- <span class="position-absolute countCartDisplay top-0 start-100 translate-middle badge">
-                                          {{ session('cart_count', 0) }}
-                                    </span> -->
-                                 </button>
-                              </div>
-                        </li>
+                        @include('frontend.layouts.component.header-cart-count', [
+                           'cart_count' => count(session()->get('cart', []))
+                        ])
                         <li class="right-side onhover-dropdown">
                            <div class="delivery-login-box">
                               @if (auth()->guard('customer')->check())

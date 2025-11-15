@@ -40,33 +40,50 @@ class FrontendController extends Controller
     public function home()
     {
 
-        $labels = Label::whereIn('title', ['Popular Product', 'Trending Product'])
+        /*$labels = Label::whereIn('title', ['Popular Product', 'Trending Product'])
             ->get()
             ->keyBy('title');
+        */
+        /* 24 Hours Cache use */
+        $labels = Cache::remember('home_labels', 86400, function () {
+        return Label::whereIn('title', ['Popular Product', 'Trending Product'])
+            ->get()
+            ->keyBy('title');
+        });
+
         $specialOffers = getCustomerSpecialOffers();
         $popular_label_id = $labels['Popular Product']->id ?? null;
         $trending_label_id = $labels['Trending Product']->id ?? null;
-        $data['category_list'] = Category::where('status', 'on')->get(['id', 'title', 'slug', 'image']);
+        /*$data['category_list'] = Category::where('status', 'on')->get(['id', 'title', 'slug', 'image']);*/
+        $data['category_list'] = Cache::remember('home_categories', 86400, function () {
+        return Category::where('status', 'on')
+            ->select('id', 'title', 'slug', 'image')
+            ->get();
+        });
+        
         /*$data['primary_category'] = PrimaryCategory::where('status', 1)
-            ->whereNotNull('product_id')
-            ->where('product_id', '<>', '')
-            ->with([
-                'product' => function($query) {
-                    $query->select('id', 'title');
-                },
-                'product.firstSortedImage' => function($query) {
-                    $query->select('id', 'product_id', 'image_path');
-                }
-            ])
-        ->orderBy('title')
-        ->get(['id', 'title', 'link', 'product_id']);
+        ->orderBy('title')->get(['id', 'title', 'link']);
         */
-        $data['primary_category'] = PrimaryCategory::where('status', 1)
-        ->orderBy('title')
-        ->get(['id', 'title', 'link']);
+        $data['primary_category'] = Cache::remember('home_primary_categories', 86400, function () {
+            return PrimaryCategory::where('status', 1)
+                ->orderBy('title')
+                ->select('id', 'title', 'link')
+                ->get();
+        });
         //return response()->json($data['primary_category']); 
-        $data['banner'] = Banner::orderBy('id', 'desc')->get(['id', 'image_path_desktop', 'link_desktop', 'title']);
-        $data['video'] = Video::inRandomOrder()->select('video_url')->take(2)->get();
+        /*$data['banner'] = Banner::orderBy('id', 'desc')->get(['id', 'image_path_desktop', 'link_desktop', 'title']);*/
+        $data['banner'] = Cache::remember('home_banners', 86400, function () {
+            return Banner::orderByDesc('id')
+                ->select('id', 'image_path_desktop', 'link_desktop', 'title')
+                ->get();
+        });
+        /*$data['video'] = Video::inRandomOrder()->select('video_url')->take(2)->get();*/
+        $data['video'] = Cache::remember('home_random_videos', 3600, function () {
+            return Video::inRandomOrder()
+                ->select('video_url')
+                ->limit(2)
+                ->get();
+        });
         /* Fetch all required products in one query */
         $products = Product::where('product_status', 1)
             ->whereIn('label_id', [$popular_label_id, $trending_label_id])

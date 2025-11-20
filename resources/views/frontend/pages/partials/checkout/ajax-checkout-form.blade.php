@@ -304,7 +304,6 @@ $customerPhone = '';
 
                                 <div class="checkout-detail">
                                     <div class="accordion accordion-flush custom-accordion" id="accordionFlushExample">
-
                                         <!-- Razorpay Payment Option -->
                                         <div class="accordion-item">
                                             <div class="accordion-header" id="flush-headingRazorpay">
@@ -325,7 +324,6 @@ $customerPhone = '';
                                                 </div>
                                             </div>
                                         </div>
-
                                         <!-- Cash on Delivery Option -->
                                         <div class="accordion-item">
                                             <div class="accordion-header" id="flush-headingCOD">
@@ -344,7 +342,6 @@ $customerPhone = '';
                                                 </div>
                                             </div>
                                         </div>
-
                                         <!-- Store Pickup Option -->
                                         <div class="accordion-item">
                                             <div class="accordion-header" id="flush-headingStore">
@@ -365,10 +362,8 @@ $customerPhone = '';
                                                 </div>
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
-
                             </div>
                         </li>
                     </ul>
@@ -377,7 +372,7 @@ $customerPhone = '';
         </div>
 
         <div class="col-lg-4" id="checkout-sidebar">
-            @include('frontend.pages.partials.checkout.component.ajax-checkout-sidebar',['carts' => $carts, 'specialOffers' => $specialOffers, 'couriers' => $couriers, 'rate' => $rate ?? 0])
+            @include('frontend.pages.partials.checkout.component.ajax-checkout-sidebar',['carts' => $carts, 'specialOffers' => $specialOffers, 'couriers' => $couriers, 'rate' => $rate ?? 0, 'paymentType' => $paymentType])
         </div>
     </div>
 

@@ -98,7 +98,7 @@
                 </div>
                 <div class="courier-partner" id="courier_partner">
                     <div id="shipping_loader" style="display:none;">Checking...</div>
-                    @if(!empty($couriers) && count($couriers) > 0)
+                    @if(!empty($couriers) && count($couriers) > 0 && $paymentType !== 'Pick Up From Store')
                         @foreach ($couriers as $index => $c)
                             @php $checked = $index === 0 ? 'checked' : ''; @endphp
                             <div class="form-check mt-2">

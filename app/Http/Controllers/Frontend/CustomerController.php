@@ -346,18 +346,19 @@ class CustomerController extends Controller
         $states = State::orderBy('name')->get();
         //dd($specialOffers);
         $carts = Product::with(['category', 'images'])
-            ->leftJoin('inventories', function ($join) {
-                $join->on('products.id', '=', 'inventories.product_id')
-                    ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-            })
-            ->select('products.*', 'inventories.mrp', 'inventories.purchase_rate', 'inventories.offer_rate', 'inventories.sku')
-            ->whereIn('products.id', $productIds)
-            ->get();
+        ->leftJoin('inventories', function ($join) {
+            $join->on('products.id', '=', 'inventories.product_id')
+                ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+        })
+        ->select('products.*', 'inventories.mrp', 'inventories.purchase_rate', 'inventories.offer_rate', 'inventories.sku')
+        ->whereIn('products.id', $productIds)
+        ->get();
         $couriers = []; 
         $rate = 0;
+        $paymentType = 'online';
         //return response()->json($carts);
         //return view('frontend.emails.order_details_mail');
-        return view('frontend.pages.checkout', compact('customer_address', 'carts', 'specialOffers', 'states', 'couriers', 'rate'));
+        return view('frontend.pages.checkout', compact('customer_address', 'carts', 'specialOffers', 'states', 'couriers', 'rate', 'paymentType'));
     }
 
     public function checkServiceability(Request $req)
@@ -384,7 +385,9 @@ class CustomerController extends Controller
         }
 
         $ship = app(\App\Services\ShiprocketService::class);
-        $response = $ship->getServiceability($fromPin, $pincode, $weight, 0);
+        $cod = $req->cod ?? 0;
+        $paymentType = $req->input('payment_type') ?? 'online';
+        $response = $ship->getServiceability($fromPin, $pincode, $weight, $cod);
         //Log::info('Shiprocket Serviceability Response', ['response' => $response]);
         if (!$response || !$response['success']) {
             return response()->json([
@@ -433,7 +436,8 @@ class CustomerController extends Controller
                 'couriers' => $couriers,
                 'rate' => $couriers[0]['rate'],
                 'carts' => $carts,
-                'specialOffers' => $specialOffers
+                'specialOffers' => $specialOffers,
+                'paymentType' => $paymentType,
             ])->render(),
         ], 200);
     }

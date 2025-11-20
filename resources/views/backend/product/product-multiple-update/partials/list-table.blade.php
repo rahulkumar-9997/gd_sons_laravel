@@ -125,7 +125,7 @@
                             type="text" 
                             name="products_length[]" 
                             value="{{ $product->length ? rtrim(rtrim(number_format($product->length, 2, '.', ''), '0'), '.') : '' }}" 
-                            class="form-control form-control-sm" 
+                            class="form-control form-control-sm length" 
                             placeholder="Enter Product Length in cm" 
                             oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                     </td>
@@ -135,7 +135,7 @@
                             type="text" 
                             name="products_breadth[]" 
                             value="{{ $product->breadth ? rtrim(rtrim(number_format($product->breadth, 2, '.', ''), '0'), '.') : '' }}" 
-                            class="form-control form-control-sm" 
+                            class="form-control form-control-sm breadth" 
                             placeholder="Enter Product Breadth in cm" 
                             oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                     </td>
@@ -145,7 +145,7 @@
                             type="text" 
                             name="products_height[]" 
                             value="{{ $product->height ? rtrim(rtrim(number_format($product->height, 2, '.', ''), '0'), '.') : '' }}" 
-                            class="form-control form-control-sm" 
+                            class="form-control form-control-sm height" 
                             placeholder="Enter Product Height in cm" 
                             oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                     </td>
@@ -155,7 +155,7 @@
                             type="text" 
                             name="products_weight[]" 
                             value="{{ $product->weight ? rtrim(rtrim(number_format($product->weight, 2, '.', ''), '0'), '.') : '' }}" 
-                            class="form-control form-control-sm" 
+                            class="form-control form-control-sm weight" 
                             placeholder="Enter Product Weight in kg" 
                             oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                     </td>
@@ -165,7 +165,6 @@
             @endforeach
         </tbody>
     </table>
-
     <div class="d-flex justify-content-end mt-3">
         <button type="submit" class="btn btn-primary btn-sm">
             <i class="ti ti-check"></i> Update All

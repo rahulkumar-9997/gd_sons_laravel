@@ -38,5 +38,11 @@ return [
         'key' => env('RAZORPAY_KEY'),
         'secret' => env('RAZORPAY_SECRET'),
     ],
+    'shiprocket' => [
+        'shiprocket_email' => env('SHIPROCKET_API_EMAIL'),
+        'shiprocket_password' => env('SHIPROCKET_API_PASSWORD'),
+        'shiprocket_pickup_pincode' => env('SHIPROCKET_API_PICKUP_PINCODE'),
+        'shiprocket_base_url' => env('SHIPROCKET_API_BASE_URL', 'https://apiv2.shiprocket.in/v1/external'),
+    ],
 
 ];

@@ -141,6 +141,18 @@ $(document).ready(function () {
     }
 
     /**Multiple update Filter */
+    /* Volumetric Weight Formula: Length (cm) x Width (cm) x Height (cm) / 5000. */
+    $(document).on('input', '.length, .breadth, .height', function () {
+        let row = $(this).closest('tr');
+        let length = parseFloat(row.find('.length').val()) || 0;
+        let breadth = parseFloat(row.find('.breadth').val()) || 0;
+        let height = parseFloat(row.find('.height').val()) || 0;
+        /* Formula: (L × B × H) / 5000*/
+        let volumetricWeight = ((length * breadth * height) / 5000).toFixed(2);
+        if (volumetricWeight > 0) {
+            row.find('.weight').val(volumetricWeight);
+        }
+    });
  });
 
  function initializeQuillEditors() {

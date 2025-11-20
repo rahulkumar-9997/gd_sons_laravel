@@ -353,9 +353,89 @@ class CustomerController extends Controller
             ->select('products.*', 'inventories.mrp', 'inventories.purchase_rate', 'inventories.offer_rate', 'inventories.sku')
             ->whereIn('products.id', $productIds)
             ->get();
+        $couriers = []; 
+        $rate = 0;
         //return response()->json($carts);
         //return view('frontend.emails.order_details_mail');
-        return view('frontend.pages.checkout', compact('customer_address', 'carts', 'specialOffers', 'states'));
+        return view('frontend.pages.checkout', compact('customer_address', 'carts', 'specialOffers', 'states', 'couriers', 'rate'));
+    }
+
+    public function checkServiceability(Request $req)
+    {
+        $req->validate([
+            'pincode' => 'required|digits:6',
+            'total_weight' => 'required|numeric|min:0.1',
+        ]);
+        $session_cart = session()->get('cart', []);
+        if (empty($session_cart)) {
+            return redirect('/')->with('error', 'Your cart is empty. Please add items to proceed to checkout.');
+        }
+        $productIds = array_keys($session_cart); 
+               
+        $pincode = $req->pincode;
+        $weight = (float) $req->total_weight;
+        $fromPin = config('services.shiprocket.shiprocket_pickup_pincode');
+
+        if (!$fromPin) {
+            return response()->json([
+                'success' => false,
+                'checkout_sidebar' => '<span class="text-danger">Pickup pincode missing.</span>'
+            ]);
+        }
+
+        $ship = app(\App\Services\ShiprocketService::class);
+        $response = $ship->getServiceability($fromPin, $pincode, $weight, 0);
+        //Log::info('Shiprocket Serviceability Response', ['response' => $response]);
+        if (!$response || !$response['success']) {
+            return response()->json([
+                'success' => false,
+                'checkout_sidebar' => '<span class="text-danger">Delivery not available at this pincode.</span>'
+            ]);
+        }
+        $couriers = [];
+        foreach ($response['raw']['data']['available_courier_companies'] as $c) {
+            $rate = $c['rate'] ?? $c['freight_charge'] ?? null;
+            if (!$rate) continue;
+            $couriers[] = [
+                'courier' => $c['courier_name'] ?? 'Unknown',
+                'service' => $c['service'] ?? '',
+                'etd'     => $c['etd'] ?? '',
+                'rate'    => $rate,
+                'courier_company_id' => $c['courier_company_id'] ?? null,
+                'cod_charges' => $c['cod_charges'] ?? 0,
+                'id'=>$c['id'] ?? null,
+            ];
+        }
+
+        if (empty($couriers)) {
+            return response()->json([
+                'success' => false,
+                'checkout_sidebar' => '<span class="text-danger">No courier services available.</span>'
+            ]);
+        }
+        usort($couriers, fn($a, $b) => $a['rate'] <=> $b['rate']);
+       
+        $customerId = auth('customer')->id();
+        $customer_address = Address::where('customer_id', $customerId)->get();
+        $specialOffers = getCustomerSpecialOffers();
+        $carts = Product::with(['category', 'images'])
+            ->leftJoin('inventories', function ($join) {
+                $join->on('products.id', '=', 'inventories.product_id')
+                    ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+            })
+            ->select('products.*', 'inventories.mrp', 'inventories.purchase_rate', 'inventories.offer_rate', 'inventories.sku')
+            ->whereIn('products.id', $productIds)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'checkout_sidebar' => view('frontend.pages.partials.checkout.component.ajax-checkout-sidebar', [
+                'couriers' => $couriers,
+                'rate' => $couriers[0]['rate'],
+                'carts' => $carts,
+                'specialOffers' => $specialOffers
+            ])->render(),
+        ], 200);
     }
 
     public function addAddressForm(Request $request)

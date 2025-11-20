@@ -59,6 +59,7 @@
 @push('scripts')
 <script>
     window.razorpayKey = "{{ config('services.razorpay.key') }}";
+    window.shiprocketCheckUrl = "{{ route('ajax.check-shiprocket') }}";
 </script>
 <script>
 $(document).ready(function() {
@@ -73,4 +74,5 @@ $(document).ready(function() {
 <script src="{{asset('frontend/assets/js/lusqsztk.js')}}"></script>
 <script src="{{asset('frontend/assets/js/pages/add-new-address.js')}}"></script>
 <script src="{{asset('frontend/assets/js/pages/checkout-form-submit.js')}}?={{ time() }}"></script>
+<script src="{{asset('frontend/assets/js/pages/shiprocket_serviceability_check.js')}}?={{ time() }}"></script>
 @endpush

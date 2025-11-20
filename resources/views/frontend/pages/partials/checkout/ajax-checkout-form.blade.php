@@ -133,7 +133,7 @@ $customerPhone = '';
                                                     <!-- Pin Code -->
                                                     <div class="col-md-6">
                                                         <div class="form-floating mb-4 theme-form-floating">
-                                                            <input type="text" name="ship_pin_code" class="form-control" placeholder="Enter pin code" maxlength="6" pattern="[0-9]{6}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);">
+                                                            <input type="text" name="ship_pin_code" class="form-control" placeholder="Enter pin code" maxlength="6" pattern="[0-9]{6}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);" id="checkout_pincode">
                                                             <label for="pin_code">Enter pin code</label>
                                                         </div>
                                                     </div>
@@ -376,8 +376,8 @@ $customerPhone = '';
             </div>
         </div>
 
-        <div class="col-lg-4">
-             @include('frontend.pages.partials.checkout.component.ajax-checkout-sidebar')
+        <div class="col-lg-4" id="checkout-sidebar">
+            @include('frontend.pages.partials.checkout.component.ajax-checkout-sidebar',['carts' => $carts, 'specialOffers' => $specialOffers, 'couriers' => $couriers, 'rate' => $rate ?? 0])
         </div>
     </div>
 

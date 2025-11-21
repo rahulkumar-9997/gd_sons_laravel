@@ -93,6 +93,7 @@ class OrderController extends Controller
             'cart_items' => $cartItems,
             'courierData' => $courierData,
         ]);
+        session()->save();
         if ($request->input('payment_type') == 'Cash on Delivery')
         {
             $response = $this->storeOrderAfterPayment($request);
@@ -221,9 +222,11 @@ class OrderController extends Controller
             DB::commit();
             /* Clear session data */
             session()->forget(['checkout_data', 'cart_items', 'cart', 'courierData']);
+            session()->save();
             $token = Str::random(32);
             $encodedOrderId = Crypt::encrypt($order->id);
             session(['order_token' => $token]);
+            session()->save();
             return response()->json([
                 'success' => true,
                 'redirect_url' => route('order.success', [
@@ -625,11 +628,13 @@ class OrderController extends Controller
                 $this->sendWhatsAppNotifications($orderId, $payment_status, $waPayload);
                 /* Clear session data */
                 session()->forget(['checkout_data', 'cart_items', 'cart', 'courierData']);
+                session()->save();
             }
             DB::commit();
             $token = Str::random(32);
             $encodedOrderId = Crypt::encrypt($order->id);
             session(['order_token' => $token]);
+            session()->save();
             return response()->json([
                 'message' => 'Order stored successfully!',
                 'order_id' => $order->id,
@@ -835,12 +840,14 @@ class OrderController extends Controller
 				$this->sendWhatsAppNotifications($orderId, $payment_status, $checkoutData);
                 /* Clear session data */
                 session()->forget(['checkout_data', 'cart_items', 'cart', 'courierData']);
+                session()->save();
             }
             
             DB::commit();
             $token = Str::random(32);
             $encodedOrderId = Crypt::encrypt($order->id);
             session(['order_token' => $token]);
+            session()->save();
             return response()->json([
                 'message' => 'Order stored successfully!',
                 'order_id' => $order->id,

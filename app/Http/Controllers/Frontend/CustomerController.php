@@ -159,17 +159,21 @@ class CustomerController extends Controller
                 'quantity' => $newQuantity,
             ];
             session(['cart' => $cart]);
-            $cacheKey = 'customer_cart_' . auth()->id() . '_' . md5(json_encode($cart));
-            $cartItems = Cache::remember($cacheKey, 60, function () use ($cart) {
-                return Product::with(['images'])
-                    ->leftJoin('inventories', function ($join) {
-                        $join->on('products.id', '=', 'inventories.product_id')
-                            ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-                    })
-                    ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
-                    ->whereIn('products.id', array_keys($cart))
-                    ->get();
-            });
+            session()->save();
+            $cartItems = Product::with(['images'])
+            ->leftJoin('inventories', function ($join) {
+                $join->on('products.id', '=', 'inventories.product_id')
+                    ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+            })
+            ->select(
+                'products.*',
+                'inventories.mrp',
+                'inventories.offer_rate',
+                'inventories.purchase_rate',
+                'inventories.sku'
+            )
+            ->whereIn('products.id', array_keys($cart))
+            ->get();
             return response()->json([
                 'success' => true,
                 'message' => 'Item added to cart!',

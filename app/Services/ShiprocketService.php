@@ -114,14 +114,16 @@ class ShiprocketService
             ];
         }
         $data = $resp->json();
-        Log::info('Shiprocket Serviceability Response', [
+        /*Log::info('Shiprocket Serviceability Response', [
             'response' => print_r($data, true),
-        ]);
-        if (
+        ]);*/
+        if
+        (
             isset($data['status']) && $data['status'] == 200 &&
             isset($data['data']['available_courier_companies']) &&
             !empty($data['data']['available_courier_companies'])
-        ) {
+        )
+        {
             return [
                 'success' => true,
                 'raw' => $data,

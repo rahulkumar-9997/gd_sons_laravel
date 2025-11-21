@@ -135,11 +135,25 @@
                                     <td class="subtotal">
                                         <h4 class="table-title text-content">Total</h4>
                                         <h5>
-                                            Rs. {{ number_format($orderLine->quantity * $orderLine->price, 2) }}
+                                            Rs. {{ $orderLine->quantity * $orderLine->price }}
                                         </h5>
                                     </td>
                                 </tr>
                                 @endforeach
+                                @if($order->shiprocketCourier)
+                                <tr>
+                                    <td colspan="4" class="text-end">
+                                        <strong>Shipping Charges</strong>
+                                        <br>
+                                        <span class="text-muted"> {{ $order->shiprocketCourier->courier_name }}</span>
+                                    </td>
+                                    <td class="subtotal">
+                                        <h4>
+                                            Rs. {{ number_format( $order->shiprocketCourier->courier_shipping_rate) }}
+                                        </h4>
+                                    </td>
+                                </tr>
+                                @endif
                                 <tr>
                                     <td colspan="4" class="text-end"><strong>Grand Total</strong></td>
                                     <td class="subtotal">

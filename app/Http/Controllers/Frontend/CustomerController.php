@@ -417,7 +417,7 @@ class CustomerController extends Controller
             ]);
         }
         usort($couriers, fn($a, $b) => $a['rate'] <=> $b['rate']);
-       
+        $couriers = array_slice($couriers, 0, 5);
         $customerId = auth('customer')->id();
         $customer_address = Address::where('customer_id', $customerId)->get();
         $specialOffers = getCustomerSpecialOffers();
@@ -449,6 +449,7 @@ class CustomerController extends Controller
         $url = $request->input('url');
         $customer_id = $request->input('customer_id');
         $customer_details = Customer::where('id', $customer_id)->first();
+        $states = State::orderBy('name')->get();
         $form = '
         <div class="modal-body">
             <form method="POST" action="' . route('add.address.submit') . '" accept-charset="UTF-8" enctype="multipart/form-data" id="addAddressForm">
@@ -467,6 +468,7 @@ class CustomerController extends Controller
                             <label for="lname">Enter phone number</label>
                         </div>
                     </div>
+                    
                     <div class="col-md-6">
                         <div class="select-option mb-4">
                             <div class="form-floating theme-form-floating">
@@ -480,43 +482,48 @@ class CustomerController extends Controller
                     </div>
                     <div class="col-md-6">
                         <div class="form-floating mb-4 theme-form-floating">
+                            <input type="text"  name="pin_code" class="form-control" placeholder="Enter pin code">
+                            <label for="lname">Enter pin code</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating mb-4 theme-form-floating">
                             <input type="text" class="form-control" name="full_address" placeholder="Enter address">
                             <label for="lname">Enter address</label>
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <div class="form-floating mb-4 theme-form-floating">
                             <input type="text" class="form-control" name="apartment" placeholder="Apartment, suite, etc. (optional)">
                             <label for="lname">Apartment, suite, etc. (optional)</label>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="form-floating mb-4 theme-form-floating">
-                            <select class="form-select theme-form-select" name="city_name">
+                            <!--<select class="form-select theme-form-select" name="city_name">
                                 <option value="Varanasi">Varanasi</option>
                             </select>
-                            <label for="city">Select City</label>
-                            <!--<input type="text" class="form-control" name="city_name" placeholder="Enter city">
-                            <label for="lname">Enter city</label>-->
+                            <label for="city">Select City</label>-->
+                            <input type="text" class="form-control" name="city_name" placeholder="Enter city">
+                            <label for="lname">Enter city</label>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="select-option">
                             <div class="form-floating mb-4 theme-form-floating">
                                 <select class="form-select theme-form-select" name="state">
-                                    <option value="Uttar Pradesh">Uttar Pradesh
-                                    </option>
+                                    <option value="">Select State</option>';                                
+                                    foreach($states as $state){
+                                        $form .= '<option value="'.$state->name.'">'.$state->name.'
+                                        </option>';
+                                    }
+                                $form .= '                                    
                                 </select>
                                 <label>Select State</label>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="form-floating mb-4 theme-form-floating">
-                            <input type="text"  name="pin_code" class="form-control" placeholder="Enter pin code">
-                            <label for="lname">Enter pin code</label>
-                        </div>
-                    </div>
+                    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-md" data-bs-dismiss="modal">Close</button>
@@ -585,6 +592,9 @@ class CustomerController extends Controller
                     ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
                     ->whereIn('products.id', array_keys($session_cart))
                     ->get();
+                $couriers = []; 
+                $rate = 0;
+                $paymentType = 'online';
                 return response()->json([
                     'success' => true,
                     'message' => 'Address added successfully.',
@@ -592,7 +602,10 @@ class CustomerController extends Controller
                         'customer_address' => $customer_address,
                         'customerId' => $customerId,
                         'carts' => $carts,
-                        'specialOffers' => $specialOffers
+                        'specialOffers' => $specialOffers,
+                        'couriers' => $couriers,
+                        'rate' => $rate,
+                        'paymentType' => $paymentType,
                     ])->render(),
                 ], 200);
             } else {
@@ -604,7 +617,7 @@ class CustomerController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while processing your request. Please try again.',
+                'message' => 'An error occurred: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -615,6 +628,7 @@ class CustomerController extends Controller
         $address_dtails = Address::where('id', $address_id)->first();
         $customer_id = $request->input('customer_id');
         //$customer_details = Customer::where('id', $customer_id)->first();
+        $states = State::orderBy('name')->get();
         $form = '
         <div class="modal-body">
             <form method="POST" action="' . route('update.address', ['id' => $address_id]) . '" accept-charset="UTF-8" enctype="multipart/form-data" id="EditAddressForm">
@@ -659,20 +673,25 @@ class CustomerController extends Controller
                     </div>
                     <div class="col-md-4">
                         <div class="form-floating mb-4 theme-form-floating">
-                            <select class="form-select theme-form-select" name="city_name">
+                            <!--<select class="form-select theme-form-select" name="city_name">
                                 <option value="Varanasi">Varanasi</option>
                             </select>
-                            <label for="city">Select City</label>
-                            <!--<input type="text" class="form-control" name="city_name" placeholder="Enter city" value="' . $address_dtails->city . '">
-                            <label for="lname">Enter city</label>-->
+                            <label for="city">Select City</label>-->
+                            <input type="text" class="form-control" name="city_name" placeholder="Enter city" value="' . $address_dtails->city . '">
+                            <label for="lname">Enter city</label>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="select-option">
                             <div class="form-floating mb-4 theme-form-floating">
                                 <select class="form-select theme-form-select" name="state">
-                                    <option value="Uttar Pradesh">Uttar Pradesh
-                                    </option>
+                                    <option value="">Select State</option>';
+                                    foreach($states as $state){
+                                        $selected = ($address_dtails->state == $state->name) ? 'selected' : '';
+                                        $form .= '<option value="'.$state->name.'" '.$selected.'>'.$state->name.'
+                                        </option>';
+                                    }
+                                $form .= '
                                 </select>
                                 <label>Select State</label>
                             </div>
@@ -754,6 +773,9 @@ class CustomerController extends Controller
                 ->whereIn('products.id', array_keys($session_cart))
                 ->get();
             $specialOffers = getCustomerSpecialOffers();
+            $couriers = []; 
+            $rate = 0;
+            $paymentType = 'online';
             return response()->json([
                 'success' => true,
                 'message' => 'Address updated successfully.',
@@ -761,7 +783,10 @@ class CustomerController extends Controller
                     'customer_address' => $customer_address,
                     'customerId' => $customerId,
                     'carts' => $carts,
-                    'specialOffers' => $specialOffers
+                    'specialOffers' => $specialOffers,
+                    'couriers' => $couriers,
+                    'rate' => $rate,
+                    'paymentType' => $paymentType,
                 ])->render(),
             ], 200);
         } catch (\Exception $e) {

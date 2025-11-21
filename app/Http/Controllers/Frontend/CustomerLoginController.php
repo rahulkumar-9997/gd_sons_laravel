@@ -205,6 +205,7 @@ class CustomerLoginController extends Controller
         return response()->json([
             'success' => true,
             'message' => $message,
+            // 'otp' => $otp,
         ]);
     }
 

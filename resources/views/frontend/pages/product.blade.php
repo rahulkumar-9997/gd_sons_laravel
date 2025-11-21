@@ -154,11 +154,11 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                         <div class="product-left-box">
                             <div class="row g-2">
                                 <div class="col-xxl-10 col-lg-12 col-md-10 order-xxl-2 order-lg-1 order-md-2">
-                                    <div class="product-main no-arrow">
+                                    <div class="product-main no-arrow product-image-slider-container">
                                         @if($data['product_details']->images->isNotEmpty())
                                         @foreach($data['product_details']->images as $key => $image)
                                         <div>
-                                            <div class="slider-image">
+                                            <div class="slider-image product-image-slider">
                                                 <img src="{{ asset('images/product/large/' . (!empty($image->image_path) ? $image->image_path : 'frontend/assets/gd-img/product/no-image.png')) }}"
                                                     id="img-{{ $key }}"
                                                     data-zoom-image="{{ asset('images/product/large/' . (!empty($image->image_path) ? $image->image_path : 'frontend/assets/gd-img/product/no-image.png')) }}"

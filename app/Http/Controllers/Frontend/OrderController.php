@@ -25,6 +25,7 @@ use App\Models\Wishlist;
 use App\Models\Inventory;
 use App\Models\Cart;
 use App\Models\Customer;
+use App\Models\ShiprocketCourier;
 
 class OrderController extends Controller
 {
@@ -67,14 +68,31 @@ class OrderController extends Controller
                 'quantity' => $cartQuantities[$index],
                 'price' => $cartPrices[$index],
                 'total_price' => $cartTotalPrices[$index],
-            ];
+            ];            
         }
-        Log::info('Checkout form data collect : ', ['form_data_collect' => $request->all()]);
+        /*Courier Servicebility check */
+        $courierName = $request->input('courier_name');
+        $courierId = $request->input('courier_id');
+        $courierCompanyId = $request->input('courier_company_id');
+        $courierShippingRate = $request->input('shipping_rate');
+        $courierCodCharges = $request->input('cod_charges');
+        $courierDeliveryExpectedDate = $request->input('delivery_expected_date');
+        $courierData = [
+            'courier_name' => $courierName,
+            'courier_id' => $courierId,
+            'courier_company_id' => $courierCompanyId,
+            'courier_shipping_rate' => $courierShippingRate,
+            'cod_charges' => $courierCodCharges,
+            'delivery_expected_date' => $courierDeliveryExpectedDate,
+        ];
+        //Log::info('Courier Data : ', ['courier_data' => $courierData]);
+        /*Courier Servicebility check */
+        //Log::info('Checkout form data collect : ', ['form_data_collect' => $request->all()]);
         session([
             'checkout_data' => $request->all(),
             'cart_items' => $cartItems,
+            'courierData' => $courierData,
         ]);
-
         if ($request->input('payment_type') == 'Cash on Delivery')
         {
             $response = $this->storeOrderAfterPayment($request);
@@ -86,9 +104,10 @@ class OrderController extends Controller
         elseif ($request->input('payment_type') == 'Razorpay')
         {
             $orderResponse = $this->storeOrderAfterPayment($request);
-            $responseData = json_decode($orderResponse->getContent(), true);
+
+            $responseData = is_string($orderResponse) ? json_decode($orderResponse, true) : (is_object($orderResponse) ? $orderResponse->getData(true) : (array) $orderResponse);
             if (!isset($responseData['order_id'])) {
-                throw new \Exception('Order creation failed - no order ID returned');
+                return response()->json(['status' => 'error', 'message' => 'Order creation failed - no order ID returned'], 500);
             }
 
             $order = Orders::find($responseData['order_id']);
@@ -184,17 +203,27 @@ class OrderController extends Controller
                 'orderLines.product.images'
             ])->find($order->id);
 
-            $customerName = $order->customer->name;
+            $shipping = $orderDetails->shippingAddress;
+            $customerName  = $shipping->full_name ?? '';
+            $customerPhone = $shipping->phone_number ?? '';
+            $customerEmail = $shipping->email_id ?? '';
+            $courierData = session('courierData', []);            
+            $waPayload = $checkoutData;
+            $waPayload['ship_full_name']      = $customerName;
+            $waPayload['ship_email']          = $customerEmail;
+            $waPayload['ship_phone_number']   = $customerPhone;
+            $waPayload['delivery_expected_date'] =
+            $courierData['delivery_expected_date']
+            ?? now()->setTimezone('Asia/Kolkata')->addDays(2)->format('d-m-Y');
             Mail::to($order->customer->email)->queue(new OrderDetailsMail($orderDetails));
             Mail::to('akshat.gd@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
-            $this->sendWhatsAppNotifications($order->order_id, $payment_status, $checkoutData);
+            $this->sendWhatsAppNotifications($order->order_id, $payment_status, $waPayload);
             DB::commit();
             /* Clear session data */
-            session()->forget(['checkout_data', 'cart_items', 'cart']);
+            session()->forget(['checkout_data', 'cart_items', 'cart', 'courierData']);
             $token = Str::random(32);
             $encodedOrderId = Crypt::encrypt($order->id);
             session(['order_token' => $token]);
-
             return response()->json([
                 'success' => true,
                 'redirect_url' => route('order.success', [
@@ -392,8 +421,236 @@ class OrderController extends Controller
 
     public function storeOrderAfterPayment(Request $request)
     {
+        $checkoutData = session('checkout_data');
+        Log::info('Checkout Data in: ', ['checkout_data' => $checkoutData]);
+        if (!$checkoutData) {
+            Log::info('Checkout Data in: ', ['checkout_data' => $checkoutData]);
+            return response()->json(['message' => 'No checkout data found in session.'], 400);
+        }
+        $customer_address = null;
+        $shippingAddress = null;
+        if (auth()->guard('customer')->check()) {
+            $customerId = auth('customer')->id();
+        } else {
+            $identifierEmail = $checkoutData['ship_email'] ?? null;
+            $identifierPhone = $checkoutData['ship_phone_number'] ?? null;
+            $customer = Customer::where(function ($q) use ($identifierEmail, $identifierPhone) {
+                if ($identifierEmail) {
+                    $q->orWhere('email', $identifierEmail);
+                }
+                if ($identifierPhone) {
+                    $q->orWhere('phone_number', $identifierPhone);
+                }
+            })->first();
+            if ($customer) {
+                $customerId = $customer->id;
+            } else {
+                $email = $checkoutData['ship_email'] ?? $checkoutData['bill_email'] ?? null;
+                $name = $checkoutData['ship_full_name'] ?? $checkoutData['bill_full_name'] ?? 'Customer';
+                $phone = $checkoutData['ship_phone_number'] ?? $checkoutData['bill_phone_number'] ?? null;
+                $randomPassword = Str::random(8);
+                $hashedPassword = Hash::make($randomPassword);
+                $customer_create = Customer::create([
+                    'email' => $email,
+                    'name' => $name,
+                    'phone_number' => $phone,
+                    'password' => $hashedPassword,
+                ]);
+                $customerId = $customer_create->id;
+            }
+        }
+
+        DB::beginTransaction();
+        try {
+            /* Determine the shipping address ID and billing address ID */
+            if (($checkoutData['pick_up_status'] ?? null) == 'pick_up_online') {
+                if (isset($checkoutData['customer_address_id']) && $checkoutData['customer_address_id'] !== null) {
+                    $customerAddressId = $checkoutData['customer_address_id'];
+                    $customer_address = Address::where('id', $customerAddressId)
+                        ->where('customer_id', $customerId)
+                        ->first();
+                    $shippingAddress = ShippingAddress::create([
+                        'customer_id' => $customerId,
+                        'full_name' => $customer_address->name ?? ($customer_address->full_name ?? 'Customer'),
+                        'phone_number' => $customer_address->phone_number ?? null,
+                        'email_id' => $customer_address->email ?? null,
+                        'country' => $customer_address->country ?? null,
+                        'full_address' => $customer_address->address ?? null,
+                        'apartment' => $customer_address->apartment ?? null,
+                        'city_name' => $customer_address->city ?? null,
+                        'state' => $customer_address->state ?? null,
+                        'pin_code' => $customer_address->zip_code ?? null,
+                    ]);
+
+                    $shippingAddressId = $shippingAddress->id;
+                } else {
+                    $address = Address::create([
+                        'customer_id' => $customerId,
+                        'name' => $checkoutData['ship_full_name'] ?? ($checkoutData['bill_full_name'] ?? 'Customer'),
+                        'phone_number' => $checkoutData['ship_phone_number'] ?? ($checkoutData['bill_phone_number'] ?? null),
+                        'country' => $checkoutData['ship_country'] ?? null,
+                        'address' => $checkoutData['ship_full_address'] ?? null,
+                        'apartment' => $checkoutData['ship_apartment'] ?? null,
+                        'city' => $checkoutData['ship_city_name'] ?? null,
+                        'state' => $checkoutData['ship_state'] ?? null,
+                        'zip_code' => $checkoutData['ship_pin_code'] ?? null,
+                    ]);
+                    $shippingAddress = ShippingAddress::create([
+                        'customer_id' => $customerId,
+                        'full_name' => $checkoutData['ship_full_name'] ?? ($checkoutData['bill_full_name'] ?? 'Customer'),
+                        'phone_number' => $checkoutData['ship_phone_number'] ?? ($checkoutData['bill_phone_number'] ?? null),
+                        'email_id' => $checkoutData['ship_email'] ?? ($checkoutData['bill_email'] ?? null),
+                        'country' => $checkoutData['ship_country'] ?? null,
+                        'full_address' => $checkoutData['ship_full_address'] ?? null,
+                        'apartment' => $checkoutData['ship_apartment'] ?? null,
+                        'city_name' => $checkoutData['ship_city_name'] ?? null,
+                        'state' => $checkoutData['ship_state'] ?? null,
+                        'pin_code' => $checkoutData['ship_pin_code'] ?? null,
+                    ]);
+
+                    $shippingAddressId = $shippingAddress->id;
+                }
+                /* Determine the billing address ID */
+                if (isset($checkoutData['same_ship_bill_address']) && $checkoutData['same_ship_bill_address'] == 1) {
+                    $billingAddress = BillingAddress::create([
+                        'customer_id' => $customerId,
+                        'full_name' => $checkoutData['bill_full_name'] ?? ($checkoutData['ship_full_name'] ?? 'Customer'),
+                        'phone_number' => $checkoutData['bill_phone_number'] ?? ($checkoutData['ship_phone_number'] ?? null),
+                        'email_id' => $checkoutData['email_id'] ?? ($checkoutData['bill_email'] ?? $checkoutData['ship_email'] ?? null),
+                        'country' => $checkoutData['bill_country'] ?? null,
+                        'full_address' => $checkoutData['bill_full_address'] ?? null,
+                        'apartment' => $checkoutData['bill_apartment'] ?? null,
+                        'city_name' => $checkoutData['bill_city_name'] ?? null,
+                        'state' => $checkoutData['bill_state'] ?? null,
+                        'pin_code' => $checkoutData['bill_pin_code'] ?? null,
+                    ]);
+                    $billingAddressId = $billingAddress->id;
+                } else {
+                    $billingAddressId = null;
+                }
+            } else {
+                $shippingAddressId = null;
+                $billingAddressId = null;
+            }
+
+            /* Generate unique 10-digit serial number for order_id */
+            $lastOrder = Orders::latest('id')->first();
+            $nextSerial = $lastOrder ? ((int) $lastOrder->order_id + 1) : 1;
+            $orderId = str_pad($nextSerial, 10, '0', STR_PAD_LEFT);
+            /** Find order status id */
+            $orderStatus = OrderStatus::where('status_name', 'New')->first();
+            /* Create the order */
+            $order = Orders::create([
+                'order_date' => now()->setTimezone('Asia/Kolkata'),
+                'order_id' => $orderId,
+                'grand_total_amount' => $checkoutData['grand_total_amount'] ?? 0,
+                'payment_mode' => $checkoutData['payment_type'] ?? null,
+                'pick_up_status' => $checkoutData['pick_up_status'] ?? null,
+                'customer_id' => $customerId,
+                'shipping_address_id' => $shippingAddressId ?? null,
+                'billing_address_id' => $billingAddressId ?? null,
+                'order_status_id' => $orderStatus->id ?? null,
+            ]);
+            Log::info('storeOrderAfterPayment in: ', ['create order' => $order]);
+            /* Add order lines */
+            $cartItems = session('cart_items', []);
+            foreach ($cartItems as $item) {
+                OrderLines::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'total_price' => $item['total_price'],
+                ]);
+            }
+            $paymentType = $checkoutData['payment_type'] ?? null;
+            if ($paymentType && ($paymentType == 'Cash on Delivery' || $paymentType == 'Razorpay')) {
+                /* Shiprocket Courier Insert data */
+                $courierData = session('courierData', []);
+                if (!empty($courierData)) {
+                    ShiprocketCourier::create([
+                        'customer_id' => $customerId,
+                        'order_id' => $order->id,
+                        'courier_name' => $courierData['courier_name'] ?? null,
+                        'courier_id' => $courierData['courier_id'] ?? null,
+                        'courier_company_id' => $courierData['courier_company_id'] ?? null,
+                        'courier_shipping_rate' => $courierData['courier_shipping_rate'] ?? null,
+                        'cod_charges' => $courierData['cod_charges'] ?? null,
+                        'delivery_expected_date' => $courierData['delivery_expected_date'] ?? null,
+                    ]);
+                }
+            }
+            if ($paymentType && $paymentType == 'Cash on Delivery') {
+                $orderDetails = Orders::with([
+                    'orderStatus',
+                    'shippingAddress',
+                    'billingAddress',
+                    'orderLines.product',
+                    'orderLines.product.images'
+                ])->find($order->id);
+                $payment_status = "Unpaid";
+                $resolvedShippingName = $checkoutData['ship_full_name']
+                    ?? ($customer_address->name ?? null)
+                    ?? ($shippingAddress->full_name ?? null)
+                    ?? ($orderDetails->shippingAddress->full_name ?? null)
+                    ?? 'Customer';
+
+                $resolvedShippingEmail = $checkoutData['ship_email']
+                    ?? ($customer_address->email ?? null)
+                    ?? ($shippingAddress->email_id ?? null)
+                    ?? ($orderDetails->shippingAddress->email_id ?? null)
+                    ?? null;
+
+                $resolvedShippingPhone = $checkoutData['ship_phone_number']
+                    ?? ($customer_address->phone_number ?? null)
+                    ?? ($shippingAddress->phone_number ?? null)
+                    ?? ($orderDetails->shippingAddress->phone_number ?? null)
+                    ?? null;
+                $mailTo = $resolvedShippingEmail ?? ($order->customer->email ?? null);
+                if ($mailTo) {
+                    Mail::to($mailTo)->queue(new OrderDetailsMail($orderDetails));
+                } else {
+                    Log::warning('No email found to send OrderDetailsMail', [
+                        'order_id' => $order->id,
+                        'resolved_email' => $resolvedShippingEmail,
+                        'customer_email' => $order->customer->email ?? null
+                    ]);
+                }
+                Mail::to('akshat@gdsons.co.in')->queue(new OrderDetailsMail($orderDetails, $resolvedShippingName));
+                $waPayload = $checkoutData;
+                $waPayload['ship_full_name'] = $resolvedShippingName;
+                $waPayload['ship_email'] = $resolvedShippingEmail;
+                $waPayload['ship_phone_number'] = $resolvedShippingPhone;
+                $waPayload['delivery_expected_date'] = $courierData['delivery_expected_date'] ?? now()->setTimezone('Asia/Kolkata')->addDays(2)->format('d-m-Y');
+                $this->sendWhatsAppNotifications($orderId, $payment_status, $waPayload);
+                /* Clear session data */
+                session()->forget(['checkout_data', 'cart_items', 'cart', 'courierData']);
+            }
+            DB::commit();
+            $token = Str::random(32);
+            $encodedOrderId = Crypt::encrypt($order->id);
+            session(['order_token' => $token]);
+            return response()->json([
+                'message' => 'Order stored successfully!',
+                'order_id' => $order->id,
+                'redirect_url' => route('order.success', [
+                    'order_id' => $encodedOrderId,
+                    'token' => $token,
+                ])
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::info('Checkout Data in Exception: ', ['cache erro' => $e]);
+            return response()->json(['message' => 'Failed to store order.', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+
+    public function storeOrderAfterPaymentOld(Request $request)
+    {
 
         $checkoutData = session('checkout_data');
+        Log::info('Checkout Data in: ', ['checkout_data' => $checkoutData]);
         if (!$checkoutData) {
             Log::info('Checkout Data in: ', ['checkout_data' => $checkoutData]);
             return response()->json(['message' => 'No checkout data found in session.'], 400);
@@ -435,7 +692,8 @@ class OrderController extends Controller
         try {
             /* Determine the shipping address ID */
             if ($checkoutData['pick_up_status'] == 'pick_up_online') {
-                if (isset($checkoutData['customer_address_id']) && $checkoutData['customer_address_id'] !== null) {
+                if (isset($checkoutData['customer_address_id']) && $checkoutData['customer_address_id'] !== null)
+                {
                     /* Add the new shipping address to the 'shipping_addresses' table */
                     $customerAddressId = $checkoutData['customer_address_id'];
                     $customer_address = Address::where('id', $customerAddressId)
@@ -454,7 +712,9 @@ class OrderController extends Controller
                         'pin_code' => $customer_address->zip_code,
                     ]);
                     $shippingAddressId = $shippingAddress->id;
-                } else {
+                } 
+                else 
+                {
                     $address = Address::create([
                         'customer_id' => $customerId,
                         'name' => $checkoutData['ship_full_name'],
@@ -505,7 +765,7 @@ class OrderController extends Controller
             {
                 $shippingAddressId = null;
                 $billingAddressId = null;
-            }
+            }            
             /* Generate unique 10-digit serial number for order_id */
             $lastOrder = Orders::latest('id')->first();
             $nextSerial = $lastOrder ? ((int) $lastOrder->order_id + 1) : 1;
@@ -537,10 +797,25 @@ class OrderController extends Controller
                 ]);
                 
             }
+            if (isset($checkoutData['payment_type']) && $checkoutData['payment_type'] == 'Cash on Delivery' || $checkoutData['payment_type'] == 'Razorpay')
+            {
+                /*Shiprocket Courier Insert data */
+                $courierData = session('courierData', []);
+                if (!empty($courierData)) {
+                    ShiprocketCourier::create([
+                        'customer_id'=> $customerId,
+                        'order_id' => $order->id,
+                        'courier_name' => $courierData['courier_name'] ?? null,
+                        'courier_id' => $courierData['courier_id'] ?? null,
+                        'courier_company_id' => $courierData['courier_company_id'] ?? null,
+                        'courier_shipping_rate' => $courierData['courier_shipping_rate'] ?? null,
+                        'cod_charges' => $courierData['cod_charges'] ?? null,
+                    ]);
+                }
+                /*Shiprocket Courier Insert data */
+            }
             if (isset($checkoutData['payment_type']) && $checkoutData['payment_type'] == 'Cash on Delivery')
             {
-                /* Clear session data */
-                session()->forget(['checkout_data', 'cart_items', 'cart']);
                 $orderDetails = Orders::with([
                     'orderStatus',
                     'shippingAddress',
@@ -549,11 +824,17 @@ class OrderController extends Controller
                     'orderLines.product.images'
                 ])->find($order->id);
                 $payment_status = "Unpaid";
-                $customerName = $checkoutData['ship_full_name'];
+                $customerName =
+                    $checkoutData['ship_full_name'] 
+                    ?? ($customer_address->name ?? null)
+                    ?? ($orderDetails->shippingAddress->full_name ?? null)
+                    ?? 'Customer';
                 Mail::to($checkoutData['ship_email'])->queue(new OrderDetailsMail($orderDetails));
 				Mail::to('akshat@gdsons.co.in')->queue(new OrderDetailsMail($orderDetails, $customerName));
 				//Mail::to('rahulkumarmaurya464@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
 				$this->sendWhatsAppNotifications($orderId, $payment_status, $checkoutData);
+                /* Clear session data */
+                session()->forget(['checkout_data', 'cart_items', 'cart', 'courierData']);
             }
             
             DB::commit();
@@ -575,34 +856,40 @@ class OrderController extends Controller
         }
     }
 
-
     protected function sendWhatsAppNotifications($orderId, $payment_status, array $checkoutData)
     {
-        $apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY';
-		$date_whatsapp = now()->setTimezone('Asia/Kolkata')->addDays(2)->format('d-m-Y');
-		Log::info('sendWhatsAppNotifications Function', [
-			'order_id' => $orderId,
-			'payment_status' => $payment_status,
-			'checkout_data' => $checkoutData,
-			'delivery_date' => $date_whatsapp,
-		]);
-        /* Customer notification */
-        $this->sendWhatsAppMessage([
-            'apiKey' => $apiKey,
-            'campaignName' => 'Order Confirmation to Customer',
-            'destination' => $checkoutData['ship_phone_number'],
-            'userName' => $checkoutData['ship_full_name'],
-            'templateParams' => [
-                $checkoutData['ship_full_name'],
-                $orderId,
-                $checkoutData['grand_total_amount'],
-                $date_whatsapp
-            ],
-            'source' => 'new-landing-page form',
-            'paramsFallbackValue' => ['FirstName' => 'user']
+        $apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY';        
+        Log::info('sendWhatsAppNotifications Function', [
+            'order_id'        => $orderId,
+            'payment_status'  => $payment_status,
+            'checkout_data'   => $checkoutData,
+            'delivery_date'   =>  $checkoutData['delivery_expected_date'] ?? null,
         ]);
-
-        /* Admin notification */
+        $customerPhone = $checkoutData['ship_phone_number'] ?? null;
+        $isValidPhone = $customerPhone && preg_match('/^[0-9]{10}$/', $customerPhone);
+        if ($isValidPhone) {
+            $this->sendWhatsAppMessage([
+                'apiKey' => $apiKey,
+                'campaignName' => 'Order Confirmation to Customer',
+                'destination' => $customerPhone,
+                'userName' => $checkoutData['ship_full_name'],
+                'templateParams' => [
+                    $checkoutData['ship_full_name'],
+                    $orderId,
+                    $checkoutData['grand_total_amount'],
+                    $checkoutData['delivery_expected_date'],
+                ],
+                'source' => 'new-landing-page form',
+                'paramsFallbackValue' => ['FirstName' => 'user']
+            ]);
+        } else {
+            Log::warning('WhatsApp not sent to customer: invalid phone number', [
+                'invalid_phone' => $customerPhone
+            ]);
+        }
+        /* ----------------------------------------
+        Always Send Admin Notification
+        ---------------------------------------- */
         $this->sendWhatsAppMessage([
             'apiKey' => $apiKey,
             'campaignName' => 'Order Confirmation to Admin',
@@ -626,12 +913,21 @@ class OrderController extends Controller
                 'headers' => ['Content-Type' => 'application/json'],
                 'json' => $data
             ]);
-            
-            Log::info('WhatsApp notification sent', ['response' => $response->getBody()]);
+
+            Log::info('WhatsApp notification sent', [
+                'campaign' => $data['campaignName'],
+                'destination' => $data['destination'],
+                'response' => $response->getBody()
+            ]);
         } catch (\Exception $e) {
-            Log::error('Failed to send WhatsApp notification', ['error' => $e->getMessage()]);
+            Log::error('Failed to send WhatsApp notification', [
+                'campaign' => $data['campaignName'],
+                'destination' => $data['destination'],
+                'error' => $e->getMessage()
+            ]);
         }
     }
+
 
     public function showOrderSuccess(Request $request)
     {
@@ -648,7 +944,8 @@ class OrderController extends Controller
                 'shippingAddress',
                 'billingAddress',
                 'orderLines.product',
-                'orderLines.product.images'
+                'orderLines.product.images',
+                'shiprocketCourier'
             ])
                 ->where('id', $orderId)
                 ->first();

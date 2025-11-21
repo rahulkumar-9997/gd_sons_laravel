@@ -42,7 +42,9 @@ $customerPhone = '';
                                                     <div class="delivery-address-box">
                                                         <div>
                                                             <div class="form-check">
-                                                                <input class="form-check-input" type="radio" name="customer_address_id" id="{{$address->id}}" value="{{$address->id}}" checked>
+                                                                <input class="form-check-input exiting_customer_address_radio" type="radio" name="customer_address_id" id="{{$address->id}}" value="{{$address->id}}"
+                                                                data-pincode="{{$address->zip_code}}"
+                                                                 {{ $loop->first ? 'checked' : '' }}>
                                                             </div>
                                                             <div class="label label-svg">
                                                                 <div class="docts-svg toggle-popup">

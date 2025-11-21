@@ -97,7 +97,7 @@
                     </h4>
                 </div>
                 <div class="courier-partner" id="courier_partner">
-                    <div id="shipping_loader" style="display:none;">Checking...</div>
+                    <div id="shipping_loader" class="checkout_loader_gif" style="display:none;"></div>
                     @if(!empty($couriers) && count($couriers) > 0 && $paymentType !== 'Pick Up From Store')
                         @foreach ($couriers as $index => $c)
                             @php $checked = $index === 0 ? 'checked' : ''; @endphp
@@ -106,10 +106,12 @@
                                     name="shipping_method" 
                                     class="form-check-input shipping_radio"
                                     value="{{ round($c['rate']) }}"
+                                    data-courier-name="{{ $c['courier'] }}"
                                     data-rate="{{ round($c['rate']) }}"
                                     data-courier-company-id="{{ $c['courier_company_id'] ?? '' }}"
-                                    data-cod-charges="{{ $c['cod_charges'] ?? 0 }}"
+                                    data-cod-charges="{{ round($c['cod_charges']) ?? 0 }}"
                                     data-courier-id="{{ $c['id'] ?? '' }}"
+                                    data-courier-delivery-expected-date="{{ $c['etd'] ?? '' }}"
                                     {{ $checked }}>
                                 <label class="form-check-label">
                                     <strong>{{ $c['courier'] }}</strong>
@@ -163,9 +165,11 @@
             </li>
         </ul>
     </div> -->
+    <input type="hidden" id="selected_courier_name" name="courier_name">
     <input type="hidden" id="selected_shipping_rate" name="shipping_rate">
     <input type="hidden" id="selected_courier_company_id" name="courier_company_id">
     <input type="hidden" id="selected_cod_charges" name="cod_charges">
     <input type="hidden" id="selected_courier_id" name="courier_id">
+    <input type="hidden" id="selected_courier_delivery_expected_date" name="delivery_expected_date">
     <button type="submit" class="btn theme-bg-color text-white btn-md w-100 mt-4 fw-bold">Place Order</button>
 </div>

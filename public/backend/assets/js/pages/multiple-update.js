@@ -26,6 +26,10 @@ $(document).ready(function () {
                     close: true,
                     onClick: function() {}
                 }).showToast();
+                const categoryId = $('#category-filter').val();
+                const search = $('#product-search').val();
+                const criteria = $('#selecte-criteria').val();
+                fetchProducts(categoryId, search, criteria, 1);
             },
             error: function(xhr) {
                 submitButton.prop('disabled', false).html('<i class="ti ti-check"></i> Update All');

@@ -1688,6 +1688,15 @@ class ProductsController extends Controller
                     }
                 });
             }
+            if ($criteria === 'length-breadth-height-weight') {
+                $query->where(function($q) {
+                    $q->whereNull('length')
+                    ->orWhereNull('breadth')
+                    ->orWhereNull('height')
+                    ->orWhereNull('weight')
+                    ->orWhereNull('volumetric_weight_kg');
+                });
+            }
             $products = $query->paginate(20);
             if ($request->ajax()) {
                 return view('backend.product.product-multiple-update.partials.list-table', compact('criteria', 'products'))->render();
@@ -1919,8 +1928,7 @@ class ProductsController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => $msg,
-            ], 200);
-    
+            ], 200);    
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error updating products: {$e->getMessage()}");

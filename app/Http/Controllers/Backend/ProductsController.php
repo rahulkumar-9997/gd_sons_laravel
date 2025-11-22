@@ -1688,13 +1688,13 @@ class ProductsController extends Controller
                     }
                 });
             }
-            if ($criteria === 'length-breadth-height-weight') {
+           if ($criteria === 'length-breadth-height-weight') {
                 $query->where(function($q) {
-                    $q->whereNull('length')
-                    ->orWhereNull('breadth')
-                    ->orWhereNull('height')
-                    ->orWhereNull('weight')
-                    ->orWhereNull('volumetric_weight_kg');
+                    $q->whereNull('length')->orWhere('length', 0)
+                    ->orWhereNull('breadth')->orWhere('breadth', 0)
+                    ->orWhereNull('height')->orWhere('height', 0)
+                    ->orWhereNull('weight')->orWhere('weight', 0)
+                    ->orWhereNull('volumetric_weight_kg')->orWhere('volumetric_weight_kg', 0);
                 });
             }
             $products = $query->paginate(20);

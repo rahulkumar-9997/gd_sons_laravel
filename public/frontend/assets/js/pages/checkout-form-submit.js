@@ -19,7 +19,7 @@ $(document).ready(function () {
                     submitButton.prop('disabled', false).html(originalButtonText);
                     $.ajax({
                         url: "/pay-modal-form",
-                        type: "POST",
+                        type: "get",
                         data: {
                             response_data: response.payment_type,
                             _token: $('meta[name="csrf-token"]').attr('content')

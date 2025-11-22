@@ -331,6 +331,11 @@ class ProductsController extends Controller
                 'product_categories' => 'required|exists:category,id',
                 'hsn_code' => 'nullable|regex:/^\d{4}(\d{2}){0,1}(\d{2}){0,1}$/',
                 'gst_in_percentage' => 'nullable|numeric|min:0|max:100',
+                'products_length' => 'required_without_all:products_breadth,products_height,products_weight,volumetric_weight_kg|numeric|min:0',
+                'products_breadth' => 'required_without_all:products_length,products_height,products_weight,volumetric_weight_kg|numeric|min:0',
+                'products_height' => 'required_without_all:products_length,products_breadth,products_weight,volumetric_weight_kg|numeric|min:0',
+                'products_weight' => 'required_without_all:products_length,products_breadth,products_height,volumetric_weight_kg|numeric|min:0',
+                'volumetric_weight_kg' => 'required_without_all:products_length,products_breadth,products_height,products_weight|numeric|min:0',
             ]);
             //dd( $request->all());
             Log::info('Request Data:', $request->all());
@@ -341,11 +346,9 @@ class ProductsController extends Controller
             $input = [
                 'title' => $request->input('product_name'),
                 'category_id' => $request->input('product_categories'),
-                //'brand_id' => $request->input('brand'),
                 'hsn_code' => $request->input('hsn_code'),
                 'gst_in_per' => $request->input('gst_in_percentage'),
                 'label_id' => $request->input('label'),
-                //'product_weight' => $request->input('product_weight'),
                 'product_stock_status' => $request->input('product_stock_status'),
                 'product_tags' => $request->input('product_tags'),
                 'product_price' => $request->input('product_price'),
@@ -357,10 +360,13 @@ class ProductsController extends Controller
                 'meta_description' => $request->input('meta_description'),
                 'product_description' => $request->input('product_description'),
                 'product_specification' => $request->input('product_specification'),
-
+                'length' => $request->input('products_length') ?? null,
+                'breadth' => $request->input('products_breadth') ?? null,
+                'height' => $request->input('products_height') ?? null,
+                'weight' => $request->input('products_weight') ?? null,
+                'volumetric_weight_kg' => $request->input('volumetric_weight_kg') ?? null,                
             ];
             $add_product = Product::create($input);
-
             if ($add_product) {
                 if ($request->hasFile('product_images')) {
                     $files = $request->file('product_images');
@@ -541,7 +547,7 @@ class ProductsController extends Controller
         catch (\Exception $e) {
             DB::rollback();
             Log::error('Error creating product: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Something went wrong. Please try again.');
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
     
@@ -614,6 +620,11 @@ class ProductsController extends Controller
                 'product_categories' => 'required',
                 'hsn_code' => 'nullable|regex:/^\d{4}(\d{2}){0,1}(\d{2}){0,1}$/',
                 'gst_in_percentage' => 'nullable|numeric|min:0|max:100',
+                'products_length' => 'required_without_all:products_breadth,products_height,products_weight,volumetric_weight_kg|numeric|min:0',
+                'products_breadth' => 'required_without_all:products_length,products_height,products_weight,volumetric_weight_kg|numeric|min:0',
+                'products_height' => 'required_without_all:products_length,products_breadth,products_weight,volumetric_weight_kg|numeric|min:0',
+                'products_weight' => 'required_without_all:products_length,products_breadth,products_height,volumetric_weight_kg|numeric|min:0',
+                'volumetric_weight_kg' => 'required_without_all:products_length,products_breadth,products_height,products_weight|numeric|min:0',
             ]);
             $update_product_row = Product::findOrFail($id);
             $input['title'] = $request->input('product_name');
@@ -638,7 +649,11 @@ class ProductsController extends Controller
             $input['meta_description'] = $request->input('meta_description');
             $input['product_description'] = $request->input('product_description');
             $input['product_specification'] = $request->input('product_specification');
-            // Update the product
+            $input['length'] = $request->input('products_length') ?? null;
+            $input['breadth'] = $request->input('products_breadth') ??  null;
+            $input['height'] = $request->input('products_height') ??  null; 
+            $input['weight'] = $request->input('products_weight') ??  null;
+            $input['volumetric_weight_kg'] = $request->input('volumetric_weight_kg') ??  null;
             $update_product_row->update($input);
         
             // Handle product images update
@@ -1653,11 +1668,10 @@ class ProductsController extends Controller
         }
         try {
             $query = Product::with(['images', 'category'])
-                ->select(['id', 'title', 'category_id', 'meta_title', 'meta_description', 'g_tin_no', 'slug', 'category_id', 'product_description', 'product_specification', 'video_id', 'length', 'breadth', 'height', 'weight']); 
+                ->select(['id', 'title', 'category_id', 'meta_title', 'meta_description', 'g_tin_no', 'slug', 'category_id', 'product_description', 'product_specification', 'video_id', 'length', 'breadth', 'height', 'weight', 'volumetric_weight_kg']); 
             if ($criteria === 'product-image') {
                 $query->whereDoesntHave('images');
-            }
-            
+            }            
             if ($request->filled('category_id')) {
                 Log::error("search category term: " . $request->category_id);    
                 $query->where('category_id', $request->category_id);
@@ -1764,6 +1778,9 @@ class ProductsController extends Controller
                     }
                     if (isset($request->products_weight[$key])) {
                         $rules["products_weight.{$key}"] = 'nullable|numeric|min:0';
+                    }
+                    if (isset($request->volumetric_weight_kg[$key])) {
+                        $rules["volumetric_weight_kg.{$key}"] = 'nullable|numeric|min:0';
                     }
                 break;
             }
@@ -1873,6 +1890,10 @@ class ProductsController extends Controller
                     }
                     if (isset($request->products_weight[$key])) {
                         $product->weight = $request->products_weight[$key];
+                        $updated = true;
+                    }
+                    if (isset($request->volumetric_weight_kg[$key])) {
+                        $product->volumetric_weight_kg = $request->volumetric_weight_kg[$key];
                         $updated = true;
                     }
                     $msg = "Product dimensions (Length × Breadth × Height × Weight) updated successfully.";

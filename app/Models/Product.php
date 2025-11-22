@@ -32,6 +32,7 @@ class Product extends Model
         'breadth',
         'height',
         'weight',
+        'volumetric_weight_kg',
         'product_sale_price',
         'product_status',
         'warranty_status',

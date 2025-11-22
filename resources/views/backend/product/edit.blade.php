@@ -323,6 +323,91 @@
          <div class="col-xl-5 col-lg-5">
             <div class="card">
                <div class="card-header">
+                  <h4 class="card-title">Product Dimensions</h4>
+               </div>
+               <div class="card-body">
+                     <div class="row">
+                        <div class="col-lg-3">
+                              <div class="mb-1">
+                                 <label class="form-label">Product Length (cm)</label>
+                                 <input type="text" 
+                                       name="products_length" 
+                                       class="form-control length" 
+                                       placeholder="Enter Length" 
+                                       value="{{ old('products_length', $data['product']->length ?? '') }}"
+                                       oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+                                 @if($errors->has('products_length'))
+                                    <div class="text-danger">{{ $errors->first('products_length') }}</div>
+                                 @endif
+                              </div>
+                        </div>
+                        <div class="col-lg-3">
+                              <div class="mb-1">
+                                 <label class="form-label">Product Breadth (cm)</label>
+                                 <input type="text" 
+                                       name="products_breadth" 
+                                       class="form-control breadth" 
+                                       value="{{ old('products_breadth', $data['product']->breadth ?? '') }}"
+                                       placeholder="Enter Breadth"
+                                       oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+                                 @if($errors->has('products_breadth'))
+                                    <div class="text-danger">{{ $errors->first('products_breadth') }}</div>
+                                 @endif
+                              </div>
+                        </div>
+
+                        <div class="col-lg-3">
+                              <div class="mb-1">
+                                 <label class="form-label">Product Height (cm)</label>
+                                 <input type="text" 
+                                       name="products_height" 
+                                       class="form-control height" 
+                                       placeholder="Enter Height"
+                                       value="{{ old('products_height', $data['product']->height ?? '') }}"
+                                       oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+                                 @if($errors->has('products_height'))
+                                    <div class="text-danger">{{ $errors->first('products_height') }}</div>
+                                 @endif
+                              </div>
+                        </div>
+
+                        <div class="col-lg-3">
+                              <div class="mb-1">
+                                 <label class="form-label">Product Weight (kg)</label>
+                                 <input type="text" 
+                                       name="products_weight" 
+                                       class="form-control weight" 
+                                       placeholder="Enter Weight"
+                                       value="{{ old('products_weight', $data['product']->weight ?? '') }}"
+                                       oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+                                 @if($errors->has('products_weight'))
+                                    <div class="text-danger">{{ $errors->first('products_weight') }}</div>
+                                 @endif
+                              </div>
+                        </div>
+
+                        <div class="col-lg-12">
+                              <div class="mb-1">
+                                 <label class="form-label">
+                                    Product Volumetric Weight (kg) <span class="text-muted">(Auto Calculated)</span>
+                                 </label>
+                                 <input type="text"
+                                       name="volumetric_weight_kg"
+                                        value="{{ old('volumetric_weight_kg', $data['product']->volumetric_weight_kg ?? '') }}"
+                                       class="form-control volumetric-weight-kg"
+                                       readonly>
+                                    @if($errors->has('volumetric_weight_kg'))
+                                       <div class="text-danger">{{ $errors->first('volumetric_weight_kg') }}</div>
+                                    @endif
+                              </div>
+                        </div>
+
+                     </div>
+                  </div>
+
+            </div>
+            <div class="card">
+               <div class="card-header">
                   <h4 class="card-title">About Product</h4>
                </div>
                <div class="card-body">

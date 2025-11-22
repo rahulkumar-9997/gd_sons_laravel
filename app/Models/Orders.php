@@ -58,4 +58,10 @@ class Orders extends Model
     {
         return $this->hasOne(ShiprocketCourier::class, 'order_id', 'id');
     }
+
+    public function shiprocketOrderResponse()
+    {
+        return $this->hasOne(ShiprocketOrderResponse::class, 'order_id', 'id');
+    }
+
 }

@@ -147,6 +147,8 @@ class OrderController extends Controller
         }
         else
         {
+            Log::warning('Unknown payment type selected: ' . $request->input('payment_type'));
+            Log::info('Checkout Data: ', ['checkout_data' => session('checkout_data')]);
             return response()->json([
                 'status' => 'success',
                 'message' => 'Session created successfully!',
@@ -352,61 +354,60 @@ class OrderController extends Controller
         <form method="POST" action="' . route('pay-modal-form.submit') . '" accept-charset="UTF-8" enctype="multipart/form-data" id="payModalFormSubmit">
             ' . csrf_field() . '
             <div class="row">
-
                 <div class="col-md-12">';
-        if ($response_data == 'Pay to GPay ID of Girdhar Das and Sons') {
-            $form .= '
-                        <div class="text-center">
-                            <!--<div class="mb-3">
-                                <h4>Google id : girdhardas.sons@okhdfcbank</h4>
-                            </div>
-                            <div class="or-area">
-                                <h6>
-                                    OR
-                                </h6>
-                            </div>-->
-                            <div class="scanner-image mt-3 mb-3">
-                                <img src="' . $gPayScannerPath . '" class="img-fluid blur-up lazyloaded pay-scanner">
-                            </div>
-                            <div class="mt-2 mb-3">
-                                <span>Note: After payment successfull please click "Confirm Place Order" button.</span>
-                            </div>
-                        </div>';
-        } elseif ($response_data == 'Pay to PayTM ID of Girdhar Das and Sons') {
-            $form .= '
-                        <div class="text-center">
-                            <!--<div class="mb-3">
-                                <h4>Paytm id : girdhardas.sons@paytm</h4>
-                            </div>
-                            <div class="or-area">
-                                <h6>
-                                    OR
-                                </h6>
-                            </div>-->
-                            <div class="scanner-image mt-3 mb-3">
-                                <img src="' . $payTmScannerPath . '" class="img-fluid blur-up lazyloaded pay-scanner">
-                            </div>
-                            <div class="mt-2 mb-3">
-                                <span>Note: After payment successfull please click "Confirm Place Order" button.</span>
-                            </div>
-                        </div>';
-        } else {
-            $form .= '
-                        <div class="text-center">
-                            <div class="mb-3">
-                                <h4>Note: Please click "Confirm Place Order" button.</h4>
-                            </div>
-                        </div>';
-        }
-        $form .= '
-                </div>
-                <div class="modal-footer pb-0">
-                    
-                    <button style="color:#ffffff;" type="submit" class="btn btn-2-animation btn-md fw-bold">Confirm Place Order</button>
-                </div>
-            </div>
-        </form>
-        ';
+                if ($response_data == 'Pay to GPay ID of Girdhar Das and Sons') {
+                    $form .= '
+                                <div class="text-center">
+                                    <!--<div class="mb-3">
+                                        <h4>Google id : girdhardas.sons@okhdfcbank</h4>
+                                    </div>
+                                    <div class="or-area">
+                                        <h6>
+                                            OR
+                                        </h6>
+                                    </div>-->
+                                    <div class="scanner-image mt-3 mb-3">
+                                        <img src="' . $gPayScannerPath . '" class="img-fluid blur-up lazyloaded pay-scanner">
+                                    </div>
+                                    <div class="mt-2 mb-3">
+                                        <span>Note: After payment successfull please click "Confirm Place Order" button.</span>
+                                    </div>
+                                </div>';
+                } elseif ($response_data == 'Pay to PayTM ID of Girdhar Das and Sons') {
+                    $form .= '
+                                <div class="text-center">
+                                    <!--<div class="mb-3">
+                                        <h4>Paytm id : girdhardas.sons@paytm</h4>
+                                    </div>
+                                    <div class="or-area">
+                                        <h6>
+                                            OR
+                                        </h6>
+                                    </div>-->
+                                    <div class="scanner-image mt-3 mb-3">
+                                        <img src="' . $payTmScannerPath . '" class="img-fluid blur-up lazyloaded pay-scanner">
+                                    </div>
+                                    <div class="mt-2 mb-3">
+                                        <span>Note: After payment successfull please click "Confirm Place Order" button.</span>
+                                    </div>
+                                </div>';
+                } else {
+                    $form .= '
+                    <div class="text-center">
+                        <div class="mb-3">
+                            <h4>Note: Please click "Confirm Place Order" button.</h4>
+                        </div>
+                    </div>';
+                }
+                $form .= '
+                        </div>
+                        <div class="modal-footer pb-0">
+                            
+                            <button style="color:#ffffff;" type="submit" class="btn btn-2-animation btn-md fw-bold">Confirm Place Order</button>
+                        </div>
+                    </div>
+                </form>
+                ';
         return response()->json([
             'message' => 'Category Form created successfully',
             'form' => $form,
@@ -653,7 +654,6 @@ class OrderController extends Controller
 
     public function storeOrderAfterPaymentOld(Request $request)
     {
-
         $checkoutData = session('checkout_data');
         Log::info('Checkout Data in: ', ['checkout_data' => $checkoutData]);
         if (!$checkoutData) {
@@ -695,7 +695,7 @@ class OrderController extends Controller
         //Log::info('Calling storeOrderAfterPayment come order bahar');
         DB::beginTransaction();
         try {
-            /* Determine the shipping address ID */
+            /* Determine the shipping address ID */            
             if ($checkoutData['pick_up_status'] == 'pick_up_online') {
                 if (isset($checkoutData['customer_address_id']) && $checkoutData['customer_address_id'] !== null)
                 {
@@ -799,8 +799,7 @@ class OrderController extends Controller
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                     'total_price' => $item['total_price'],
-                ]);
-                
+                ]);                
             }
             if (isset($checkoutData['payment_type']) && $checkoutData['payment_type'] == 'Cash on Delivery' || $checkoutData['payment_type'] == 'Razorpay')
             {

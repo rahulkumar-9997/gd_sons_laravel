@@ -150,7 +150,7 @@ $(document).ready(function () {
         /* Formula: (L × B × H) / 5000*/
         let volumetricWeight = ((length * breadth * height) / 5000).toFixed(2);
         if (volumetricWeight > 0) {
-            row.find('.weight').val(volumetricWeight);
+            row.find('.volumetric-weight-kg').val(volumetricWeight);
         }
     });
  });

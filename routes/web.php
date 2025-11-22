@@ -76,6 +76,8 @@ Route::group(['middleware' => ['auth.customer']], function() {
     Route::post('/notifications/{id}/read', [CustomerLoginController::class, 'markAsRead']);
 });
 Route::post('shipping-info', [FrontendController::class, 'checkServiceability'])->name('shipping-info');
+Route::get('pay-modal-form', [OrderController::class, 'payModalForm'])->name('pay-modal-form');
+Route::post('pay-modal-form/submit', [OrderController::class, 'payModalFormSubmit'])->name('pay-modal-form.submit');
 Route::middleware([TrackVisitor::class])->group(function () {
     Route::get('/', [FrontendController::class, 'home'])->name('home');
     Route::get('flash-sale', [FrontendController::class, 'flashSale'])->name('flash.sale');
@@ -120,11 +122,7 @@ Route::middleware([TrackVisitor::class])->group(function () {
         Route::post('upload-profile', [CustomerController::class, 'uploadProfileImg'])->name('upload.profile');
         
         /**WISHLIST ROUTE PENDING */
-        Route::post('/wishlist/add', [CustomerController::class, 'addToWishlist'])->name('wishlist.add');
-       
-        Route::post('pay-modal-form', [OrderController::class, 'payModalForm'])->name('pay-modal-form');
-        Route::post('pay-modal-form/submit', [OrderController::class, 'payModalFormSubmit'])->name('pay-modal-form.submit');
-        
+        Route::post('/wishlist/add', [CustomerController::class, 'addToWishlist'])->name('wishlist.add');        
         Route::post('add/address', [CustomerController::class, 'addAddressForm'])->name('add.address');
         Route::post('add/address/submit', [CustomerController::class, 'addAddressFormSubmit'])->name('add.address.submit');
         Route::post('edit/address/{id}', [CustomerController::class, 'editAddressForm'])->name('edit.address');
@@ -402,4 +400,13 @@ Route::group(['middleware' => ['admin']], function () {
     Route::delete('manage-rating/{id}', [ProductReviewBackendController::class, 'destroy'])->name('manage-rating.destroy');
     Route::get('/review-files/{file}', [ProductReviewBackendController::class, 'destroyFile'])
     ->name('review.files.destroy');
+
+     Route::prefix('shiprocket')->group(function () {
+        Route::post('/create-order/{id}', [OrderControllerBackend::class, 'createShipRocketOrder'])->name('shiprocket.create.order');
+        Route::post('/update-order/{id}', [OrderControllerBackend::class, 'updateShipRocketOrder'])->name('shiprocket.update.order');
+        Route::post('/cancel-order/{id}', [OrderControllerBackend::class, 'cancelShipRocketOrder'])->name('shiprocket.cancel.order');
+        Route::post('/update-address/{id}', [OrderControllerBackend::class, 'updateShipRocketOrderAddress'])->name('shiprocket.update.address');
+        Route::post('/generate-awb/{id}', [OrderControllerBackend::class, 'generateShipRocketAWB'])->name('shiprocket.generate.awb');
+        Route::post('/pickup/{id}', [OrderControllerBackend::class, 'pickup'])->name('shiprocket.pickup');
+    });	
 });

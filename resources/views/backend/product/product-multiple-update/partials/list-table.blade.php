@@ -48,6 +48,9 @@
                             Example (0.5)
                         </small>
                     </th>
+                    <th>
+                        Volumetric Weight (kg)
+                    </th>
                 @endif
             </tr>
         </thead>
@@ -149,7 +152,6 @@
                             placeholder="Enter Product Height in cm" 
                             oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
                     </td>
-
                     <td>
                         <input 
                             type="text" 
@@ -158,6 +160,14 @@
                             class="form-control form-control-sm weight" 
                             placeholder="Enter Product Weight in kg" 
                             oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');">
+                    </td>
+                    <td>
+                        <input 
+                            type="text" 
+                            name="volumetric_weight_kg[]" 
+                            value="{{ $product->volumetric_weight_kg ? rtrim(rtrim(number_format($product->volumetric_weight_kg, 2, '.', ''), '0'), '.') : '' }}" 
+                            class="form-control form-control-sm volumetric-weight-kg" 
+                           readonly>
                     </td>
                 @endif
             </tr>

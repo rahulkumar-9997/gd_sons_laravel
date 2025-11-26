@@ -596,20 +596,18 @@ class OrderControllerBackend extends Controller
             if (!$sr) {
                 throw new \Exception("Shiprocket order not created!");
             }
-
             $token = $this->shiprocket->getToken();
             $response = Http::withToken($token)
                 ->get("https://apiv2.shiprocket.in/v1/external/courier/courierListWithCounts", [
                     "shipment_id" => $sr->shiprocket_shipment_id
                 ])
                 ->json();
-            Log::info("Available Couriers for Shipment", [
-                'shipment_id' => $sr->shiprocket_shipment_id,
-                'available_couriers' => $response
-            ]);
-
+                Log::info("Available Couriers for Shipment", [
+                    'shipment_id' => $sr->shiprocket_shipment_id,
+                    'available_couriers' => $response
+                ]);
             return $response;
-
+            
         } catch (\Exception $e) {
             Log::error("Available Couriers Check Failed", [
                 'error' => $e->getMessage(),

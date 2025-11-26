@@ -401,12 +401,13 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('/review-files/{file}', [ProductReviewBackendController::class, 'destroyFile'])
     ->name('review.files.destroy');
 
-     Route::prefix('shiprocket')->group(function () {
+    Route::prefix('shiprocket')->group(function () {
         Route::post('/create-order/{id}', [OrderControllerBackend::class, 'createShipRocketOrder'])->name('shiprocket.create.order');
+        Route::post('/generate-awb/{id}', [OrderControllerBackend::class, 'generateShipRocketAWB'])->name('shiprocket.generate.awb');
+        Route::post('/pickup/{id}', [OrderControllerBackend::class, 'pickup'])->name('shiprocket.pickup');
         Route::post('/update-order/{id}', [OrderControllerBackend::class, 'updateShipRocketOrder'])->name('shiprocket.update.order');
         Route::post('/cancel-order/{id}', [OrderControllerBackend::class, 'cancelShipRocketOrder'])->name('shiprocket.cancel.order');
         Route::post('/update-address/{id}', [OrderControllerBackend::class, 'updateShipRocketOrderAddress'])->name('shiprocket.update.address');
-        Route::post('/generate-awb/{id}', [OrderControllerBackend::class, 'generateShipRocketAWB'])->name('shiprocket.generate.awb');
-        Route::post('/pickup/{id}', [OrderControllerBackend::class, 'pickup'])->name('shiprocket.pickup');
+       
     });	
 });

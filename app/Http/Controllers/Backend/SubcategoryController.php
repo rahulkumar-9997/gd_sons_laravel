@@ -161,7 +161,6 @@ class SubcategoryController extends Controller
              return redirect()->back()->with('error','Somthings went wrong please try again !.');
         }
     }
-
     
     public function edit(Request $request){
         $token = $request->input('_token'); 

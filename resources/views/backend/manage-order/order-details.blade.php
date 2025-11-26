@@ -109,32 +109,46 @@
                                     </thead>
                                     <tbody>
                                         @if($order->orderLines->isNotEmpty())
-                                        @foreach($order->orderLines as $line)
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <div class="rounded bg-light avatar-md d-flex align-items-center justify-content-center">
-                                                        @if($line->product->images->first())
-                                                        <img src="{{ asset('images/product/thumb/' . $line->product->images->first()->image_path) }}"
-                                                            class="avatar-md" alt="{{ $line->product->title }}">
-                                                        @else
-                                                        <img src="{{ asset('images/default.png') }}" class="avatar-md" alt="Default Image">
-                                                        @endif
+                                            @foreach($order->orderLines as $line)
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <div class="rounded bg-light avatar-md d-flex align-items-center justify-content-center">
+                                                            @if($line->product->images->first())
+                                                            <img src="{{ asset('images/product/thumb/' . $line->product->images->first()->image_path) }}"
+                                                                class="avatar-md" alt="{{ $line->product->title }}">
+                                                            @else
+                                                            <img src="{{ asset('images/default.png') }}" class="avatar-md" alt="Default Image">
+                                                            @endif
 
-                                                    </div>
-                                                    <div>
-                                                        <a href="#!" class="text-dark fw-medium fs-15">{{ ucwords(strtolower($line->product->title)) }}</a>
+                                                        </div>
+                                                        <div>
+                                                            <a href="#!" class="text-dark fw-medium fs-15">{{ ucwords(strtolower($line->product->title)) }}</a>
 
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </td>
-                                            <td>{{ $line->quantity }}</td>
-                                            <td>Rs. {{ number_format($line->price, 2) }}</td>
-                                            <td>
-                                                Rs. {{ number_format($line->quantity * $line->price, 2) }}
-                                            </td>
-                                        </tr>
-                                        @endforeach
+                                                </td>
+                                                <td>{{ $line->quantity }}</td>
+                                                <td>Rs. {{ number_format($line->price, 2) }}</td>
+                                                <td>
+                                                    Rs. {{ number_format($line->quantity * $line->price, 2) }}
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                            @if($order->shiprocketCourier)
+                                                <tr>
+                                                    <td colspan="3" class="text-end">
+                                                        <strong>Shipping Charges</strong>
+                                                        <br>
+                                                        <span class="text-muted"> {{ $order->shiprocketCourier->courier_name }}</span>
+                                                    </td>
+                                                    <td class="subtotal">
+                                                        <h4>
+                                                            Rs. {{ number_format( $order->shiprocketCourier->courier_shipping_rate) }}
+                                                        </h4>
+                                                    </td>
+                                                </tr>
+                                            @endif
                                         @else
                                         <tr>
                                             <td colspan="6" class="text-center">No order items found</td>
@@ -268,19 +282,24 @@
                                     </td>
                                     <td class="text-end text-dark fw-medium px-0">Rs. 00</td>
                                 </tr>
-                                <tr>
-                                    <td class="px-0">
-                                        <p class="d-flex mb-0 align-items-center gap-1"><iconify-icon icon="solar:kick-scooter-broken" class="align-middle"></iconify-icon> Delivery Charge : </p>
-                                    </td>
-                                    <td class="text-end text-dark fw-medium px-0">Rs. 00</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-0">
-                                        <p class="d-flex mb-0 align-items-center gap-1"><iconify-icon icon="solar:calculator-minimalistic-broken" class="align-middle"></iconify-icon> Estimated Tax (0%) : </p>
-                                    </td>
-                                    <td class="text-end text-dark fw-medium px-0">Rs. 00</td>
-                                </tr>
-
+                                @if($order->shiprocketCourier)
+                                    <tr>
+                                        <td class="px-0">
+                                            <p class="d-flex mb-0 align-items-center gap-1"><iconify-icon icon="solar:kick-scooter-broken" class="align-middle"></iconify-icon> Delivery Charge : </p>
+                                        </td>
+                                        <td class="text-end text-dark fw-medium px-0">
+                                            Rs. {{ number_format( $order->shiprocketCourier->courier_shipping_rate, 2) }}
+                                        </td>
+                                    </tr>
+                                @else
+                                    <tr>
+                                        <td class="px-0">
+                                            <p class="d-flex mb-0 align-items-center gap-1"><iconify-icon icon="solar:kick-scooter-broken" class="align-middle"></iconify-icon> Delivery Charge : </p>
+                                        </td>
+                                        <td class="text-end text-dark fw-medium px-0">Rs. 00</td>
+                                    </tr>
+                                @endif
+                                
                             </tbody>
                         </table>
                     </div>

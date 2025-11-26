@@ -835,7 +835,27 @@
             });
          });
       }
-    
+
+      /**Product add edit form calculated volumetricWeight*/
+      document.addEventListener("DOMContentLoaded", function () {
+         function calculateVolumetricWeight() {
+            let length = parseFloat(document.querySelector('.length').value) || 0;
+            let breadth = parseFloat(document.querySelector('.breadth').value) || 0;
+            let height  = parseFloat(document.querySelector('.height').value) || 0;
+            if (length > 0 && breadth > 0 && height > 0) {
+                  let volumetricWeight = (length * breadth * height) / 5000;
+                  document.querySelector('.volumetric-weight-kg').value =
+                     volumetricWeight.toFixed(2);
+            } else {
+                  document.querySelector('.volumetric-weight-kg').value = "";
+            }
+         }
+         document.querySelector('.length').addEventListener('input', calculateVolumetricWeight);
+         document.querySelector('.breadth').addEventListener('input', calculateVolumetricWeight);
+         document.querySelector('.height').addEventListener('input', calculateVolumetricWeight);
+      });
+      /**Product add edit form calculated volumetricWeight*/
+   
 </script>
 
 @endpush

@@ -11,24 +11,23 @@
             @endphp
             @foreach ($carts as $cart)
             @php
-                /*Build an array of product_id and qty from $carts (same structure you use in sidebar) */
-                $quantity_for_js = session('cart', [])[$cart->id]['quantity'] ?? 1;
+                $quantity = $sessionCart[$cart->id]['quantity'] ?? 1;
                 $cart_items_for_js[] = [
                     'product_id' => $cart->id,
-                    'qty' => $quantity_for_js,
-                    'length'=>(float) ($cart->length ?? 0),
-                    'breadth'=>(float) ($cart->breadth ?? 0),
-                    'height'=>(float) ($cart->height ?? 0),
-                    'weight'=>(float) ($cart->weight ?? 0)                    
+                    'qty' => $quantity,
+                    'length' => (float) ($cart->length ?? 0),
+                    'breadth' => (float) ($cart->breadth ?? 0),
+                    'height' => (float) ($cart->height ?? 0),
+                    'weight' => (float) ($cart->weight ?? 0),
                 ];
-                /*Build an array of product_id and qty from $carts (same structure you use in sidebar) */
-                $quantity = $sessionCart[$cart->id]['quantity'] ?? 1;
+
                 $purchase_rate = $cart->purchase_rate ?? 0;
                 $offer_rate = $cart->offer_rate ?? 0;
                 $mrp = $cart->mrp ?? 0;
                 $group_offer_rate = null;
                 $special_offer_rate = null;
-                /*Group discount calculation*/
+
+                // Group discount logic
                 if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
                     $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
                     if ($group_percentage > 0) {
@@ -36,59 +35,74 @@
                         $group_offer_rate = floor($group_offer_rate);
                     }
                 }
-                /*Special offer logic (make sure $specialOffers is available)*/
+
+                // Special offer
                 if (isset($specialOffers[$cart->product_id])) {
                     $special_offer_rate = (float) $specialOffers[$cart->product_id];
                 }
-                $final_offer_rate = collect([
-                    $offer_rate,
-                    $group_offer_rate,
-                    $special_offer_rate
-                ])->filter()->min();
-                /*Total calculation*/
+
+                $final_offer_rate = collect([$offer_rate, $group_offer_rate, $special_offer_rate])->filter()->min();
+
                 $totalPrice = $final_offer_rate * $quantity;
                 $subtotal += $totalPrice;
+
+                // Discount percentage
+                $discountPercent = 0;
+                if ($mrp && $final_offer_rate < $mrp) {
+                    $discountPercent = (($mrp - $final_offer_rate)/$mrp) * 100;
+                    $discountPercent = number_format($discountPercent, 2);
+                }
             @endphp
-            
+
             <input type="hidden" name="product_id[]" value="{{ $cart->id }}">
-            <input type="hidden" name="cart_quantity[]" value="{{  $quantity }}">
+            <input type="hidden" name="cart_quantity[]" value="{{ $quantity }}">
             <input type="hidden" name="cart_offer_rate[]" value="{{ $final_offer_rate }}">
             <input type="hidden" name="total_price[]" value="{{ $totalPrice }}">
+
             <li>
                 <div class="flex-detail">
                     <div class="cart-det-img">
                         @if ($cart->images->first())
-                        <img src="{{ asset('images/product/thumb/' . $cart->images->first()->image_path) }}"
-                            class="img-fluid blur-up lazyloaded checkout-image" alt="{{ $cart->name }}" loading="lazy">
+                            <img src="{{ asset('images/product/thumb/' . $cart->images->first()->image_path) }}"
+                                class="img-fluid blur-up lazyloaded checkout-image" alt="{{ $cart->name }}" loading="lazy">
                         @else
-                        <img src="{{ asset('images/default.png') }}" class="img-fluid blur-up lazyloaded checkout-image" alt="Default Image" loading="lazy">
+                            <img src="{{ asset('images/default.png') }}" class="img-fluid blur-up lazyloaded checkout-image" alt="Default Image" loading="lazy">
                         @endif
                     </div>
                     <h4>
                         {{ ucwords(strtolower($cart->title)) }}
-                        <p>
-                            <span>{{$final_offer_rate}} X {{ $quantity }}</span>
-                        </p>
+                        
                     </h4>
                 </div>
                 <div class="flex-detail">
-                    <h4 class="price">
-                        Rs.
-                        {{ number_format($totalPrice, 2) }}
-                    </h4>
+                    <div class="price">
+                        <h4>
+                            Rs. {{ number_format($totalPrice, 2) }}
+                            @if($discountPercent > 0)
+                                <small class="text-success">({{ $discountPercent }}% off)</small>
+                            @endif
+                        </h4>
+                        @if($mrp)
+                            <span>M.R.P.</span>
+                                <del class="text-content">Rs. {{ number_format($mrp, 2) }}</del>
+                            </span>
+                        @endif
+                        
+                    </div>
                 </div>
             </li>
             @endforeach
             <input type="hidden" id="cart_items_json" value='@json($cart_items_for_js)'>
         </ul>
-        
+
         <ul class="summery-total">
             <li>
                 <h4>Subtotal</h4>
                 <h4 class="price">Rs.
-                    <span id="subtotal_amount"> {{ number_format($subtotal, 2) }}</span>
+                    <span id="subtotal_amount">{{ number_format($subtotal, 2) }}</span>
                 </h4>
             </li>
+
             <li id="shipping_section">
                 <div class="courier-partner-title">
                     <h4>Shipping</h4>
@@ -115,38 +129,26 @@
                                     {{ $checked }}>
                                 <label class="form-check-label">
                                     <strong>{{ $c['courier'] }}</strong>
-                                    ({{ $c['service'] ?: 'Service' }})
-                                    — ₹{{ round($c['rate']) }}                              
+                                    ({{ $c['service'] ?: 'Service' }}) — ₹{{ round($c['rate']) }}
                                 </label>
-                                <p>
-                                    <small class="text-muted">(ETD: {{ $c['etd'] }})</small>
-                                </p>
+                                <p><small class="text-muted">(ETD: {{ $c['etd'] }})</small></p>
                             </div>
                         @endforeach
                     @endif
                 </div>
-                
             </li>
-            <!-- <li>
-                <h4>Tax</h4>
-                <h4 class="price">Rs. 0</h4>
-            </li>
-            <li>
-                <h4>Coupon/Code</h4>
-                <h4 class="price">Rs. 0</h4>
-            </li> -->
+
             <li class="list-total">
                 <h4>Total (Rs.)</h4>
                 <h4 class="price">Rs.
-                    @php
-                    $total = $subtotal+round($rate);
-                    @endphp
-                    <span id="grand_total_amount_span"> {{ number_format($total, 2) }}</span>
-                    <input type="hidden" id="grand_total_amount_input" name="grand_total_amount" value="{{$total}}">
+                    @php $total = $subtotal + round($rate); @endphp
+                    <span id="grand_total_amount_span">{{ number_format($total, 2) }}</span>
+                    <input type="hidden" id="grand_total_amount_input" name="grand_total_amount" value="{{ $total }}">
                 </h4>
             </li>
         </ul>
     </div>
+
     <!-- <div class="checkout-offer">
         <div class="offer-title">
             <div class="offer-icon">

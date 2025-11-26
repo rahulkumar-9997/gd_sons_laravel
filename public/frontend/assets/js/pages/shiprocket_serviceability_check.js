@@ -106,11 +106,21 @@
     // CALCULATE TOTAL WEIGHT
     // -----------------------------------------
     function calculateTotalWeight(items) {
-        let total = 0;
+        let totalWeight = 0;
         items.forEach(i => {
-            total += (i.weight * i.qty);
+            let qty = parseFloat(i.qty) || 1;
+            let physicalWeight = parseFloat(i.weight) || 0;
+            /* Volumetric Weight = L * B * H / 5000 */
+            let volWeight = 0;
+            if (i.length > 0 && i.breadth > 0 && i.height > 0) {
+                volWeight = (i.length * i.breadth * i.height) / 5000;
+            }
+            let finalWeight = Math.max(physicalWeight, volWeight);
+
+            totalWeight += finalWeight * qty;
         });
-        return total;
+
+        return totalWeight;
     }
 
     // -----------------------------------------

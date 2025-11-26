@@ -619,12 +619,7 @@ class ProductsController extends Controller
                 'product_name' => 'required',
                 'product_categories' => 'required',
                 'hsn_code' => 'nullable|regex:/^\d{4}(\d{2}){0,1}(\d{2}){0,1}$/',
-                'gst_in_percentage' => 'nullable|numeric|min:0|max:100',
-                'products_length' => 'required_without_all:products_breadth,products_height,products_weight,volumetric_weight_kg|numeric|min:0',
-                'products_breadth' => 'required_without_all:products_length,products_height,products_weight,volumetric_weight_kg|numeric|min:0',
-                'products_height' => 'required_without_all:products_length,products_breadth,products_weight,volumetric_weight_kg|numeric|min:0',
-                'products_weight' => 'required_without_all:products_length,products_breadth,products_height,volumetric_weight_kg|numeric|min:0',
-                'volumetric_weight_kg' => 'required_without_all:products_length,products_breadth,products_height,products_weight|numeric|min:0',
+                'gst_in_percentage' => 'nullable|numeric|min:0|max:100',               
             ]);
             $update_product_row = Product::findOrFail($id);
             $input['title'] = $request->input('product_name');
@@ -1688,13 +1683,13 @@ class ProductsController extends Controller
                     }
                 });
             }
-           if ($criteria === 'length-breadth-height-weight') {
+            if ($criteria === 'length-breadth-height-weight') {
                 $query->where(function($q) {
-                    $q->whereNull('length')->orWhere('length', 0)
-                    ->orWhereNull('breadth')->orWhere('breadth', 0)
-                    ->orWhereNull('height')->orWhere('height', 0)
-                    ->orWhereNull('weight')->orWhere('weight', 0)
-                    ->orWhereNull('volumetric_weight_kg')->orWhere('volumetric_weight_kg', 0);
+                    $q->whereNull('length')
+                    ->orWhereNull('breadth')
+                    ->orWhereNull('height')
+                    ->orWhereNull('weight')
+                    ->orWhereNull('volumetric_weight_kg');
                 });
             }
             $products = $query->paginate(20);

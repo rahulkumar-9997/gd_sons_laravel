@@ -64,4 +64,13 @@ class Orders extends Model
         return $this->hasOne(ShiprocketOrderResponse::class, 'order_id', 'id');
     }
 
+    public function shiprocketAwbResponse()
+    {
+        return $this->hasOne(ShiprocketShipmentAwbResponse::class, 'order_id', 'id');
+    }
+    public function ShiprocketPickupResponse()
+    {
+        return $this->hasOne(ShiprocketPickupResponse::class, 'order_id', 'id');
+    }
+
 }

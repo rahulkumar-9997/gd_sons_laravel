@@ -2,8 +2,16 @@
 @section('title','Manage Order')
 @section('main-content')
 @push('styles')
-
+<style>
+    .disabled-dropdown {
+        pointer-events: none !important;
+        opacity: 0.6;
+    }
+</style>
 @endpush
+@php
+    $order_status_id = request()->query('order-status');
+@endphp
 <!-- Start Container Fluid -->
 <div class="container-fluid">
     <div class="row">
@@ -27,13 +35,12 @@
                         @foreach($orders_status as $status)
                             <a href="{{ route('order-list', ['order-status' => $status->id]) }}" class="btn btn-outline-primary rounded-pill 
                                 {{ request()->query('order-status') == $status->id ? 'active' : '' }}">
-                                {{ $status->status_name }}
-                                
+                                {{ $status->status_name }}                                
                             </a>
                         @endforeach
                     @endif
-                    <div class="table-responsive" style="margin-top: 20px;">
-                        @include('backend.manage-order.partials.order-list')
+                    <div class="table-responsive1" style="margin-top: 20px;" id="order-list-table">
+                        @include('backend.manage-order.partials.order-list-table', ['orders' => $orders, 'orders_status' => $orders_status, 'order_status_id' => $order_status_id])
                     </div>
                 </div>
             </div>

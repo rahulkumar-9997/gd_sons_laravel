@@ -57,23 +57,90 @@ $(document).ready(function () {
     });
 
     /*Shiprocket order update content */
-    $(document).on('click', '.sr-create-order, .sr-update-order, .sr-cancel-order, .sr-update-address, .sr-generate-awb, .sr-pickup', function () {
+    $(document).on('click', '.sr-action', function (e) {
+        e.preventDefault();
         let btn = $(this);
         let url = btn.data('url');
-        btn.prop('disabled', true).html('Processing…');
-        $.post(url, {}, function (res) {
-            if (res.status === 'success') {
-                toastr.success(res.msg);
-                setTimeout(() => location.reload(), 1000);
-            } else {
-                toastr.error(res.msg);
-                btn.prop('disabled', false).html(btn.data('original-text'));
+        let order_status_id = btn.data('order-status-id');
+        let actionText = btn.data('action-text');
+        let originalText = btn.text();
+        Swal.fire({
+            title: `Are you sure you want to ${actionText}?`,
+            text: "This action will sync with Shiprocket.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: `Yes, ${actionText}!`,
+            cancelButtonText: "Cancel",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                btn.addClass('disabled').text('Processing…');
+                $('#loader').show();                      
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: {
+                        order_status_id: order_status_id,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (res) {
+                        console.log("Response:", res);
+                        if (res.status === 'success') {
+                            let toastClass = "bg-success";
+                            if (res.shiprocket_status === 'order_updated') {
+                                toastClass = "bg-info";
+                            }
+                            else if (res.shiprocket_status === 'awb_generated') {
+                                toastClass = "bg-primary";
+                            }                            
+                            Toastify({
+                                text: res.msg,
+                                duration: 10000,
+                                gravity: "top",
+                                position: "right",
+                                className: toastClass,
+                                close: true
+                            }).showToast();                            
+                            if (res.order_list) {
+                                $('#order-list-table').html(res.order_list);
+                            }
+                            $('#loader').hide();
+                        } else {
+                            Toastify({
+                                text: res.msg || "Something went wrong!",
+                                duration: 10000,
+                                gravity: "top",
+                                position: "right",
+                                className: "bg-danger",
+                                close: true
+                            }).showToast();
+                            $('#loader').hide();
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("AJAX Error:", xhr.responseText);
+                        const message = xhr.responseJSON?.msg 
+                            || xhr.responseJSON?.message 
+                            || "Request failed. Please try again.";
+                        Toastify({
+                            text: message,
+                            duration: 10000,
+                            gravity: "top",
+                            position: "right",
+                            className: "bg-danger",
+                            close: true
+                        }).showToast();
+                        $('#loader').hide();
+                    },
+                    complete: function () {
+                        btn.removeClass('disabled').text(originalText);
+                        $('#loader').hide();
+                    }
+                });
             }
-        }).fail(function (err) {
-            toastr.error("Server error!");
-            btn.prop('disabled', false).html(btn.data('original-text'));
         });
     });
+
+
     /*Shiprocket order update content */
 
 });

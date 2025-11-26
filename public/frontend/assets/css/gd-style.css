@@ -2268,3 +2268,6 @@ a.cntshop {
     display: block;
     margin: 0 auto;
 }
+.flex-detail{
+  max-width: 200px;
+}

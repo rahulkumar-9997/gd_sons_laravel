@@ -17,6 +17,12 @@ class ShiprocketOrderResponse extends Model
         'shiprocket_label_url',
         'shiprocket_manifest_url',
         'create_order_date',
+        'is_order_created',
+        'is_order_updated',
+        'is_order_cancelled',
+        'is_address_updated',
+        'is_awb_generated',
+        'is_pickup_requested',
     ];
     public function order()
     {

@@ -392,7 +392,7 @@ class CustomerController extends Controller
         $cod = $req->cod ?? 0;
         $paymentType = $req->input('payment_type') ?? 'online';
         $response = $ship->getServiceability($fromPin, $pincode, $weight, $cod);
-        //Log::info('Shiprocket Serviceability Response', ['response' => $response]);
+        //Log::info('Shiprocket Response: ' . json_encode($response, JSON_PRETTY_PRINT));
         if (!$response || !$response['success']) {
             return response()->json([
                 'success' => false,
@@ -413,7 +413,7 @@ class CustomerController extends Controller
                 'id'=>$c['id'] ?? null,
             ];
         }
-
+        
         if (empty($couriers)) {
             return response()->json([
                 'success' => false,

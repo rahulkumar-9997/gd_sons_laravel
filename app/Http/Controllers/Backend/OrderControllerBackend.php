@@ -456,17 +456,29 @@ class OrderControllerBackend extends Controller
             if (!$sr->is_awb_generated) {
                 throw new \Exception("AWB not generated!");
             }
+
             $token = $this->shiprocket->getToken();
             $res = Http::withToken($token)
                 ->post("https://apiv2.shiprocket.in/v1/external/courier/generate/pickup", [
                     "shipment_id" => [$sr->shiprocket_shipment_id]
                 ])
                 ->json();            
-            Log::info("Pickup Response", $res);         
             
+            Log::info("Pickup Response", $res);  
+            if (isset($res['message']) && str_contains(strtolower($res['message']), 'order is already canceled')) {
+                $sr->update([
+                    'is_order_cancelled' => 1,
+                    'is_pickup_requested' => 0 
+                ]);
+                $order->update(['order_status_id' => 6]); 
+                DB::commit();
+                throw new \Exception("Order is already canceled in Shiprocket");
+            }
+
             if (isset($res['status_code']) && $res['status_code'] != 200) {           
                 throw new \Exception($res['message'] ?? "Pickup request failed.");
             }
+            
             if (!isset($res['pickup_status']) || $res['pickup_status'] != 1) {
                 throw new \Exception($res['message'] ?? "Pickup request failed.");
             }
@@ -483,7 +495,7 @@ class OrderControllerBackend extends Controller
                     ]);
                 }
             }
-            
+
             $shiprocket_pickup = ShiprocketPickupResponse::updateOrCreate(
                 ['order_id' => $id],
                 [
@@ -496,38 +508,34 @@ class OrderControllerBackend extends Controller
                     'data' => $responseData['data'] ?? null,
                 ]
             );
-            /*order table update order status coloumn */
-            $updateResult = $order->update(['order_status_id' => 4]);
+            $sr->update(['is_pickup_requested' => 1]);
+            $order->update(['order_status_id' => 4]); 
             Log::info("After Order Status Update", [
                 'order_id' => $id,
-                'update_result' => $updateResult,
-                'new_status' => $order->fresh()->order_status_id
+                'sr_updated' => $sr->wasChanged(),
+                'order_updated' => $order->wasChanged(),
+                'new_status' => $order->fresh()->order_status_id,
+                'is_pickup_requested' => $sr->fresh()->is_pickup_requested
             ]);
-            /*order table update order status coloumn */            
-            $sr->update(['is_pickup_requested' => 1]);
+
             DB::commit(); 
+            
             if ($auto) return true;    
             return $this->successResponse("Pickup Scheduled Successfully", $request);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            $errorMessage = $e->getMessage();
+            
             Log::error("Pickup Scheduling Error", [
                 'error' => $e->getMessage(),
-                'order_id' => $id
+                'order_id' => $id,
+                'trace' => $e->getTraceAsString()
             ]);
             
             if ($auto) {
                 throw $e;
             } 
-            if (str_contains($errorMessage, 'Order is already canceled')) {
-                ShiprocketOrderResponse::where('order_id', $id)->
-                update([
-                    'is_order_cancelled' => 1,
-                    'is_pickup_requested' => 1
-                ]);
-                $order->update(['order_status_id' => 6]);
-            }           
+            
             return $this->errorResponse($e->getMessage());
         }
     }

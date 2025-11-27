@@ -29,6 +29,16 @@
                             {{ ucwords(strtolower($product->title)) }}
                             <span class="badge bg-warning">{{ $product->visitor_count }}</span>
                         </a>
+                        @if($product->length && $product->breadth && $product->height && $product->weight)
+                            <br>
+                            <small class="text-muted">
+                                <div style="line-height: 1.1; margin: 0; padding: 0;">Length in CM: {{ number_format($product->length, 2) }}</div>
+                                <div style="line-height: 1.1; margin: 0; padding: 0;">Breadth in CM: {{ number_format($product->breadth, 2) }}</div>
+                                <div style="line-height: 1.1; margin: 0; padding: 0;">Height in CM: {{ number_format($product->height, 2) }}</div>
+                                <div style="line-height: 1.1; margin: 0; padding: 0;">Weight in Kg: {{ number_format($product->weight, 2) }}</div>
+                                <div style="line-height: 1.1; margin: 0; padding: 0;">Volumetric Weight Kg: {{ number_format($product->volumetric_weight_kg, 2) }}</div>
+                            </small>
+                        @endif
                         <!-- {{ $product->title }} -->
                     </td>
                     <td>

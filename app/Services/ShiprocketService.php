@@ -135,4 +135,35 @@ class ShiprocketService
         ];
     }
 
+    public function getShiprocketLocalityDetails($pinCode)
+    {
+        $token = $this->getToken();
+        if (!$token) {
+            return [
+                'success' => false,
+                'message' => 'Token not available'
+            ];
+        }
+        $url = "https://apiv2.shiprocket.in/v1/external/open/postcode/details";
+        $resp = Http::withToken($token)
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+            ])
+            ->get($url, [
+                'postcode' => $pinCode
+            ]);
+        if (!$resp->successful()) {
+            return [
+                'success' => false,
+                'message' => 'API Error',
+                'response' => $resp->json()
+            ];
+        }
+        return [
+            'success' => true,
+            'data' => $resp->json()['postcode_details'] ?? []
+        ];
+    }
+
+
 }

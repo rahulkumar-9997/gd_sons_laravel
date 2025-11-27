@@ -180,8 +180,13 @@
 
                                 <ul class="summery-contain pb-0 border-bottom-0">
                                     <li class="d-block">
-                                        <h4>{{ $order->shippingAddress->full_address }}</h4>
-                                        <h4 class="mt-2">{{ $order->shippingAddress->city_name }}, {{ $order->shippingAddress->state }} {{ $order->shippingAddress->pin_code }}</h4>
+                                        <h4>
+                                            {{ $order->shippingAddress->full_address }}
+                                            @if($order->shippingAddress->apartment)
+                                            , {{ $order->shippingAddress->apartment }}
+                                            @endif
+                                        </h4>
+                                        <h4 class="mt-2">{{ $order->shippingAddress->city_name }}, {{ $order->shippingAddress->state }},  {{ $order->shippingAddress->pin_code }}</h4>
                                     </li>
 
                                     <!-- <li class="pb-0">

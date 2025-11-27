@@ -409,18 +409,18 @@ class OrderControllerBackend extends Controller
             DB::commit();            
             $message = 'AWB Generated Successfully';            
             /* ----------------------- AUTO Pickup ----------------------- */
-            try {
-                $pickupResult = $this->pickup($request, $id, true);
-                if ($pickupResult === true) {
-                    $message .= ' + Pickup Scheduled';
-                }
-            } catch (\Exception $e) {
-                Log::error("Auto Pickup Scheduling Failed", [
-                    'order_id' => $id,
-                    'error' => $e->getMessage()
-                ]);
-                $message .= ' (Pickup Scheduling Failed: ' . $e->getMessage() . ')';
-            }            
+            // try {
+            //     $pickupResult = $this->pickup($request, $id, true);
+            //     if ($pickupResult === true) {
+            //         $message .= ' + Pickup Scheduled';
+            //     }
+            // } catch (\Exception $e) {
+            //     Log::error("Auto Pickup Scheduling Failed", [
+            //         'order_id' => $id,
+            //         'error' => $e->getMessage()
+            //     ]);
+            //     $message .= ' (Pickup Scheduling Failed: ' . $e->getMessage() . ')';
+            // }            
             if ($auto) return true;            
             return $this->successResponse($message, $request);
             

@@ -183,5 +183,48 @@
             $("#courier_partner").html('<span class="text-success">Pick Up From Store — No Shipping Charges</span>');
         }
     });
+    /**Get Locality Details from shiprocket api */
+    $(document).ready(function (){
+        $(document).on('keyup', '#checkout_pincode, #checkout_pincode_add_new_address, #checkout_pincode_edit_address', function () {
+            let pincode = $(this).val().trim();
+            if (pincode.length === 6 && /^\d{6}$/.test(pincode)) {
+                checkShiprocketLocalityDetails(pincode);
+            }
+        });
+    })
+
+    function checkShiprocketLocalityDetails(pincode){
+        let placeOrderBtn = $("button[type='submit']");
+        if (!pincode || !/^\d{6}$/.test(pincode)) return;
+        $.ajax({
+            url: window.shiprocketCheckLocalityUrl,
+            type: "POST",
+            data: {
+                pincode: pincode,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function (res) {
+                if (!res.success) {
+                    placeOrderBtn.prop('disabled', true);
+                    return;
+                }
+                placeOrderBtn.prop('disabled', false);
+                $('input[name="ship_state"]').val(res.state);
+                $('input[name="ship_city_name"]').val(res.city);
+                /* for modal open add new address */
+                $('input[name="state"]').val(res.state);
+                $('input[name="city_name"]').val(res.city);
+                /* for modal open add new address */
+                /*if (res.locality_list && res.locality_list.length) {
+                    console.log("Localities:", res.locality_list);
+                }*/
+            },
+            error: function () {
+                console.log("Shiprocket API failed");
+            }
+        });
+    }
+
+    /**Get Locality Details from shiprocket api */
 
 })(jQuery);

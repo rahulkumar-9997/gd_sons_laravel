@@ -151,7 +151,11 @@ $customerPhone = '';
                                                     </div>
                                                     <div class="col-md-4">
                                                         <div class="form-floating theme-form-floating mb-4">
-                                                            <select class="form-select theme-form-select" name="ship_state">
+                                                            <input type="text" class="form-control" name="ship_state" 
+                                                            readonly=""
+                                                            placeholder="Enter state name">
+                                                            <label for="ship_state">Enter state name</label>
+                                                            <!-- <select class="form-select theme-form-select" name="ship_state">
                                                                 <option value="">-- Select State --</option>
                                                                 @foreach($states as $state)
                                                                     <option value="{{ $state->name }}">
@@ -159,7 +163,7 @@ $customerPhone = '';
                                                                     </option>
                                                                 @endforeach
                                                             </select>
-                                                            <label for="state">Select State</label>
+                                                            <label for="state">Select State</label> -->
                                                         </div>
                                                     </div>
                                                     <div class="col-md-4">
@@ -170,7 +174,9 @@ $customerPhone = '';
                                                             <label for="city">Select Town / City</label>
                                                         </div> -->
                                                         <div class="form-floating mb-4 theme-form-floating">
-                                                            <input type="text" class="form-control" name="ship_city_name" placeholder="Enter city">
+                                                            <input type="text" class="form-control" 
+                                                            readonly=""
+                                                            name="ship_city_name" placeholder="Enter city">
                                                             <label for="city_name">Enter city name</label>
                                                         </div>
                                                     </div>

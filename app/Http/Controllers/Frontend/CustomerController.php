@@ -446,6 +446,33 @@ class CustomerController extends Controller
         ], 200);
     }
 
+    public function checkLocalityDetails(Request $request){
+        $request->validate([
+            'pincode' => 'required|digits:6',
+        ]);
+
+        $pincode = $request->pincode;
+        $ship = app(\App\Services\ShiprocketService::class);
+        $response = $ship->getShiprocketLocalityDetails($pincode);
+        Log::info('Shiprocket Response: ' . json_encode($response, JSON_PRETTY_PRINT));
+        if (!$response || !$response['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => ""
+            ]);
+        }
+
+        $details = $response['data'];
+
+        return response()->json([
+            'success' => true,
+            'state'   => $details['state'] ?? '',
+            'city'    => $details['city'] ?? '',
+            'locality_list' => $details['locality'] ?? []
+        ]);
+    }
+
+
     public function addAddressForm(Request $request)
     {
         $token = $request->input('_token');
@@ -486,7 +513,7 @@ class CustomerController extends Controller
                     </div>
                     <div class="col-md-6">
                         <div class="form-floating mb-4 theme-form-floating">
-                            <input type="text"  name="pin_code" class="form-control" placeholder="Enter pin code">
+                            <input type="text"  name="pin_code" id="checkout_pincode_add_new_address" class="form-control" placeholder="Enter pin code">
                             <label for="lname">Enter pin code</label>
                         </div>
                     </div>
@@ -508,14 +535,16 @@ class CustomerController extends Controller
                                 <option value="Varanasi">Varanasi</option>
                             </select>
                             <label for="city">Select City</label>-->
-                            <input type="text" class="form-control" name="city_name" placeholder="Enter city">
+                            <input type="text" class="form-control" name="city_name" placeholder="Enter city" readonly="">
                             <label for="lname">Enter city</label>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="select-option">
                             <div class="form-floating mb-4 theme-form-floating">
-                                <select class="form-select theme-form-select" name="state">
+                                <input type="text" class="form-control" name="state" placeholder="Enter state name" readonly="">
+                                <label for="lname">Enter state</label>
+                                <!--<select class="form-select theme-form-select" name="state">
                                     <option value="">Select State</option>';                                
                                     foreach($states as $state){
                                         $form .= '<option value="'.$state->name.'">'.$state->name.'
@@ -523,7 +552,7 @@ class CustomerController extends Controller
                                     }
                                 $form .= '                                    
                                 </select>
-                                <label>Select State</label>
+                                <label>Select State</label>-->
                             </div>
                         </div>
                     </div>
@@ -653,8 +682,8 @@ class CustomerController extends Controller
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="select-option">
-                            <div class="form-floating mb-4 theme-form-floating">
+                        <div class="select-option mb-4">
+                            <div class="form-floating theme-form-floating">
                                 <select class="form-select theme-form-select" name="country" >
                                     <option value="India">India
                                     </option>
@@ -665,46 +694,49 @@ class CustomerController extends Controller
                     </div>
                     <div class="col-md-6">
                         <div class="form-floating mb-4 theme-form-floating">
-                            <input type="text" class="form-control" name="full_address" placeholder="Enter address" value="' . $address_dtails->address . '">
+                            <input type="text"  name="pin_code" id="checkout_pincode_edit_address" class="form-control" placeholder="Enter pin code" value="' . $address_dtails->zip_code . '" >
+                            <label for="lname">Enter pin code</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating mb-4 theme-form-floating">
+                            <input type="text" class="form-control" name="full_address" placeholder="Enter address"
+                            value="' . $address_dtails->address . '" >
                             <label for="lname">Enter address</label>
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <div class="form-floating mb-4 theme-form-floating">
-                            <input type="text" class="form-control" name="apartment" placeholder="Apartment, suite, etc. (optional)" value="' . $address_dtails->apartment . '">
+                            <input type="text" class="form-control" name="apartment" placeholder="Apartment, suite, etc. (optional)"
+                            value="' . $address_dtails->apartment . '" >
                             <label for="lname">Apartment, suite, etc. (optional)</label>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="form-floating mb-4 theme-form-floating">
                             <!--<select class="form-select theme-form-select" name="city_name">
                                 <option value="Varanasi">Varanasi</option>
                             </select>
                             <label for="city">Select City</label>-->
-                            <input type="text" class="form-control" name="city_name" placeholder="Enter city" value="' . $address_dtails->city . '">
+                            <input type="text" class="form-control" name="city_name" placeholder="Enter city" readonly="" value="' . $address_dtails->city . '" >
                             <label for="lname">Enter city</label>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div class="select-option">
                             <div class="form-floating mb-4 theme-form-floating">
-                                <select class="form-select theme-form-select" name="state">
-                                    <option value="">Select State</option>';
+                                <input type="text" class="form-control" name="state" placeholder="Enter state name" readonly="" value="' . $address_dtails->state . '" >
+                                <label for="lname">Enter state</label>
+                                <!--<select class="form-select theme-form-select" name="state">
+                                    <option value="">Select State</option>';                                
                                     foreach($states as $state){
-                                        $selected = ($address_dtails->state == $state->name) ? 'selected' : '';
-                                        $form .= '<option value="'.$state->name.'" '.$selected.'>'.$state->name.'
+                                        $form .= '<option value="'.$state->name.'">'.$state->name.'
                                         </option>';
                                     }
-                                $form .= '
+                                $form .= '                                    
                                 </select>
-                                <label>Select State</label>
+                                <label>Select State</label>-->
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-floating mb-4 theme-form-floating">
-                            <input type="text"  name="pin_code" class="form-control" placeholder="Enter pin code" value="' . $address_dtails->zip_code . '">
-                            <label for="lname">Enter pin code</label>
                         </div>
                     </div>
                 </div>

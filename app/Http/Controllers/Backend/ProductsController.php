@@ -330,18 +330,16 @@ class ProductsController extends Controller
                 'product_name' => 'required|string|max:255',
                 'product_categories' => 'required|exists:category,id',
                 'hsn_code' => 'nullable|regex:/^\d{4}(\d{2}){0,1}(\d{2}){0,1}$/',
-                'gst_in_percentage' => 'nullable|numeric|min:0|max:100',
-                'products_length' => 'required_without_all:products_breadth,products_height,products_weight,volumetric_weight_kg|numeric|min:0',
-                'products_breadth' => 'required_without_all:products_length,products_height,products_weight,volumetric_weight_kg|numeric|min:0',
-                'products_height' => 'required_without_all:products_length,products_breadth,products_weight,volumetric_weight_kg|numeric|min:0',
-                'products_weight' => 'required_without_all:products_length,products_breadth,products_height,volumetric_weight_kg|numeric|min:0',
-                'volumetric_weight_kg' => 'required_without_all:products_length,products_breadth,products_height,products_weight|numeric|min:0',
+                'gst_in_percentage' => 'nullable|numeric|min:0|max:100',                
             ]);
             //dd( $request->all());
             Log::info('Request Data:', $request->all());
-            $existingProduct = Product::where('title', $request->input('product_name'))->first();
+            $productName = trim($request->input('product_name'));
+            $existingProduct = Product::whereRaw('LOWER(title) = ?', [strtolower($productName)])->first();
+            
             if ($existingProduct) {
-                return redirect()->back()->with('error', 'Product already exists.');
+                Log::info('Duplicate product found:', ['product_name' => $productName]);
+                return redirect()->back()->with('error', 'Product already exists.')->withInput();
             }
             $input = [
                 'title' => $request->input('product_name'),

@@ -481,7 +481,7 @@
                            <div class="col-lg-12">
                               <div class="mb-2">
                                     <h5 class="card-title mb-1 anchor">
-                                       Product Images *
+                                       Product Images
                                     </h5>
                                     <div class="mb-3">
                                        <input type="file" id="image-input" class="form-control" aria-label="file example"  name="product_images[]" accept="image/*" multiple >

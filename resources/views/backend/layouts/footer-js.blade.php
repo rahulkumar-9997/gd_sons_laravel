@@ -11,49 +11,45 @@
 <script src="{{asset('backend/assets/js/datatable.js')}}" type="text/javascript"></script>
 
 <!---RAHUL SCRIPT ADD-->
-
 @if(session()->has('success'))
-    <script>
-        Toastify({
-            text: "{{ session()->get('success') }}",
-            duration: 4000,
-            gravity: "top",
-            position: "right", 
-            className: "bg-success",
-            close: true, 
-            onClick: function() { } 
-        }).showToast();
-    </script>
+<script>
+    Toastify({
+        text: '{{ session('success') }}',
+        duration: 4000,
+        gravity: "top",
+        position: "right", 
+        className: "bg-success",
+        close: true
+    }).showToast();
+</script>
 @endif
+
 @if(session()->has('error'))
-   <script>
+<script>
+    Toastify({
+        text: '{{ session('error') }}',
+        duration: 4000,
+        gravity: "top",
+        position: "right", 
+        className: "bg-danger",
+        close: true
+    }).showToast();
+</script>
+@endif
+
+@if($errors->any())
+<script>
+    @foreach ($errors->all() as $error)
         Toastify({
-            text: "{{ session()->get('error') }}",
+            text: '{{ $error }}',
             duration: 4000,
             gravity: "top",
             position: "right", 
             className: "bg-danger",
-            close: true,
-            onClick: function() { } 
+            close: true
         }).showToast();
-   </script>
-@endif
-
-
-@if($errors->any())
-    <script>
-        @foreach ($errors->all() as $error)
-            Toastify({
-                text: "{{ $error }}",
-                duration: 4000,
-                gravity: "top",
-                position: "right", 
-                className: "bg-danger",
-                close: true, 
-                onClick: function() { } 
-            }).showToast();
-        @endforeach
-    </script>
+    @endforeach
+</script>
 @endif
 
 

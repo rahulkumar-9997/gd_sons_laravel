@@ -1768,7 +1768,7 @@ class FrontendController extends Controller
     public function requestProductEnquiryForm(Request $request){
         $action = $request->input('action');        
         $form = '
-        <form method="POST" action="' . route('request.product.enquiry.submit') . '" accept-charset="UTF-8" enctype="multipart/form-data" id="productEnquiryForm">
+        <!--<form method="POST" action="' . route('request.product.enquiry.submit') . '" accept-charset="UTF-8" enctype="multipart/form-data" id="productEnquiryForm">
             ' . csrf_field() . '
             <input type="hidden" name="check_spam">
             ';
@@ -1869,8 +1869,14 @@ class FrontendController extends Controller
                 $action = 'Modal';
             }
         $form .= '
-        </form>
-        ';
+        </form>-->';
+            $form = '<iframe src="https://forms.wizards.co.in/2a158dfb-e751-4fad-a29d-de2d10ec1805/submit" 
+                        width="100%" 
+                        height="500" 
+                        frameborder="0" 
+                        style="border: none;">
+                </iframe>';
+        
         return response()->json([
             'message' => 'Form created successfully',
             'form' => $form,

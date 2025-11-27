@@ -123,7 +123,47 @@
 
                                                         </div>
                                                         <div>
-                                                            <a href="#!" class="text-dark fw-medium fs-15">{{ ucwords(strtolower($line->product->title)) }}</a>
+                                                            <a href="#!" class="text-dark fw-medium fs-15">
+                                                                {{ ucwords(strtolower($line->product->title)) }}
+                                                            </a>
+                                                            @if($line->product->length && $line->product->breadth &&
+                                                            $line->product->height &&
+                                                            $line->product->weight)
+                                                                <ul>
+                                                                    <li>
+                                                                        <strong>
+                                                                            Length in CM :
+                                                                        </strong>
+                                                                        {{ $line->product->length }}
+                                                                    </li>
+                                                                    <li>
+                                                                        <strong>
+                                                                            Breadth in CM:
+                                                                        </strong>
+                                                                        {{ $line->product->breadth }}
+                                                                    </li>
+                                                                    <li>
+                                                                        <strong>
+                                                                            Height in CM:
+                                                                        </strong>
+                                                                        {{ $line->product->height }}
+                                                                    </li>
+                                                                    <li>
+                                                                        <strong>
+                                                                            Weight in Kg :
+                                                                        </strong>
+                                                                        {{ $line->product->weight }}
+                                                                    </li>
+                                                                    <li>
+                                                                        <strong>
+                                                                            Volumetric Weight Kg :
+                                                                        </strong>
+                                                                         {{ $line->product->volumetric_weight_kg }}
+                                                                    </li>
+                                                                </ul>
+
+                                                            @endif
+
 
                                                         </div>
                                                     </div>

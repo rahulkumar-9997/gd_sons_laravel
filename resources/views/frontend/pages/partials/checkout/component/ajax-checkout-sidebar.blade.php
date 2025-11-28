@@ -125,13 +125,13 @@
                                     data-courier-company-id="{{ $c['courier_company_id'] ?? '' }}"
                                     data-cod-charges="{{ round($c['cod_charges']) ?? 0 }}"
                                     data-courier-id="{{ $c['id'] ?? '' }}"
-                                    data-courier-delivery-expected-date="{{ $c['etd'] ?? '' }}"
+                                    data-courier-delivery-expected-date="{{ \Carbon\Carbon::parse($c['etd'])->addDays(2)->format('M d, Y') }}"
                                     {{ $checked }}>
                                 <label class="form-check-label">
                                     <strong>{{ $c['courier'] }}</strong>
                                     ({{ $c['service'] ?: 'Service' }}) — ₹{{ round($c['rate']) }}
                                 </label>
-                                <p><small class="text-muted">(ETD: {{ $c['etd'] }})</small></p>
+                                <p><small class="text-muted">(ETD: {{ \Carbon\Carbon::parse($c['etd'])->addDays(2)->format('M d, Y') }})</small></p>
                             </div>
                         @endforeach
                     @endif

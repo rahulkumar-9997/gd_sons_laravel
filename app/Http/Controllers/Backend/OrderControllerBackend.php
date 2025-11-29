@@ -352,35 +352,71 @@ class OrderControllerBackend extends Controller
             $response = Http::withToken($token)
             ->timeout(30)
             ->post("https://apiv2.shiprocket.in/v1/external/courier/assign/awb", $payload);
-            $res = $response->json();            
+            $res = $response->json();
             Log::info("AWB API Response Status", ['http_status' => $response->status()]);
-            Log::info("AWB Full Response", $res); 
-            if($response->status() === 200 && isset($res['awb_assign_error'])) {
-                throw new \Exception("AWB Generation Failed: " . $res['awb_assign_error']);
+            Log::info("AWB Full Response", $res);
+
+            /* -----------------------------------------------------------
+            FIX: Shiprocket error formats (nested + direct)
+            ----------------------------------------------------------- */
+
+            $directError  = $res['awb_assign_error'] ?? null;
+            $nestedError  = $res['response']['data']['awb_assign_error'] ?? null;
+
+            if ($directError || $nestedError) {
+                throw new \Exception("AWB Generation Failed: " . ($directError ?? $nestedError));
             }
+
+            /* -----------------------------------------------------------
+            Status 400 handling (your existing logic kept)
+            ----------------------------------------------------------- */
+
             if ($response->status() === 400) {
-                $detailedError = $this->getAWBErrorDetails($token, $sr->shiprocket_shipment_id, $order->shiprocketCourier->courier_company_id);
-                
+                $detailedError = $this->getAWBErrorDetails(
+                    $token,
+                    $sr->shiprocket_shipment_id,
+                    $order->shiprocketCourier->courier_company_id
+                );
                 if (isset($res['message'])) {
-                    if (str_contains(strtolower($res['message']), 'serviceable')) {
-                        throw new \Exception("Courier ID {$order->shiprocketCourier->courier_company_id} is not serviceable for pincode {$order->shippingAddress->pin_code}. Please assign a different courier.");
+                    $msg = strtolower($res['message']);
+                    if (str_contains($msg, 'serviceable')) {
+                        throw new \Exception(
+                            "Courier ID {$order->shiprocketCourier->courier_company_id} ".
+                            "is not serviceable for pincode {$order->shippingAddress->pin_code}. ".
+                            "Please assign a different courier."
+                        );
                     }
-                    if (str_contains(strtolower($res['message']), 'invalid')) {
-                        throw new \Exception("Invalid courier ID {$order->shiprocketCourier->courier_company_id} or shipment not ready for AWB assignment.");
+                    if (str_contains($msg, 'invalid')) {
+                        throw new \Exception(
+                            "Invalid courier ID {$order->shiprocketCourier->courier_company_id} ".
+                            "or shipment not ready for AWB assignment."
+                        );
                     }
                 }
-                
-                throw new \Exception("AWB Generation Failed: " . ($res['message'] ?? 'Unknown error. Check available couriers.'));
+
+                throw new \Exception("AWB Generation Failed: " . ($res['message'] ?? 'Unknown error.'));
             }
 
-            if ($response->failed()) {
-                throw new \Exception("HTTP Error {$response->status()}: " . ($res['message'] ?? 'AWB generation failed'));
+            /* -----------------------------------------------------------
+            FIX: Shiprocket sends status_code 350 for wallet issues
+            ----------------------------------------------------------- */
+
+            if (($res['status_code'] ?? 200) != 200) {
+                throw new \Exception($res['message'] ?? "AWB generation failed. Invalid response.");
             }
 
+            /* -----------------------------------------------------------
+            FIX: AWB must have assign_status = 1
+            ----------------------------------------------------------- */
             if (!isset($res['awb_assign_status']) || $res['awb_assign_status'] != 1) {
                 throw new \Exception($res['message'] ?? "AWB generation failed - invalid response");
             }
-            $data = $res['response']['data'];
+
+            /* -----------------------------------------------------------
+            SUCCESS — extract data
+            ----------------------------------------------------------- */
+
+            $data = $res['response']['data'] ?? [];
             $awb_response = ShiprocketShipmentAwbResponse::updateOrCreate(
                 ['order_id' => $id],
                 [

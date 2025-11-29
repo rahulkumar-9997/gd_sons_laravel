@@ -970,7 +970,7 @@ class OrderController extends Controller
             'shippingAddress',
             'billingAddress',
             'orderLines.product',
-            'orderLines.product.images'
+            'orderLines.product.images',
         ])
             ->where('customer_id', $customerId)
             ->orderBy('id', 'desc')->get();
@@ -989,6 +989,7 @@ class OrderController extends Controller
             'billingAddress',
             'orderLines.product',
             'orderLines.product.images',
+            'shiprocketCourier',
             'orderLines.product.ProductAttributesValues' => function ($query) {
                 $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
                     ->with([

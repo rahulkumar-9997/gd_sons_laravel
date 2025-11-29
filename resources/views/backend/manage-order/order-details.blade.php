@@ -325,7 +325,23 @@
                                 @if($order->shiprocketCourier)
                                     <tr>
                                         <td class="px-0">
-                                            <p class="d-flex mb-0 align-items-center gap-1"><iconify-icon icon="solar:kick-scooter-broken" class="align-middle"></iconify-icon> Delivery Charge : </p>
+                                            <p class="d-flex mb-0 align-items-center gap-1">
+                                                <iconify-icon icon="solar:kick-scooter-broken" class="align-middle"></iconify-icon> 
+                                                Delivery Charge : 
+                                                
+                                            </p>
+                                            <p class="mb-0">
+                                                <span class="text-success">
+                                                <strong> Courier Partner :</strong>
+                                                {{ $order->shiprocketCourier->courier_name }}
+                                                </span>
+                                            </p>
+                                            <p>
+                                                <span class="text-success">
+                                                <strong> Delivery Expected Date :</strong>
+                                                {{ $order->shiprocketCourier->delivery_expected_date }}
+                                                </span>
+                                            </p>
                                         </td>
                                         <td class="text-end text-dark fw-medium px-0">
                                             Rs. {{ number_format( $order->shiprocketCourier->courier_shipping_rate, 2) }}

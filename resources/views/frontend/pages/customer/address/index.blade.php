@@ -103,6 +103,7 @@
                                                                 <label for="fname">Enter full name</label>
                                                             </div>
                                                         </div>
+
                                                         <div class="col-md-6">
                                                             <div class="form-floating mb-4 theme-form-floating">
                                                                 <input type="text" class="form-control" name="phone_number" placeholder="Enter phone number" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, " ")"=""
@@ -123,24 +124,34 @@
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="form-floating mb-4 theme-form-floating">
+                                                                <input type="text" name="pin_code" class="form-control" placeholder="Enter pin code" id="checkout_pincode_add_new_address">
+                                                                <label for="lname">Enter pin code</label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-floating mb-4 theme-form-floating">
                                                                 <input type="text" class="form-control" name="full_address" placeholder="Enter address">
                                                                 <label for="lname">Enter address</label>
                                                             </div>
                                                         </div>
-                                                        <div class="col-md-12">
+                                                        <div class="col-md-6">
                                                             <div class="form-floating mb-4 theme-form-floating">
                                                                 <input type="text" class="form-control" name="apartment" placeholder="Apartment, suite, etc. (optional)">
                                                                 <label for="lname">Apartment, suite, etc. (optional)</label>
                                                             </div>
                                                         </div>
-                                                        <div class="col-md-4">
+                                                        <div class="col-md-6">
                                                             <div class="form-floating mb-4 theme-form-floating">
-                                                                <input type="text" class="form-control" name="city_name" placeholder="Enter city">
+                                                                <input type="text" class="form-control" name="city_name" placeholder="Enter city" readonly>
                                                                 <label for="lname">Enter city</label>
                                                             </div>
                                                         </div>
-                                                        <div class="col-md-4">
-                                                            <div class="select-option">
+                                                        <div class="col-md-6">
+                                                            <div class="form-floating mb-4 theme-form-floating">
+                                                                <input type="text" class="form-control" name="state" placeholder="Enter state" readonly>
+                                                                <label for="lname" readonly>Enter state</label>
+                                                            </div>
+                                                            <!-- <div class="select-option">
                                                                 <div class="form-floating theme-form-floating mb-4 ">
                                                                     <select class="form-select theme-form-select" name="state">
                                                                         <option value="Uttar Pradesh">Uttar Pradesh
@@ -148,14 +159,9 @@
                                                                     </select>
                                                                     <label>Select State</label>
                                                                 </div>
-                                                            </div>
+                                                            </div> -->
                                                         </div>
-                                                        <div class="col-md-4">
-                                                            <div class="form-floating mb-4 theme-form-floating">
-                                                                <input type="text" name="pin_code" class="form-control" placeholder="Enter pin code">
-                                                                <label for="lname">Enter pin code</label>
-                                                            </div>
-                                                        </div>
+                                                        
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary btn-md close-form">Close</button>
@@ -188,8 +194,10 @@
         editAddress: "{{ route('address.edit', ':id') }}",
         updateAddress: "{{ route('address.update', ':id') }}"
     };
+    window.shiprocketCheckLocalityUrl = "{{ route('ajax.check-shiprocket-locality-details') }}";
 </script>
 <script src="{{asset('frontend/assets/js/pages/customer-address.js') }}"></script>
+<script src="{{asset('frontend/assets/js/pages/shiprocket_serviceability_check.js')}}?={{ time() }}"></script>
 <script>
    $(document).ready(function () {
         $('#add-new-address').on('click', function () {

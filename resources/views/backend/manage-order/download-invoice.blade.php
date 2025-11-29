@@ -108,6 +108,11 @@
                                                         <p style="margin-top: 3px; margin-bottom: 3px;">
                                                             {{ $order->shippingAddress->full_address ?? 'N/A' }}
                                                         </p>
+                                                        @if($order->shippingAddress->apartment)
+                                                        <p style="margin-top: 3px; margin-bottom: 3px;">
+                                                            {{ $order->shippingAddress->apartment ?? 'N/A' }}
+                                                        </p>
+                                                        @endif
                                                         <p style="margin-top: 3px; margin-bottom: 3px;">
                                                             {{ $order->shippingAddress->city_name ?? 'N/A' }}, {{ $order->shippingAddress->state ?? 'N/A' }} {{ $order->shippingAddress->pin_code ?? 'N/A' }}
                                                         </p>
@@ -127,6 +132,11 @@
                                                             <p style="margin-top: 3px; margin-bottom: 3px;">
                                                                 {{ $order->billingAddress->full_address ?? 'N/A' }}
                                                             </p>
+                                                             @if($order->billingAddress->apartment)
+                                                            <p style="margin-top: 3px; margin-bottom: 3px;">
+                                                                {{ $order->billingAddress->apartment ?? 'N/A' }}
+                                                            </p>
+                                                            @endif
                                                             <p style="margin-top: 3px; margin-bottom: 3px;">
                                                                 {{ $order->billingAddress->city_name ?? 'N/A' }},
                                                                 {{ $order->billingAddress->state ?? 'N/A' }}
@@ -147,6 +157,11 @@
                                                             <p style="margin-top: 3px; margin-bottom: 3px;">
                                                                 {{ $order->shippingAddress->full_address ?? 'N/A' }}
                                                             </p>
+                                                            @if($order->shippingAddress->apartment)
+                                                            <p style="margin-top: 3px; margin-bottom: 3px;">
+                                                                {{ $order->shippingAddress->apartment ?? 'N/A' }}
+                                                            </p>
+                                                            @endif
                                                             <p style="margin-top: 3px; margin-bottom: 3px;">
                                                                 {{ $order->shippingAddress->city_name ?? 'N/A' }}, {{ $order->shippingAddress->state ?? 'N/A' }} {{ $order->shippingAddress->pin_code ?? 'N/A' }}
                                                             </p>
@@ -212,6 +227,11 @@
                                 <!-- <tr>
                                     <td colspan="3" align="right" style="padding-top: 5px; padding-bottom: 5px;"> GST (@5%): <b>Rs. 305.48 </b> </td>
                                 </tr> -->
+                                @if($order->shiprocketCourier)
+                                <tr>
+                                    <td colspan="3" align="right" style="padding-top: 5px; padding-bottom: 5px;"> Shipping Charges: <b>Rs. {{ $order->shiprocketCourier->courier_shipping_rate }} </b> </td>
+                                </tr>
+                                @endif
                                 <tr>
                                     <td colspan="3" align="right" style="padding-top: 5px; padding-bottom: 5px;"> Total Amount: <b>Rs. {{ number_format($order->grand_total_amount, 2)	}} </b> </td>
                                 </tr>

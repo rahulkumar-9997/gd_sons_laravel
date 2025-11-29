@@ -146,7 +146,8 @@ class OrderControllerBackend extends Controller
             'shippingAddress', 
             'billingAddress', 
             'orderLines.product', 
-            'orderLines.product.images'
+            'orderLines.product.images',
+            'shiprocketCourier'
         ])->where('id', $orderId)->first();
         if (!$order) {
             abort(404, 'Order not found');

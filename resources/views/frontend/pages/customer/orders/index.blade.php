@@ -88,7 +88,7 @@
                                                         <h4 style="color:#212529">
                                                             Order Status:
                                                             <span>
-                                                                {{ $orderItem->orderStatus->status ?? 'Pending' }}
+                                                                {{ $orderItem->orderStatus->status_name ?? 'Pending' }}
                                                             </span>
                                                             <span class="success-bg">
                                                                 {{ $orderItem->order_id }}
@@ -106,9 +106,9 @@
                                                         <h5 class="order-date" style="padding: 2px 0 2px 0;">
                                                             {{ $orderItem->created_at->translatedFormat('d F Y') }}
                                                         </h5>
-                                                        <p class="text-content" style="margin-bottom: 0px;">
+                                                        <!-- <p class="text-content" style="margin-bottom: 0px;">
                                                             <strong>Total Items in Order:</strong> {{ $orderItem->orderLines->count() }}
-                                                        </p>
+                                                        </p> -->
                                                     </div>
                                                 </div>
 

@@ -35,14 +35,19 @@
             <td>
                 Rs. {{ number_format($order->grand_total_amount, 2) }}
                 @if($order->shiprocketCourier)
-                    <labe class="ms-2 fs-20 text-success cursor-pointer"
-                        data-bs-toggle="tooltip" data-bs-placement="top"
-                        title="Shiprocket Courier: {{ $order->shiprocketCourier->courier_name }}
-                        / Rs. {{ $order->shiprocketCourier->courier_shipping_rate }}">
-                        <i class="ti ti-question-mark"></i>
-                    </labe>
+                <label class="ms-2 fs-20 text-success cursor-pointer"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    data-bs-html="true"
+                    title="
+                        Shiprocket Courier: <strong>{{ $order->shiprocketCourier->courier_name }}</strong><br>
+                        Rate: <strong>Rs. {{ $order->shiprocketCourier->courier_shipping_rate }}</strong><br>
+                        Delivery Expected: <strong>{{ $order->shiprocketCourier->delivery_expected_date }}</strong>
+                    ">
                     
-                @endif
+                    <i class="ti ti-question-mark"></i>
+                </label>
+            @endif
             </td>
             <td>
                 <span class="badge border border-success text-success">{{ $order->payment_mode }}</span>

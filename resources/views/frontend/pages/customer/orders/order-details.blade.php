@@ -84,7 +84,7 @@
                                             </div>
 
                                             <div class="order-detail">
-                                                <h4>Order Status: <span>{{ $order->orderStatus->status ?? 'Pending' }}</span>
+                                                <h4>Order Status: <span>{{ $order->orderStatus->status_name ?? 'Pending' }}</span>
                                                 <span class="success-bg">
                                                     {{ $order->order_id }}
                                                 </span>
@@ -157,6 +157,9 @@
                                                             {{ $order->shippingAddress->phone_number }}
                                                             </h4>
                                                             <h4 class="mt-2">{{ $order->shippingAddress->full_address }}</h4>
+                                                            @if($order->shippingAddress->apartment )
+                                                                <h4 class="mt-2">{{ $order->shippingAddress->apartment }}</h4>
+                                                            @endif
                                                             <h4 class="mt-2">{{ $order->shippingAddress->city_name }}, {{ $order->shippingAddress->state }} {{ $order->shippingAddress->pin_code }}</h4>
                                                         </li>
                                                         
@@ -181,6 +184,9 @@
                                                             {{ $order->billingAddress->phone_number }}
                                                             </h4>
                                                                 <h4 class="mt-2">{{ $order->billingAddress->full_address }}</h4>
+                                                                @if($order->billingAddress->apartment)
+                                                                    <h4 class="mt-2">{{ $order->billingAddress->full_address }}</h4>
+                                                                @endif
                                                                 <h4 class="mt-2">{{ $order->billingAddress->city_name }}, {{ $order->billingAddress->state }} {{ $order->billingAddress->pin_code }}</h4>
                                                             </li>
                                                         </ul>
@@ -192,14 +198,16 @@
                                             <div class="col-lg-12">
                                                 <div class="order-totals-container">
                                                     <table class="table">
+                                                        @if($order->shiprocketCourier)
                                                         <tr>
                                                             <th>
-                                                                <span>Delivery:</span>
+                                                                <span>Delivery Charges:</span>
                                                             </th>
                                                             <td>
-                                                                <span>Free</span>
+                                                                <span>Rs. {{ $order->shiprocketCourier->courier_shipping_rate }}</span>
                                                             </td>
                                                         </tr>
+                                                        @endif
                                                         <tr class="OrderTotals-total">
                                                             <th>
                                                                 <span>Total</span>

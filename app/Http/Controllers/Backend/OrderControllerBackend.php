@@ -466,12 +466,10 @@ class OrderControllerBackend extends Controller
             Log::error("AWB Generation Error", [
                 'error' => $e->getMessage(),
                 'order_id' => $id
-            ]);
-            
+            ]);            
             if ($auto) {
                 throw $e;
-            }
-            
+            }            
             return $this->errorResponse($e->getMessage());
         }
     }

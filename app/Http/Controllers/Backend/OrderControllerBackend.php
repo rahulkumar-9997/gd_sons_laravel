@@ -339,7 +339,9 @@ class OrderControllerBackend extends Controller
             if (!$order->shiprocketCourier) {
                 throw new \Exception("Courier not assigned in admin.");
             }
+            
             $token = $this->shiprocket->getToken();
+            
             if (empty($sr->shiprocket_shipment_id)) {
                 throw new \Exception("Shipment ID is empty. Please check order creation.");
             }
@@ -348,10 +350,13 @@ class OrderControllerBackend extends Controller
                 "shipment_id" => (string)$sr->shiprocket_shipment_id,
                 "courier_id"  => $order->shiprocketCourier->courier_company_id
             ];
+            
             Log::info("AWB Generation Payload", $payload);
+            
             $response = Http::withToken($token)
-            ->timeout(30)
-            ->post("https://apiv2.shiprocket.in/v1/external/courier/assign/awb", $payload);
+                ->timeout(30)
+                ->post("https://apiv2.shiprocket.in/v1/external/courier/assign/awb", $payload);
+                
             $res = $response->json();
             Log::info("AWB API Response Status", ['http_status' => $response->status()]);
             Log::info("AWB Full Response", $res);
@@ -359,7 +364,6 @@ class OrderControllerBackend extends Controller
             /* -----------------------------------------------------------
             FIX: Shiprocket error formats (nested + direct)
             ----------------------------------------------------------- */
-
             $directError  = $res['awb_assign_error'] ?? null;
             $nestedError  = $res['response']['data']['awb_assign_error'] ?? null;
 
@@ -368,15 +372,15 @@ class OrderControllerBackend extends Controller
             }
 
             /* -----------------------------------------------------------
-            Status 400 handling (your existing logic kept)
+            Status 400 handling
             ----------------------------------------------------------- */
-
             if ($response->status() === 400) {
                 $detailedError = $this->getAWBErrorDetails(
                     $token,
                     $sr->shiprocket_shipment_id,
                     $order->shiprocketCourier->courier_company_id
                 );
+                
                 if (isset($res['message'])) {
                     $msg = strtolower($res['message']);
                     if (str_contains($msg, 'serviceable')) {
@@ -393,14 +397,12 @@ class OrderControllerBackend extends Controller
                         );
                     }
                 }
-
                 throw new \Exception("AWB Generation Failed: " . ($res['message'] ?? 'Unknown error.'));
             }
 
             /* -----------------------------------------------------------
             FIX: Shiprocket sends status_code 350 for wallet issues
             ----------------------------------------------------------- */
-
             if (($res['status_code'] ?? 200) != 200) {
                 throw new \Exception($res['message'] ?? "AWB generation failed. Invalid response.");
             }
@@ -413,51 +415,83 @@ class OrderControllerBackend extends Controller
             }
 
             /* -----------------------------------------------------------
-            SUCCESS — extract data
+            SUCCESS — extract data and perform database operations
             ----------------------------------------------------------- */
-
             $data = $res['response']['data'] ?? [];
+            if (empty($data['awb_code'])) {
+                throw new \Exception("AWB code missing from response");
+            }
+            
+            if (empty($data['shipment_id'])) {
+                throw new \Exception("Shipment ID missing from response");
+            }
+            
+            $awbData = [
+                'order_id' => $id,
+                'shipment_id' => $data['shipment_id'],
+                'courier_company_id' => $data['courier_company_id'] ?? null,
+                'awb_code' => $data['awb_code'],
+                'courier_name' => $data['courier_name'] ?? null,
+                'applied_weight' => $data['applied_weight'] ?? null,
+                'company_id' => $data['company_id'] ?? null,
+                'child_courier_name' => $data['child_courier_name'] ?? null,
+                'pickup_scheduled_date' => $data['pickup_scheduled_date'] ?? null,
+                'routing_code' => $data['routing_code'] ?? null,
+                'rto_routing_code' => $data['rto_routing_code'] ?? null,
+                'invoice_no' => $data['invoice_no'] ?? null,
+                'transporter_id' => $data['transporter_id'] ?? null,
+                'transporter_name' => $data['transporter_name'] ?? null,
+                'shipped_by' => isset($data['shipped_by']) ? json_encode($data['shipped_by']) : null,
+                'assigned_date_time' => isset($data['assigned_date_time']['date']) ? 
+                    $data['assigned_date_time']['date'] : null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+            $awbData = array_filter($awbData, function($value) {
+                return $value !== null;
+            });
             $awb_response = ShiprocketShipmentAwbResponse::updateOrCreate(
                 ['order_id' => $id],
-                [
-                    'shipment_id' => $data['shipment_id'] ?? null,
-                    'courier_company_id' => $data['courier_company_id'] ?? null,
-                    'awb_code' => $data['awb_code'] ?? null,                 
-                    'courier_name' => $data['courier_name'] ?? null,
-                    'applied_weight' => $data['applied_weight'] ?? null,
-                    'company_id' => $data['company_id'] ?? null,
-                    'child_courier_name' => $data['child_courier_name'] ?? null,
-                    'pickup_scheduled_date' => $data['pickup_scheduled_date'] ?? null,
-                    'routing_code' => $data['routing_code'] ?? null,
-                    'rto_routing_code' => $data['rto_routing_code'] ?? null,
-                    'invoice_no' => $data['invoice_no'] ?? null,
-                    'transporter_id' => $data['transporter_id'] ?? null,
-                    'transporter_name' => $data['transporter_name'] ?? null,
-                    'shipped_by' => isset($data['shipped_by']) ? json_encode($data['shipped_by']) : null,
-                    'assigned_date_time' => isset($data['assigned_date_time']['date']) ? $data['assigned_date_time']['date'] : null,
-                ]
+                $awbData
             );
+            Log::info("AWB Response Record Created/Updated", [
+                'order_id' => $id,
+                'awb_code' => $data['awb_code'],
+                'awb_response_id' => $awb_response->id
+            ]);
+            $updateData = [
+                'shiprocket_awb_code' => $data['awb_code'],
+                'is_awb_generated' => 1,
+            ];
             
-            $sr->update([
-                'shiprocket_awb_code' => $data['awb_code'] ?? null,
-                'is_awb_generated' => 1
-            ]);            
-            
+            $sr->update($updateData);            
+            // Also update the order status if needed
+            // $order->update(['status' => 'awb_generated']);            
             DB::commit();            
-            $message = 'AWB Generated Successfully';            
+            Log::info("AWB Generated Successfully", [
+                'order_id' => $id,
+                'awb_code' => $data['awb_code']
+            ]);
+            
+            $message = 'AWB Generated Successfully';
+            
             /* ----------------------- AUTO Pickup ----------------------- */
-            // try {
-            //     $pickupResult = $this->pickup($request, $id, true);
-            //     if ($pickupResult === true) {
-            //         $message .= ' + Pickup Scheduled';
-            //     }
-            // } catch (\Exception $e) {
-            //     Log::error("Auto Pickup Scheduling Failed", [
-            //         'order_id' => $id,
-            //         'error' => $e->getMessage()
-            //     ]);
-            //     $message .= ' (Pickup Scheduling Failed: ' . $e->getMessage() . ')';
-            // }            
+            // Uncomment and modify as needed
+            /*
+            try {
+                $pickupResult = $this->pickup($request, $id, true);
+                if ($pickupResult === true) {
+                    $message .= ' + Pickup Scheduled';
+                }
+            } catch (\Exception $e) {
+                Log::error("Auto Pickup Scheduling Failed", [
+                    'order_id' => $id,
+                    'error' => $e->getMessage()
+                ]);
+                $message .= ' (Pickup Scheduling Failed: ' . $e->getMessage() . ')';
+            }
+            */
+            
             if ($auto) return true;            
             return $this->successResponse($message, $request);
             
@@ -465,11 +499,14 @@ class OrderControllerBackend extends Controller
             DB::rollBack();
             Log::error("AWB Generation Error", [
                 'error' => $e->getMessage(),
-                'order_id' => $id
-            ]);            
+                'order_id' => $id,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             if ($auto) {
                 throw $e;
-            }            
+            }
+            
             return $this->errorResponse($e->getMessage());
         }
     }

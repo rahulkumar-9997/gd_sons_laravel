@@ -16,7 +16,7 @@
                                 <a href="{{ route('categories', ['categorySlug' => $category->slug]) }}" class="category-link circle-{{ ($index % 4) + 1 }}">
                                     <div class="category-img-container">
                                         @if($category->image)
-                                        <img src="{{ asset('images/category/icon/'.$category->image) }}" class="img-fluid blur-up lazyload"
+                                        <img src="https://www.cdn.gdsons.co.in/category/icon/{{ $category->image }}" class="img-fluid blur-up lazyload"
                                             alt="{{ $category->title }}" loading="lazy">
                                         @else
                                         <img src="https://themes.pixelstrap.com/fastkart/assets/images/veg-3/category/1.png" class="img-fluid blur-up lazyload" alt="{{ $category->title }}" loading="lazy">
@@ -381,13 +381,16 @@
                                                         <picture>
                                                             <source
                                                                 media="(max-width: 767px)"
-                                                                srcset="{{ asset('images/product/icon/' . $firstImage->image_path) }}">
+                                                                srcset="https://www.cdn.gdsons.co.in/product/icon/{{ $firstImage->image_path }}">
+
                                                             <img
                                                                 class="img-fluid blur-up lazyload"
-                                                                data-src="{{ asset('images/product/thumb/' . $firstImage->image_path) }}"
+                                                                data-src="https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImage->image_path }}"
                                                                 src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                                srcset="{{ asset('images/product/thumb/' . $firstImage->image_path) }} 600w, 
-                                                            {{ asset('images/product/thumb/' . $firstImage->image_path) }} 1200w"
+                                                                srcset="
+                                                                    https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImage->image_path }} 600w,
+                                                                    https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImage->image_path }} 1200w
+                                                                "
                                                                 sizes="(max-width: 600px) 600px, 1200px"
                                                                 alt="{{ $popular_product_row->title }}"
                                                                 title="{{ $popular_product_row->title }}"
@@ -396,6 +399,7 @@
                                                                 height="300"
                                                                 onload="this.style.opacity=1">
                                                         </picture>
+
                                                         @else
                                                         <img
                                                             src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
@@ -513,13 +517,16 @@
                                                         <picture>
                                                             <source
                                                                 media="(max-width: 767px)"
-                                                                srcset="{{ asset('images/product/icon/' . $firstImageTrending->image_path) }}">
+                                                                srcset="https://www.cdn.gdsons.co.in/product/icon/{{ $firstImageTrending->image_path }}">
+
                                                             <img
                                                                 class="img-fluid blur-up lazyload"
-                                                                data-src="{{ asset('images/product/thumb/' . $firstImageTrending->image_path) }}"
+                                                                data-src="https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImageTrending->image_path }}"
                                                                 src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                                srcset="{{ asset('images/product/thumb/' . $firstImageTrending->image_path) }} 600w, 
-                                                                    {{ asset('images/product/thumb/' . $firstImageTrending->image_path) }} 1200w"
+                                                                srcset="
+                                                                    https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImageTrending->image_path }} 600w,
+                                                                    https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImageTrending->image_path }} 1200w
+                                                                "
                                                                 sizes="(max-width: 600px) 600px, 1200px"
                                                                 alt="{{ $trending_products_row->title }}"
                                                                 title="{{ $trending_products_row->title }}"
@@ -528,6 +535,7 @@
                                                                 height="300"
                                                                 onload="this.style.opacity=1">
                                                         </picture>
+
                                                         @else
                                                         <img
                                                             src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"

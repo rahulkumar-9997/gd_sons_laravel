@@ -229,9 +229,6 @@ $groupNames = $groupCategory->customerGroup->name;
                      <li>
                      <a href="{{ route('terms-of-use') }}#returns-and-cancellations">Return / Refund</a>
                      </li>
-                     <li>
-                     <a href="{{ route('terms-of-use') }}#returns-and-cancellations">Track your order</a>
-                     </li>
                   </ul>
                </div>
             </div>

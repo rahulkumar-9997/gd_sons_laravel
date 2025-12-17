@@ -1871,11 +1871,11 @@ class FrontendController extends Controller
         $form .= '
         </form>-->';
             $form = '<iframe src="https://forms.wizards.co.in/2a158dfb-e751-4fad-a29d-de2d10ec1805/submit" 
-            width="100%" 
-            height="500" 
-            frameborder="0" 
-            style="border: none;">
-            </iframe>';
+                        width="100%" 
+                        height="500" 
+                        frameborder="0" 
+                        style="border: none;">
+                </iframe>';
         
         return response()->json([
             'message' => 'Form created successfully',

@@ -30,20 +30,21 @@ use App\Models\ShiprocketCourier;
 class OrderController extends Controller
 {
 
-    public function checkOutFormSubmit(Request $request)
+    public function checkOutFormSubmit_old(Request $request)
     {
-        $addressExists = isset($request->customer_address_id) && $request->customer_address_id != '';
-
-        if ($request->pick_up_status == 'pick_up_store') {
-            // Handle store pickup logic
-        } else {
-            if ($addressExists) {
-                $validatedData = $request->validate([
+        $addressExists = isset($request->customer_address_id) && $request->customer_address_id != '';        
+        if($request->pick_up_status == 'pick_up_online')
+        {
+            if ($addressExists)
+            {
+                $request->validate([
                     'customer_address_id' => 'required|exists:addresses,id',
                     'same_ship_bill_address' => 'nullable|boolean',
                 ] + $this->getBillingValidation());
-            } else {
-                $validatedData = $request->validate([
+            }
+            else
+            {
+                $request->validate([
                     'ship_full_name' => 'required|string|max:255',
                     'ship_phone_number' => 'required|digits:10',
                     'ship_email' => 'required|email',
@@ -52,8 +53,16 @@ class OrderController extends Controller
                     'ship_city_name' => 'required|string',
                     'ship_state' => 'required',
                     'ship_pin_code' => 'required|digits:6',
-                ] + $this->getBillingValidation());
+                ]);
             }
+            $request->validate([
+                'courier_name' => 'required|string|max:255',
+                'courier_id' => 'required|string|max:100',
+                'courier_company_id' => 'required|numeric',
+                'shipping_rate' => 'required|numeric|min:0',
+                'cod_charges' => 'nullable|numeric|min:0',
+                'delivery_expected_date' => 'required|string|max:50',
+            ]);
         }
 
         $cartItems = [];
@@ -156,6 +165,208 @@ class OrderController extends Controller
             ]);
         }
     }
+
+    public function checkOutFormSubmit(Request $request)
+    {
+        $validatedData = $request->validate([
+            'pick_up_status' => 'required|string|in:pick_up_online,pick_up_offline',
+            'payment_type' => 'required|string|in:Cash on Delivery,Razorpay',
+            'product_id' => 'required|array',
+            'product_id.*' => 'required|integer|exists:products,id',
+            'cart_quantity' => 'required|array',
+            'cart_quantity.*' => 'required|integer|min:1',
+            'cart_offer_rate' => 'required|array',
+            'cart_offer_rate.*' => 'required|numeric|min:0',
+            'total_price' => 'required|array',
+            'total_price.*' => 'required|numeric|min:0',
+            'grand_total_amount' => 'required|numeric|min:0',
+        ]);
+        $addressExists = isset($request->customer_address_id) && $request->customer_address_id != '';        
+        if($request->pick_up_status == 'pick_up_online')
+        {
+            if ($addressExists)
+            {
+                $request->validate([
+                    'customer_address_id' => 'required|integer|exists:addresses,id',
+                    'same_ship_bill_address' => 'nullable|boolean',
+                ] + $this->getBillingValidation());
+            }
+            else
+            {
+                $request->validate([
+                    'ship_full_name' => 'required|string|max:255',
+                    'ship_phone_number' => 'required|digits:10',
+                    'ship_email' => 'required|email|max:255',
+                    'ship_country' => 'required|string',
+                    'ship_full_address' => 'required|string',
+                    'ship_city_name' => 'required|string|max:255',
+                    'ship_state' => 'required|string',
+                    'ship_pin_code' => 'required|digits:6',
+                ]);
+            }            
+            $request->validate([
+                'courier_name' => 'required|string|max:255',
+                'courier_id' => 'required|string|max:100',
+                'courier_company_id' => 'required|integer',
+                'shipping_rate' => 'required|numeric|min:0',
+                'cod_charges' => 'nullable|numeric|min:0',
+                'delivery_expected_date' => 'required|string|max:50',
+            ]);
+        }
+        else
+        {
+            $request->validate([
+                'store_location_id' => 'required|integer|exists:store_locations,id',
+                'pickup_date' => 'required|date',
+                'pickup_time' => 'required|string',
+            ]);
+        }
+        $productIds = $request->input('product_id', []);
+        $quantities = $request->input('cart_quantity', []);
+        $prices = $request->input('cart_offer_rate', []);
+        $totalPrices = $request->input('total_price', []);        
+        if (count($productIds) !== count($quantities) || 
+            count($productIds) !== count($prices) || 
+            count($productIds) !== count($totalPrices)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Cart data arrays must have the same length'
+            ], 422);
+        }
+
+        $cartItems = [];
+        foreach ($productIds as $index => $productId) {
+            if (!isset($quantities[$index]) || !isset($prices[$index]) || !isset($totalPrices[$index])) {
+                continue; 
+            }
+            
+            $cartItems[] = [
+                'product_id' => $productId,
+                'quantity' => $quantities[$index],
+                'price' => $prices[$index],
+                'total_price' => $totalPrices[$index],
+            ];            
+        }        
+        if (empty($cartItems)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Cart is empty'
+            ], 422);
+        }
+
+        /*Courier Serviceability check */
+        $courierData = [];
+        if($request->pick_up_status == 'pick_up_online') {
+            $courierData = [
+                'courier_name' => $request->input('courier_name'),
+                'courier_id' => $request->input('courier_id'),
+                'courier_company_id' => $request->input('courier_company_id'),
+                'courier_shipping_rate' => $request->input('shipping_rate'),
+                'cod_charges' => $request->input('cod_charges'),
+                'delivery_expected_date' => $request->input('delivery_expected_date'),
+            ];
+        }
+        session([
+            'checkout_data' => $request->all(),
+            'cart_items' => $cartItems,
+            'courierData' => $courierData,
+        ]);        
+        session()->save();
+        if ($request->input('payment_type') == 'Cash on Delivery')
+        {
+            try {
+                $response = $this->storeOrderAfterPayment($request);
+                return response()->json([
+                    'data' => $response,
+                    'status' => 'cash_on_delivery',
+                ]);
+            } catch (\Exception $e) {
+                Log::error('COD Order creation failed: ' . $e->getMessage());
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Order creation failed'
+                ], 500);
+            }
+        }
+        elseif ($request->input('payment_type') == 'Razorpay')
+        {
+            try {
+                $orderResponse = $this->storeOrderAfterPayment($request);
+                if (is_string($orderResponse)) {
+                    $responseData = json_decode($orderResponse, true);
+                } elseif ($orderResponse instanceof \Illuminate\Http\JsonResponse) {
+                    $responseData = $orderResponse->getData(true);
+                } elseif (is_object($orderResponse)) {
+                    $responseData = (array) $orderResponse;
+                } else {
+                    $responseData = $orderResponse;
+                }                
+                if (!isset($responseData['order_id'])) {
+                    Log::error('Order creation failed - no order ID returned', ['response' => $responseData]);
+                    return response()->json([
+                        'status' => 'error', 
+                        'message' => 'Order creation failed'
+                    ], 500);
+                }
+                $order = Orders::find($responseData['order_id']);
+                if (!$order) {
+                    Log::error('Created order not found', ['order_id' => $responseData['order_id']]);
+                    throw new \Exception('Created order not found');
+                }
+                
+                $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+                $grandTotal = $request->input('grand_total_amount');
+                if (!is_numeric($grandTotal) || $grandTotal <= 0) {
+                    $order->delete();
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Invalid order amount'
+                    ], 422);
+                }                
+                $razorpayAmount = $grandTotal * 100;
+                $orderData = [
+                    'receipt' => 'order_rcpt_' . $order->id,
+                    'amount' => (int) $razorpayAmount,
+                    'currency' => 'INR',
+                    'payment_capture' => 1,
+                    'notes' => [
+                        'order_db_id' => $order->id
+                    ]
+                ];
+                $razorpayOrder = $api->order->create($orderData);                
+                return response()->json([
+                    'status' => 'razorpay',
+                    'order_id' => $razorpayOrder->id,
+                    'amount' => $razorpayAmount,
+                    'name' => auth('customer')->user()->name ?? $request->ship_full_name ?? 'Customer',
+                    'email' => auth('customer')->user()->email ?? $request->ship_email,
+                    'contact' => auth('customer')->user()->phone_number ?? $request->ship_phone_number,
+                    'callback_url' => route('razorpay.callback'),
+                    'payment_failed_url' => route('payment.failed'),
+                    'order_db_id' => $order->id
+                ]);
+                
+            } catch (\Exception $e) {
+                if (isset($order) && $order instanceof Orders) {
+                    $order->delete();
+                }
+                Log::error('Razorpay payment initiation failed: ' . $e->getMessage());
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Payment initiation failed'
+                ], 500);
+            }
+        }
+        else
+        {
+            Log::warning('Unknown payment type selected: ' . $request->input('payment_type'));
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid payment method selected'
+            ], 422);
+        }
+    }
+
 
     public function handleRazorpayCallback(Request $request)
     {

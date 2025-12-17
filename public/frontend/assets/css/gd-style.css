@@ -2271,3 +2271,74 @@ a.cntshop {
 .flex-detail{
   max-width: 200px;
 }
+.product-section-box #description ul{
+    list-style: none;
+    padding: 0px;
+    position: relative;
+}
+.product-section-box #description ul li{
+    padding: 0px;
+    position: relative;
+    line-height: 1.7em;
+    margin-bottom: 8px;
+    padding-left: 25px;
+    display: block;
+}
+.product-section-box #description ul li::before{
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 14px;
+    display: block;
+    position: absolute;
+    content: "\f054";
+    left: 0;
+    top: -1px;
+    color: #000;
+}
+.product-description-content ul li{
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 24px;
+}
+.product-description-content h1,
+.product-description-content h2,
+.product-description-content h3,
+.product-description-content h4,
+.product-description-content h5,
+.product-description-content h6
+{
+  margin-bottom: 10px;
+}
+
+.product-description-content h1
+{
+  font-size: 24px;
+}
+.product-description-content h2
+{
+  font-size: 22px;
+}
+.product-description-content h3
+{
+  font-size: 20px;
+}
+.product-description-content h4
+{
+  font-size: 18px;
+}
+.product-description-content h5
+{
+  font-size: 16px;
+}
+.product-description-content h6
+{
+  font-size: 16px;
+}
+.product-description-content strong {
+  font-weight: 600;
+  color: #000;
+}
+#additionalinfo table td{
+  color: #000000bf;
+  font-size: 18px;
+}

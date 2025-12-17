@@ -491,8 +491,8 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 </li>
                             </ul>
                             <div class="tab-content custom-tab" id="myTabContent">
-                                <div class="tab-pane fade show active" id="description" role="tabpanel">
-                                    <div class="table-responsive">
+                                <div class="tab-pane fade show active" id="description">
+                                    <div class="product-description-content">
                                         <p>
                                             {!! $data['product_details']->product_description !!}
                                         </p>

@@ -394,9 +394,14 @@ class CustomerController extends Controller
         $response = $ship->getServiceability($fromPin, $pincode, $weight, $cod);
         //Log::info('Shiprocket Response: ' . json_encode($response, JSON_PRETTY_PRINT));
         if (!$response || !$response['success']) {
+            if (!empty($response['response']['message'])) {
+                $errorMessage = $response['response']['message'];
+            } else {
+                $errorMessage = 'Delivery not available at this pincode.';
+            }
             return response()->json([
                 'success' => false,
-                'checkout_sidebar' => '<span class="text-danger">Delivery not available at this pincode.</span>'
+                'checkout_sidebar' => $errorMessage
             ]);
         }
         $couriers = [];

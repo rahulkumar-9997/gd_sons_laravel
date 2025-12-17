@@ -79,7 +79,7 @@
                 $("#shipping_loader").hide();
                 if (!res.success) {
                     $("#courier_partner").html(
-                        `<span class="text-danger">Delivery not available at this pincode.</span>`
+                        `<span class="text-danger">${res.checkout_sidebar}</span>`
                     );
                     updateTotals(0);
                     placeOrderBtn.prop('disabled', true);
@@ -206,6 +206,8 @@
             success: function (res) {
                 if (!res.success) {
                     placeOrderBtn.prop('disabled', true);
+                    $('input[name="ship_state"]').val('');
+                    $('input[name="ship_city_name"]').val('');
                     return;
                 }
                 placeOrderBtn.prop('disabled', false);
@@ -224,7 +226,6 @@
             }
         });
     }
-
     /**Get Locality Details from shiprocket api */
 
 })(jQuery);

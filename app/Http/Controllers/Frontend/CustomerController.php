@@ -425,6 +425,29 @@ class CustomerController extends Controller
                 'checkout_sidebar' => '<span class="text-danger">No courier services available.</span>'
             ]);
         }
+        /* Varanasi free delivery start logic code*/
+        /*If free shipping for varanasi remove than this logic code remove */
+        $localityResponse = $ship->getShiprocketLocalityDetails($pincode);
+        $isFreeDelivery = false;
+        if (!empty($localityResponse['success'])) {
+            $city = strtolower(trim($localityResponse['data']['city'] ?? ''));
+            if (
+                str_contains($city, 'varanasi') ||
+                str_contains($city, 'banaras') ||
+                str_contains($city, 'benares')
+            ) {
+                $isFreeDelivery = true;
+            }
+        }
+
+        if ($isFreeDelivery) {
+            foreach ($couriers as &$courier) {
+                $courier['rate'] = 0;
+            }
+            unset($courier);
+        }
+        /* Varanasi free delivery End logic code*/
+
         usort($couriers, fn($a, $b) => $a['rate'] <=> $b['rate']);
         $couriers = array_slice($couriers, 0, 5);
         $customerId = auth('customer')->id();
@@ -438,7 +461,7 @@ class CustomerController extends Controller
             ->select('products.*', 'inventories.mrp', 'inventories.purchase_rate', 'inventories.offer_rate', 'inventories.sku')
             ->whereIn('products.id', $productIds)
             ->get();
-
+                       
         return response()->json([
             'success' => true,
             'checkout_sidebar' => view('frontend.pages.partials.checkout.component.ajax-checkout-sidebar', [
@@ -468,12 +491,18 @@ class CustomerController extends Controller
         }
 
         $details = $response['data'];
-
+        $city = trim(strtolower($details['city'] ?? ''));
+        $isFreeDelivery = in_array($city, [
+            'varanasi',
+            'banaras',
+            'benares'
+        ]);
         return response()->json([
             'success' => true,
             'state'   => $details['state'] ?? '',
             'city'    => $details['city'] ?? '',
-            'locality_list' => $details['locality'] ?? []
+            'locality_list' => $details['locality'] ?? [],
+            'free_delivery'  => $isFreeDelivery
         ]);
     }
 

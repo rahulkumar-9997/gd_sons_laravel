@@ -240,6 +240,11 @@ $(document).ready(function () {
                     //form[0].reset();
                     $('#whatsAppMessageForm')[0].reset();
                     $('input[name="pre_gst[]"], input[name="gst_amount[]"], input[name="net_gain[]"], input[name="net_gain_perc[]"]').val('');
+                    if (response.redirect_path) {
+                        setTimeout(function () {
+                            window.location.href = response.redirect_path;
+                        }, 1200);
+                    }
                 }
             },
             error: function(error) {

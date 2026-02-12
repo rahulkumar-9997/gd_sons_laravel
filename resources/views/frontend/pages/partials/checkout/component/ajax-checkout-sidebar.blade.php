@@ -27,7 +27,7 @@
                 $group_offer_rate = null;
                 $special_offer_rate = null;
 
-                // Group discount logic
+                /* Group discount logic */
                 if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
                     $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
                     if ($group_percentage > 0) {
@@ -36,7 +36,7 @@
                     }
                 }
 
-                // Special offer
+                /* Special offer */
                 if (isset($specialOffers[$cart->product_id])) {
                     $special_offer_rate = (float) $specialOffers[$cart->product_id];
                 }
@@ -46,7 +46,7 @@
                 $totalPrice = $final_offer_rate * $quantity;
                 $subtotal += $totalPrice;
 
-                // Discount percentage
+                /* Discount percentage */
                 $discountPercent = 0;
                 if ($mrp && $final_offer_rate < $mrp) {
                     $discountPercent = (($mrp - $final_offer_rate)/$mrp) * 100;
@@ -70,8 +70,7 @@
                         @endif
                     </div>
                     <h4>
-                        {{ ucwords(strtolower($cart->title)) }}
-                        
+                        {{ ucwords(strtolower($cart->title)) }}                        
                     </h4>
                 </div>
                 <div class="flex-detail">
@@ -110,7 +109,7 @@
                         Rs. <span id="shipping_amount">{{ round($rate) }}</span>
                     </h4>
                 </div>
-                <div class="courier-partner" id="courier_partner">
+                <div class="courier-partner" id="courier_partner" style="display:none">
                     <div id="shipping_loader" class="checkout_loader_gif" style="display:none;"></div>
                     @if(!empty($couriers) && count($couriers) > 0 && $paymentType !== 'Pick Up From Store')
                         @foreach ($couriers as $index => $c)

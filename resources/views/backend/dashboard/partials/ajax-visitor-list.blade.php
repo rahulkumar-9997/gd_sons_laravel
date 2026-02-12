@@ -1,10 +1,16 @@
 @if($data['visitor_list']->isEmpty())
     <div class="alert alert-warning">No visitors found.</div>
 @else
+    <button type="button" class="btn btn-sm btn-danger mb-2" id="deleteSelectedVisitors">
+        Delete Selected
+    </button>
     <table class="table align-middle mb-0 table-hover table-centered">
         <thead>
             <tr>
-                <th>Sr. No.</th>
+                <th>
+                    <input type="checkbox" id="selectAllVisitors">
+                </th>
+                <th>#</th>
                 <th>IP Address</th>
                 <th>Device Name</th>
                 <!--th>Page Url</th-->
@@ -28,6 +34,11 @@
 					$visitor->page_title = $visitor->page_title;
             @endphp
             <tr>
+                 <td>
+                    <input type="checkbox"
+                        class="visitor-checkbox"
+                        value="{{ $visitor->id }}">
+                </td>
                 <td>{{ $srNo }}</td>
                 <td>{{ $visitor->ip_address }}</td>
                 <td>{{ $visitor->device_category }}</td>
@@ -60,6 +71,7 @@
             @endforeach
         </tbody>
     </table>
+    
     <div class="my-pagination" id="pagination-links-visitor">
         {{ $data['visitor_list']->links('vendor.pagination.bootstrap-4') }}
     </div>

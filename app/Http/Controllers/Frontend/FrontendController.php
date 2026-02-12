@@ -2015,46 +2015,6 @@ class FrontendController extends Controller
         }
     }
 
-    public function checkServiceability(Request $request)
-    {
-        Log::info('Magic Checkout Request:', [
-            'headers' => request()->headers->all(),
-            'body' => request()->all(),
-            'server' => request()->server->all()
-        ]);
-        $request->validate([
-            'addresses' => 'required|array',
-            'addresses.*.zipcode' => 'required|digits:6'
-        ]);
-
-        $pincode = $request->input('addresses.0.zipcode');
-        $serviceablePincodes = [
-            '221010' => ['fee' => 5000, 'cod' => true, 'delivery' => '2-3 days'],
-            '560001' => ['fee' => 7000, 'cod' => true, 'delivery' => '1-2 days'],
-            // ... other pincodes
-        ];
-
-        if (array_key_exists($pincode, $serviceablePincodes)) {
-            $rules = $serviceablePincodes[$pincode];
-            
-            return response()->json([
-                'serviceable' => true,
-                'cod_serviceable' => $rules['cod'],
-                'shipping_fee' => $rules['fee'],
-                'cod_fee' => $rules['cod'] ? 0 : null,
-                'delivery_time' => $rules['delivery']
-            ])->header('Access-Control-Allow-Origin', '*');
-        }
-
-        return response()->json([
-            'serviceable' => false,
-            'cod_serviceable' => false,
-            'shipping_fee' => 0,
-            'cod_fee' => 0,
-            'delivery_time' => 'Not serviceable'
-        ])->header('Access-Control-Allow-Origin', '*');
-    }
-
 }
 
 

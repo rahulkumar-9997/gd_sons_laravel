@@ -29,7 +29,7 @@
             <div class="card-body">
                @if (isset($data['specialOffers']) && $data['specialOffers']->count() > 0)
                <div class="table-responsive1">
-                  <table id="example-1" class="table align-middle mb-0 table-hover table-centered">
+                  <table id="whattapp_list" class="table align-middle mb-0 table-hover table-centered">
                      <thead class="bg-light-subtle">
                         <tr>
                            <th>Sr. No.</th>
@@ -135,6 +135,9 @@
                         @endforeach
                      </tbody>
                   </table>
+               </div>
+               <div class="my-pagination" id="pagination-links-whatsapp">
+                     {{ $data['specialOffers']->links('vendor.pagination.bootstrap-4') }}
                </div>
                @endif
 

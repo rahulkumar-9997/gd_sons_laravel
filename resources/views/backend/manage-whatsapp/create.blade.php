@@ -155,11 +155,11 @@
 <!-- modal--->
 @endsection
 @push('scripts')
-<script src="{{asset('backend/assets/js/pages/vendor.js')}}"></script>
+<script src="{{asset('backend/assets/js/pages/vendor.js')}}?v=1.1"></script>
 <!--for vendor js code-->
-<link rel="stylesheet" href="{{asset('backend/assets/js/autocomplete/jquery-ui.css')}}">
-<script src="{{asset('backend/assets/js/autocomplete/jquery-ui.min.js')}}"></script>
+<link rel="stylesheet" href="{{asset('backend/assets/js/autocomplete/jquery-ui.css')}}?v=1.1">
+<script src="{{asset('backend/assets/js/autocomplete/jquery-ui.min.js')}}?v=1.1"></script>
 
-<script src="{{asset('backend/assets/js/pages/create-whatsapp.js')}}"></script>
-<script src="{{asset('backend/assets/js/pages/whatsapp-conversation.js')}}" type="text/javascript"></script>
+<script src="{{asset('backend/assets/js/pages/create-whatsapp.js')}}?v=1.1"></script>
+<script src="{{asset('backend/assets/js/pages/whatsapp-conversation.js')}}?v=1.1" type="text/javascript"></script>
 @endpush

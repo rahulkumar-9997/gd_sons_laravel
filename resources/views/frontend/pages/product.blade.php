@@ -929,12 +929,12 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 @endpush
 
 @push('scripts')
-<script src="{{asset('frontend/assets/js/jquery.elevatezoom.js')}}"></script>
-<script src="{{asset('frontend/assets/js/zoom-filter.js')}}"></script>
-<script src="{{asset('frontend/assets/js/sticky-cart-bottom.js')}}"></script>
-<script src="{{asset('frontend/assets/js/pages/addto-cart.js')}}"></script>
-<script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}"></script>
-<script src="{{asset('frontend/assets/js/pages/review.js')}}"></script>
+<script src="{{asset('frontend/assets/js/jquery.elevatezoom.js')}}?v=221225"></script>
+<script src="{{asset('frontend/assets/js/zoom-filter.js')}}?v=221225"></script>
+<script src="{{asset('frontend/assets/js/sticky-cart-bottom.js')}}?v=221225"></script>
+<script src="{{asset('frontend/assets/js/pages/addto-cart.js')}}?v=221225"></script>
+<script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}?v=221225"></script>
+<script src="{{asset('frontend/assets/js/pages/review.js')}}?v=221225"></script>
 <script>
     $(document).ready(function() {
         function isYouTubeShort(videoId) {

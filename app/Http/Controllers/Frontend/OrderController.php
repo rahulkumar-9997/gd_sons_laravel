@@ -367,7 +367,6 @@ class OrderController extends Controller
         }
     }
 
-
     public function handleRazorpayCallback(Request $request)
     {
         $input = $request->all();

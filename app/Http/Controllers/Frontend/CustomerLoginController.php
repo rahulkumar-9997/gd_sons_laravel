@@ -89,6 +89,8 @@ class CustomerLoginController extends Controller
             if ($isEmail) {
                 $sessionData['email'] = $input;
                 Mail::to($input)->queue(new CustomerOtpMail($otp));
+				Log::info('Mail send successfully');
+				
             } elseif ($isMobile) {
                 $sessionData['phone_number'] = $input;
                 $mobile_number = $input;

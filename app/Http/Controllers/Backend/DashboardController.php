@@ -19,6 +19,7 @@ use App\Models\VisitorTracking;
 use App\Models\ClickTrackers;
 use App\Models\Counter;
 use Image;
+use Illuminate\Support\Facades\Log;
 class DashboardController extends Controller
 {
     public function index(){
@@ -169,5 +170,33 @@ class DashboardController extends Controller
     {
         $data['click-link'] = ClickTrackers::orderBy('click_time', 'desc')->paginate(50);
         return view('backend.dashboard.click-list', compact('data'));
+    }
+
+    public function bulkDeleteVisitor(Request $request){
+        $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer'
+        ]);
+        Log::info('Request Data:', $request->all());
+        $deleted = VisitorTracking::whereIn('id', $request->ids)->delete();
+        Log::info('Deleted rows: '.$deleted);
+        $data['visitor_list'] = VisitorTracking::orderBy('id', 'desc')->paginate(50);
+        $data['page_counts'] = VisitorTracking::selectRaw('
+                page_name,
+                COUNT(*) as visitor_count
+            ')
+            ->groupBy('page_name')
+            ->get()
+            ->keyBy(function($item) {
+                return $item->page_name;
+            });
+
+        return response()->json([
+            'success' => true,
+            'deleted' => $deleted,
+            'html' => view('backend.dashboard.partials.ajax-visitor-list', [
+                'data' => $data
+            ])->render()
+        ]);
     }
 }

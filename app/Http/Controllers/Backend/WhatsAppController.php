@@ -31,7 +31,7 @@ class WhatsAppController extends Controller
             }
         ])
         ->orderBy('id', 'desc')
-        ->get();
+        ->paginate(10);
         //return response()->json($data['specialOffers']);
         return view('backend.manage-whatsapp.index', compact('data'));
     }
@@ -137,10 +137,14 @@ class WhatsAppController extends Controller
             ])->post($api_endpoint, $data);
 
             if (!$response->successful()) {
-                return response()->json([
-                    'message' => 'API request for customer failed.',
-                    'error' => $response->body()
-                ], 500);
+                // return response()->json([
+                //     'message' => 'API request for customer failed.',
+                //     'error' => $response->body()
+                // ], 500);
+                Log::error('WhatsApp customer campaign failed', [
+                    'mobile' => $customer_mobile_no,
+                    'response' => $response->body()
+                ]);
             }
             $productPaths = [];
             $imagePathsWebp = [];
@@ -230,11 +234,12 @@ class WhatsAppController extends Controller
             }
             DB::commit();
             return response()->json([
-                'message' => 'Message send successfully!',
+                'message' => 'Message sent successfully!',
                 'status' => 'success',
                 'product_paths' => $productPaths,
                 'image_path_webp' => $imagePathsWebp,
                 'image_path_jpg' => $imagePathsJPG,
+                'redirect_path' => route('manage-whatsapp.index'),
             ], 200, [], JSON_UNESCAPED_SLASHES);
             
         } catch (\Exception $e) {

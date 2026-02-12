@@ -1,17 +1,59 @@
 @php
 $customerId = auth('customer')->id();
 if (auth('customer')->check()) {
-$customer = auth('customer')->user();
-$customerId = $customer->id;
-$customerName = $customer->name;
-$customerEmail = $customer->email;
-$customerPhone = $customer->phone_number;
+    $customer = auth('customer')->user();
+    $customerId = $customer->id;
+    $customerName = $customer->name;
+    $customerEmail = $customer->email;
+    $customerPhone = $customer->phone_number;
 } else {
-$customerName = '';
-$customerEmail = '';
-$customerPhone = '';
+    $customerName = '';
+    $customerEmail = '';
+    $customerPhone = '';
 }
 @endphp
+@php
+    $subtotal_amount = 0;
+    $sessionCart = session('cart', []);
+@endphp
+@if($carts && $carts->count() > 0)
+    @foreach ($carts as $cart)
+        @php
+            $quantity = $sessionCart[$cart->id]['quantity'] ?? 1;  
+            $purchase_rate = $cart->purchase_rate ?? 0;
+            $offer_rate = $cart->offer_rate ?? 0;
+            $mrp = $cart->mrp ?? 0;
+            $group_offer_rate = null;
+            $special_offer_rate = null;
+
+            /* Group discount logic */
+            if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
+                $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                if ($group_percentage > 0) {
+                    $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                    $group_offer_rate = floor($group_offer_rate);
+                }
+            }
+
+            /* Special offer */
+            if (isset($specialOffers[$cart->product_id])) {
+                $special_offer_rate = (float) $specialOffers[$cart->product_id];
+            }
+            
+            $final_offer_rate = collect([$offer_rate, $group_offer_rate, $special_offer_rate])->filter()->min();
+
+            $totalPrice = $final_offer_rate * $quantity;
+            $subtotal_amount += $totalPrice;
+
+            /* Discount percentage */
+            $discountPercent = 0;
+            if ($mrp && $final_offer_rate < $mrp) {
+                $discountPercent = (($mrp - $final_offer_rate)/$mrp) * 100;
+                $discountPercent = number_format($discountPercent, 2);
+            }
+        @endphp
+    @endforeach
+@endif
 <form action="{{route('checkout.submit')}}" method="POST" accept-charset="UTF-8" enctype="multipart/form-data" id="checkoutFormSubmit">
     @csrf
     <input type="hidden" name="pick_up_status" value="pick_up_online">
@@ -198,102 +240,7 @@ $customerPhone = '';
                                                 </div>
                                             </div>
                                             @endif
-
-                                        </div>
-                                        <!--
-                                        <div class="col-lg-12">
-                                            <div class="accordion accordion-flush custom-accordion" id="billShip">
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header" id="flush-headingSameShip">
-                                                        <button class="accordion-button same_ship collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseSameShip" aria-expanded="false" aria-controls="flush-collapseSameShip">
-                                                            <div class="custom-form-check form-check mb-0">
-                                                                <label class="form-check-label" for="same_ship_address">
-                                                                    <input class="form-check-input mt-0" type="radio" name="same_ship_bill_address" id="same_ship_address" value="0" checked>
-                                                                    Same as shipping address
-                                                                </label>
-                                                            </div>
-                                                        </button>
-                                                    </div>
-                                                    <div id="flush-collapseSameShip" class="accordion-collapse collapse" aria-labelledby="flush-headingSameShip" data-bs-parent="#billShip">
-                                                       
-                                                    </div>
-                                                </div>
-                                                <div class="accordion-item">
-                                                    <div class="accordion-header" id="flush-headingDifferentBill">
-                                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseDifferentBill" aria-expanded="false" aria-controls="flush-collapseDifferentBill">
-                                                            <div class="custom-form-check form-check mb-0">
-                                                                <label class="form-check-label" for="different_billing_address">
-                                                                    <input class="form-check-input mt-0" type="radio" name="same_ship_bill_address" id="different_billing_address" value="1">
-                                                                    Use a different billing address
-                                                                </label>
-                                                            </div>
-                                                        </button>
-                                                    </div>
-                                                    <div id="flush-collapseDifferentBill" class="accordion-collapse collapse" aria-labelledby="flush-headingDifferentBill" data-bs-parent="#billShip">
-                                                        <div class="accordion-body">
-                                                            <div class="row g-2">
-                                                                <div class="col-md-6">
-                                                                    <div class="form-floating mb-4 theme-form-floating">
-                                                                        <input type="text" class="form-control" name="bill_full_name" placeholder="Enter full name">
-                                                                        <label for="full_name">Enter full name</label>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="form-floating mb-4 theme-form-floating">
-                                                                        <input type="text" class="form-control" name="bill_phone_number" placeholder="Enter phone number"
-                                                                            maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                                                                        <label for="phone_number">Enter phone number</label>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="form-floating theme-form-floating">
-                                                                        <select class="form-select theme-form-select" name="bill_country">
-                                                                            <option value="India">India</option>
-                                                                        </select>
-                                                                        <label for="country">Select Country</label>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-6">
-                                                                    <div class="form-floating mb-4 theme-form-floating">
-                                                                        <input type="text" class="form-control" name="bill_full_address" placeholder="Enter address">
-                                                                        <label for="full_address">Enter address</label>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-12">
-                                                                    <div class="form-floating mb-4 theme-form-floating">
-                                                                        <input type="text" class="form-control" name="bill_apartment" placeholder="Apartment, suite, etc. (optional)">
-                                                                        <label for="apartment">Apartment, suite, etc. (optional)</label>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-4">
-                                                                    <div class="form-floating theme-form-floating">
-                                                                        <select class="form-select theme-form-select" name="bill_city_name">
-                                                                            <option value="Varanasi">Varanasi</option>
-                                                                        </select>
-                                                                        <label for="city">Select City</label>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-4">
-                                                                    <div class="form-floating theme-form-floating">
-                                                                        <select class="form-select theme-form-select" name="bill_state">
-                                                                            <option value="Uttar Pradesh">Uttar Pradesh</option>
-                                                                        </select>
-                                                                        <label for="state">Select State</label>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-md-4">
-                                                                    <div class="form-floating mb-4 theme-form-floating">
-                                                                        <input type="text" name="bill_pin_code" class="form-control" placeholder="Enter pin code">
-                                                                        <label for="pin_code">Enter pin code</label>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        -->
+                                        </div>                                        
                                     </div>
                                 </div>
                             </div>
@@ -332,24 +279,26 @@ $customerPhone = '';
                                                 </div>
                                             </div>
                                         </div>
-                                        <!-- Cash on Delivery Option -->
-                                        <div class="accordion-item">
-                                            <div class="accordion-header" id="flush-headingCOD">
-                                                <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#flush-collapseCOD">
-                                                    <div class="custom-form-check form-check mb-0">
-                                                        <label class="form-check-label" for="payment_cod">
-                                                            <input class="form-check-input mt-0" type="radio" name="payment_type" id="payment_cod" value="Cash on Delivery">
-                                                            Cash On Delivery
-                                                        </label>
+                                        @if($subtotal_amount>5000)
+                                            <!-- Cash on Delivery Option -->
+                                            <div class="accordion-item">
+                                                <div class="accordion-header" id="flush-headingCOD">
+                                                    <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#flush-collapseCOD">
+                                                        <div class="custom-form-check form-check mb-0">
+                                                            <label class="form-check-label" for="payment_cod">
+                                                                <input class="form-check-input mt-0" type="radio" name="payment_type" id="payment_cod" value="Cash on Delivery">
+                                                                Cash On Delivery
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div id="flush-collapseCOD" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                                                    <div class="accordion-body">
+                                                        Pay with cash upon delivery.
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div id="flush-collapseCOD" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                                                <div class="accordion-body">
-                                                    Pay with cash upon delivery.
-                                                </div>
-                                            </div>
-                                        </div>
+                                        @endif
                                         <!-- Store Pickup Option -->
                                         <div class="accordion-item">
                                             <div class="accordion-header" id="flush-headingStore">

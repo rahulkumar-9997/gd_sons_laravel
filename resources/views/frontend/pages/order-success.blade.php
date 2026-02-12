@@ -145,7 +145,7 @@
                                     <td colspan="4" class="text-end">
                                         <strong>Shipping Charges</strong>
                                         <br>
-                                        <span class="text-muted"> {{ $order->shiprocketCourier->courier_name }}</span>
+                                        <!-- <span class="text-muted"> {{ $order->shiprocketCourier->courier_name }}</span> -->
                                     </td>
                                     <td class="subtotal">
                                         <h4>

@@ -75,7 +75,7 @@ Route::group(['middleware' => ['auth.customer']], function() {
     Route::get('/user-notifications', [CustomerLoginController::class, 'getNotifications']);
     Route::post('/notifications/{id}/read', [CustomerLoginController::class, 'markAsRead']);
 });
-Route::post('shipping-info', [FrontendController::class, 'checkServiceability'])->name('shipping-info');
+// Route::post('shipping-info', [FrontendController::class, 'checkServiceability'])->name('shipping-info');
 Route::get('pay-modal-form', [OrderController::class, 'payModalForm'])->name('pay-modal-form');
 Route::post('pay-modal-form/submit', [OrderController::class, 'payModalFormSubmit'])->name('pay-modal-form.submit');
 Route::middleware([TrackVisitor::class])->group(function () {
@@ -208,6 +208,7 @@ Route::group(['middleware' => ['admin']], function () {
     ->name('dashboard.filtered-data');
     Route::get('get-visitor-stats', [DashboardController::class, 'getVisitorStats'])->name('get-visitor-stats');
     Route::get('get-visitor-list', [DashboardController::class, 'getVisitorList'])->name('get-visitor-list');
+    Route::post('visitors/bulk-delete',[DashboardController::class,'bulkDeleteVisitor'])->name('visitors.bulk-delete');
      Route::get('click-details', [DashboardController::class, 'getClickDetails'])->name('get-click-details');
 
     Route::get('brand', [BrandController::class, 'index'])->name('brand');

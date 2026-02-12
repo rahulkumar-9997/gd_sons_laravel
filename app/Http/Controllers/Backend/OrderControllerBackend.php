@@ -71,23 +71,20 @@ class OrderControllerBackend extends Controller
         }
     }
 
-    public function editOrder($orderId){
+    public function editOrder($id)
+    {
         $order = Orders::with([
             'customer',
-            'orderStatus', 
-            'shippingAddress', 
-            'billingAddress', 
-            'orderLines.product', 
-            'orderLines.product.images',
-            'shiprocketCourier',
-            'shiprocketOrderResponse'
-        ])
-        ->where('id', $orderId)
-        ->firstOrFail();        
-        $orderStatuses = OrderStatus::all();
-        $customers = Customer::all();        
-        return view('backend.manage-order.edit-order', compact('order', 'orderStatuses', 'customers'));
+            'shippingAddress',
+            'billingAddress',
+            'orderLines.product',
+            'orderStatus'
+        ])->findOrFail($id);
+
+        $orders_status = OrderStatus::orderBy('status_name')->get();
+        return view('backend.manage-order.edit-order', compact('order','orders_status'));
     }
+
 
     public function showOrderDetails(Request $request, $id){
         $order = Orders::with([

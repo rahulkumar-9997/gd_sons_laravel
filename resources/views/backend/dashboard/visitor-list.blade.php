@@ -51,7 +51,6 @@
       $('.visitor-checkbox:checked').each(function() {
          ids.push($(this).val());
       });
-     // alert(ids);
       if (ids.length === 0) {
          Swal.fire({
             icon: 'warning',

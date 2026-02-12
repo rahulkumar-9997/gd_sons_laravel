@@ -359,6 +359,7 @@ Route::group(['middleware' => ['admin']], function () {
     /**Order Route */
     Route::get('order-list', [OrderControllerBackend::class, 'showAllOrderList'])->name('order-list');
     Route::get('order-details/{id}', [OrderControllerBackend::class, 'showOrderDetails'])->name('order-details');
+    Route::get('edit-order/{id}', [OrderControllerBackend::class, 'editOrder'])->name('edit-order');
     Route::delete('order-list/destroy/{id}', [OrderControllerBackend::class, 'orderDelete'])->name('order-list.destroy');
     Route::post('update-order-status/{orderId}', [OrderControllerBackend::class, 'updateOrderStatus'])->name('update-order-status');
     Route::get('download-invoice/{orderId}', [OrderControllerBackend::class, 'downloadInvoice'])->name('download-invoice');

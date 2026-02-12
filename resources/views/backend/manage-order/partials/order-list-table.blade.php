@@ -205,6 +205,10 @@
                         data-bs-toggle="tooltip" data-bs-original-title="View Order Details">
                         <i class="ti ti-eye"></i>
                     </a>
+                    <a href="{{ route('edit-order', ['id' => $order->id]) }}" class="btn btn-light btn-sm"
+                        data-bs-toggle="tooltip" data-bs-original-title="Edit Order">
+                        <i class="ti ti-edit"></i>
+                    </a>
 
                     <form method="POST" action="{{ route('order-list.destroy', $order->id) }}">
                         @csrf

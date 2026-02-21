@@ -279,7 +279,7 @@ if (auth('customer')->check()) {
                                                 </div>
                                             </div>
                                         </div>
-                                        @if($subtotal_amount>5000)
+                                        @if($subtotal_amount < 5000)
                                             <!-- Cash on Delivery Option -->
                                             <div class="accordion-item">
                                                 <div class="accordion-header" id="flush-headingCOD">

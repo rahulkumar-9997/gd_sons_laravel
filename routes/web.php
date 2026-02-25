@@ -46,6 +46,7 @@ use App\Http\Controllers\Backend\StorageController;
 use App\Http\Controllers\Backend\ProductReviewBackendController;
 use App\Http\Controllers\Backend\VideoController;
 use App\Http\Controllers\Backend\EnquiryController;
+use App\Http\Controllers\Backend\CouponCodeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -413,4 +414,5 @@ Route::group(['middleware' => ['admin']], function () {
         Route::post('/update-address/{id}', [OrderControllerBackend::class, 'updateShipRocketOrderAddress'])->name('shiprocket.update.address');
        
     });	
+    Route::Resource('manage-coupon', CouponCodeController::class);
 });

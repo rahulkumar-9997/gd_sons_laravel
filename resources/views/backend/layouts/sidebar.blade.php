@@ -71,6 +71,14 @@
             @endif
          @endforeach
          <li class="nav-item">
+            <a class="nav-link" href="{{ route('manage-coupon.index') }}">
+               <span class="nav-icon">
+                  <iconify-icon icon="solar:tag-bold-duotone"></iconify-icon>
+               </span>
+               <span class="nav-text">  Manage Coupon </span>
+            </a>
+         </li>
+         <li class="nav-item">
             <a class="nav-link menu-arrow" href="#sidebarProducts_user" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarProducts_user">
                <span class="nav-icon">
                   <iconify-icon icon="solar:users-group-two-rounded-bold-duotone"></iconify-icon>

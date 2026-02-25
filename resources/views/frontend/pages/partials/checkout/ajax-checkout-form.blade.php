@@ -256,7 +256,6 @@ if (auth('customer')->check()) {
                                 <div class="checkout-title">
                                     <h4>Payment Option</h4>
                                 </div>
-
                                 <div class="checkout-detail">
                                     <div class="accordion accordion-flush custom-accordion" id="accordionFlushExample">
                                         <!-- Razorpay Payment Option -->

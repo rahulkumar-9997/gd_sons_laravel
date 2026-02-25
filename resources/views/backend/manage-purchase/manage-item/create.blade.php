@@ -219,14 +219,10 @@
 @endsection
 @push('scripts')
 <script src="{{asset('backend/assets/js/components/form-flatepicker.js')}}"></script>
-<!--for vendor js code-->
 <script src="{{asset('backend/assets/js/pages/vendor.js')}}"></script>
-<!--for vendor js code-->
 <link rel="stylesheet" href="{{asset('backend/assets/js/autocomplete/jquery-ui.css')}}">
 <script src="{{asset('backend/assets/js/autocomplete/jquery-ui.min.js')}}"></script>
-<!--Select 2 -->
 <script src="{{asset('backend/assets/plugins/select2/select2.min.js')}}" type="text/javascript"></script>
 <script src="{{asset('backend/assets/plugins/multi-select/js/jquery.multi-select.js')}}" type="text/javascript"></script>
-<!--Select 2 -->
 <script src="{{asset('backend/assets/js/pages/purchase-item.js')}}"></script>
 @endpush

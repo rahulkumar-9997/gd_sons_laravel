@@ -110,63 +110,71 @@
                                     <tbody>
                                         @if($order->orderLines->isNotEmpty())
                                             @foreach($order->orderLines as $line)
+                                            @php
+                                                $attributes_value ='na';
+                                                if($line->product->ProductAttributesValues->isNotEmpty()){
+                                                    $attributes_value = $line->product->ProductAttributesValues->first()->attributeValue->slug;
+                                                }
+                                            @endphp
                                             <tr>
                                                 <td>
-                                                    <div class="d-flex align-items-center gap-2">
-                                                        <div class="rounded bg-light avatar-md d-flex align-items-center justify-content-center">
-                                                            @if($line->product->images->first())
-                                                            <img src="{{ asset('images/product/thumb/' . $line->product->images->first()->image_path) }}"
-                                                                class="avatar-md" alt="{{ $line->product->title }}">
-                                                            @else
-                                                            <img src="{{ asset('images/default.png') }}" class="avatar-md" alt="Default Image">
-                                                            @endif
+                                                    <a href="{{ url('products/'.$line->product->slug.'/'.$attributes_value) }}" target="_blank" class="text-dark fw-medium">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="rounded bg-light avatar-md d-flex align-items-center justify-content-center">
+                                                                @if($line->product->images->first())
+                                                                <img src="{{ asset('images/product/thumb/' . $line->product->images->first()->image_path) }}"
+                                                                    class="avatar-md" alt="{{ $line->product->title }}">
+                                                                @else
+                                                                <img src="{{ asset('images/default.png') }}" class="avatar-md" alt="Default Image">
+                                                                @endif
 
+                                                            </div>
+                                                            <div>
+                                                                <span class="text-dark fw-medium fs-16">
+                                                                    {{ ucwords(strtolower($line->product->title)) }}
+                                                                </span>
+                                                                @if($line->product->length && $line->product->breadth &&
+                                                                $line->product->height &&
+                                                                $line->product->weight)
+                                                                    <ul>
+                                                                        <li>
+                                                                            <strong>
+                                                                                Length in CM :
+                                                                            </strong>
+                                                                            {{ $line->product->length }}
+                                                                        </li>
+                                                                        <li>
+                                                                            <strong>
+                                                                                Breadth in CM:
+                                                                            </strong>
+                                                                            {{ $line->product->breadth }}
+                                                                        </li>
+                                                                        <li>
+                                                                            <strong>
+                                                                                Height in CM:
+                                                                            </strong>
+                                                                            {{ $line->product->height }}
+                                                                        </li>
+                                                                        <li>
+                                                                            <strong>
+                                                                                Weight in Kg :
+                                                                            </strong>
+                                                                            {{ $line->product->weight }}
+                                                                        </li>
+                                                                        <li>
+                                                                            <strong>
+                                                                                Volumetric Weight Kg :
+                                                                            </strong>
+                                                                            {{ $line->product->volumetric_weight_kg }}
+                                                                        </li>
+                                                                    </ul>
+
+                                                                @endif
+
+
+                                                            </div>
                                                         </div>
-                                                        <div>
-                                                            <a href="#!" class="text-dark fw-medium fs-15">
-                                                                {{ ucwords(strtolower($line->product->title)) }}
-                                                            </a>
-                                                            @if($line->product->length && $line->product->breadth &&
-                                                            $line->product->height &&
-                                                            $line->product->weight)
-                                                                <ul>
-                                                                    <li>
-                                                                        <strong>
-                                                                            Length in CM :
-                                                                        </strong>
-                                                                        {{ $line->product->length }}
-                                                                    </li>
-                                                                    <li>
-                                                                        <strong>
-                                                                            Breadth in CM:
-                                                                        </strong>
-                                                                        {{ $line->product->breadth }}
-                                                                    </li>
-                                                                    <li>
-                                                                        <strong>
-                                                                            Height in CM:
-                                                                        </strong>
-                                                                        {{ $line->product->height }}
-                                                                    </li>
-                                                                    <li>
-                                                                        <strong>
-                                                                            Weight in Kg :
-                                                                        </strong>
-                                                                        {{ $line->product->weight }}
-                                                                    </li>
-                                                                    <li>
-                                                                        <strong>
-                                                                            Volumetric Weight Kg :
-                                                                        </strong>
-                                                                         {{ $line->product->volumetric_weight_kg }}
-                                                                    </li>
-                                                                </ul>
-
-                                                            @endif
-
-
-                                                        </div>
-                                                    </div>
+                                                    </a>
                                                 </td>
                                                 <td>{{ $line->quantity }}</td>
                                                 <td>Rs. {{ number_format($line->price, 2) }}</td>

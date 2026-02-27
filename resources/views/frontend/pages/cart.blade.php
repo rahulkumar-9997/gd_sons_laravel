@@ -37,6 +37,6 @@
 <!-- Cart Section End -->
 @endsection
 @push('scripts')
-<script src="{{asset('frontend/assets/js/pages/update-cart.js')}}"></script>
+<script src="{{asset('frontend/assets/js/pages/update-cart.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 
 @endpush

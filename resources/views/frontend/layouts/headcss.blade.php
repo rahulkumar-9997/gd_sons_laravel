@@ -31,13 +31,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/vendors/bootstrap.css')}}">
-<!-- (if use animation than this link uncomment) <link rel="stylesheet" href="{{asset('frontend/assets/css/animate.min.css')}}"> -->
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/bulk-style.css')}}">
-<!-- (if use animation than this link uncomment) <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/vendors/animate.css')}}"> -->
-<link rel="preload" as="style" href="{{asset('frontend/assets/css/style.css')}}?v={{ time() }}">
-<link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/style.css')}}?v={{ time() }}">
-<link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/gd-style.css')}}?v={{ time() }}">
-<link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/cart-drawer.css')}}">
+<link rel="preload" as="style" href="{{asset('frontend/assets/css/style.css')}}?v={{ env('ASSET_VERSION', '1.0.0') }}">
+<link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/style.css')}}?v={{ env('ASSET_VERSION', '1.0.0') }}">
+<link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/gd-style.css')}}?v={{ env('ASSET_VERSION', '1.0.0') }}">
+<link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/cart-drawer.css')}}?v={{ env('ASSET_VERSION', '1.0.0') }}">
 @if (!isset($_SERVER['HTTP_USER_AGENT']) || !preg_match('/(android|iphone|ipod|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])))
 <style>
     .desktop-menu-st{opacity:0;visibility:hidden;transition:transform .3s ease-in-out,opacity .3s}header .header-nav .header-nav-left .category-dropdown.desktop-menu-st.show,header .onhover-category-list .onhover-category-box.show{opacity:1;visibility:visible}.desktop-menu-st::-webkit-scrollbar,.onhover-category-box::-webkit-scrollbar{width:6px}.desktop-menu-st::-webkit-scrollbar-thumb,.onhover-category-box::-webkit-scrollbar-thumb{background-color:rgba(0,0,0,.2);border-radius:3px}header .header-nav .header-nav-left .category-dropdown.desktop-menu-st{position:fixed;left:0;top:0;width:350px;height:100vh;background:#fff;box-shadow:2px 2px 6px rgba(0,0,0,.17),4px 4px 10px rgba(0,0,0,.1);z-index:1050;overflow-y:scroll;overflow-x:hidden;border-radius:unset;opacity:0}.onhover-category-box{opacity:0;visibility:hidden;transition:opacity .3s,transform .3s}header .onhover-category-list .onhover-category-box{position:fixed;left:333px;top:0;width:600px;max-width:calc(100vw - 350px);height:100vh;background:#fff;box-shadow:2px 2px 6px rgba(0,0,0,.17),4px 4px 10px rgba(0,0,0,.1);padding:20px;overflow-y:auto}

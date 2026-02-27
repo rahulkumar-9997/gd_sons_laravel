@@ -51,8 +51,8 @@
                         <a href="javascript:void(0);"
                             class="btn btn-soft-primary btn-sm editCoupon"
                             data-id="{{ $row->id }}"
-                            data-ajax-popup="true"
-                            data-size="md"
+                            data-ajax-editcoupon-popup="true"
+                            data-size="lg"
                             data-title="Edit Coupon"
                             data-url="{{ route('manage-coupon.edit', $row->id) }}">
                             <i class="ti ti-pencil"></i>
@@ -75,5 +75,8 @@
             @endforeach
         </tbody>
     </table>
+</div>
+<div class="my-pagination" id="pagination-links">
+    {{ $coupons->links('vendor.pagination.bootstrap-4') }}
 </div>
 @endif

@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    $(document).on('submit', '#checkoutFormSubmit', function (e) {
+     $(document).off('submit', '#checkoutFormSubmit').on('submit', '#checkoutFormSubmit', function (e) {
         e.preventDefault();
         let form = $(this);
         let submitButton = form.find('button[type="submit"]');

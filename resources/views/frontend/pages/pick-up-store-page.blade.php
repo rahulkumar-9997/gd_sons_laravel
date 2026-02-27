@@ -274,5 +274,5 @@
 @endsection
 @push('scripts')
 <script src="{{asset('frontend/assets/js/lusqsztk.js')}}"></script>
-<script src="{{asset('frontend/assets/js/pages/checkout-form-submit.js')}}"></script>
+<script src="{{asset('frontend/assets/js/pages/checkout-form-submit.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 @endpush

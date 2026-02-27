@@ -3,6 +3,13 @@
         <div class="summery-header">
             <h3>Order Summary</h3>
         </div>
+        <div class="coupon-cart">
+            <h6 class="text-content mb-2">Coupon Apply</h6>
+            <div class="mb-3 coupon-box input-group apply-coupon-container">
+                <input type="text" name="apply-coupon-input" class="form-control" id="apply-coupon-input" placeholder="Enter Coupon Code Here...">
+                <button type="button" class="btn theme-bg-color text-white btn-md apply-coupon-btn">Apply</button>
+            </div>
+        </div>
         <ul class="summery-contain">
             @php
                 $subtotal = 0;
@@ -146,31 +153,12 @@
                 </h4>
             </li>
         </ul>
-    </div>
-
-    <!-- <div class="checkout-offer">
-        <div class="offer-title">
-            <div class="offer-icon">
-                <img src="{{ asset('images/offer.svg') }}" class="img-fluid" alt="">
-            </div>
-            <div class="offer-name">
-                <h6>Available Offers</h6>
-            </div>
-        </div>
-        <ul class="offer-detail">
-            <li>
-                <p>Combo: BB Royal Almond/Badam Californian, Extra Bold 100 gm...</p>
-            </li>
-            <li>
-                <p>combo: Royal Cashew Californian, Extra Bold 100 gm + BB Royal Honey 500 gm</p>
-            </li>
-        </ul>
-    </div> -->
+    </div>    
     <input type="hidden" id="selected_courier_name" name="courier_name">
     <input type="hidden" id="selected_shipping_rate" name="shipping_rate">
     <input type="hidden" id="selected_courier_company_id" name="courier_company_id">
     <input type="hidden" id="selected_cod_charges" name="cod_charges">
     <input type="hidden" id="selected_courier_id" name="courier_id">
     <input type="hidden" id="selected_courier_delivery_expected_date" name="delivery_expected_date">
-    <button type="submit" class="btn theme-bg-color text-white btn-md w-100 mt-4 fw-bold">Place Order</button>
+    <button type="submit" class="btn theme-bg-color submit-checkout-btn text-white btn-md w-100 mt-4 fw-bold">Place Order</button>
 </div>

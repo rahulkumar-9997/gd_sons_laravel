@@ -203,11 +203,10 @@
 </script>
 @endpush
 @push('scripts')
-<script src="{{asset('frontend/assets/js/ion.rangeSlider.min.js')}}"></script>
-<!-- <script src="{{asset('frontend/assets/js/pages/load-more.js')}}"></script> -->
-<script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}"></script>
-<script src="{{asset('frontend/assets/js/pages/quick-view.js')}}"></script>
-<script src="{{asset('frontend/assets/js/pages/addto-cart.js')}}"></script>
+<script src="{{asset('frontend/assets/js/ion.rangeSlider.min.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
+<script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
+<script src="{{asset('frontend/assets/js/pages/quick-view.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
+<script src="{{asset('frontend/assets/js/pages/addto-cart.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 <script>
     $(document).ready(function() {
         const filters = {};

@@ -27,7 +27,12 @@ class Orders extends Model
         'razorpay_order_id',
         'razorpay_method',
         'payment_status',
-        'failure_reason'
+        'failure_reason',
+        'coupon_code',
+        'coupon_discount_amount'
+    ];
+    protected $casts = [
+        'coupon_discount_amount' => 'decimal:2',
     ];
 
     public function orderStatus()

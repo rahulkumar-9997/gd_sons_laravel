@@ -8,8 +8,16 @@
             <div class="mb-3 coupon-box input-group apply-coupon-container">
                 <input type="text" name="apply-coupon-input" class="form-control" id="apply-coupon-input" placeholder="Enter Coupon Code Here...">
                 <button type="button" class="btn theme-bg-color text-white btn-md apply-coupon-btn">Apply</button>
-            </div>
+            </div>   
+            @if(session()->has('applied_coupon'))
+                @php $appliedCoupon = session('applied_coupon'); @endphp
+                <div class="alert alert-success alert-dismissible" id="applied-coupon-alert">
+                    <strong>Coupon Applied:</strong> {{ $appliedCoupon['code'] }}
+                    <button type="button" class="btn-close float-end" id="remove-coupon-btn" aria-label="Close"></button>
+                </div>
+            @endif
         </div>
+        
         <ul class="summery-contain">
             @php
                 $subtotal = 0;
@@ -100,7 +108,6 @@
             @endforeach
             <input type="hidden" id="cart_items_json" value='@json($cart_items_for_js)'>
         </ul>
-
         <ul class="summery-total">
             <li>
                 <h4>Subtotal</h4>
@@ -108,17 +115,16 @@
                     <span id="subtotal_amount">{{ number_format($subtotal, 2) }}</span>
                 </h4>
             </li>
-
             <li id="shipping_section">
                 <div class="courier-partner-title">
                     <h4>Shipping</h4>
                     <h4 class="price mt-2">
-                        Rs. <span id="shipping_amount">{{ round($rate) }}</span>
+                        Rs. <span id="shipping_amount">{{ round($rate ?? 0) }}</span>
                     </h4>
                 </div>
                 <div class="courier-partner" id="courier_partner" style="display:none">
                     <div id="shipping_loader" class="checkout_loader_gif" style="display:none;"></div>
-                    @if(!empty($couriers) && count($couriers) > 0 && $paymentType !== 'Pick Up From Store')
+                    @if(!empty($couriers) && count($couriers) > 0 && ($paymentType ?? '') !== 'Pick Up From Store')
                         @foreach ($couriers as $index => $c)
                             @php $checked = $index === 0 ? 'checked' : ''; @endphp
                             <div class="form-check mt-2">
@@ -143,22 +149,38 @@
                     @endif
                 </div>
             </li>
+            <li class="coupon-discount-row" style="{{ session()->has('applied_coupon') ? '' : 'display: none;' }}">
+                <h4>Coupon Discount</h4>
+                <h4 class="price text-success">- Rs.
+                    <span id="coupon_discount_display">
+                        {{ session()->has('applied_coupon') ? number_format(session('applied_coupon')['discount_amount'], 2) : '0.00' }}
+                    </span>
+                </h4>
+            </li>
 
             <li class="list-total">
                 <h4>Total (Rs.)</h4>
                 <h4 class="price">Rs.
-                    @php $total = $subtotal + round($rate); @endphp
+                    @php 
+                        $shippingRate = round($rate ?? 0);
+                        $discountAmount = session()->has('applied_coupon') ? session('applied_coupon')['discount_amount'] : 0;
+                        $total = $subtotal + $shippingRate - $discountAmount;
+                    @endphp
                     <span id="grand_total_amount_span">{{ number_format($total, 2) }}</span>
                     <input type="hidden" id="grand_total_amount_input" name="grand_total_amount" value="{{ $total }}">
                 </h4>
             </li>
         </ul>
     </div>    
+    {{-- Hidden Inputs --}}
     <input type="hidden" id="selected_courier_name" name="courier_name">
     <input type="hidden" id="selected_shipping_rate" name="shipping_rate">
     <input type="hidden" id="selected_courier_company_id" name="courier_company_id">
     <input type="hidden" id="selected_cod_charges" name="cod_charges">
     <input type="hidden" id="selected_courier_id" name="courier_id">
     <input type="hidden" id="selected_courier_delivery_expected_date" name="delivery_expected_date">
+    <input type="hidden" id="applied_coupon_code" name="applied_coupon_code" value="{{ session()->has('applied_coupon') ? session('applied_coupon')['code'] : '' }}">
+    <input type="hidden" id="coupon_discount_amount" name="coupon_discount_amount" value="{{ session()->has('applied_coupon') ? session('applied_coupon')['discount_amount'] : 0 }}">
+    
     <button type="submit" class="btn theme-bg-color submit-checkout-btn text-white btn-md w-100 mt-4 fw-bold">Place Order</button>
 </div>

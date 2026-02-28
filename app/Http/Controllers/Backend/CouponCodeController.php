@@ -46,15 +46,20 @@ class CouponCodeController extends Controller
                         <label class="form-label">Minimum Order Value</label>
                         <input type="number" step="0.01" name="minimum_order_value" id="minimum_order_value" class="form-control" value="0">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-6 mb-3">
                         <label class="form-label">Maximum Discount</label>
                         <input type="number" step="0.01" name="maximum_discount" id="maximum_discount" class="form-control" value="0">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Usage Limit</label>
+                        <input type="number" name="usage_limit" id="usage_limit" class="form-control" value="1" placeholder="0 = Unlimited">
+                        <small class="text-muted">Total times this coupon can be used</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
                         <label class="form-label">Valid From</label>
                         <input type="text" name="valid_from" id="valid_from" class="form-control flatpickr-date">
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-6 mb-3">
                         <label class="form-label">Valid Till</label>
                         <input type="text" name="valid_till" id="valid_till" class="form-control flatpickr-date">
                     </div>
@@ -76,6 +81,7 @@ class CouponCodeController extends Controller
             </form>
         </div>
         ';
+        
         return response()->json([
             'message' => 'Form loaded successfully',
             'form' => $form,
@@ -93,6 +99,7 @@ class CouponCodeController extends Controller
             'valid_from'           => 'required|date',
             'valid_till'           => 'required|date|after_or_equal:valid_from',
             'short_description'    => 'nullable|string|max:500',
+            'usage_limit'          => 'nullable|integer|min:1',
             'is_active'            => 'nullable|boolean',
         ]);
         if ($validator->fails()) {
@@ -111,6 +118,7 @@ class CouponCodeController extends Controller
                 'valid_from'          => $request->valid_from,
                 'valid_till'          => $request->valid_till,
                 'short_description'   => $request->short_description,
+                'usage_limit'         => $request->usage_limit ?? 1,
                 'is_active'           => $request->has('is_active') ? 1 : 0,
             ]);
             DB::commit();
@@ -174,18 +182,22 @@ class CouponCodeController extends Controller
                         class="form-control">
                     </div>
 
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-6 mb-3">
                         <label class="form-label">Maximum Discount</label>
                         <input type="number" step="0.01" name="maximum_discount" id="maximum_discount"
                             value="'.$coupons_row->maximum_discount.'" class="form-control">
                     </div>
-
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Usage Limit</label>
+                        <input type="number" name="usage_limit" id="usage_limit" class="form-control" value="'.$coupons_row->usage_limit.'" placeholder="0 = Unlimited">
+                        <small class="text-muted">Total times this coupon can be used</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
                         <label class="form-label">Valid From</label>
                         <input type="text" name="valid_from" id="valid_from" value="'.optional($coupons_row->valid_from)->format('Y-m-d').'" class="form-control flatpickr-date">
                     </div>
 
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-6 mb-3">
                         <label class="form-label">Valid Till</label>
                         <input type="text" name="valid_till" id="valid_till" value="'.optional($coupons_row->valid_till)->format('Y-m-d').'" class="form-control flatpickr-date">
                     </div>
@@ -233,6 +245,7 @@ class CouponCodeController extends Controller
             'valid_from'           => 'required|date',
             'valid_till'           => 'required|date|after_or_equal:valid_from',
             'short_description'    => 'nullable|string|max:500',
+            'usage_limit'          => 'nullable|integer|min:1',
             'is_active'            => 'nullable|boolean',
         ]);
         if ($validator->fails()) {
@@ -251,6 +264,7 @@ class CouponCodeController extends Controller
                 'valid_from'          => $request->valid_from,
                 'valid_till'          => $request->valid_till,
                 'short_description'   => $request->short_description,
+                'usage_limit'         => $request->usage_limit ?? 1,
                 'is_active'           => $request->has('is_active') ? 1 : 0,
             ]);
             DB::commit();

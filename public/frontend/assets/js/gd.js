@@ -292,36 +292,49 @@
     });
 
     function showNotificationAll(type, title, message) {
-        $.notify({
-            icon: type === "success" ? "fa fa-check" : "fa fa-exclamation",
-            title: title,
-            message: message,
-        }, {
-            element: "body",
-            position: null,
-            type: type,
-            allow_dismiss: true,
-            newest_on_top: false,
-            showProgressbar: false,
-            placement: {
-                from: "bottom",
-                align: "center",
+        $.notify(
+            {
+                icon: type === "success" ? "fa fa-check-circle" : "fa fa-exclamation-triangle",
+                title: title,
+                message: message
             },
-            offset: 30,
-            spacing: 5,
-            z_index: 1031,
-            delay: 5000,
-            animate: {
-                enter: "animated fadeInDown",
-                exit: "animated fadeOutUp",
-            },
-            template: `
-                <div data-notify="container" class="col-xxl-2  alert bg-{0} toast-notification" role="alert">
-                    <button type="button" aria-hidden="true" class="btn-close" data-notify="dismiss"></button>
-                    <span style="color: white;" data-notify="message">{2}</span>
-                </div>
-            `,
-        });
+            {
+                element: "body",
+                type: type,
+                allow_dismiss: true,
+                newest_on_top: true,
+                showProgressbar: false,
+
+                placement: {
+                    from: "bottom",
+                    align: "center"
+                },
+
+                offset: 20,
+                spacing: 10,
+                z_index: 1055,
+                delay: 4000, 
+                animate: {
+                    enter: "animated fadeInUp",
+                    exit: "animated fadeOutDown"
+                },
+                template: `
+                    <div data-notify="container"
+                    class="alert alert-{0} toast-notification shadow d-inline-flex align-items-start gap-2"
+                    role="alert">
+                        <span data-notify="icon" class="mt-1"></span>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold mb-1" data-notify="title">{1}</div>
+                            <div data-notify="message">{2}</div>
+                        </div>
+                        <button type="button"
+                                class="btn-close ms-2"
+                                data-notify="dismiss"
+                                aria-label="Close"></button>
+                    </div>
+                `
+            }
+        );
     }
 /**auto height js */
     

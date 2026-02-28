@@ -133,10 +133,10 @@
     var csrfToken = "{{ csrf_token() }}";
 </script>
 <script type="text/javascript" src="{{asset('backend/assets/js/daterangepicker/daterangepicker.min.js')}}"></script>
-<script type="text/javascript" src="{{asset('backend/assets/js/pages/upload-image-file.js')}}"></script>
+<script type="text/javascript" src="{{asset('backend/assets/js/pages/upload-image-file.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 
 <script src="{{asset('backend/assets/js/rahul-jquery-ui.min.js')}}"></script>
-<script type="text/javascript" src="{{asset('backend/assets/js/pages/product-management.js')}}"></script>
+<script type="text/javascript" src="{{asset('backend/assets/js/pages/product-management.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 
 
 @endpush

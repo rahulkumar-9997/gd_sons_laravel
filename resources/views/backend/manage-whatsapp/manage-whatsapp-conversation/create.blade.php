@@ -113,5 +113,5 @@
 <!-- modal--->
 @endsection
 @push('scripts')
-<script src="{{asset('backend/assets/js/pages/create-group-whatsapp.js')}}"></script>
+<script src="{{asset('backend/assets/js/pages/create-group-whatsapp.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 @endpush

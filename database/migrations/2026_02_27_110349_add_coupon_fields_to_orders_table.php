@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class AddCouponFieldsToOrdersTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::table('orders', function (Blueprint $table) {
+            $table->string('coupon_code')->nullable()->after('payment_status');
+            $table->decimal('coupon_discount_amount', 10, 2)->default(0)->after('coupon_code');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn(['coupon_code', 'coupon_discount_amount']);
+        });
+    }
+}

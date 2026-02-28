@@ -37,6 +37,6 @@
 <script src="{{asset('backend/assets/plugins/select2/select2.min.js')}}" type="text/javascript"></script>
 <script src="{{asset('backend/assets/plugins/multi-select/js/jquery.multi-select.js')}}" type="text/javascript"></script>
 <script src="{{asset('backend/assets/plugins/multi-select/js/jquery.quicksearch.js')}}" type="text/javascript"></script>
-<script src="{{asset('backend/assets/js/pages/whatsapp-conversation.js')}}" type="text/javascript"></script>
+<script src="{{asset('backend/assets/js/pages/whatsapp-conversation.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}" type="text/javascript"></script>
 
 @endpush

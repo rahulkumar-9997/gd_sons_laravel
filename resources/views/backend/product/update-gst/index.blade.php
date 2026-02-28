@@ -59,5 +59,5 @@
 <!-- modal--->
 @endsection
 @push('scripts')
-<script src="{{asset('backend/assets/js/pages/hsncodeorgst-update.js')}}"></script>
+<script src="{{asset('backend/assets/js/pages/hsncodeorgst-update.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 @endpush

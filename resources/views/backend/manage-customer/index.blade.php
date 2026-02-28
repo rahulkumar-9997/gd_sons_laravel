@@ -48,7 +48,7 @@
 <!-- modal--->
 @endsection
 @push('scripts')
-<script src="{{asset('backend/assets/js/pages/customer.js')}}" type="text/javascript"></script>
+<script src="{{asset('backend/assets/js/pages/customer.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}" type="text/javascript"></script>
 <script>
     var routes = {
         customerIndex: "{{ route('manage-customer') }}",

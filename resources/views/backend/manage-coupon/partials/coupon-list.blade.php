@@ -38,12 +38,29 @@
                     {{ optional($row->valid_till)->format('d-m-Y') }}
                 </td>
                 <td>
-                    <div class="form-check form-switch">
-                        <input
-                            class="form-check-input coupon-status-toggle"
-                            type="checkbox"
-                            data-id="{{ $row->id }}"
-                            {{ $row->is_active ? 'checked' : '' }}>
+                    <div class="d-flex flex-column gap-1">
+                        <div class="form-check form-switch">
+                            <input
+                                class="form-check-input coupon-status-toggle"
+                                type="checkbox"
+                                data-id="{{ $row->id }}"
+                                {{ $row->is_active ? 'checked' : '' }}>
+                        </div>
+                        @if($row->usage_limit > 0 && $row->total_used >= $row->usage_limit)
+                            <span class="badge bg-danger">
+                                Usage limit reached
+                            </span>
+                        @else
+                            @if($row->usage_limit > 0)
+                                <span class="badge bg-success">
+                                    {{ $row->usage_limit - $row->total_used }} left
+                                </span>
+                            @else
+                                <span class="badge bg-info">
+                                    Unlimited
+                                </span>
+                            @endif
+                        @endif
                     </div>
                 </td>
                 <td>

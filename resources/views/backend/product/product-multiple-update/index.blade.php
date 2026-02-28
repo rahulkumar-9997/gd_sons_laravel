@@ -91,7 +91,7 @@
 @endsection
 @push('scripts')
 <script src="{{asset('backend/assets/js/components/form-quilljs.js')}}"></script>
-<script src="{{asset('backend/assets/js/pages/multiple-update.js')}}"></script>
+<script src="{{asset('backend/assets/js/pages/multiple-update.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 <script>
     var routes = {
         filterIndex: "{{ route('product-multiple-update') }}",

@@ -154,6 +154,20 @@
                                     </td>
                                 </tr>
                                 @endif
+                                @if(!empty($order->coupon_code) && $order->coupon_discount_amount > 0)
+                                <tr>
+                                    <td colspan="4" class="text-end">
+                                        <strong>
+                                            Coupon ({{ $order->coupon_code }})
+                                        </strong>
+                                    </td>
+                                    <td class="subtotal">
+                                        <h4 class="text-danger">
+                                            - Rs. {{ number_format($order->coupon_discount_amount, 2) }}
+                                        </h4>
+                                    </td>
+                                </tr>
+                                @endif
                                 <tr>
                                     <td colspan="4" class="text-end"><strong>Grand Total</strong></td>
                                     <td class="subtotal">

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Customer;
 use App\Models\Cart;
 use App\Models\Product;
@@ -18,6 +19,8 @@ use App\Models\Wishlist;
 use App\Models\Address;
 use App\Models\Orders;
 use App\Models\State;
+use Carbon\Carbon;
+use App\Models\DiscountCode;
 
 class CustomerController extends Controller
 {
@@ -363,149 +366,7 @@ class CustomerController extends Controller
         //return response()->json($carts);
         //return view('frontend.emails.order_details_mail');
         return view('frontend.pages.checkout', compact('customer_address', 'carts', 'specialOffers', 'states', 'couriers', 'rate', 'paymentType'));
-    }
-
-    public function checkServiceability(Request $req)
-    {
-        $req->validate([
-            'pincode' => 'required|digits:6',
-            'total_weight' => 'required|numeric|min:0.1',
-        ]);
-        $session_cart = session()->get('cart', []);
-        if (empty($session_cart)) {
-            return redirect('/')->with('error', 'Your cart is empty. Please add items to proceed to checkout.');
-        }
-        $productIds = array_keys($session_cart); 
-               
-        $pincode = $req->pincode;
-        $weight = (float) $req->total_weight;
-        $fromPin = config('services.shiprocket.shiprocket_pickup_pincode');
-
-        if (!$fromPin) {
-            return response()->json([
-                'success' => false,
-                'checkout_sidebar' => '<span class="text-danger">Pickup pincode missing.</span>'
-            ]);
-        }
-
-        $ship = app(\App\Services\ShiprocketService::class);
-        $cod = $req->cod ?? 0;
-        $paymentType = $req->input('payment_type') ?? 'online';
-        $response = $ship->getServiceability($fromPin, $pincode, $weight, $cod);
-        //Log::info('Shiprocket Response: ' . json_encode($response, JSON_PRETTY_PRINT));
-        if (!$response || !$response['success']) {
-            if (!empty($response['response']['message'])) {
-                $errorMessage = $response['response']['message'];
-            } else {
-                $errorMessage = 'Delivery not available at this pincode.';
-            }
-            return response()->json([
-                'success' => false,
-                'checkout_sidebar' => $errorMessage
-            ]);
-        }
-        $couriers = [];
-        foreach ($response['raw']['data']['available_courier_companies'] as $c) {
-            $rate = $c['rate'] ?? $c['freight_charge'] ?? null;
-            if (!$rate) continue;
-            $couriers[] = [
-                'courier' => $c['courier_name'] ?? 'Unknown',
-                'service' => $c['service'] ?? '',
-                'etd'     => $c['etd'] ?? '',
-                'rate'    => $rate,
-                'courier_company_id' => $c['courier_company_id'] ?? null,
-                'cod_charges' => $c['cod_charges'] ?? 0,
-                'id'=>$c['id'] ?? null,
-            ];
-        }
-        
-        if (empty($couriers)) {
-            return response()->json([
-                'success' => false,
-                'checkout_sidebar' => '<span class="text-danger">No courier services available.</span>'
-            ]);
-        }
-        /* Varanasi free delivery start logic code*/
-        /*If free shipping for varanasi remove than this logic code remove */
-        $localityResponse = $ship->getShiprocketLocalityDetails($pincode);
-        $isFreeDelivery = false;
-        if (!empty($localityResponse['success'])) {
-            $city = strtolower(trim($localityResponse['data']['city'] ?? ''));
-            if (
-                str_contains($city, 'varanasi') ||
-                str_contains($city, 'banaras') ||
-                str_contains($city, 'benares')
-            ) {
-                $isFreeDelivery = true;
-            }
-        }
-
-        if ($isFreeDelivery) {
-            foreach ($couriers as &$courier) {
-                $courier['rate'] = 0;
-            }
-            unset($courier);
-        }
-        /* Varanasi free delivery End logic code*/
-
-        usort($couriers, fn($a, $b) => $a['rate'] <=> $b['rate']);
-        $couriers = array_slice($couriers, 0, 5);
-        $customerId = auth('customer')->id();
-        $customer_address = Address::where('customer_id', $customerId)->get();
-        $specialOffers = getCustomerSpecialOffers();
-        $carts = Product::with(['category', 'images'])
-            ->leftJoin('inventories', function ($join) {
-                $join->on('products.id', '=', 'inventories.product_id')
-                    ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-            })
-            ->select('products.*', 'inventories.mrp', 'inventories.purchase_rate', 'inventories.offer_rate', 'inventories.sku')
-            ->whereIn('products.id', $productIds)
-            ->get();
-                       
-        return response()->json([
-            'success' => true,
-            'checkout_sidebar' => view('frontend.pages.partials.checkout.component.ajax-checkout-sidebar', [
-                'couriers' => $couriers,
-                'rate' => $couriers[0]['rate'],
-                'carts' => $carts,
-                'specialOffers' => $specialOffers,
-                'paymentType' => $paymentType,
-            ])->render(),
-        ], 200);
-    }
-
-    public function checkLocalityDetails(Request $request){
-        $request->validate([
-            'pincode' => 'required|digits:6',
-        ]);
-
-        $pincode = $request->pincode;
-        $ship = app(\App\Services\ShiprocketService::class);
-        $response = $ship->getShiprocketLocalityDetails($pincode);
-        Log::info('Shiprocket Response: ' . json_encode($response, JSON_PRETTY_PRINT));
-        if (!$response || !$response['success']) {
-            return response()->json([
-                'success' => false,
-                'message' => ""
-            ]);
-        }
-
-        $details = $response['data'];
-        $city = trim(strtolower($details['city'] ?? ''));
-        $isFreeDelivery = in_array($city, [
-            'varanasi',
-            'banaras',
-            'benares'
-        ]);
-        return response()->json([
-            'success' => true,
-            'state'   => $details['state'] ?? '',
-            'city'    => $details['city'] ?? '',
-            'locality_list' => $details['locality'] ?? [],
-            'free_delivery'  => $isFreeDelivery
-        ]);
-    }
-
+    }    
 
     public function addAddressForm(Request $request)
     {
@@ -1023,4 +884,234 @@ class CustomerController extends Controller
             return response()->json(['success' => false, 'message' => 'An error occurred. Please try again.']);
         }
     }
+
+    public function checkServiceability(Request $req)
+    {
+        $req->validate([
+            'pincode' => 'required|digits:6',
+            'total_weight' => 'required|numeric|min:0.1',
+        ]);
+        $session_cart = session()->get('cart', []);
+        if (empty($session_cart)) {
+            return redirect('/')->with('error', 'Your cart is empty. Please add items to proceed to checkout.');
+        }
+        $productIds = array_keys($session_cart); 
+               
+        $pincode = $req->pincode;
+        $weight = (float) $req->total_weight;
+        $fromPin = config('services.shiprocket.shiprocket_pickup_pincode');
+
+        if (!$fromPin) {
+            return response()->json([
+                'success' => false,
+                'checkout_sidebar' => '<span class="text-danger">Pickup pincode missing.</span>'
+            ]);
+        }
+
+        $ship = app(\App\Services\ShiprocketService::class);
+        $cod = $req->cod ?? 0;
+        $paymentType = $req->input('payment_type') ?? 'online';
+        $response = $ship->getServiceability($fromPin, $pincode, $weight, $cod);
+        //Log::info('Shiprocket Response: ' . json_encode($response, JSON_PRETTY_PRINT));
+        if (!$response || !$response['success']) {
+            if (!empty($response['response']['message'])) {
+                $errorMessage = $response['response']['message'];
+            } else {
+                $errorMessage = 'Delivery not available at this pincode.';
+            }
+            return response()->json([
+                'success' => false,
+                'checkout_sidebar' => $errorMessage
+            ]);
+        }
+        $couriers = [];
+        foreach ($response['raw']['data']['available_courier_companies'] as $c) {
+            $rate = $c['rate'] ?? $c['freight_charge'] ?? null;
+            if (!$rate) continue;
+            $couriers[] = [
+                'courier' => $c['courier_name'] ?? 'Unknown',
+                'service' => $c['service'] ?? '',
+                'etd'     => $c['etd'] ?? '',
+                'rate'    => $rate,
+                'courier_company_id' => $c['courier_company_id'] ?? null,
+                'cod_charges' => $c['cod_charges'] ?? 0,
+                'id'=>$c['id'] ?? null,
+            ];
+        }
+        
+        if (empty($couriers)) {
+            return response()->json([
+                'success' => false,
+                'checkout_sidebar' => '<span class="text-danger">No courier services available.</span>'
+            ]);
+        }
+        /* Varanasi free delivery start logic code*/
+        /*If free shipping for varanasi remove than this logic code remove */
+        $localityResponse = $ship->getShiprocketLocalityDetails($pincode);
+        $isFreeDelivery = false;
+        if (!empty($localityResponse['success'])) {
+            $city = strtolower(trim($localityResponse['data']['city'] ?? ''));
+            if (
+                str_contains($city, 'varanasi') ||
+                str_contains($city, 'banaras') ||
+                str_contains($city, 'benares')
+            ) {
+                $isFreeDelivery = true;
+            }
+        }
+
+        if ($isFreeDelivery) {
+            foreach ($couriers as &$courier) {
+                $courier['rate'] = 0;
+            }
+            unset($courier);
+        }
+        /* Varanasi free delivery End logic code*/
+
+        usort($couriers, fn($a, $b) => $a['rate'] <=> $b['rate']);
+        $couriers = array_slice($couriers, 0, 5);
+        $customerId = auth('customer')->id();
+        $customer_address = Address::where('customer_id', $customerId)->get();
+        $specialOffers = getCustomerSpecialOffers();
+        $carts = Product::with(['category', 'images'])
+            ->leftJoin('inventories', function ($join) {
+                $join->on('products.id', '=', 'inventories.product_id')
+                    ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+            })
+            ->select('products.*', 'inventories.mrp', 'inventories.purchase_rate', 'inventories.offer_rate', 'inventories.sku')
+            ->whereIn('products.id', $productIds)
+            ->get();
+        $appliedCoupon = session('applied_coupon');
+        return response()->json([
+            'success' => true,
+            'checkout_sidebar' => view('frontend.pages.partials.checkout.component.ajax-checkout-sidebar', [
+                'couriers' => $couriers,
+                'rate' => $couriers[0]['rate'],
+                'carts' => $carts,
+                'specialOffers' => $specialOffers,
+                'paymentType' => $paymentType,
+                'appliedCoupon' => $appliedCoupon,
+            ])->render(),
+        ], 200);
+    }
+
+    public function checkLocalityDetails(Request $request){
+        $request->validate([
+            'pincode' => 'required|digits:6',
+        ]);
+
+        $pincode = $request->pincode;
+        $ship = app(\App\Services\ShiprocketService::class);
+        $response = $ship->getShiprocketLocalityDetails($pincode);
+        Log::info('Shiprocket Response: ' . json_encode($response, JSON_PRETTY_PRINT));
+        if (!$response || !$response['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => ""
+            ]);
+        }
+
+        $details = $response['data'];
+        $city = trim(strtolower($details['city'] ?? ''));
+        $isFreeDelivery = in_array($city, [
+            'varanasi',
+            'banaras',
+            'benares'
+        ]);
+        return response()->json([
+            'success' => true,
+            'state'   => $details['state'] ?? '',
+            'city'    => $details['city'] ?? '',
+            'locality_list' => $details['locality'] ?? [],
+            'free_delivery'  => $isFreeDelivery
+        ]);
+    }
+
+
+    public function applyCoupon(Request $request)
+    {
+        $request->validate([
+            'coupon_code' => 'required|string',
+            'subtotal' => 'required|numeric',
+            'shipping' => 'required|numeric',
+            'payment_type' => 'required|string',
+            'pincode' => 'nullable|string'
+        ]);
+        $customer = Auth::guard('customer')->user();
+        $customerId = $customer ? $customer->id : null;
+        $userIp = $request->ip();
+        $coupon = DiscountCode::where('discount_code', $request->coupon_code)
+            ->where('is_active', true)
+            ->where('valid_from', '<=', Carbon::now())
+            ->where('valid_till', '>=', Carbon::now())
+            ->first();
+        if (!$coupon) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired coupon code'
+            ]);
+        }
+        if (!$coupon->canUse($customerId, $userIp)) {
+            $message = 'This coupon cannot be used anymore';
+            if ($coupon->usage_limit > 0 && $coupon->total_used >= $coupon->usage_limit) {
+                $message = 'This coupon has reached its maximum usage limit';
+            } elseif ($customerId && $coupon->used_by_customers) {
+                $usedCustomers = explode(',', $coupon->used_by_customers);
+                if (in_array($customerId, $usedCustomers)) {
+                    $message = 'You have already used this coupon';
+                }
+            } elseif ($userIp && $coupon->used_by_ips) {
+                $usedIps = explode(',', $coupon->used_by_ips);
+                if (in_array($userIp, $usedIps)) {
+                    $message = 'You have already used this coupon';
+                }
+            }            
+            return response()->json([
+                'success' => false,
+                'message' => $message
+            ]);
+        }
+        if ($request->subtotal < $coupon->minimum_order_value) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Minimum order value should be Rs. ' . $coupon->minimum_order_value
+            ]);
+        }
+
+        $discountAmount = 0;
+        if ($coupon->mode === 'Percentage') {
+            $discountAmount = ($request->subtotal * $coupon->discount_value) / 100;
+            if ($coupon->maximum_discount && $discountAmount > $coupon->maximum_discount) {
+                $discountAmount = $coupon->maximum_discount;
+            }
+        } else {
+            $discountAmount = $coupon->discount_value;
+        }
+        session([
+            'applied_coupon' => [
+                'code' => $coupon->discount_code,
+                'discount_amount' => $discountAmount,
+                'mode' => $coupon->mode,
+                'value' => $coupon->discount_value,
+                'id' => $coupon->id
+            ]
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Coupon applied successfully!',
+            'discount_amount' => $discountAmount,
+            'coupon_code' => $coupon->discount_code
+        ]);
+    }
+
+    public function removeCoupon()
+    {
+        session()->forget('applied_coupon');
+        return response()->json([
+            'success' => true,
+            'message' => 'Coupon removed successfully'
+        ]);
+    }
+
 }

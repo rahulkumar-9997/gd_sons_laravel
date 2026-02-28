@@ -111,8 +111,8 @@ Route::middleware([TrackVisitor::class])->group(function () {
     Route::post('/ajax/check-shiprocket', [CustomerController::class, 'checkServiceability'])
     ->name('ajax.check-shiprocket');
     Route::post('/ajax/check-shiprocket-locality-details', [CustomerController::class, 'checkLocalityDetails'])->name('ajax.check-shiprocket-locality-details');
-    // Route::post('/ajax/check-coupon-code', [CustomerController::class, 'checkCouponCode'])
-    // ->name('ajax.check-coupon-code');
+    Route::post('apply-coupon', [CustomerController::class, 'applyCoupon'])->name('apply.coupon');
+    Route::post('remove-coupon', [CustomerController::class, 'removeCoupon'])->name('remove.coupon');
     Route::post('checkout/submit', [OrderController::class, 'checkOutFormSubmit'])->name('checkout.submit');
     Route::post('/razorpay/callback', [OrderController::class, 'handleRazorpayCallback'])->name('razorpay.callback');
     Route::post('/payment-failed', [OrderController::class, 'handlePaymentFailed'])->name('payment.failed');

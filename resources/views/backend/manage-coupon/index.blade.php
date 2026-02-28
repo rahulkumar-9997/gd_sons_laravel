@@ -28,6 +28,6 @@
 @include('backend.layouts.common-modal-form')
 @endsection
 @push('scripts')
-<script src="{{asset('backend/assets/js/components/form-flatepicker.js')}}"></script>
-<script src="{{asset('backend/assets/js/pages/manage-coupon.js')}}"></script>
+<script src="{{asset('backend/assets/js/components/form-flatepicker.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
+<script src="{{asset('backend/assets/js/pages/manage-coupon.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 @endpush

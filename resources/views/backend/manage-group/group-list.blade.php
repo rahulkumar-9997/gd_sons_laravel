@@ -38,7 +38,7 @@
 <!-- modal--->
 @endsection
 @push('scripts')
-<script src="{{asset('backend/assets/js/pages/group.js')}}" type="text/javascript"></script>
+<script src="{{asset('backend/assets/js/pages/group.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}" type="text/javascript"></script>
 <script>
    $(document).ready(function() {
       $('.show_confirm').click(function(event) {

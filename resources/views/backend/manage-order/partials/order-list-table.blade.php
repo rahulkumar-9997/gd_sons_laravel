@@ -34,6 +34,13 @@
             </td>
             <td>
                 Rs. {{ number_format($order->grand_total_amount, 2) }}
+                @if(!empty($order->coupon_code) && $order->coupon_discount_amount > 0)
+                    <br>
+                    <span class="badge bg-info-subtle text-info border border-info mt-1">
+                        Coupon: {{ $order->coupon_code }}
+                        ( - Rs. {{ number_format($order->coupon_discount_amount, 2) }} )
+                    </span>
+                @endif
                 @if($order->shiprocketCourier)
                 <label class="ms-2 fs-20 text-success cursor-pointer"
                     data-bs-toggle="tooltip"
@@ -196,7 +203,6 @@
                         </div>
                         @endif
                     @endif
-
                     <a href="{{ route('download-invoice', ['orderId' => $order->id]) }}" class="btn btn-light btn-sm"
                         data-bs-toggle="tooltip" data-bs-original-title="Print Invoice">
                         <i class="ti ti-file-invoice"></i>

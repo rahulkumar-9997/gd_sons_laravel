@@ -179,5 +179,5 @@
 <!-- User Dashboard Section End -->
 @endsection
 @push('scripts')
-<script type="text/javascript" src="{{asset('frontend/assets/js/pages/customer.js')}}"></script>
+<script type="text/javascript" src="{{asset('frontend/assets/js/pages/customer.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 @endpush

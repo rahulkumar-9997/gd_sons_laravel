@@ -155,11 +155,11 @@
 <!-- modal--->
 @endsection
 @push('scripts')
-<script src="{{asset('backend/assets/js/pages/vendor.js')}}?v=1.1"></script>
+<script src="{{asset('backend/assets/js/pages/vendor.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 <!--for vendor js code-->
-<link rel="stylesheet" href="{{asset('backend/assets/js/autocomplete/jquery-ui.css')}}?v=1.1">
-<script src="{{asset('backend/assets/js/autocomplete/jquery-ui.min.js')}}?v=1.1"></script>
+<link rel="stylesheet" href="{{asset('backend/assets/js/autocomplete/jquery-ui.css')}}?v={{ env('ASSET_VERSION', '1.0.0') }}">
+<script src="{{asset('backend/assets/js/autocomplete/jquery-ui.min.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 
-<script src="{{asset('backend/assets/js/pages/create-whatsapp.js')}}?v=1.1"></script>
-<script src="{{asset('backend/assets/js/pages/whatsapp-conversation.js')}}?v=1.1" type="text/javascript"></script>
+<script src="{{asset('backend/assets/js/pages/create-whatsapp.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
+<script src="{{asset('backend/assets/js/pages/whatsapp-conversation.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}" type="text/javascript"></script>
 @endpush

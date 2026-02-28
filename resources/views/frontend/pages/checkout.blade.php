@@ -61,6 +61,8 @@
     window.razorpayKey = "{{ config('services.razorpay.key') }}";
     window.shiprocketCheckUrl = "{{ route('ajax.check-shiprocket') }}";
     window.shiprocketCheckLocalityUrl = "{{ route('ajax.check-shiprocket-locality-details') }}";
+    window.applyCouponUrl = "{{ route('apply.coupon') }}";
+    window.removeCouponUrl = "{{ route('remove.coupon') }}";
 </script>
 <script>
 $(document).ready(function() {

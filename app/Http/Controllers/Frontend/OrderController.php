@@ -26,6 +26,7 @@ use App\Models\Inventory;
 use App\Models\Cart;
 use App\Models\Customer;
 use App\Models\ShiprocketCourier;
+use App\Models\DiscountCode;
 
 class OrderController extends Controller
 {
@@ -764,7 +765,9 @@ class OrderController extends Controller
                 'shipping_address_id' => $shippingAddressId ?? null,
                 'billing_address_id' => $billingAddressId ?? null,
                 'order_status_id' => $orderStatus->id ?? null,
+
             ]);
+            $this->trackCouponUsage($order);
             Log::info('storeOrderAfterPayment in: ', ['create order' => $order]);
             /* Add order lines */
             $cartItems = session('cart_items', []);
@@ -861,6 +864,25 @@ class OrderController extends Controller
         }
     }
 
+    protected function trackCouponUsage(Orders $order)
+    {
+        if (session()->has('applied_coupon')) {
+            $appliedCoupon = session('applied_coupon');
+            if (isset($appliedCoupon['id'])) {
+                $coupon = DiscountCode::find($appliedCoupon['id']);
+                if ($coupon) {
+                    $customer = Auth::guard('customer')->user();
+                    $customerId = $customer ? $customer->id : null;
+                    $userIp = request()->ip();
+                    $coupon->markAsUsed($customerId, $userIp);
+                }
+            }
+            $order->coupon_code = $appliedCoupon['code'];
+            $order->coupon_discount_amount = $appliedCoupon['discount_amount'];
+            $order->save();
+            session()->forget('applied_coupon');
+        }
+    }
 
     public function storeOrderAfterPaymentOld(Request $request)
     {

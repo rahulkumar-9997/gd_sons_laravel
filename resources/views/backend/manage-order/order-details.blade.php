@@ -109,6 +109,14 @@
                                     </thead>
                                     <tbody>
                                         @if($order->orderLines->isNotEmpty())
+                                            @php
+                                                $itemsSubTotal = $order->orderLines->sum(function ($line) {
+                                                    return $line->quantity * $line->price;
+                                                });
+                                                $shippingCharge = $order->shiprocketCourier->courier_shipping_rate ?? 0;
+                                                $discountAmount = $order->coupon_discount_amount ?? 0;
+                                                $finalPayable = ($itemsSubTotal - $discountAmount) + $shippingCharge;
+                                            @endphp
                                             @foreach($order->orderLines as $line)
                                             @php
                                                 $attributes_value ='na';
@@ -183,20 +191,51 @@
                                                 </td>
                                             </tr>
                                             @endforeach
-                                            @if($order->shiprocketCourier)
-                                                <tr>
-                                                    <td colspan="3" class="text-end">
-                                                        <strong>Shipping Charges</strong>
+                                            <tr class="bg-light">
+                                                <td colspan="3" class="text-end fw-bold">
+                                                    Items Sub Total
+                                                </td>
+                                                <td class="fw-bold">
+                                                    Rs. {{ number_format($itemsSubTotal, 2) }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3" class="text-end fw-bold">
+                                                    Discount
+                                                    @if($order->coupon_code)
                                                         <br>
-                                                        <span class="text-muted"> {{ $order->shiprocketCourier->courier_name }}</span>
-                                                    </td>
-                                                    <td class="subtotal">
-                                                        <h4>
-                                                            Rs. {{ number_format( $order->shiprocketCourier->courier_shipping_rate) }}
-                                                        </h4>
-                                                    </td>
-                                                </tr>
-                                            @endif
+                                                        <small class="text-info">
+                                                            Coupon : {{ $order->coupon_code }}
+                                                        </small>
+                                                    @endif
+                                                    
+                                                </td>
+                                                <td class="fw-bold text-danger">
+                                                    - Rs. {{ number_format($discountAmount, 2) }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3" class="text-end fw-bold">
+                                                    Shipping Charges
+                                                    @if($order->shiprocketCourier)
+                                                        <br>
+                                                        <small class="text-info">
+                                                            {{ $order->shiprocketCourier->courier_name }}
+                                                        </small>
+                                                    @endif
+                                                </td>
+                                                <td class="fw-bold">
+                                                    Rs. {{ number_format($shippingCharge, 2) }}
+                                                </td>
+                                            </tr>
+                                            <tr class="table-active">
+                                                <td colspan="3" class="text-end fw-bold fs-16">
+                                                    Total Payable
+                                                </td>
+                                                <td class="fw-bold fs-16">
+                                                    Rs. {{ number_format($finalPayable, 2) }}
+                                                </td>
+                                            </tr>
                                         @else
                                         <tr>
                                             <td colspan="6" class="text-center">No order items found</td>
@@ -319,16 +358,42 @@
                             <tbody>
                                 <tr>
                                     <td class="px-0">
-                                        <p class="d-flex mb-0 align-items-center gap-1"><iconify-icon icon="solar:clipboard-text-broken"></iconify-icon> Sub Total : </p>
+                                        <p class="d-flex mb-0 align-items-center gap-1">
+                                            <iconify-icon icon="solar:clipboard-text-broken"></iconify-icon>
+                                            Sub Total :
+                                        </p>
                                     </td>
                                     <td class="text-end text-dark fw-medium px-0">
-                                        Rs. {{ number_format($order->grand_total_amount, 2)	}}</td>
+                                        Rs. {{
+                                            number_format(
+                                                $order->orderLines->sum(function ($line) {
+                                                    return $line->quantity * $line->price;
+                                                }),
+                                            2)
+                                        }}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td class="px-0">
-                                        <p class="d-flex mb-0 align-items-center gap-1"><iconify-icon icon="solar:ticket-broken" class="align-middle"></iconify-icon> Discount : </p>
+                                        <p class="d-flex mb-0 align-items-center gap-1">
+                                            <iconify-icon icon="solar:ticket-broken" class="align-middle"></iconify-icon> 
+                                            Discount :
+                                        </p>
+
+                                        @if(!empty($order->coupon_code))
+                                            <small class="text-success">
+                                                Coupon : {{ $order->coupon_code }}
+                                            </small>
+                                        @endif
                                     </td>
-                                    <td class="text-end text-dark fw-medium px-0">Rs. 00</td>
+
+                                    <td class="text-end text-dark fw-medium px-0">
+                                        @if(!empty($order->coupon_discount_amount) && $order->coupon_discount_amount > 0)
+                                            - Rs. {{ number_format($order->coupon_discount_amount, 2) }}
+                                        @else
+                                            Rs. 0.00
+                                        @endif
+                                    </td>
                                 </tr>
                                 @if($order->shiprocketCourier)
                                     <tr>

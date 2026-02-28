@@ -2342,3 +2342,42 @@ a.cntshop {
   color: #000000bf;
   font-size: 18px;
 }
+
+/* Add to your stylesheet */
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.btn-loading:after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
+}
+.coupon-discount-row{
+  padding-bottom: 20px;
+}
+.toast-notification{
+    width: auto !important;
+    max-width: 420px;
+}

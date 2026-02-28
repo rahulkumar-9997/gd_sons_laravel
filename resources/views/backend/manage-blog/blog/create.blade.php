@@ -179,6 +179,6 @@
 <script src="{{asset('backend/assets/js/autocomplete/jquery-ui.min.js')}}"></script>
 <!--autocomplete-->
 <script src="{{asset('backend/assets/js/components/form-quilljs.js')}}"></script>
-<script src="{{asset('backend/assets/js/pages/create-blog.js')}}" type="text/javascript"></script>
+<script src="{{asset('backend/assets/js/pages/create-blog.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}" type="text/javascript"></script>
 
 @endpush

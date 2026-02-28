@@ -208,6 +208,18 @@
                                                             </td>
                                                         </tr>
                                                         @endif
+                                                        @if(!empty($order->coupon_code) && $order->coupon_discount_amount > 0)
+                                                        <tr>
+                                                            <th>
+                                                                <span>Coupon ({{ $order->coupon_code }})</span>
+                                                            </th>
+                                                            <td>
+                                                                <span class="text-danger">
+                                                                    - Rs. {{ number_format($order->coupon_discount_amount, 2) }}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                        @endif
                                                         <tr class="OrderTotals-total">
                                                             <th>
                                                                 <span>Total</span>
@@ -248,5 +260,5 @@
 <!-- User Dashboard Section End -->
 @endsection
 @push('scripts')
-<script type="text/javascript" src="{{asset('frontend/assets/js/pages/customer.js')}}"></script>
+<script type="text/javascript" src="{{asset('frontend/assets/js/pages/customer.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 @endpush

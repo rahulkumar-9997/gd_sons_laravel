@@ -47,6 +47,7 @@ use App\Http\Controllers\Backend\ProductReviewBackendController;
 use App\Http\Controllers\Backend\VideoController;
 use App\Http\Controllers\Backend\EnquiryController;
 use App\Http\Controllers\Backend\CouponCodeController;
+use App\Http\Controllers\Backend\RelatedProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -167,9 +168,6 @@ Route::post('/wp-verify-otp', [FrontendController::class, 'WhatappVerifyOtp'])->
 
 Route::post('click-tracker', [FrontendController::class, 'clickTracker'])->name('click.tracker');
 
-
-
-
 /**backend rout */
 Route::prefix('admin')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm']);
@@ -239,7 +237,6 @@ Route::group(['middleware' => ['admin']], function () {
     Route::delete('category/delete/{category}', [CategoryController::class, 'deletaCategory'])->name('category.delete');
     Route::get('category/{id}', [CategoryController::class, 'show'])->name('category.show');
     Route::post('mapped-category-attributes-front/submit', [CategoryController::class, 'saveMappedCategoryAttributes'])->name('mappedCategoryAttributesFront.submit');
-
     /**subcategory */
     Route::get('subcategory', [SubcategoryController::class, 'index'])->name('subcategory');
     Route::post('subcategory/create', [SubcategoryController::class, 'create'])->name('subcategory.create');
@@ -266,22 +263,16 @@ Route::group(['middleware' => ['admin']], function () {
     /**attributes value wise update gst and hsn code */
     Route::get('update-hsn-gst-with-attributes-value/{attributes_id}/{category_id}', [AttributeController::class, 'updateHsnGstWithAttributesValue'])->name('update-hsn-gst-with-attributes-value');
     Route::post('/update-hsn-gst-attributes-value', [AttributeController::class, 'updateHsnGstAttributesValueFormSubmit'])->name('update-hsn-gst-attributes-value');
-    Route::post('get-hsn-and-gst', [AttributeController::class, 'getHsnAndGst'])->name('get-hsn-and-gst');
-    
+    Route::post('get-hsn-and-gst', [AttributeController::class, 'getHsnAndGst'])->name('get-hsn-and-gst');    
     /**attributes value wise update gst and hsn code */
-    
-
     Route::post('/attributes-value/edit/{attributesValue}', [AttributeController::class, 'attributesValueEdit'])->name('attributes-value.edit');
     Route::post('attributes-value/update/{attributesValue}', [AttributeController::class, 'updateAttributesValue'])->name('attributes-value.update');
     Route::delete('attributes-value/delete/{attributesValue}', [AttributeController::class, 'deletaAttributesValue'])->name('attributes-value.delete');
-
     Route::post('/attribute-values/sort', [AttributeController::class, 'sort'])->name('attribute-values.sort');
-
     Route::get('product-catalog-attributes-value/{value}', [AttributeController::class, 'productCatalogWithAttributesValue'])->name('product-catalog-attributes-value');
     /**Attributes */
     /**Product route */
-    Route::resource('product', ProductsController::class);
-    
+    Route::resource('product', ProductsController::class);    
     Route::post('/products/bulk-delete', [ProductsController::class, 'bulkDelete'])->name('product.bulkDelete');
     Route::post('/products/modal-image-form', [ProductsController::class, 'imageUploadModalForm'])->name('products.modal-image-form');
     Route::post('/products/modal-image-form/submit', [ProductsController::class, 'imageUploadModalFormSubmit'])->name('products.modal-image-form.submit');
@@ -406,7 +397,6 @@ Route::group(['middleware' => ['admin']], function () {
     Route::delete('manage-rating/{id}', [ProductReviewBackendController::class, 'destroy'])->name('manage-rating.destroy');
     Route::get('/review-files/{file}', [ProductReviewBackendController::class, 'destroyFile'])
     ->name('review.files.destroy');
-
     Route::prefix('shiprocket')->group(function () {
         Route::post('/create-order/{id}', [OrderControllerBackend::class, 'createShipRocketOrder'])->name('shiprocket.create.order');
         Route::post('/generate-awb/{id}', [OrderControllerBackend::class, 'generateShipRocketAWB'])->name('shiprocket.generate.awb');
@@ -417,4 +407,5 @@ Route::group(['middleware' => ['admin']], function () {
        
     });	
     Route::Resource('manage-coupon', CouponCodeController::class);
+    Route::Resource('manage-related-product', RelatedProductController::class);
 });

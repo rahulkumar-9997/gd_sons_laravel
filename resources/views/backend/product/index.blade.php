@@ -67,6 +67,13 @@
                      @endforeach
                   </select>
                </div> -->
+               <a href="{{route('manage-related-product.index')}}" 
+                  data-title="Manage Related Product" 
+                  data-bs-toggle="tooltip" 
+                  title="Manage Related Product" 
+                  class="btn btn-sm btn-orange">
+                  Manage Related Product
+               </a>
                 <a href="{{route('product-multiple-update')}}" 
                     data-title="Product Multiple Update" 
                     data-bs-toggle="tooltip" 

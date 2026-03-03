@@ -4565,7 +4565,7 @@ textarea.form-control-lg {
   --bs-btn-padding-y: 0.348rem;
   --bs-btn-padding-x: 0.75rem;
   --bs-btn-font-size: 0.7875rem;
-  --bs-btn-border-radius: 0.5rem;
+  --bs-btn-border-radius: 3px;
 }
 
 .fade {

@@ -33,6 +33,7 @@ use App\Models\Customer;
 use App\Models\SpecialOffer;
 use App\Models\ProductEnquiry;
 use App\Models\ClickTrackers;
+use App\Models\RelatedProduct;
 use Illuminate\Support\Facades\Cache;
 
 class FrontendController extends Controller
@@ -639,23 +640,7 @@ class FrontendController extends Controller
 					
 					break;
 				}
-			}
-			
-			/*
-			$transformedstr = $attributes_with_values_for_filter_list
-				->take(3)
-				->map(function($item) {
-					$values = $item->AttributesValues
-						->reject(fn($aval) => in_array($aval->name, ['NA', 'N/A']))
-						->take(3)
-						->pluck('name')
-						->implode(' ');
-					return "{$item->title}s like {$values}";
-				})
-				->implode(' ');
-			*/
-			
-            // Return view for non-AJAX requests
+			}			
             return view('frontend.pages.product-catalog', compact(
                 'products',
                 'category',
@@ -693,7 +678,6 @@ class FrontendController extends Controller
                 if ($offer) {
                     $offer_url = $offer->url;
                     if (!$offer_url) {
-                       // Log::warning('Offer URL is missing', ['offer_id' => $offer->id]);
                         return redirect('/')->with('error', 'Invalid offer URL.');
                     }
                     //$customer = Customer::select('phone_number')->where('id', $customer_id)->first();
@@ -832,9 +816,13 @@ class FrontendController extends Controller
             ->inRandomOrder()
             ->limit(10)
             ->get();
+        /*Related product from related table*/
+        $variantIds = RelatedProduct::where('product_id', $currentProductId)->pluck('variant_id');
+        /*Related product from related table */
+
         DB::disconnect();
         /**Related product display */
-        //return response()->json($data['product_details']);
+        return response()->json($data['product_details']);
         return view('frontend.pages.product', compact('data', 'specialOffers'));
     }
 

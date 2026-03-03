@@ -17,20 +17,18 @@ class RelatedProductController extends Controller
             ->distinct()
             ->orderBy('variant_id', 'desc')
             ->paginate(20);
-
-        $groups = RelatedProduct::with('product')
+            $groups = RelatedProduct::with(['product' => function($query) {
+                $query->select('id', 'title', 'slug');
+            }])
             ->whereIn('variant_id', $variants->pluck('variant_id'))
+            ->orderBy('created_at', 'desc')
             ->get()
             ->groupBy('variant_id');
 
         return view('backend.product.related-product.index', compact('groups', 'variants'));
     }
-
-    public function create(Request $request){     
-        $products = Product::select('id', 'title', 'product_description', 'product_price', 'product_sale_price')
-            ->orderBy('title')
-            ->get();   
-        return view('backend.product.related-product.create', compact('products'));
+    public function create(Request $request){ 
+        return view('backend.product.related-product.create');
                
     }
 
@@ -90,5 +88,9 @@ class RelatedProductController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function edit(Request $request){ 
+        return view('backend.product.related-product.edit');
     }
 }

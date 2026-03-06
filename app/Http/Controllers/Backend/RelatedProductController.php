@@ -14,21 +14,15 @@ class RelatedProductController extends Controller
     public function index(Request $request)
     {
         $variants = RelatedProduct::select('variant_id')
-            ->distinct()
+            ->groupBy('variant_id')
             ->orderByDesc('variant_id')
-            ->paginate(20);
+            ->paginate(1);
 
-        $relatedProducts = RelatedProduct::with(['product:id,title,slug'])
+        $groups = RelatedProduct::with(['product:id,title,slug'])
             ->whereIn('variant_id', $variants->pluck('variant_id'))
             ->orderBy('created_at', 'desc')
             ->get()
             ->groupBy('variant_id');
-
-        $groups = collect();
-
-        foreach ($variants as $variant) {
-            $groups[$variant->variant_id] = $relatedProducts[$variant->variant_id] ?? collect();
-        }
 
         return view('backend.product.related-product.index', compact('groups', 'variants'));
     }

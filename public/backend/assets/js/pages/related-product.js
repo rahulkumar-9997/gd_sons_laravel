@@ -145,10 +145,8 @@ $(document).ready(function () {
         }
         $row.remove();
     });
-
-
     /* Submit form */
-    $(document).on("submit", "#add_related_product_form", function (event) {
+    $(document).off('submit', '#add_related_product_form').on('submit', '#add_related_product_form', function (event) {
         event.preventDefault();
         var form = $(this);
         var submitButton = form.find('input[type="submit"],button[type="submit"]');
@@ -201,6 +199,81 @@ $(document).ready(function () {
             }
         });
 
+    });
+
+    $(document).off('submit', '#edit_related_product_form').on('submit', '#edit_related_product_form', function (event) {
+        event.preventDefault();
+        var form = $(this);
+        var submitButton = form.find('button[type="submit"]');
+        submitButton.prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...');        
+        var formData = new FormData(this);        
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                submitButton.prop("disabled", false).html('Update');
+                if (response.status === "success") {
+                    Toastify({
+                        text: response.message,
+                        duration: 5000,
+                        gravity: "top",
+                        position: "right",
+                        className: "bg-success",
+                        close: true,
+                    }).showToast();
+                    
+                    if (response.redirect_url) {
+                        setTimeout(function() {
+                            window.location.href = response.redirect_url;
+                        }, 800);
+                    }
+                }
+            },
+            error: function(error) {
+                submitButton.prop("disabled", false).html('Update');
+                let errorMessage = "An unexpected error occurred.";
+                if (error.responseJSON) {
+                    if (error.responseJSON.errors) {
+                        let errorDetails = "<ul>";
+                        $.each(error.responseJSON.errors, function(field, messages) {
+                            errorDetails += `<li>${messages.join(", ")}</li>`;
+                        });
+                        errorDetails += "</ul>";
+                        errorMessage = errorDetails;
+                    } else if (error.responseJSON.message) {
+                        errorMessage = error.responseJSON.message;
+                    }
+                }
+                $("#error-container").html(
+                    `<div class="alert alert-danger">${errorMessage}</div>`
+                );
+                $('html, body').animate({
+                    scrollTop: $("#error-container").offset().top - 100
+                }, 500);
+            }
+        });
+    });
+
+    $(document).on("click", ".show_confirm", function (event) {
+        var form = $(this).closest("form"); 
+        var name = $(this).data("name");
+        event.preventDefault();
+        Swal.fire({
+            title: `Are you sure you want to delete this ${name}?`,
+            text: "If you delete this, it will be gone forever.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel",
+            dangerMode: true,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
     });
 
 });

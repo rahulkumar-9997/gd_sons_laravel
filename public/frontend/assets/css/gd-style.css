@@ -2381,3 +2381,87 @@ a.cntshop {
     width: auto !important;
     max-width: 420px;
 }
+.other_related_product{
+  padding: 10px 0px 10px 0px;
+}
+.other_related_product fieldset{
+  border: none;
+  margin: 0 0px;
+  padding: 0em  0em 0em 0em;
+}
+.other_related_product input[type=radio]{
+    display:none;
+}
+.product-form__input {
+    width: 100%;
+    max-width: 100%;
+}
+.product-form__input {
+    flex: 0 0 100%;
+    padding: 0;
+    margin: 0 0 1.2rem;
+    max-width: 44rem;
+    min-width: fit-content;
+    border: none;
+}
+
+.other_related_product label{
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    background-color: rgb(255,255,255);
+    color: rgb(0, 0, 0);
+    border-radius: 40px;
+    display: inline-block;
+    margin: .7rem .5rem .2rem 0;
+    padding: 14px 14px;
+    font-size: calc(13px + 1 * (100vw - 320px) / 1600);
+    line-height: 1.2;
+    text-align: center;
+    transition: border .1s ease;
+    cursor: pointer;
+    position: relative;
+}
+.other_related_product .form__label{
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 0px;
+}
+.product-form__input input[type=radio] {
+    clip: rect(0, 0, 0, 0);
+    overflow: hidden;
+    position: absolute;
+    height: 1px;
+    width: 1px;
+}
+.other_related_product input[type=radio]:checked + label{
+    border: 2px solid #000;
+    background: #000000;
+    color: #ffff;
+}
+
+.tooltip_label{
+    position: relative;
+    cursor: pointer;
+}
+
+.tooltip_text{
+    visibility: hidden;
+    background: #000;
+    color: #fff;
+    text-align: center;
+    padding: 5px 10px;
+    border-radius: 4px;
+
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip_label:hover .tooltip_text{
+    visibility: visible;
+    opacity: 1;
+}

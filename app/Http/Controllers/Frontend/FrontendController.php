@@ -745,9 +745,8 @@ class FrontendController extends Controller
         $specialOffers = getCustomerSpecialOffers();
         $attributeValue = Attribute_values::where('slug', $attributes_value_slug)->first();
         /*First get the product and increment visitor count in one query*/
-        $product = Product::where('slug', $slug)
-            ->firstOrFail()
-            ->increment('visitor_count');
+        $product = Product::where('slug', $slug)->firstOrFail();
+        $product->increment('visitor_count');
         /*First get the product and increment visitor count in one query*/
         if (!$attributeValue) {
             abort(404);
@@ -817,12 +816,30 @@ class FrontendController extends Controller
             ->limit(10)
             ->get();
         /*Related product from related table*/
-        $variantIds = RelatedProduct::where('product_id', $currentProductId)->pluck('variant_id');
+        $variantIds = RelatedProduct::where('product_id', $product->id)->pluck('variant_id');
+        $data['other_related_products'] = RelatedProduct::with([
+        'product' => function ($query) use ($attributeValue) {
+            $query->select('id','title','slug')
+                ->with([
+                    'ProductAttributesValues' => function ($q) use ($attributeValue) {
+                        $q->select('id','product_id','product_attribute_id','attributes_value_id')
+                            ->where('attributes_value_id', $attributeValue->id)
+                            ->with([
+                                'attributeValue:id,slug'
+                            ])
+                            ->orderBy('id');
+                    }
+                ]);
+        }
+    ])
+    ->whereIn('variant_id', $variantIds)
+    ->select('product_id','variant_id','title')
+    ->get();
         /*Related product from related table */
 
         DB::disconnect();
         /**Related product display */
-        return response()->json($data['product_details']);
+        //return response()->json($data['other_related_products']);
         return view('frontend.pages.product', compact('data', 'specialOffers'));
     }
 

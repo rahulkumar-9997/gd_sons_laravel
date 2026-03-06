@@ -214,10 +214,11 @@
                                                   class="d-inline delete-form">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" 
-                                                        class="btn btn-sm btn-danger delete-btn"
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-danger show_confirm"
                                                         data-bs-toggle="tooltip" 
-                                                        title="Delete Group">
+                                                        title="Delete Group"
+                                                        data-name="Related Product Group">
                                                     <i class="ti ti-trash"></i>
                                                 </button>
                                             </form>
@@ -231,11 +232,9 @@
 
                     <!-- Pagination with Info -->
                     <div class="d-flex justify-content-between align-items-center mt-3">
-                        <div class="text-muted small">
-                            Showing {{ $variants->firstItem() ?? 0 }} to {{ $variants->lastItem() ?? 0 }} of {{ $variants->total() }} groups
-                        </div>
+                       
                         <div>
-                            {{ $variants->links() }}
+                            {{ $variants->links('vendor.pagination.bootstrap-4') }}
                         </div>
                     </div>
                     @else
@@ -258,23 +257,5 @@
 @endsection
 
 @push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        tooltipTriggerList.map(function(tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        });
-
-        // Sweet Alert for delete confirmation (optional - if you want sweeter alerts)
-        document.querySelectorAll('.delete-form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                if (confirm('Are you sure you want to delete this entire related product group? This action cannot be undone.')) {
-                    this.submit();
-                }
-            });
-        });
-    });
-</script>
+<script src="{{asset('backend/assets/js/pages/related-product.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}" type="text/javascript"></script>
 @endpush

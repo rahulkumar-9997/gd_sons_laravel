@@ -140,5 +140,5 @@
 <link rel="stylesheet" href="{{asset('backend/assets/js/autocomplete/jquery-ui.css')}}">
 <script src="{{asset('backend/assets/js/autocomplete/jquery-ui.min.js')}}"></script>
 </script>
-<script src="{{asset('backend/assets/js/pages/related-product.js')}}" type="text/javascript"></script>
+<script src="{{asset('backend/assets/js/pages/related-product.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}" type="text/javascript"></script>
 @endpush

@@ -421,6 +421,38 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                     </a>
                                 </div>
                             </div>
+                            @if(!empty($data['other_related_products']) && count($data['other_related_products']) > 0)
+                            <div class="other_related_product">
+                                <fieldset class="product-form__input">
+                                    <legend class="form__label">Other Options</legend>
+                                   @foreach($data['other_related_products'] as $key => $related)
+
+                                    @php
+                                        $productSlug = $related->product->slug ?? '';
+                                        $attributes_value_related = 'na';
+                                        if(!empty($related->product->ProductAttributesValues) && $related->product->ProductAttributesValues->isNotEmpty()){
+                                            $attributes_value_related = $related->product->ProductAttributesValues->first()->attributeValue->slug ?? 'na';
+                                        }
+                                        $url = url('products/'.$productSlug.'/'.$attributes_value_related);
+                                        $isCurrent = request()->segment(2) == $productSlug;
+                                    @endphp
+                                    <input type="radio"
+                                        id="related_product_{{ $key }}"
+                                        name="related_product"
+                                        value="{{ $productSlug }}"
+                                        {{ $isCurrent ? 'checked disabled' : '' }}
+                                        {{ !$isCurrent ? "onclick=window.location.href='".$url."'" : '' }}>
+                                        <label for="related_product_{{ $key }}" 
+                                        class="tooltip_label {{ $isCurrent ? 'current_option' : '' }}">
+                                        {{ $related->title ?: $related->product->title }}
+                                            <span class="tooltip_text">
+                                                {{ $related->title ?: $related->product->title }}
+                                            </span>
+                                        </label>
+                                    @endforeach
+                                </fieldset>
+                            </div>
+                            @endif
                             @if(isset($data['product_details']->attributes) && $data['product_details']->attributes->isNotEmpty())
                             <div class="pickup-box">
                                 <!--<div class="product-title">
@@ -535,7 +567,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 $secondImageTrending = $related_product_row->images->get(1);
                                 $attributes_value ='na';
                                 if($related_product_row->ProductAttributesValues->isNotEmpty()){
-                                $attributes_value = $related_product_row->ProductAttributesValues->first()->attributeValue->slug;
+                                    $attributes_value = $related_product_row->ProductAttributesValues->first()->attributeValue->slug;
                                 }
                                 @endphp
 

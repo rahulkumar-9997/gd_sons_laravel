@@ -38,6 +38,8 @@ class RelatedProductController extends Controller
             'relation_type' => 'required|string',
             'product_id'    => 'required|array',
             'product_id.*'  => 'sometimes|exists:products,id',
+            'related_title' => 'required|array',
+            'related_title.*' => 'required|string|max:255',
         ]);        
         DB::beginTransaction();
         //logger()->info($request->all());        
@@ -53,6 +55,7 @@ class RelatedProductController extends Controller
                     'message' => 'Please select at least 2 valid products.'
                 ], 422);
             }
+
             $variantId = time() . '_' . uniqid();            
             // Method 2: Using incrementing number (last variant_id + 1)
             // $lastVariant = RelatedProduct::max('variant_id');
@@ -90,7 +93,122 @@ class RelatedProductController extends Controller
         }
     }
 
-    public function edit(Request $request){ 
-        return view('backend.product.related-product.edit');
+    public function edit($variantId)
+    {
+        $relatedProducts = RelatedProduct::with('product')
+        ->where('variant_id', $variantId)
+        ->get();
+        
+        if ($relatedProducts->isEmpty()) {
+            return redirect()->route('manage-related-product.index')
+                ->with('error', 'Related products not found.');
+        }
+        
+        $relationType = $relatedProducts->first()->relation_type;
+        //return response()->json($relatedProducts);
+        return view('backend.product.related-product.edit', compact('relatedProducts', 'relationType', 'variantId'));
+    }
+
+    public function update(Request $request, $variantId)
+    {
+        $request->validate([
+            'relation_type'       => 'required|string',
+            'product_id'          => 'required|array',
+            'product_id.*'        => 'required|exists:products,id',
+            'related_product_id'  => 'required|array',
+            'related_product_id.*'=> 'nullable|exists:related_products,id',
+            'related_title'       => 'required|array',
+            'related_title.*'     => 'required|string|max:255',
+        ]);
+        DB::beginTransaction();        
+        try {
+            $productIds = collect($request->product_id)
+                ->filter(fn ($v) => !is_null($v) && $v !== '')
+                ->values()
+                ->toArray();            
+            
+            if (count($productIds) < 2) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Please select at least 2 valid products.'
+                ], 422);
+            }            
+            $titles = $request->related_title ?? [];
+            $descriptions = $request->related_description ?? [];
+            $relatedProductIds = $request->related_product_id ?? [];
+            $existingRecords = RelatedProduct::where('variant_id', $variantId)->get();
+            $existingIds = $existingRecords->pluck('id')->toArray();
+            $processedIds = [];
+            $savedCount = 0;
+            foreach ($productIds as $i => $mainProductId) {
+                if (isset($relatedProductIds[$i]) && !empty($relatedProductIds[$i])) {
+                    $relatedProduct = RelatedProduct::find($relatedProductIds[$i]);
+                    if ($relatedProduct) {
+                        $relatedProduct->update([
+                            'product_id' => $mainProductId,
+                            'relation_type' => $request->relation_type,
+                            'title' => $titles[$i] ?? null,
+                            'description' => $descriptions[$i] ?? null,
+                        ]);
+                        $processedIds[] = $relatedProduct->id;
+                        $savedCount++;
+                    }
+                } else {
+                    $newRelatedProduct = RelatedProduct::create([
+                        'variant_id' => $variantId,
+                        'product_id' => $mainProductId,
+                        'relation_type' => $request->relation_type,
+                        'title' => $titles[$i] ?? null,
+                        'description' => $descriptions[$i] ?? null,
+                    ]);
+                    $processedIds[] = $newRelatedProduct->id;
+                    $savedCount++;
+                }
+            }
+            $recordsToDelete = array_diff($existingIds, $processedIds);
+            if (!empty($recordsToDelete)) {
+                RelatedProduct::whereIn('id', $recordsToDelete)->delete();
+            }            
+            DB::commit(); 
+            return response()->json([
+                'status'  => 'success',
+                'message' => "{$savedCount} related products updated successfully.",
+                'redirect_url' => route('manage-related-product.index'),
+            ]);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();            
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function destroy($variantId)
+    {
+        DB::beginTransaction();        
+        try {
+            $relatedProducts = RelatedProduct::where('variant_id', $variantId)->get();            
+            if ($relatedProducts->isEmpty()) {
+                if (request()->ajax()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Related products not found.'
+                    ], 404);
+                }
+                return redirect()->route('manage-related-product.index')
+                    ->with('error', 'Related products not found.');
+            }
+            $deletedCount = RelatedProduct::where('variant_id', $variantId)->delete();
+            DB::commit();                      
+            return redirect()->route('manage-related-product.index')
+                ->with('success', "{$deletedCount} related products deleted successfully.");
+                
+        } catch (\Throwable $e) {
+            DB::rollBack(); 
+            return redirect()->route('manage-related-product.index')
+                ->with('error', 'Error deleting related products: ' . $e->getMessage());
+        }
     }
 }

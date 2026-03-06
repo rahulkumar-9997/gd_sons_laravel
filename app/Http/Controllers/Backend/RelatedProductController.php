@@ -16,7 +16,7 @@ class RelatedProductController extends Controller
         $variants = RelatedProduct::select('variant_id')
             ->groupBy('variant_id')
             ->orderByDesc('variant_id')
-            ->paginate(1);
+            ->paginate(20);
 
         $groups = RelatedProduct::with(['product:id,title,slug'])
             ->whereIn('variant_id', $variants->pluck('variant_id'))

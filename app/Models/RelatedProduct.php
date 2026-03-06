@@ -9,6 +9,7 @@ class RelatedProduct extends Model
     protected $table = 'related_products';
     protected $fillable = [
         'variant_id',
+        'group_title',
         'product_id',
         'relation_type',
         'title',

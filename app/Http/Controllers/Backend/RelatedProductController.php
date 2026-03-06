@@ -15,15 +15,20 @@ class RelatedProductController extends Controller
     {
         $variants = RelatedProduct::select('variant_id')
             ->distinct()
-            ->orderBy('variant_id', 'desc')
+            ->orderByDesc('variant_id')
             ->paginate(20);
-            $groups = RelatedProduct::with(['product' => function($query) {
-                $query->select('id', 'title', 'slug');
-            }])
+
+        $relatedProducts = RelatedProduct::with(['product:id,title,slug'])
             ->whereIn('variant_id', $variants->pluck('variant_id'))
             ->orderBy('created_at', 'desc')
             ->get()
             ->groupBy('variant_id');
+
+        $groups = collect();
+
+        foreach ($variants as $variant) {
+            $groups[$variant->variant_id] = $relatedProducts[$variant->variant_id] ?? collect();
+        }
 
         return view('backend.product.related-product.index', compact('groups', 'variants'));
     }
@@ -36,6 +41,7 @@ class RelatedProductController extends Controller
     {
         $request->validate([
             'relation_type' => 'required|string',
+            'group_title' => 'required|string|max:255',
             'product_id'    => 'required|array',
             'product_id.*'  => 'sometimes|exists:products,id',
             'related_title' => 'required|array',
@@ -68,9 +74,10 @@ class RelatedProductController extends Controller
             $savedCount = 0;            
             foreach ($productIds as $i => $mainProductId) {
                 RelatedProduct::create([
-                    'variant_id' => $variantId,
-                    'product_id' => $mainProductId,
                     'relation_type' => $request->relation_type,
+                    'variant_id' => $variantId,
+                    'group_title' => $request->group_title,
+                    'product_id' => $mainProductId,                   
                     'title' => $titles[$i] ?? null,
                     'description' => $descriptions[$i] ?? null,
                 ]);
@@ -113,6 +120,7 @@ class RelatedProductController extends Controller
     {
         $request->validate([
             'relation_type'       => 'required|string',
+            'group_title' => 'required|string|max:255',
             'product_id'          => 'required|array',
             'product_id.*'        => 'required|exists:products,id',
             'related_product_id'  => 'required|array',
@@ -147,6 +155,7 @@ class RelatedProductController extends Controller
                         $relatedProduct->update([
                             'product_id' => $mainProductId,
                             'relation_type' => $request->relation_type,
+                            'group_title' => $request->group_title,
                             'title' => $titles[$i] ?? null,
                             'description' => $descriptions[$i] ?? null,
                         ]);
@@ -156,8 +165,9 @@ class RelatedProductController extends Controller
                 } else {
                     $newRelatedProduct = RelatedProduct::create([
                         'variant_id' => $variantId,
-                        'product_id' => $mainProductId,
                         'relation_type' => $request->relation_type,
+                        'group_title' => $request->group_title,                        
+                        'product_id' => $mainProductId,
                         'title' => $titles[$i] ?? null,
                         'description' => $descriptions[$i] ?? null,
                     ]);

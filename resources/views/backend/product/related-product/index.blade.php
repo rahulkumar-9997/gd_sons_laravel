@@ -184,6 +184,7 @@
                                         @endphp
 
                                         @if($customTitles->count() > 0)
+                                        <strong>{{ $customTitles->first()->group_title }}</strong>
                                         <div class="related-products-list">
                                             @foreach($customTitles as $row)
                                             <div class="mb-1 small">
@@ -229,10 +230,8 @@
                             </tbody>
                         </table>
                     </div>
-
                     <!-- Pagination with Info -->
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                       
+                    <div class="d-flex justify-content-between align-items-center mt-3">                       
                         <div>
                             {{ $variants->links('vendor.pagination.bootstrap-4') }}
                         </div>

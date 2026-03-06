@@ -43,7 +43,7 @@
                             @method('PUT')
                             <div class="">
                                 <div class="row">
-                                    <div class="col-md-12">
+                                    <div class="col-md-6">
                                         <div class="mb-3 position-relative">
                                             <label for="relation_type" class="form-label fw-bold">
                                                 Select Relation Type *
@@ -62,7 +62,10 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Group Title *</label>
+                                        <input type="text" name="group_title" id="group_title"  class="form-control" value="{{ $relatedProducts->first()->group_title }}">
+                                    </div> 
                                     <div class="row related-product-container">
                                         <table class="table table-bordered smalltext" id="productTable">
                                             <thead>

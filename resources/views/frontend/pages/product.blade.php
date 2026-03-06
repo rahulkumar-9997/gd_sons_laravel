@@ -424,7 +424,9 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                             @if(!empty($data['other_related_products']) && count($data['other_related_products']) > 0)
                             <div class="other_related_product">
                                 <fieldset class="product-form__input">
-                                    <legend class="form__label">Other Options</legend>
+                                    <legend class="form__label">
+                                       {{ ($data['other_related_products']->first()?->group_title ?? 'Other') . ' Options' }}
+                                    </legend>
                                    @foreach($data['other_related_products'] as $key => $related)
 
                                     @php

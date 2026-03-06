@@ -833,7 +833,7 @@ class FrontendController extends Controller
         }
     ])
     ->whereIn('variant_id', $variantIds)
-    ->select('product_id','variant_id','title')
+    ->select('product_id','variant_id','title', 'group_title')
     ->get();
         /*Related product from related table */
 

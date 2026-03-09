@@ -815,26 +815,28 @@ class FrontendController extends Controller
             ->inRandomOrder()
             ->limit(10)
             ->get();
-        /*Related product from related table*/
-        $variantIds = RelatedProduct::where('product_id', $product->id)->pluck('variant_id');
-        $data['other_related_products'] = RelatedProduct::with([
-        'product' => function ($query) use ($attributeValue) {
-            $query->select('id','title','slug')
-                ->with([
-                    'ProductAttributesValues' => function ($q) use ($attributeValue) {
-                        $q->select('id','product_id','product_attribute_id','attributes_value_id')
-                            ->where('attributes_value_id', $attributeValue->id)
-                            ->with([
-                                'attributeValue:id,slug'
-                            ])
-                            ->orderBy('id');
-                    }
-                ]);
-        }
-    ])
-    ->whereIn('variant_id', $variantIds)
-    ->select('product_id','variant_id','title', 'group_title')
-    ->get();
+            /*Related product from related table*/
+            $variantIds = RelatedProduct::where('product_id', $product->id)->pluck('variant_id');
+
+            $data['other_related_products'] = RelatedProduct::with([
+            'product' => function ($query) use ($attributeValue) {
+                $query->select('id','title','slug')
+                    ->with([
+                        'ProductAttributesValues' => function ($q) use ($attributeValue) {
+                            $q->select('id','product_id','product_attribute_id','attributes_value_id')
+                                ->where('attributes_value_id', $attributeValue->id)
+                                ->with([
+                                    'attributeValue:id,slug'
+                                ])
+                                ->orderBy('id');
+                        }
+                    ]);
+            }
+        ])
+        ->whereIn('variant_id', $variantIds)
+        ->select('product_id','variant_id','title','group_title', 'description')
+        ->get()
+        ->groupBy('group_title');
         /*Related product from related table */
 
         DB::disconnect();

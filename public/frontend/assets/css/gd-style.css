@@ -2382,7 +2382,7 @@ a.cntshop {
     max-width: 420px;
 }
 .other_related_product{
-  padding: 10px 0px 10px 0px;
+  padding: 10px 0px 2px 0px;
 }
 .other_related_product fieldset{
   border: none;
@@ -2412,11 +2412,11 @@ a.cntshop {
     border-radius: 40px;
     display: inline-block;
     margin: .7rem .5rem .2rem 0;
-    padding: 14px 14px;
+    padding: 6px 11px;
     font-size: calc(13px + 1 * (100vw - 320px) / 1600);
     line-height: 1.2;
     text-align: center;
-    transition: border .1s ease;
+    /* transition: border .1s ease; */
     cursor: pointer;
     position: relative;
 }

@@ -89,6 +89,7 @@ Route::middleware([TrackVisitor::class])->group(function () {
     Route::get('/product-catalog/filter', [FrontendController::class, 'filterProducts'])->name('product.filter');
     Route::get('products/{slug}/{attributesvalue}', [FrontendController::class, 'showProductDetails'])->name('product');
     Route::post('products/reviews/load-more', [FrontendController::class, 'loadMoreReviews'])->name('products.reviews.load-more');
+    Route::get('products-video/{slug}', [FrontendController::class, 'productVideo'])->name('products-video');
     Route::get('/search/suggestions', [SearchController::class, 'searchSuggestions'])->name('search.suggestions');
     Route::get('search', [SearchController::class, 'searchListProduct'])->name('search');
 

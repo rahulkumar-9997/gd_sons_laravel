@@ -2,9 +2,7 @@
         /**Sticky user animation */
         setTimeout(function () {
             $('.sticky-user').addClass('animate');
-        }, 1000);
-        
-        
+        }, 1000);  
        
         $('.qty-right-plus').click(function () {
             var input = $(this).siblings('.qty-input');
@@ -30,12 +28,6 @@
         $(document).on('click', '.back-button, .bg-overlay', function(e) {
             $(".bg-overlay, .left-box").removeClass("show");
         });
-       
-        // $(document).ready(function () {
-        //     $(".sort-by-button").click(function () {
-        //         $(".top-filter-menu").toggleClass("show");
-        //     });
-        // });
         /**filter sidebar js */
         $(window).scroll(function(){
             var sticky = $('.pa-main-header'),
@@ -80,6 +72,7 @@
                 }
             });
         });
+
         $(document).on('click', '.requestProductBtn', function(e) {
             var button = $(this);
             var originalButtonText = button.html();
@@ -288,7 +281,39 @@
                 }
             });
         });        
-        /*Track btn click ajax code*/         
+        /*Track btn click ajax code*/
+        /**product Video modal*/ 
+        $(document).on('click', '.product-video-btn', function(e) {
+            var button = $(this);
+            var originalButtonText = button.html();
+            button.prop('disabled', true).html('Loading please wait...');
+            var title = $(this).data('title');
+            var size = ($(this).data('size') == '') ? 'md' : $(this).data('size');
+            var url = $(this).data('url');
+            var data = {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                size: size,
+                url: url,
+            };
+            $("#commoanModal .modal-title").html(title);
+            $("#commoanModal .modal-dialog").addClass('modal-' + size);
+            
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: data,
+                success: function (data) {
+                    $('#commoanModal .modal-render-data').html(data.modal_content);
+                    $("#commoanModal").modal('show');
+                    button.prop('disabled', false).html(originalButtonText);
+                },
+                error: function (data) {
+                    data = data.responseJSON;
+                    button.prop('disabled', false).html(originalButtonText);
+                }
+            });
+        });        
+        /**product Video */         
     });
 
     function showNotificationAll(type, title, message) {
@@ -340,7 +365,6 @@
     
  $(window).on('load resize', function () {
     checkPosition();
-
     function checkPosition() {
         function fixButtonHeights() {
             if (window.matchMedia('(min-width: 320px)').matches) {
@@ -371,171 +395,6 @@
     }
 });
 
-/**category slider js code  */
-/*$(document).ready(function() {
-    const slider = $('.category-slider');
-    const prevBtn = $('.category-slider-prev');
-    const nextBtn = $('.category-slider-next');
-    const sliderWrapper = $('.category-slider-wrapper');
-    const items = $('.category-item-home');
-    let itemWidth, visibleItems, totalItems, currentPosition = 0, maxPosition;
-    let wrapperWidth = sliderWrapper.width();
-    function initSlider() {
-        itemWidth = items.first().outerWidth(true);
-        totalItems = items.length;
-        wrapperWidth = sliderWrapper.width();
-        visibleItems = Math.floor(wrapperWidth / itemWidth);
-        maxPosition = totalItems - visibleItems+1;
-        maxPosition = Math.max(0, maxPosition);
-        currentPosition = Math.min(currentPosition, maxPosition);        
-        updateSlider();
-        updateButtons();
-    }
-    
-    function updateSlider() {
-        slider.css('transform', `translateX(-${currentPosition * itemWidth}px)`);
-    }
-    
-    function updateButtons() {
-        prevBtn.prop('disabled', currentPosition <= 0);
-        nextBtn.prop('disabled', currentPosition >= maxPosition);
-    }
-    
-    function slideTo(position) {
-        currentPosition = Math.max(0, Math.min(position, maxPosition));
-        updateSlider();
-        updateButtons();
-    }
-    prevBtn.on('click', function() {
-        slideTo(currentPosition - 1);
-    });
-    nextBtn.on('click', function() {
-        if (currentPosition < maxPosition) {
-            slideTo(currentPosition + 1);
-        }
-    });
-    let resizeTimer;
-    $(window).on('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(function() {
-            initSlider();
-        }, 250);
-    });
-    let touchStartX = 0;
-    slider.on('touchstart', function(e) {
-        touchStartX = e.changedTouches[0].screenX;
-    });
-    
-    slider.on('touchend', function(e) {
-        const touchEndX = e.changedTouches[0].screenX;
-        const diff = touchStartX - touchEndX;
-        
-        if (diff > 50) {
-            slideTo(Math.min(currentPosition + 1, maxPosition));
-        } else if (diff < -50) {
-            slideTo(Math.max(currentPosition - 1, 0));
-        }
-    });
-    initSlider();
-});
-*/
-/**category slider js code  */
-/*Highlighted Products */
-/*$(document).ready(function() {
-    const $slider = $('.highlighted_product');
-    const $wrapper = $('.highlighted_product_wrapper');
-    const $prevBtn = $('.product-slider-prev');
-    const $nextBtn = $('.product-slider-next');
-    const $items = $('.product-box-item');
-    const itemWidth = $items.first().outerWidth(true);
-    let visibleItems = Math.floor($wrapper.width() / itemWidth);
-    let currentPosition = parseInt($slider.data('current-position'));
-    let maxPosition = $items.length - visibleItems;
-    function updateSlider() {
-        $slider.css('transform', `translateX(-${currentPosition * itemWidth}px)`);
-        updateButtons();
-    }
-    function updateButtons() {
-        $prevBtn.prop('disabled', currentPosition <= 0);
-        $nextBtn.prop('disabled', currentPosition >= maxPosition);
-    }
-    function goPrev() {
-        if (currentPosition > 0) {
-            currentPosition--;
-            updateSlider();
-        }
-    }
-    
-    function goNext() {
-        if (currentPosition < maxPosition) {
-            currentPosition++;
-            updateSlider();
-        }
-    }
-    
-    $prevBtn.on('click', goPrev);
-    $nextBtn.on('click', goNext);
-    $(window).on('resize', function() {
-        visibleItems = Math.floor($wrapper.width() / itemWidth);
-        maxPosition = Math.max(0, $items.length - visibleItems);
-        
-        if (currentPosition > maxPosition) {
-            currentPosition = maxPosition;
-            updateSlider();
-        }
-        updateButtons();
-    }).trigger('resize');
-    let touchStartX = 0;
-    let touchEndX = 0;
-    
-    $slider.on('touchstart', function(e) {
-        touchStartX = e.changedTouches[0].screenX;
-    });
-    
-    $slider.on('touchend', function(e) {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-    });
-    
-    function handleSwipe() {
-        const threshold = 50;
-        if (touchEndX < touchStartX - threshold) goNext();
-        if (touchEndX > touchStartX + threshold) goPrev();
-    }
-    let isDragging = false;
-    let startPosX = 0;
-    let currentTranslate = 0;
-    let prevTranslate = currentPosition * itemWidth;
-    
-    $slider.on('mousedown', function(e) {
-        isDragging = true;
-        startPosX = e.clientX;
-        prevTranslate = currentPosition * itemWidth;
-        $slider.addClass('grabbing');
-        e.preventDefault();
-    });
-    
-    $(document).on('mousemove', function(e) {
-        if (!isDragging) return;
-        
-        const currentPosX = e.clientX;
-        currentTranslate = prevTranslate - (currentPosX - startPosX);
-        const maxTranslate = maxPosition * itemWidth;
-        currentTranslate = Math.max(0, Math.min(currentTranslate, maxTranslate));
-        
-        $slider.css('transform', `translateX(-${currentTranslate}px)`);
-    });
-    
-    $(document).on('mouseup', function() {
-        if (!isDragging) return;
-        isDragging = false;
-        $slider.removeClass('grabbing');
-        currentPosition = Math.round(currentTranslate / itemWidth);
-        updateSlider();
-    });
-});
-*/
-/* Highlighted Products*/
     
 
 

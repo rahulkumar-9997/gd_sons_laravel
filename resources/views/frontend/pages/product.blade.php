@@ -457,10 +457,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 @endforeach
                                 @endif
                             @if(isset($data['product_details']->attributes) && $data['product_details']->attributes->isNotEmpty())
-                            <div class="pickup-box">
-                                <!--<div class="product-title">
-                                        <h4>Store Information</h4>
-                                    </div>-->
+                            <div class="pickup-box">                                
                                 <div class="product-info">
                                     <ul class="product-info-list product-info-list-2">
                                         @foreach($data['product_details']->attributes as $attribute)
@@ -482,6 +479,17 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                     </ul>
                                 </div>
                             </div>
+                            @endif
+                            @if(!empty($data['product_details']->video_id))
+                                <div class="video-btn-link">
+                                    <a class="btn theme-bg-color text-white btn-sm product-video-btn" 
+                                    href="javascript:void(0)"
+                                    data-url="{{ route('products-video', $data['product_details']->slug) }}"
+                                    data-title="{{ $data['product_details']->title }}"
+                                    data-size="lg">
+                                    View Video
+                                    </a>
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -517,7 +525,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                     </div>
                     @endif
                     @if(!empty($data['product_details']->product_description))
-                    <div class="col-12 mt-1 mb-1">
+                    <div class="col-12 mt-2 mb-1">
                         <div class="product-section-box description-box">
                             <ul class="nav nav-tabs custom-nav" id="myTab" role="tablist">
                                 <li class="nav-item" role="presentation">
@@ -537,7 +545,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                         </div>
                     </div>
                     @endif
-                    @if($data['product_details']->video_id)
+                    <!-- @if($data['product_details']->video_id)
                     <div class="col-12">
                         <div class="product-video-section">
                             <div class="product-short-container">
@@ -551,7 +559,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                             </div>
                         </div>
                     </div>
-                    @endif
+                    @endif -->
                 </div>
             </div>
             <div class="col-xxl-3 col-xl-4 col-lg-5 d-lg-block mb-5">
@@ -984,7 +992,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 <script src="{{asset('frontend/assets/js/pages/addto-cart.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
 <script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
 <script src="{{asset('frontend/assets/js/pages/review.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
-<script>
+<!-- <script>
     $(document).ready(function() {
         function isYouTubeShort(videoId) {
             return videoId.length === 11;
@@ -1038,7 +1046,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
         }
         initVideoObserver();
     });
-</script>
+</script> -->
 <script>
     const stars = document.querySelectorAll('.stars-box .star');
     const ratingInput = document.getElementById('rating-value');

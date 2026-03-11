@@ -37,8 +37,7 @@ $(function () {
                         || 1;
                     page = parseInt(page);
                     fetchProducts(categoryId, search, page, dateRange, productStatus);
-                    //$('#example-2').load(location.href + " #example-2");
-                   
+                    //$('#example-2').load(location.href + " #example-2");                   
                 }
             },
             error: function (xhr) {
@@ -114,6 +113,75 @@ $(function () {
         const page = $(this).attr('href').split('page=')[1];
         fetchProducts(categoryId, search, page, dateRange, productStatus);
     });
+
+    /**Save product review code from ai */
+    $(document).on('submit', '#saveReviewData', function (event) {
+        event.preventDefault();        
+        var form = $(this);
+        var submitButton = form.find('.save-all-reviews');
+        $('.form-control').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+        $('#formError').addClass('d-none').html('');        
+        submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status"></span> Saving...');        
+        var formData = new FormData(this);        
+        $.ajax({
+            url: form.attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                submitButton.prop('disabled', false).html('<i class="ti ti-device-floppy"></i> Save All Reviews');                
+                if (response.status === 'success') {
+                    form[0].reset();
+                    $('#commanModel').modal('hide');                    
+                    Toastify({
+                        text: response.message,
+                        duration: 5000,
+                        gravity: "top",
+                        position: "right",
+                        className: "bg-success",
+                        close: true
+                    }).showToast();
+                    var categoryId = $('#category-filter').val();
+                    var search = $('#product-search').val();
+                    var dateRange = $('#daterange').val();
+                    var productStatus = $('#product-status').val();
+                    var page = $('#pagination-links .active').find('a').data('page') 
+                        || $('#pagination-links .active').find('span').text() 
+                        || 1;
+                    page = parseInt(page);
+                    fetchProducts(categoryId, search, page, dateRange, productStatus);
+                }
+            },
+            error: function(error) {
+                submitButton.prop('disabled', false).html('<i class="ti ti-device-floppy"></i> Save All Reviews');                
+                let errorMessage = 'An unexpected error occurred.';                
+                if (error.responseJSON) {
+                    if (error.responseJSON.message) {
+                        errorMessage = error.responseJSON.message;
+                    }                    
+                    if (error.responseJSON.errors) {
+                        let errorDetails = '<ul class="mb-0">';
+                        $.each(error.responseJSON.errors, function(field, messages) {
+                            errorDetails += `<li><strong>${field}:</strong> ${messages.join(', ')}</li>`;
+                        });
+                        errorDetails += '</ul>';
+                        errorMessage = errorDetails;
+                        $.each(error.responseJSON.errors, function(field, messages) {
+                            let fieldName = field.replace('reviews.', '').replace(/\./g, '');
+                            $(`[name="${field}"]`).addClass('is-invalid');
+                        });
+                    }
+                }    
+                $('#formError').removeClass('d-none').html(errorMessage);
+                $('html, body').animate({
+                    scrollTop: $('#formError').offset().top - 100
+                }, 500);
+            }
+        });
+    });
+    /**Save product review code from ai */
 
     function updateFilters() {
         const categoryId = $('#category-filter').val();

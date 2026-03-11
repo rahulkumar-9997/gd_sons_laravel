@@ -108,71 +108,18 @@ $(document).ready(function () {
                 if (xhr.responseJSON && xhr.responseJSON.form) {
                     $('#commanModel .render-data').html(xhr.responseJSON.form);
                 } else {
-                    alert('Failed to regenerate reviews. Please try again.');
-                }
-            }
-        });
-    });
-
-    
-    $(document).on('submit', '#saveReviewData', function (event) {
-        event.preventDefault();        
-        var form = $(this);
-        var submitButton = form.find('.save-all-reviews');
-        $('.form-control').removeClass('is-invalid');
-        $('.invalid-feedback').remove();
-        $('#formError').addClass('d-none').html('');        
-        submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status"></span> Saving...');        
-        var formData = new FormData(this);        
-        $.ajax({
-            url: form.attr('action'),
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                submitButton.prop('disabled', false).html('<i class="ti ti-device-floppy"></i> Save All Reviews');                
-                if (response.status === 'success') {
-                    form[0].reset();
-                    $('#commanModel').modal('hide');                    
                     Toastify({
-                        text: response.message,
+                        text: "Failed to regenerate reviews. Please try again",
                         duration: 5000,
                         gravity: "top",
                         position: "right",
-                        className: "bg-success",
+                        className: "bg-danger",
                         close: true
                     }).showToast();
-                    setTimeout(function() {
-                        location.reload();
-                    }, 2000);
                 }
-            },
-            error: function(error) {
-                submitButton.prop('disabled', false).html('<i class="ti ti-device-floppy"></i> Save All Reviews');                
-                let errorMessage = 'An unexpected error occurred.';                
-                if (error.responseJSON) {
-                    if (error.responseJSON.message) {
-                        errorMessage = error.responseJSON.message;
-                    }                    
-                    if (error.responseJSON.errors) {
-                        let errorDetails = '<ul class="mb-0">';
-                        $.each(error.responseJSON.errors, function(field, messages) {
-                            errorDetails += `<li><strong>${field}:</strong> ${messages.join(', ')}</li>`;
-                        });
-                        errorDetails += '</ul>';
-                        errorMessage = errorDetails;
-                        $.each(error.responseJSON.errors, function(field, messages) {
-                            let fieldName = field.replace('reviews.', '').replace(/\./g, '');
-                            $(`[name="${field}"]`).addClass('is-invalid');
-                        });
-                    }
-                }    
-                $('#formError').removeClass('d-none').html(errorMessage);
-                $('html, body').animate({
-                    scrollTop: $('#formError').offset().top - 100
-                }, 500);
             }
         });
     });
+    /**Review save code in product-management.js code is have */
+    
 });

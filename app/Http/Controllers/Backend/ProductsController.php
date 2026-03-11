@@ -32,28 +32,18 @@ use Illuminate\Support\Facades\File;
 
 class ProductsController extends Controller
 {
-    public function index(Request $request){
-        // $data['product_list'] = Product::with(['images', 'category', 'brand', 'attributes.attribute', 'attributes.values.attributeValue'])->orderBy('id', 'desc')->get();
-        // //return response()->json($data['product_list']);
-        // return view('backend.product.index', compact('data'));
+    public function index(Request $request){       
         $data['categories'] = Category::all(); 
         //Log::info('Request Data:', $request->all());
-        $query = Product::with(
+        $query = Product::select('id','title', 'slug', 'category_id', 'subcategory_id', 'brand_id', 'label_id', 'length', 'breadth', 'height', 'weight', 'volumetric_weight_kg', 'created_at')
+        ->with(
             ['images' => function ($query) {
                     $query->select('id', 'product_id', 'image_path')->orderBy('sort_order');
-            }, 'category', 'brand', 'attributes.attribute', 'attributes.values.attributeValue']
+            }, 'category', 'brand', 'attributes.attribute', 'attributes.values.attributeValue', 'reviews']
         );
         if ($request->has('category_id') && $request->category_id) {
             $query->where('category_id', $request->category_id);
         }
-
-        // if ($request->has('search') && $request->search) {
-        //     $query->where('title', 'like', '%' . $request->search . '%'); 
-        // }
-        // if ($request->has('search') && $request->search) {
-        //     $searchTerm = $request->search . '*'; // Add wildcard
-        //     $query->whereRaw("MATCH(title) AGAINST(? IN BOOLEAN MODE)", [$searchTerm]);
-        // }
         
         if ($request->has('search') && $request->search) {
             $searchTerms = explode(' ', $request->search); 
@@ -83,6 +73,7 @@ class ProductsController extends Controller
         if ($request->ajax()) {
             return view('backend.product.partials.product_table', compact('data'))->render();
         }
+        //return response()->json($data);
         return view('backend.product.index', compact('data'));
                
     }

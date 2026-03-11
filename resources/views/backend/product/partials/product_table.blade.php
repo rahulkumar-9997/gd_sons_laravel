@@ -8,6 +8,7 @@
                 <th style="width: 10%;">Image</th>
                 <th>HSN</th>
                 <th>GST%</th>
+                <th>Reviews</th>
                 <th>Status</th>
                 <th>Category</th>
                 <th>Created Date</th>
@@ -56,6 +57,28 @@
                     </td>
                     <td>{{ $product->hsn_code }}</td>
                     <td>{{ $product->gst_in_per }}</td>
+                    <td>
+                        @php
+                            $reviewCount = $product->reviews->count();
+                            $averageRating = $product->reviews->avg('rating'); // If you have rating field
+                        @endphp
+                        <span class="badge bg-info">
+                            {{ $reviewCount }} {{ Str::plural('Review', $reviewCount) }}
+                        </span>
+                        @if($averageRating)
+                            <br>
+                            <small class="text-warning">
+                                @for($i = 1; $i <= 5; $i++)
+                                    @if($i <= round($averageRating))
+                                        <i class="ti ti-star-filled"></i>
+                                    @else
+                                        <i class="ti ti-star"></i>
+                                    @endif
+                                @endfor
+                                ({{ number_format($averageRating, 1) }})
+                            </small>
+                        @endif
+                    </td>
                     <td>
                         <span class="badge {{ $product->product_status === 1 ? 'bg-success' : 'bg-danger' }}">
                             {{ $product->product_status === 1 ? 'Published' : 'Not Published' }}

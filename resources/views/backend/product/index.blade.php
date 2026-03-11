@@ -144,6 +144,8 @@
 
 <script src="{{asset('backend/assets/js/rahul-jquery-ui.min.js')}}"></script>
 <script type="text/javascript" src="{{asset('backend/assets/js/pages/product-management.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
+<script type="text/javascript" src="{{asset('backend/assets/js/pages/productRewievAiGenerate.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
+
 
 
 @endpush

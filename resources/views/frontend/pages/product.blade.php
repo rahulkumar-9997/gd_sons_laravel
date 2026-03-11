@@ -820,7 +820,21 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                     </div>
                 </div>
             </div>
-            @include('frontend.pages.partials.ajax-product-review-list', ['data' => $data])
+            <div id="review-catalog-frontend">
+                @include('frontend.pages.partials.ajax-product-review-list', ['data' => $data])
+            </div>
+            @if($data['reviews']->hasPages())
+                <div class="show-more-products d-flex justify-content-center">
+                    <button type="button" 
+                            class="btn theme-bg-color text-white" 
+                            id="load-more-reviews"
+                            data-product-id="{{ $data['product_details']->id }}"
+                            data-next-page="2"
+                            data-url="{{ route('products.reviews.load-more') }}">
+                        Load More Reviews
+                    </button>
+                </div>
+            @endif
         </div>
     </div>
 </section>
@@ -964,12 +978,12 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 @endpush
 
 @push('scripts')
-<script src="{{asset('frontend/assets/js/jquery.elevatezoom.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
-<script src="{{asset('frontend/assets/js/zoom-filter.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
-<script src="{{asset('frontend/assets/js/sticky-cart-bottom.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
-<script src="{{asset('frontend/assets/js/pages/addto-cart.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
-<script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
-<script src="{{asset('frontend/assets/js/pages/review.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
+<script src="{{asset('frontend/assets/js/jquery.elevatezoom.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
+<script src="{{asset('frontend/assets/js/zoom-filter.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
+<script src="{{asset('frontend/assets/js/sticky-cart-bottom.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
+<script src="{{asset('frontend/assets/js/pages/addto-cart.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
+<script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
+<script src="{{asset('frontend/assets/js/pages/review.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
 <script>
     $(document).ready(function() {
         function isYouTubeShort(videoId) {

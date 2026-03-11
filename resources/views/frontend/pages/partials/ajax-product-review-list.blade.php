@@ -72,11 +72,7 @@
                             </div>
                         </div>
                     @endforeach
-                    @if($data['reviews']->hasPages())
-                        <div class="mt-4 pagination-wrapper">
-                            {{ $data['reviews']->links() }}
-                        </div>
-                    @endif
+                    
                 </div>
             </div>
         </div>

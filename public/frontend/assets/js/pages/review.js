@@ -43,7 +43,6 @@ $(document).ready(function () {
                     filesArray[index] = null;
                     previewItem.remove();
                 });
-
                 if (isImage) {
                     previewItem.append(`<img src="${event.target.result}" alt="Preview">`);
                 } else if (isVideo) {
@@ -124,4 +123,54 @@ $(document).ready(function () {
         });
     });
     /**Review form submit code */
+    /*Review Load more js code */
+    let currentReviewPage = 1;
+    function showLoadMoreButtonLoader() {
+        $('#load-more-reviews').prop('disabled', true).text('Loading...');
+    }
+
+    function hideLoadMoreButtonLoader() {
+        $('#load-more-reviews').prop('disabled', false).text('Load More Reviews');
+    }
+
+    function fetchMoreReviews(url, append = true) {
+        let productId = $('#load-more-reviews').data('product-id');
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: {
+                product_id: productId,
+                page: currentReviewPage,
+                _token: $('meta[name="csrf-token"]').attr('content')            },
+            success: function (response) {
+                if (response.success) {
+                    if (append) {
+                        $('#review-catalog-frontend').append(response.reviews);
+                    } else {
+                        $('#review-catalog-frontend').html(response.reviews);
+                    }
+                    if (response.hasMore) {
+                        $('#load-more-reviews')
+                            .show()
+                            .data('next-page', response.nextPage);
+                    } else {
+                        $('#load-more-reviews').hide();
+                    }
+                }
+                hideLoadMoreButtonLoader();
+            },
+            error: function (xhr) {
+                console.error('Error loading reviews:', xhr.responseText);
+                hideLoadMoreButtonLoader();
+                alert('Failed to load reviews. Please try again.');
+            }
+        });
+    }
+    $(document).on('click', '#load-more-reviews', function () {
+        currentReviewPage = $(this).data('next-page') || 2;
+        let url = $(this).data('url');
+        showLoadMoreButtonLoader();
+        fetchMoreReviews(url, true);
+    });
+    /*Review Load more js code */
 });

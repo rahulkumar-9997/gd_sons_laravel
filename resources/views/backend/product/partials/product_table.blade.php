@@ -80,6 +80,13 @@
                         <div class="d-flex gap-1">
                             <a href="{{ route('product.show', $product->id) }}" class="btn btn-soft-primary btn-sm"><i class="ti ti-eye"></i></a>
                             <a href="{{ route('product.edit', $product->id) }}" class="btn btn-soft-primary btn-sm"><i class="ti ti-pencil"></i></a>
+                            <button class="btn btn-soft-success btn-sm generate-ai-review" 
+                                data-url="{{ route('generate.ai.review.single', $product->id) }}"
+                                data-title="Generate AI Reviews for {{ ucwords(strtolower($product->title)) }}"
+                                title="Generate AI Reviews"
+                                data-size="xl">
+                                <i class="ti ti-robot"></i> 
+                            </button>
                             <form method="POST" action="{{ route('product.destroy', $product->id) }}">
                                 @csrf
                                 @method('DELETE')
@@ -94,7 +101,6 @@
 @else
     <p>No products found in this category.</p>
 @endif
-
 <div class="my-pagination" id="pagination-links">
     {{ $data['product_list']->links('vendor.pagination.bootstrap-4') }}
 </div>

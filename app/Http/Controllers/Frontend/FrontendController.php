@@ -2022,6 +2022,39 @@ class FrontendController extends Controller
         }
     }
 
+    public function loadMoreReviews(Request $request)
+    {
+        try {
+            $product = Product::findOrFail($request->product_id);            
+            $reviews = $product->reviews()
+                ->with('reviewFiles')
+                ->orderBy('review_post_date', 'desc')
+                ->paginate(10, ['*'], 'page', $request->page);
+
+            $data = [
+                'reviews' => $reviews
+            ];
+
+            $html = view('frontend.pages.partials.ajax-product-review-list', compact('data'))->render();
+            return response()->json([
+                'success' => true,
+                'reviews' => $html,
+                'hasMore' => $reviews->hasMorePages(),
+                'nextPage' => $reviews->currentPage() + 1,
+                'currentPage' => $reviews->currentPage(),
+                'total' => $reviews->total(),
+                'loadedCount' => $reviews->lastItem()
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Load More Reviews Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 }
 
 

@@ -48,6 +48,7 @@ use App\Http\Controllers\Backend\VideoController;
 use App\Http\Controllers\Backend\EnquiryController;
 use App\Http\Controllers\Backend\CouponCodeController;
 use App\Http\Controllers\Backend\RelatedProductController;
+use App\Http\Controllers\Backend\ProductReviewAutoAiGenerateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,6 +88,7 @@ Route::middleware([TrackVisitor::class])->group(function () {
     Route::get('categories/{categorySlug}', [FrontendController::class, 'showCategoryProduct'])->name('categories')->withoutMiddleware('auth');
     Route::get('/product-catalog/filter', [FrontendController::class, 'filterProducts'])->name('product.filter');
     Route::get('products/{slug}/{attributesvalue}', [FrontendController::class, 'showProductDetails'])->name('product');
+    Route::post('products/reviews/load-more', [FrontendController::class, 'loadMoreReviews'])->name('products.reviews.load-more');
     Route::get('/search/suggestions', [SearchController::class, 'searchSuggestions'])->name('search.suggestions');
     Route::get('search', [SearchController::class, 'searchListProduct'])->name('search');
 
@@ -408,4 +410,10 @@ Route::group(['middleware' => ['admin']], function () {
     });	
     Route::Resource('manage-coupon', CouponCodeController::class);
     Route::Resource('manage-related-product', RelatedProductController::class);
+
+    Route::get('generate-ai-review/{id}',[ProductReviewAutoAiGenerateController::class,'generateAIReview'])
+    ->name('generate.ai.review.single');
+    Route::post('save-ai-review',[ProductReviewAutoAiGenerateController::class,'saveAIReview'])
+    ->name('save.ai.review');
+    Route::post('regenerate-ai-review', [ProductReviewAutoAiGenerateController::class, 'regenerateAIReview'])->name('regenerate.ai.review');
 });

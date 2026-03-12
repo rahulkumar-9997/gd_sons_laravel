@@ -1301,11 +1301,17 @@ $('.product-box-slider-2').slick({
 
 
 $('.product-box-slider').slick({
-    infinite: true,
+    infinite: false,
     arrows: true,
+    prevArrow: '<button type="button" class="slick-prev">‹</button>',
+    nextArrow: '<button type="button" class="slick-next">›</button>',
     slidesToShow: 5,
     slidesToScroll: 1,
     pauseOnHover: true,
+    swipe: true, 
+    draggable: true, 
+    touchMove: true,
+    swipeToSlide: true,
     responsive: [{
         breakpoint: 1680,
         settings: {

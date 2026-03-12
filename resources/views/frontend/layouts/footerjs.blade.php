@@ -8,11 +8,11 @@
 <script src="{{asset('frontend/assets/js/lazysizes.min.js')}}" defer></script>
 <script src="{{asset('frontend/assets/js/slick/slick.js')}}" defer></script>
 <script src="{{asset('frontend/assets/js/slick/slick-animation.min.js')}}" defer></script>
-<script src="{{asset('frontend/assets/js/slick/custom_slick.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}" defer></script>
-<script src="{{asset('frontend/assets/js/script.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
-<script src="{{asset('frontend/assets/js/gd.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
-<script src="{{asset('frontend/assets/js/pages/search.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
-<script src="{{asset('frontend/assets/js/cart-drawer.min.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
+<script src="{{asset('frontend/assets/js/slick/custom_slick.js')}}?v={{ env('ASSET_VERSION', '1.0') }}" defer></script>
+<script src="{{asset('frontend/assets/js/script.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
+<script src="{{asset('frontend/assets/js/gd.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
+<script src="{{asset('frontend/assets/js/pages/search.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
+<script src="{{asset('frontend/assets/js/cart-drawer.min.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
 <!-- <script src="{{asset('frontend/assets/js/pages/notifications.js')}}"></script> -->
 <!-- <script src="https://checkout.razorpay.com/v1/magic-checkout.js"></script> -->
 

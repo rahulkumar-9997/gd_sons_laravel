@@ -265,22 +265,21 @@ $search_value = !empty($query) ? $query : '';
                         </div>
                         <div class="offcanvas-body canvasbody-mobile">
                            <ul class="navbar-nav">
+                              
+                              <li class="nav-item for-mobile-display mobile-category" style="margin-bottom: 20px;">
+                                 <a class="nav-link mobile-link all-product-mobile" href="javascript:void(0)">
+                                    All Products
+                                 </a>
+                              </li>
                               <li class="mobile-flash-sale">
                                  <a href="{{ route('flash.sale')}}" class="flash-sale-button">
                                     Flash Sale <small>Only Limited Time</small>
                                  </a>
                               </li>
-                              <li class="nav-item for-mobile-display mobile-category" style="margin-bottom: 20px;">
-                                 <a class="nav-link mobile-link" href="javascript:void(0)" style="padding: 10px 9px 10px;
-                                 border-radius: 10px;
-                                 border: 1px solid #d6091a;">
-                                    All Products
-                                 </a>
-                              </li>
                               @if ($blogCategories->isNotEmpty())
                               @foreach ($blogCategories as $blog_category)
                               <li class="nav-item dropdown">
-                                 <a class="nav-link dropdown-toggle" href="javascript:void(0)" data-bs-toggle="dropdown">
+                                 <a class="nav-link nav-other dropdown-toggle" href="javascript:void(0)" data-bs-toggle="dropdown">
                                     {{ $blog_category->title }}
                                  </a>
                                  <ul class="dropdown-menu">
@@ -296,12 +295,12 @@ $search_value = !empty($query) ? $query : '';
                               @endif
 
                               <li class="nav-item for-mobile-display">
-                                 <a class="nav-link mobile-link" href="{{route('about-us')}}">
+                                 <a class="nav-link nav-other mobile-link" href="{{route('about-us')}}">
                                     About Us
                                  </a>
                               </li>
                               <li class="nav-item for-mobile-display">
-                                 <a class="nav-link mobile-link" href="{{route('contact-us')}}">
+                                 <a class="nav-link nav-other mobile-link" href="{{route('contact-us')}}">
                                     Contact Us
                                  </a>
                               </li>

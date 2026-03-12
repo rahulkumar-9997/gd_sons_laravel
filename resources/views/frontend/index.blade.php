@@ -452,7 +452,7 @@
                 </div>
                 <div class="home-trending-section">
                     <div class="no-product-border no-overflow-hidden">
-                        <div class="product-box-slider no-arrow">
+                        <div class="product-box-slider trending-product-box">
                             @foreach ($data['trending_products'] as $trending_products_row)
                             @php
                             $firstImageTrending = $trending_products_row->images->get(0);
@@ -497,79 +497,75 @@
                             ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
                             : 0;
                             @endphp
-                            <div>
-                                <div class="row m-1">
-                                    <div class="col-12 px-1">
-                                        <div class="product-box">
-                                            <div class="product-image">
-                                                @if ($discountPercentage>0)
-                                                <div class="label-flex">
-                                                    <div class="discount">
-                                                        <label>
-                                                            Save {{ $discountPercentage }}%
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                @endif
-                                                <div class="product-img">
-                                                    <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value) }}">
-                                                        @if ($firstImageTrending)
-                                                        <picture>
-                                                            <source
-                                                                media="(max-width: 767px)"
-                                                                srcset="https://www.cdn.gdsons.co.in/product/icon/{{ $firstImageTrending->image_path }}">
-
-                                                            <img
-                                                                class="img-fluid blur-up lazyload"
-                                                                data-src="https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImageTrending->image_path }}"
-                                                                src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                                srcset="
-                                                                    https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImageTrending->image_path }} 600w,
-                                                                    https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImageTrending->image_path }} 1200w
-                                                                "
-                                                                sizes="(max-width: 600px) 600px, 1200px"
-                                                                alt="{{ $trending_products_row->title }}"
-                                                                title="{{ $trending_products_row->title }}"
-                                                                loading="lazy"
-                                                                width="300"
-                                                                height="300"
-                                                                onload="this.style.opacity=1">
-                                                        </picture>
-
-                                                        @else
-                                                        <img
-                                                            src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                            class="img-fluid blur-up lazyload"
-                                                            alt="{{ $trending_products_row->title }}"
-                                                            loading="lazy"
-                                                            width="300"
-                                                            height="300"
-                                                            onload="this.style.opacity=1">
-                                                        @endif
-                                                    </a>
-                                                </div>
-
-
-                                            </div>
-                                            <div class="product-detail">
-                                                <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value)}}">
-                                                    <h6 class="name h-100">
-                                                        {{ ucwords(strtolower($trending_products_row->title)) }}
-                                                    </h6>
-                                                </a>
-                                                <h5 class="sold text-content">
-                                                    @if ($trending_products_row->offer_rate === null)
-                                                    <span class="theme-color price">Price not available</span>
-                                                    @else
-                                                    <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
-                                                    @endif
-
-                                                    @if ($mrp !== null)
-                                                    <del>Rs. {{ $mrp }}</del>
-                                                    @endif
-                                                </h5>
+                            <div>                                
+                                <div class="product-box">
+                                    <div class="product-image">
+                                        @if ($discountPercentage>0)
+                                        <div class="label-flex">
+                                            <div class="discount">
+                                                <label>
+                                                    Save {{ $discountPercentage }}%
+                                                </label>
                                             </div>
                                         </div>
+                                        @endif
+                                        <div class="product-img">
+                                            <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value) }}">
+                                                @if ($firstImageTrending)
+                                                <picture>
+                                                    <source
+                                                        media="(max-width: 767px)"
+                                                        srcset="https://www.cdn.gdsons.co.in/product/icon/{{ $firstImageTrending->image_path }}">
+
+                                                    <img
+                                                        class="img-fluid blur-up lazyload"
+                                                        data-src="https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImageTrending->image_path }}"
+                                                        src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                                        srcset="
+                                                            https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImageTrending->image_path }} 600w,
+                                                            https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImageTrending->image_path }} 1200w
+                                                        "
+                                                        sizes="(max-width: 600px) 600px, 1200px"
+                                                        alt="{{ $trending_products_row->title }}"
+                                                        title="{{ $trending_products_row->title }}"
+                                                        loading="lazy"
+                                                        width="300"
+                                                        height="300"
+                                                        onload="this.style.opacity=1">
+                                                </picture>
+
+                                                @else
+                                                <img
+                                                    src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                                    class="img-fluid blur-up lazyload"
+                                                    alt="{{ $trending_products_row->title }}"
+                                                    loading="lazy"
+                                                    width="300"
+                                                    height="300"
+                                                    onload="this.style.opacity=1">
+                                                @endif
+                                            </a>
+                                        </div>
+
+
+                                    </div>
+                                    <div class="product-detail">
+                                        <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value)}}">
+                                            <h6 class="name h-100">
+                                                {{ ucwords(strtolower($trending_products_row->title)) }}
+                                            </h6>
+                                        </a>
+                                        <h5 class="sold text-content">
+                                            @if ($trending_products_row->offer_rate === null)
+                                            <span class="theme-color price">Price not available</span>
+                                            @else
+                                            <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
+                                            @endif
+
+                                            @if ($mrp !== null)
+                                            <del>Rs. {{ $mrp }}</del>
+                                            @endif
+                                        </h5>
                                     </div>
                                 </div>
                             </div>

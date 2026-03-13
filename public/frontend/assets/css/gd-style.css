@@ -2229,6 +2229,14 @@ a.cntshop {
 .location-modal.page-reload-modal .modal-dialog .modal-content .modal-body{
   padding-top: 0px;
 }
+.primary_category_desc h1,
+.primary_category_desc h2,
+.primary_category_desc h3,
+.primary_category_desc h4,
+.primary_category_desc h5,
+.primary_category_desc h6{
+  margin-bottom: 10px;
+}
 .primary_category_desc h3{
   font-size: 20px;
   font-weight: 600;
@@ -2236,6 +2244,43 @@ a.cntshop {
 }
 .primary_category_desc p{
  text-align: justify;
+}
+
+
+.primary_category_desc ul{    
+    list-style: none;
+    padding: 10px 0 10px 10px;
+    position: relative;
+    display: block;
+}
+.primary_category_desc ul li {
+  display: block;
+  position: relative;
+  font-weight: 500;
+  line-height: 24px;
+  margin-bottom: 10px;
+  padding-left: 25px;
+  font-size: 18px;
+  color: #000000bf;
+}
+
+
+.primary_category_desc ul li:before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 16px;
+    display: block;
+    vertical-align: middle;
+    position: absolute;
+    content: "\f054";
+    left: 0;
+    top: -1px;
+    color: #390901;
+}
+.primary_category_desc ul li h5 {
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: 0px;
 }
 
 @media (max-width: 767px) {

@@ -411,6 +411,15 @@
                                                         @endif
                                                     </a>
                                                 </div>
+                                               @if($popular_product_row->mrp > 0 && $popular_product_row->stock_quantity <= 0)
+                                                    <ul class="product-option">
+                                                        <li title="Out of Stock">
+                                                            <a href="javascript:void(0)" class="out_of_stock">
+                                                            Out of Stock
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                @endif
                                             </div>
                                             <div class="product-detail">
                                                 <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
@@ -549,6 +558,15 @@
 
 
                                     </div>
+                                    @if($trending_products_row->mrp > 0 && $trending_products_row->stock_quantity <= 0)
+                                        <ul class="product-option">
+                                            <li title="Out of Stock">
+                                                <a href="javascript:void(0)" class="out_of_stock">
+                                                Out of Stock
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    @endif
                                     <div class="product-detail">
                                         <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value)}}">
                                             <h6 class="name h-100">

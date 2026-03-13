@@ -92,31 +92,16 @@ $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
                         @endif
                     </a>
 
-                </div>
-                <!--<ul class="product-option">
-                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                                <a href="javascript:void(0)" data-url="{{route('quick.view')}}" data-product-id="{{$product->id}}" class="quick-view">
-                                <i data-feather="eye"></i>
-                                </a>
-                            </li>
-                            @if (auth()->guard('customer')->check())
-                                <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                    <a href="javascript:void(0)" 
-                                        class="addwishlist {{ in_array($product->id, $wishlistProductIds) ? 'added-to-wishlist' : '' }}" 
-                                        data-pid="{{ $product->id }}" 
-                                        data-url="{{ route('wishlist.add') }}" 
-                                        data-cuid="{{ $customerId }}">
-                                        <i class="feather-icon heart-icon {{ in_array($product->id, $wishlistProductIds) ? 'filled' : '' }}" data-feather="heart"></i>
-                                    </a>
-                                </li>
-                            @else
-                                <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                                    <a href="{{ route('logincustomer') }}?redirect={{ url()->current() }}" class="addwishlist-le" data-pid="{{ $product->id }}">
-                                        <i data-feather="heart"></i>
-                                    </a>
-                                </li>
-                            @endif
-                        </ul>-->
+                </div>                
+                @if($product->mrp > 0 && $product->stock_quantity <= 0)
+                    <ul class="product-option">
+                        <li title="Out of Stock">
+                            <a href="javascript:void(0)" class="out_of_stock">
+                            Out of Stock
+                            </a>
+                        </li>
+                    </ul>
+                @endif
             </div>
         </div>
         <div class="product-footer">

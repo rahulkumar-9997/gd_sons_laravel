@@ -87,8 +87,16 @@ $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
                             loading="lazy">
                         @endif
                     </a>
-
-                </div>
+                </div>                
+                @if($product->mrp > 0 && $product->stock_quantity <= 0)
+                    <ul class="product-option">
+                        <li title="Out of Stock">
+                            <a href="javascript:void(0)" class="out_of_stock">
+                            Out of Stock
+                            </a>
+                        </li>
+                    </ul>
+                @endif
                 <!--<ul class="product-option">
                     <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
                         <a href="javascript:void(0)" data-url="{{route('quick.view')}}" data-product-id="{{$product->id}}" class="quick-view">

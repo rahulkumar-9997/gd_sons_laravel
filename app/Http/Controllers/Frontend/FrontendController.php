@@ -102,14 +102,14 @@ class FrontendController extends Controller
                 $join->on('products.id', '=', 'inventories.product_id')
                     ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
             })
-            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
             ->get()
             ->shuffle();
 
         /* Split products into popular and trending */
         $data['popular_products'] = $products->where('label_id', $popular_label_id)->take(20);
         $data['trending_products'] = $products->where('label_id', $trending_label_id)->take(20);
-        DB::disconnect();
+        //return response()->json($data['popular_products']);
         return view('frontend.index', compact('data', 'specialOffers'));
     }
 
@@ -193,7 +193,7 @@ class FrontendController extends Controller
                     $join->on('products.id', '=', 'inventories.product_id')
                         ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
                 })
-                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
                 ->paginate(32);
             $attributes_with_values_for_filter_list = $category->attributes()
                 ->where('slug', '!=', $attribute_top->slug)
@@ -303,7 +303,7 @@ class FrontendController extends Controller
                     $join->on('products.id', '=', 'inventories.product_id')
                         ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
                 })
-                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
                 ->paginate(32);
             // $attributes_with_values_for_filter_list = $category->attributes()
             // ->where('slug', '!=', $attribute_top->slug)
@@ -429,7 +429,7 @@ class FrontendController extends Controller
                     $join->on('products.id', '=', 'inventories.product_id')
                         ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
                 })
-                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
                 ->paginate(32);
             if ($request->ajax()) {
                 if ($request->has('load_more') && $request->get('load_more') == true) {
@@ -807,7 +807,7 @@ class FrontendController extends Controller
                 $join->on('products.id', '=', 'inventories.product_id')
                     ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
             })
-            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
             ->where('products.category_id', $categoryId)
             ->whereHas('productAttributesValues', function ($query) use ($attributeValue) {
                 $query->where('attributes_value_id', $attributeValue->id);
@@ -912,7 +912,7 @@ class FrontendController extends Controller
                     $join->on('products.id', '=', 'inventories.product_id')
                         ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
                 })
-                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
                 ->paginate(32);
 
             $attributes_with_values_for_filter_list = $category->attributes()
@@ -1138,7 +1138,7 @@ class FrontendController extends Controller
                 $join->on('products.id', '=', 'inventories.product_id')
                     ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
             })
-            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.sku')
+            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.sku', 'inventories.stock_quantity')
             ->where('products.id', $product_id)
             ->firstOrFail();
 
@@ -1311,7 +1311,7 @@ class FrontendController extends Controller
                         $join->on('products.id', '=', 'inventories.product_id')
                             ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
                     })
-                    ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku');
+                    ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity');
             }
         ])
             ->where('slug', $slug)

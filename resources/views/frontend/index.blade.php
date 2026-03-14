@@ -411,7 +411,14 @@
                                                         @endif
                                                     </a>
                                                 </div>
-                                               @if($popular_product_row->mrp > 0 && $popular_product_row->stock_quantity <= 0)
+                                                @php
+                                                $hasDimensions = 
+                                                !empty($popular_product_row->length) && 
+                                                !empty($popular_product_row->breadth) && 
+                                                !empty($popular_product_row->height) && 
+                                                !empty($popular_product_row->weight);
+                                                @endphp
+                                               @if(($popular_product_row->mrp > 0 && $popular_product_row->stock_quantity <= 0) || !$hasDimensions)
                                                     <ul class="product-option">
                                                         <li title="Out of Stock">
                                                             <a href="javascript:void(0)" class="out_of_stock">
@@ -558,7 +565,14 @@
 
 
                                     </div>
-                                    @if($trending_products_row->mrp > 0 && $trending_products_row->stock_quantity <= 0)
+                                    @php
+                                    $hasDimensions_trending = 
+                                    !empty($trending_products_row->length) && 
+                                    !empty($trending_products_row->breadth) && 
+                                    !empty($trending_products_row->height) && 
+                                    !empty($trending_products_row->weight);
+                                    @endphp
+                                    @if(($trending_products_row->mrp > 0 && $trending_products_row->stock_quantity <= 0) || !$hasDimensions_trending)
                                         <ul class="product-option">
                                             <li title="Out of Stock">
                                                 <a href="javascript:void(0)" class="out_of_stock">

@@ -351,7 +351,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                     $p = $data['product_details'];
                                     $hasDimensions = !empty($p->length) && !empty($p->breadth) && !empty($p->height) && !empty($p->weight);
                                 @endphp
-                                @if(intval($p->mrp) > 0  && intval($p->stock_quantity) > 0 )
+                                @if(intval($p->mrp) > 0  && intval($p->stock_quantity) > 0 && $hasDimensions )
                                 <button class="add-to-cart btn btn-md bg-dark cart-button text-white w-100" data-url="{{route('add.to.cart')}}" data-pid="{{$data['product_details']->id}}"
                                     data-mrp="{{$data['product_details']->mrp}}"
                                     data-track-btn-type="Add to cart without login"

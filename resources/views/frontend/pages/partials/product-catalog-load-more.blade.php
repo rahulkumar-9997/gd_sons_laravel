@@ -87,8 +87,15 @@ $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
                             loading="lazy">
                         @endif
                     </a>
-                </div>                
-                @if($product->mrp > 0 && $product->stock_quantity <= 0)
+                </div>   
+                @php
+                $hasDimensions = 
+                !empty($product->length) && 
+                !empty($product->breadth) && 
+                !empty($product->height) && 
+                !empty($product->weight);
+                @endphp
+                @if(($product->mrp > 0 && $product->stock_quantity <= 0) || !$hasDimensions)  
                     <ul class="product-option">
                         <li title="Out of Stock">
                             <a href="javascript:void(0)" class="out_of_stock">

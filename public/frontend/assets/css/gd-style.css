@@ -871,7 +871,7 @@ header .navbar.navbar-expand-xl .navbar-nav .nav-link.mobile-link::before {
 section.banner-section {
   padding-top: 20px;
   padding-bottom: 20px;
-  background: linear-gradient(#FD464F, #FD464F);
+  background: linear-gradient(90deg, #f75177, #f75177);
 }
 
 .h1-heading h1 {

@@ -31364,7 +31364,7 @@ body.rtl .menu-label {
 .home-trending-section,
 .home-sticky-category-section {
     /* padding-bottom: 40px; */
-    background: linear-gradient(90deg, #FD464F, #FD464F);
+    background: linear-gradient(90deg, #f75177, #f75177);
     /* padding-top: 30px; */
     padding: 25px;
     border-radius: 16px;

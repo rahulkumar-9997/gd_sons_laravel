@@ -282,38 +282,7 @@
             });
         });        
         /*Track btn click ajax code*/
-        /**product Video modal*/ 
-        $(document).on('click', '.product-video-btn', function(e) {
-            var button = $(this);
-            var originalButtonText = button.html();
-            button.prop('disabled', true).html('Loading please wait...');
-            var title = $(this).data('title');
-            var size = ($(this).data('size') == '') ? 'md' : $(this).data('size');
-            var url = $(this).data('url');
-            var data = {
-                _token: $('meta[name="csrf-token"]').attr('content'),
-                size: size,
-                url: url,
-            };
-            $("#commoanModal .modal-title").html(title);
-            $("#commoanModal .modal-dialog").addClass('modal-' + size);
-            
-            $.ajax({
-                url: url,
-                type: 'get',
-                data: data,
-                success: function (data) {
-                    $('#commoanModal .modal-render-data').html(data.modal_content);
-                    $("#commoanModal").modal('show');
-                    button.prop('disabled', false).html(originalButtonText);
-                },
-                error: function (data) {
-                    data = data.responseJSON;
-                    button.prop('disabled', false).html(originalButtonText);
-                }
-            });
-        });        
-        /**product Video */         
+               
     });
 
     function showNotificationAll(type, title, message) {

@@ -2062,22 +2062,11 @@ class FrontendController extends Controller
         ])        
         ->select('products.*')
         ->where('products.slug', $slug)
-        ->firstOrFail();        
-        $product_video_modal = '        
-        <div class="col-12">
-            <div class="product-video-section">
-                <div class="product-short-container">
-                    <div class="product-video-container short" data-video-id="'.$product->video_id.'">                        
-                        <iframe src="https://www.youtube.com/embed/'.$product->video_id.'?autoplay=1&mute=0&enablejsapi=1&playsinline=1&rel=0&modestbranding=1&loop=1&playlist='.$product->video_id.'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="" loading="lazy"></iframe>
-                    </div>
-                </div>
-            </div>
-        </div>
-        ';
-        return response()->json([
-            'message' => 'Modal Generated Successfully',
-            'modal_content' => $product_video_modal,
-        ]);
+        ->firstOrFail(); 
+        $ref = $request->get('ref');
+        //return response()->json($product);
+        return view('frontend.pages.product-video', compact('product', 'ref'));       
+        
     }
 
 }

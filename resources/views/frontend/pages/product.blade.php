@@ -4,18 +4,18 @@ $schema_offer = 0;
 $categorytitle = $data['product_details']->category->title;
 if (substr($categorytitle, -1) === 's')
 {
-$categorytitle = substr($categorytitle, 0, -1);
+    $categorytitle = substr($categorytitle, 0, -1);
 }
 if ($data['product_details']->meta_title) {
-$meta_title = $data['product_details']->meta_title;
+    $meta_title = $data['product_details']->meta_title;
 } else {
-$meta_title = removeDuplicateWords($data['attributes_value_name']->name. ' ' .ucwords(strtolower($data['product_details']->title. ' ' .$categorytitle)));
+    $meta_title = removeDuplicateWords($data['attributes_value_name']->name. ' ' .ucwords(strtolower($data['product_details']->title. ' ' .$categorytitle)));
 }
 
 if ($data['product_details']->meta_description) {
-$meta_description = $data['product_details']->meta_description;
+    $meta_description = $data['product_details']->meta_description;
 } else {
-$meta_description = 'Great Offer on '. $categorytitle.'. Best '.ucwords(strtolower($data['attributes_value_name']->name)). ' Product. '.ucwords(strtolower($data['product_details']->title))
+    $meta_description = 'Great Offer on '. $categorytitle.'. Best '.ucwords(strtolower($data['attributes_value_name']->name)). ' Product. '.ucwords(strtolower($data['product_details']->title))
 . ' at best Online Price. Best Retail Store in Varanasi. Get more discount for Bulk Orders.';
 }
 @endphp
@@ -347,6 +347,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         </button>
                                     </div>
                                 </div>
+
                                 @php
                                     $p = $data['product_details'];
                                     $hasDimensions = !empty($p->length) && !empty($p->breadth) && !empty($p->height) && !empty($p->weight);
@@ -483,10 +484,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                             @if(!empty($data['product_details']->video_id))
                                 <div class="video-btn-link">
                                     <a class="btn theme-bg-color text-white btn-sm product-video-btn" 
-                                    href="javascript:void(0)"
-                                    data-url="{{ route('products-video', $data['product_details']->slug) }}"
-                                    data-title="{{ $data['product_details']->title }}"
-                                    data-size="lg">
+                                   href="{{ route('products-video', ['slug' => $data['product_details']->slug, 'ref' => url()->current()]) }}">
                                     View Video
                                     </a>
                                 </div>

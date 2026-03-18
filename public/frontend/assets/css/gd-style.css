@@ -1523,8 +1523,8 @@ a.cntshop {
 }
 
 .product-video-container.short {
-    padding-bottom: 71.78%;
-    max-width: 310px;
+    padding-bottom: 140%;
+    max-width: 350px;
 }
 .product-video-section{
   padding-top: 20px;
@@ -1537,6 +1537,26 @@ a.cntshop {
   width: 100%;
   height: 100%;
   border: none;
+}
+.bred-back li a{
+  font-size: 20px;
+}
+.video-ptitle{
+  text-align: center;
+}
+
+.video-ptitle .pv-title{
+  font-size: 24px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+@media (max-width: 767px) {
+    .section-b-space .video-ptitle .pv-title{
+      font-size: 22px;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
 }
 
 .product-video-section {

@@ -74,54 +74,119 @@
                             </div>
 
                             <div class="mb-3">
-                                <h2>4. Shipping and Delivery</h2>
+                                <h2>4. Shipping & Delivery</h2>
                                 <ul class="custom-list">
-                                    <li>Delivery is limited to a 100 km radius of Varanasi, Uttar Pradesh.</li>
-                                    <li>Orders from outside the delivery zone will be cancelled and refunded if paid.</li>
-                                    <li>Delivery is via local partners or our in-house team.</li>
-                                    <li>Estimated delivery: 3 to 7 business days within the service area.</li>
-                                    <li>Shipping charges, if applicable, are displayed at checkout.</li>
-                                    <li>Delivery timelines may vary due to external factors.</li>
+                                    <li>We offer shipping <strong>across India.</strong></li>
+                                    <li>Orders are processed within 1–2 business days after confirmation.</li>
+                                    <li>We use <strong>Shiprocket and its logistics partners</strong> to ensure reliable and timely delivery across India.</li>
+                                </ul>
+
+                                <h3 class="mb-2 mt-3">Estimated Delivery Timelines</h3>
+                                <ul class="custom-list">
+                                    <li><strong>Metro Cities:</strong> 2–4 business days</li>
+                                    <li><strong>Non-Metro Cities/Towns:</strong> 3–7 business days</li>
+                                    <li><strong>Remote Areas:</strong> 5–10 business days</li>
+                                    <li>Shipping charges (if applicable) are <strong>displayed at checkout.</strong></li>
+                                    <li>Free shipping may be available on selected products or order values.</li>
+                                    <li>Once shipped, customers will receive a <strong>tracking link via SMS/Email/WhatsApp.</strong></li>
+                                </ul>
+
+                                <h3 class="mb-2 mt-3">Important Notes</h3>
+                                <ul class="custom-list">
+                                    <li>Delivery timelines may vary due to:</li>
+                                    <ul>
+                                        <li>Courier delays</li>
+                                        <li>Weather conditions</li>
+                                        <li>Public holidays</li>
+                                    </ul>
+                                    <li>In case of delivery failure due to incorrect address or unavailability, re-shipping charges may apply.</li>
                                 </ul>
                             </div>
+
                             <div class="return-cancell" id="returns-and-cancellations">
                                 <div class="mb-3">
-                                    <h2>5. Returns and Cancellations</h2>
+                                    <h2>5. Returns & Replacements</h2>
+
+                                    <h3 class="mb-2 mt-3">Return Window</h3>
                                     <ul class="custom-list">
-                                        <li>Returns accepted within 7 days for eligible customers within 100 km of Varanasi.</li>
-                                        <li>Only damaged, defective, or incorrect items qualify for return.</li>
-                                        <li>Items must be unused, in original packaging, and include all accessories.</li>
-                                        <li>To return, contact us with your order number, item photos, and issue description.</li>
-                                        <li>No returns for orders beyond 7 days or outside the 100 km radius.</li>
-                                        <li>Cancellations allowed only before shipping.</li>
+                                        <li>Returns must be requested within <strong>3 days of delivery.</strong></li>
+                                    </ul>
+
+                                    <h3 class="mb-2 mt-3">Eligibility for Returns</h3>
+                                    <ul class="custom-list">
+                                        <li>Damaged during transit</li>
+                                        <li>Defective product</li>
+                                        <li>Incorrect item delivered</li>
+                                    </ul>
+
+                                    <h3 class="mb-2 mt-3">Return Conditions</h3>
+                                    <ul class="custom-list">
+                                        <li>Product must be unused</li>
+                                        <li>In original packaging</li>
+                                        <li>With all accessories, tags, and invoice</li>
+                                    </ul>
+
+                                    <h3 class="mb-2 mt-3">Return Process</h3>
+                                    <ul class="custom-list">
+                                        <li>To initiate a return, contact us with:</li>
+                                        <ul>
+                                            <li>Order ID .</li>
+                                            <li>Product images/videos .</li>
+                                            <li>Issue description .</li>
+                                        </ul>
+                                        <li>Our team will verify the request within <strong>24–48 hours.</strong></li>
+                                    </ul>
+
+                                    <h3 class="mb-2 mt-3">Non-Returnable Cases</h3>
+                                    <ul class="custom-list">
+                                        <li>Used products</li>
+                                        <li>Physical damage not reported within 3 days .</li>
+                                        <li>Missing packaging or accessories .</li>
+                                        <li>Products marked as non-returnable (if applicable) .</li>
                                     </ul>
                                 </div>
                             </div>
-                            <div class="return-cancell" id="returns-and-cancellations">
+
+                            <div class="return-cancell">
                                 <div class="mb-3">
-                                    <h2>6. Refund Timelines</h2>
+                                    <h2>6. Refund Policy</h2>
+
+                                    <h3 class="mb-2 mt-3">Refund for Cancelled Orders</h3>
                                     <ul class="custom-list">
-                                        <li>Refund for Cancelled Orders: If your order is cancelled, the refund will be processed within 24-48 hours of cancellation confirmation.</li>
-                                        <li>Refund for Returned Orders: For returned items, the refund will be initiated within 24-48 hours after the product is received at our warehouse and approved upon inspection.</li>
+                                        <li>Orders cancelled before dispatch will be refunded within <strong>24–48 hours.</strong></li>
+                                    </ul>
+
+                                    <h3 class="mb-2 mt-3">Refund for Returned Orders</h3>
+                                    <ul class="custom-list">
+                                        <li>Refunds are initiated within <strong>2–5 business days </strong>after:</li>
+                                        <ul class="custom-list">
+                                            <li>Product is received .</li>
+                                            <li>Inspection is completed and approved .</li>
+                                        </ul>
+                                    </ul>
+
+                                    <h3 class="mb-2 mt-3">Refund Mode</h3>
+                                    <ul class="custom-list">
+                                        <li>Original payment method (UPI, card, net banking, wallet) .</li>
+                                        <li>For COD orders: refund via <strong>bank transfer or UPI.</strong></li>
                                     </ul>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <h2>7. Warranty and Liability</h2>
+                                <h2>7. Order Cancellation</h2>
                                 <ul class="custom-list">
-                                    <li>Some items may include manufacturer warranties (details on product page).</li>
-                                    <li>We are not responsible for issues due to misuse or improper installation.</li>
-                                    <li>We are not liable for delays or damages from third-party delivery services.</li>
+                                    <li>Orders can be cancelled <strong>before dispatch only.</strong></li>
+                                    <li>Once shipped, orders cannot be cancelled (return policy applies).</li>
                                 </ul>
                             </div>
 
                             <div class="mb-3">
-                                <h2>8. User Responsibilities</h2>
+                                <h2>8. Additional Information</h2>
                                 <ul class="custom-list">
-                                    <li>Provide accurate personal and payment details.</li>
-                                    <li>Do not engage in fraudulent or illegal website use.</li>
-                                    <li>Respect intellectual property owned or licensed by Girdhar Das & Sons.</li>
+                                    <li>Customers must provide accurate shipping details.</li>
+                                    <li>We reserve the right to reject returns that do not meet policy conditions.</li>
+                                    <li>Policies may be updated without prior notice.</li>
                                 </ul>
                             </div>
 

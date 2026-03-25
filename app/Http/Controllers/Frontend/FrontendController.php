@@ -513,6 +513,17 @@ class FrontendController extends Controller
                     }
                 }
             }
+            $productsQuery->orderByRaw("
+                CASE 
+                    WHEN inventories.stock_quantity <= 0 
+                    OR products.length IS NULL 
+                    OR products.breadth IS NULL 
+                    OR products.height IS NULL 
+                    OR products.weight IS NULL
+                    THEN 1 
+                    ELSE 0 
+                END ASC
+            ");
             if ($request->has('sort')) {
                 $sortOption = $request->get('sort');
                 switch ($sortOption) {
@@ -1014,6 +1025,17 @@ class FrontendController extends Controller
                 }])
                 ->orderBy('title')
                 ->get();
+            $productsQuery->orderByRaw("
+                CASE 
+                    WHEN inventories.stock_quantity <= 0 
+                    OR products.length IS NULL 
+                    OR products.breadth IS NULL 
+                    OR products.height IS NULL 
+                    OR products.weight IS NULL
+                    THEN 1 
+                    ELSE 0 
+                END ASC
+            ");
             if ($request->has('sort')) {
                 $sortOption = $request->get('sort');
                 switch ($sortOption) {

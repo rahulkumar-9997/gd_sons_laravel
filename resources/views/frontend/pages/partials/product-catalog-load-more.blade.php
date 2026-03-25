@@ -9,29 +9,8 @@
     ->pluck('product_id')
     ->toArray();
 @endphp
-
-@php
-/* Separate products into in-stock and out-of-stock */
-    $inStockProducts = [];
-    $outOfStockProducts = [];
-    foreach($products as $product) {
-        $hasDimensions =
-        !empty($product->length) &&
-        !empty($product->breadth) &&
-        !empty($product->height) &&
-        !empty($product->weight);
-
-        if(($product->mrp > 0 && $product->stock_quantity <= 0) || !$hasDimensions) {
-            $outOfStockProducts[]=$product;
-        }
-        else {
-            $inStockProducts[]=$product;
-        }
-    }
-    /* Merge arrays with in-stock first, then out-of-stock */
-    $sortedProducts=array_merge($inStockProducts, $outOfStockProducts);
-    @endphp
-    @foreach($sortedProducts as $product)
+@if (isset($products) && $products->isNotEmpty())
+    @foreach($products as $product)
         @php
             $firstImage=$product->images->get(0);
             $secondImage = $product->images->get(1);
@@ -192,3 +171,4 @@
             </div>
         </div>
     @endforeach
+@endif

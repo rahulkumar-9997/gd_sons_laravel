@@ -40,14 +40,11 @@
                 <div class="blog-detail-image rounded-3 mb-4">
                     <div class="blog-deta-img">
                         <img src="{{asset($blog->blog_image) }}" class="pc__img_blog bg-img-blog-details blur-up lazyload" alt="{{$blog->title}}">
-                    </div>
-                    <div class="blog-image-contain">
-                        <h1>{{$blog->title}}</h1>
-                        
-                        
-                    </div>
+                    </div>                    
                 </div>
-
+                <div class="blog-image-contain">
+                    <h1>{{$blog->title}}</h1> 
+                </div>
                 <div class="blog-detail-contain">
                     {!! $blog->bog_description !!}
                 </div>

@@ -31614,7 +31614,9 @@ body.rtl .menu-label {
 
 .product-box .price {
     margin-top: 16px;
-    font-weight: 600
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
 }
 
 .product-list {
@@ -38622,7 +38624,7 @@ body.rtl .menu-label {
 
 .blog-section .blog-detail-contain p {
     color: #4a5568;
-    font-size: calc(15px + 2*(100vw - 320px)/1600);
+    font-size: 17px;
     line-height: calc(25px + 5*(100vw - 320px)/1600);
     margin-bottom: calc(12px + 8*(100vw - 320px)/1600)
 }

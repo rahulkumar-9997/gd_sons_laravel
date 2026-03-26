@@ -9,56 +9,87 @@ use App\Models\Product;
 use App\Models\ProductReview;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class ProductReviewAutoAiGenerateController extends Controller
 {
     public function generateAIReview($id)
     {
         try {
-            $product = Product::with('category')->findOrFail($id);
-            
+            $product = Product::with('category')->findOrFail($id);            
             $client = new Client();
-            $customPrompt = session('ai_review_prompt', '');
+            $customPrompt = session('ai_review_prompt', '');            
+            $systemPrompt = "You are a helpful assistant that generates realistic, authentic ecommerce product reviews. 
+            You ONLY generate POSITIVE reviews (1-5 stars only).             
+            REVIEW STYLE GUIDELINES:
+            - Reviews should sound like real customer reviews, not marketing content
+            - Use short, simple sentences like real people write
+            - Include casual expressions like 'Good product', 'Awesome', 'Nice', 'Very good'
+            - Mix of very short reviews (2-3 lines) and slightly longer ones (4-5 lines)
+            - Write in natural, conversational language
             
-            $systemPrompt = "You are a helpful assistant that generates realistic ecommerce product reviews. 
-            You ONLY generate POSITIVE reviews (4-5 stars only). 
             You write in TWO formats:
-            1. Proper Hindi in Devanagari script (like: मैंने यह प्रोडक्ट खरीदा और बहुत अच्छा लगा)
-            2. Proper US English (like: I purchased this product and it exceeded my expectations)
+            1. Proper Hindi in Devanagari script (simple, conversational Hindi)
+            2. Natural US English (casual, authentic tone)
             
             IMPORTANT RULES FOR NAMES:
             - ALL 5 customer names MUST BE COMPLETELY DIFFERENT from each other
-            - For Hindi reviews, use Indian names in English script (like: Rajesh Sharma, Priya Patel, Amit Kumar)
-            - For English reviews, use Indian names in English script (like: Babita Mukherjee, Jismi Verma, Pooja Singh)
+            - Use ONLY Indian names in English script
+            - Names should be authentic Indian names (like: Deepa Sharma, Amit Verma, Pooja Singh, Ravi Gupta, Neha Patel)
             - DO NOT use Western names like John, Sarah, Michael, etc.
-            - Names must be in English script only
-            - Be creative with names - use variety of Indian first names and surnames
+            - Each name must be unique - no duplicates across all 5 reviews
+            
+            IMPORTANT FOR CONTENT VARIETY:
+            - Each review should sound like it's from a different person with unique writing style
+            - Some reviews should be very short and simple
+            - Some reviews should be slightly more detailed
+            - Vary the expressions used (Good, Awesome, Nice, Super, Excellent, etc.)
+            - Don't use formal or marketing language - keep it authentic
             
             Never generate negative or average reviews (only 4 or 5 stars).
             Never generate Hinglish or mixed language.";
             
-            $userPrompt = $customPrompt ?: "Generate 5 positive customer reviews for: {$product->title}, {$product->category->title}
+            $userPrompt = $customPrompt ?: "Generate 5 authentic, real-sounding positive customer reviews for: {$product->title}
 
             REQUIREMENTS:
-            - Generate ONLY 4 or 5 star ratings (no 1,2,3 stars)
-            - Write 1 review in proper Hindi (Devanagari script only, no English words)
-            - Write 4 reviews in proper US English (formal, natural American English)
-            - All reviews must be POSITIVE and ENTHUSIASTIC
-            - Include specific product details (quality, features, performance, value for money)
+            - Generate ONLY 1 or 5 star ratings
+            - Write 1 review in simple, conversational Hindi (Devanagari script only)
+            - Write 4 reviews in natural, casual US English
+            - Reviews should sound like real customers wrote them, NOT like marketing content
             
-            CRITICAL - NAME REQUIREMENTS (MUST FOLLOW EXACTLY):
-            1. ALL 5 customer names MUST BE UNIQUE - no duplicates allowed
-            2. Use ONLY Indian names (like: Rajesh Kumar, Priya Singh, Amit Patel, Babita Mukherjee, Jismi Verma)
-            3. DO NOT use Western names (like John, Sarah, Michael, Jennifer, David)
-            4. Names must be in English script only
-            5. Each name should be different - check carefully that no two names are the same
+            REVIEW STYLE EXAMPLES - Follow this authentic style:
+
+            ENGLISH EXAMPLES (use this style):
+            - Good product, very strong material. Working well for daily use.
+            - Awesome! The quality is superb. Really happy with this purchase.
+            - Nice product. Looks great in my kitchen and works perfectly.
+            - Very good product. The build quality is excellent. Value for money.
+            - Super product! Heats up quickly and cooks food evenly. Recommended!
+            - Excellent! Exactly what I needed. Working great so far.
+            - Good product also strong. Using it daily and no issues.
+            - Very helpful kitchen appliance. Makes cooking easy and fast.
+            - Nice design and good performance. Happy with my purchase.
+            - Superb quality! Worth every penny. Definitely recommend.
+
+            HINDI EXAMPLES (use this style):
+            - बहुत अच्छा प्रोडक्ट है। मजबूत और टिकाऊ।
+            - शानदार! क्वालिटी बहुत अच्छी है।
+            - बेहतरीन प्रोडक्ट। रोज़ाना इस्तेमाल के लिए परफेक्ट।
+            - वाह! कमाल का प्रोडक्ट है। बहुत खुश हूं।
+            - अच्छा प्रोडक्ट है। मजबूत भी है और अच्छा काम करता है।
+
+            CRITICAL - NAME REQUIREMENTS:
+            1. ALL 5 customer names MUST BE UNIQUE - no duplicates
+            2. Use authentic Indian names in English script (like: Deepa Sharma, Amit Verma, Pooja Singh, Ravi Gupta, Neha Patel, Rajesh Kumar, Priya Singh, Babita Mukherjee, Jismi Verma)
+            3. DO NOT use Western names
+            4. Each name should be completely different from others
             
             Return ONLY valid JSON array in this exact format:
             [
             {
-                \"title\": \"Review title in same language as review\",
+                \"title\": \"Short catchy title (2-10 words) in same language as review\",
                 \"rating\": 5,
-                \"review\": \"Detailed positive review in proper Hindi or proper English\",
+                \"review\": \"Authentic, natural-sounding review in simple language\",
                 \"name\": \"Unique Indian customer name in English script\",
                 \"language\": \"hindi\" or \"english\"
             }]";
@@ -74,8 +105,8 @@ class ProductReviewAutoAiGenerateController extends Controller
                         ["role" => "system", "content" => $systemPrompt],
                         ["role" => "user", "content" => $userPrompt]
                     ],
-                    "temperature" => 0.8,
-                    "max_tokens" => 2500
+                    "temperature" => 0.85,
+                    "max_tokens" => 2000
                 ]
             ]);
             
@@ -102,6 +133,7 @@ class ProductReviewAutoAiGenerateController extends Controller
                     'form' => $this->getErrorForm('AI returned invalid data format. Please try again with a different prompt.', $product->id)
                 ]);
             }
+            
             $reviews = array_filter($reviews, function($review) {
                 return isset($review['rating']) && $review['rating'] >= 2;
             });
@@ -113,8 +145,10 @@ class ProductReviewAutoAiGenerateController extends Controller
                     'form' => $this->getErrorForm('AI generated only negative reviews. Please try again.', $product->id)
                 ]);
             }
+            
             $reviews = array_slice(array_values($reviews), 0, 5);
-            $reviews = $this->checkAndFixDuplicates($reviews);
+            $reviews = $this->ensureUniqueAndAuthenticReviews($reviews);
+            
             foreach ($reviews as &$review) {
                 $isHindiReview = preg_match('/[ऀ-ॿ]/', $review['review'] ?? '');
                 $hasHindiScriptName = preg_match('/[ऀ-ॿ]/', $review['name'] ?? '');
@@ -131,7 +165,7 @@ class ProductReviewAutoAiGenerateController extends Controller
             ]);
             
         } catch (Exception $e) {
-            \Log::error('AI Review Generation Error: ' . $e->getMessage());
+            Log::error('AI Review Generation Error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
@@ -140,83 +174,121 @@ class ProductReviewAutoAiGenerateController extends Controller
         }
     }
     
-    
-    private function checkAndFixDuplicates($reviews)
+    private function ensureUniqueAndAuthenticReviews($reviews)
     {
         $usedNames = [];
-        $fixedReviews = [];
-        
-        foreach ($reviews as $index => $review) {
-            $originalName = $review['name'] ?? 'Customer_' . ($index + 1);
-            if (in_array($originalName, $usedNames)) {
-                $newName = $this->createNameVariation($originalName, $usedNames);
+        $usedTitles = [];        
+        $authenticIndianNames = [
+            'Deepa Sharma', 'Amit Verma', 'Pooja Singh', 'Ravi Gupta', 'Neha Patel',
+            'Rajesh Kumar', 'Priya Singh', 'Babita Mukherjee', 'Jismi Verma', 
+            'Sanjay Mehta', 'Anita Kapoor', 'Vikram Singh', 'Kavita Reddy', 
+            'Manoj Joshi', 'Sunita Sharma', 'Rahul Khanna', 'Geeta Malhotra',
+            'Arun Nair', 'Jyoti Iyer', 'Suresh Menon', 'Meera Das', 'Ajay Thakur'
+        ];        
+        $englishTitles = [
+            'Good product', 'Awesome!', 'Nice', 'Very good', 'Super product',
+            'Excellent!', 'Great quality', 'Worth it', 'Happy with purchase',
+            'Recommended', 'Best purchase', 'Loved it', 'Perfect', 'Amazing'
+        ];        
+        $hindiTitles = [
+            'बहुत अच्छा', 'शानदार!', 'बेहतरीन', 'वाह!', 'कमाल',
+            'उत्कृष्ट', 'सुपर', 'बढ़िया', 'लाजवाब', 'दमदार'
+        ];        
+        foreach ($reviews as $index => &$review) {
+            $name = $review['name'] ?? '';
+            if (empty($name) || in_array($name, $usedNames)) {
+                $newName = $authenticIndianNames[array_rand($authenticIndianNames)];
+                while (in_array($newName, $usedNames)) {
+                    $newName = $authenticIndianNames[array_rand($authenticIndianNames)];
+                }
                 $review['name'] = $newName;
                 $usedNames[] = $newName;
             } else {
-                $usedNames[] = $originalName;
+                $usedNames[] = $name;
             }
-            
-            $fixedReviews[] = $review;
+            $isHindi = preg_match('/[ऀ-ॿ]/', $review['review'] ?? '');
+            if (empty($review['title']) || in_array($review['title'], $usedTitles)) {
+                if ($isHindi) {
+                    $review['title'] = $hindiTitles[array_rand($hindiTitles)];
+                } else {
+                    $review['title'] = $englishTitles[array_rand($englishTitles)];
+                }
+            }
+            $usedTitles[] = $review['title'] ?? '';
+            if (isset($review['review'])) {
+                $review['review'] = $this->makeReviewAuthentic($review['review'], $index, $isHindi);
+            }
         }
         
-        return $fixedReviews;
+        return $reviews;
     }
     
+    private function makeReviewAuthentic($reviewText, $index, $isHindi = false)
+    {
+        if (strlen($reviewText) < 200 && (strpos($reviewText, '.') < 3 || strpos($reviewText, '।') < 3)) {
+            return $reviewText;
+        }
+        if ($isHindi) {
+            $shortHindiReviews = [
+                "बहुत अच्छा प्रोडक्ट है। मजबूत और टिकाऊ। रोज़ाना इस्तेमाल के लिए परफेक्ट।",
+                "शानदार! क्वालिटी बहुत अच्छी है। पैसे वसूल प्रोडक्ट।",
+                "बेहतरीन प्रोडक्ट। बहुत खुश हूं इस खरीदारी से।",
+                "वाह! कमाल का प्रोडक्ट है। सब कुछ बढ़िया काम कर रहा है।",
+                "अच्छा प्रोडक्ट है। मजबूत भी है और अच्छा काम करता है।",
+                "सुपर! डिजाइन और क्वालिटी दोनों बहुत अच्छी है।",
+                "बढ़िया प्रोडक्ट। रसोई के लिए बहुत उपयोगी।",
+                "लाजवाब! बिल्कुल सही प्रोडक्ट है।",
+                "दमदार प्रोडक्ट। मजबूत स्टील की क्वालिटी बहुत अच्छी।"
+            ];
+            return $shortHindiReviews[$index % count($shortHindiReviews)];
+        }        
+        $authenticEnglishReviews = [
+            "Good product, very strong material. Working well for daily use. Happy with my purchase.",
+            "Awesome! The quality is superb. Really happy with this product. Worth the money.",
+            "Nice product. Looks great and works perfectly. Using it daily without any issues.",
+            "Very good product. The build quality is excellent. Definitely value for money.",
+            "Super product! Heats up quickly and cooks food evenly. Recommended for everyone.",
+            "Excellent! Exactly what I needed. Working great so far. Very satisfied.",
+            "Good product also strong. Using it for my kitchen and no complaints at all.",
+            "Very helpful kitchen appliance. Makes cooking easy and fast. Good buy.",
+            "Nice design and good performance. Happy with my purchase. Would recommend.",
+            "Superb quality! Worth every penny. Definitely recommend to others.",
+            "Great product! Works perfectly and looks stylish in my kitchen.",
+            "Very good quality. Strong and durable. Using it daily with no problems.",
+            "Best purchase! Cooking has become so easy with this. Love it."
+        ];        
+        return $authenticEnglishReviews[$index % count($authenticEnglishReviews)];
+    }
+    
+    private function checkAndFixDuplicates($reviews)
+    {
+        return $this->ensureUniqueAndAuthenticReviews($reviews);
+    }
     
     private function createNameVariation($originalName, $usedNames)
     {
-        $parts = explode(' ', $originalName);
-        $firstName = $parts[0];
-        $lastName = isset($parts[1]) ? $parts[1] : '';
+        $authenticNames = [
+            'Deepa Sharma', 'Amit Verma', 'Pooja Singh', 'Ravi Gupta', 'Neha Patel',
+            'Rajesh Kumar', 'Priya Singh', 'Babita Mukherjee', 'Jismi Verma', 
+            'Sanjay Mehta', 'Anita Kapoor', 'Vikram Singh', 'Kavita Reddy'
+        ];        
+        $newName = $authenticNames[array_rand($authenticNames)];
+        while (in_array($newName, $usedNames)) {
+            $newName = $authenticNames[array_rand($authenticNames)];
+        }
         
-        $variations = [];
-        if (!empty($lastName)) {
-            $variation = $firstName . ' ' . chr(rand(65, 90)) . '. ' . $lastName;
-            $variations[] = $variation;
-        }
-        $variations[] = $originalName . ' ' . rand(1, 99);
-        $indianSurnames = ['Sharma', 'Patel', 'Singh', 'Kumar', 'Verma', 'Gupta', 'Reddy', 'Nair', 'Iyer', 'Joshi'];
-        $newSurname = $indianSurnames[array_rand($indianSurnames)];
-        $variations[] = $firstName . ' ' . $newSurname;
-        $indianFirstNames = ['Rajesh', 'Priya', 'Amit', 'Sunita', 'Vikram', 'Anita', 'Rahul', 'Deepika', 'Suresh', 'Kavita'];
-        $newFirstName = $indianFirstNames[array_rand($indianFirstNames)];
-        $variations[] = $newFirstName . ' ' . $lastName;
-        foreach ($variations as $variation) {
-            if (!in_array($variation, $usedNames)) {
-                return $variation;
-            }
-        }
-        return 'Customer_' . rand(1000, 9999);
+        return $newName;
     }
-    
     
     private function convertToEnglishName($hindiName)
     {
-        $nameMappings = [
-            'राजेश' => 'Rajesh',
-            'कुमार' => 'Kumar',
-            'प्रिया' => 'Priya',
-            'सिंह' => 'Singh',
-            'अमित' => 'Amit',
-            'पटेल' => 'Patel',
-            'सुनीता' => 'Sunita',
-            'शर्मा' => 'Sharma',
-            'विक्रम' => 'Vikram',
-            'मेहता' => 'Mehta',
-            'अनीता' => 'Anita',
-            'देसाई' => 'Desai',
-            'राहुल' => 'Rahul',
-            'कपूर' => 'Kapoor',
-            'दीपिका' => 'Deepika',
-            'रेड्डी' => 'Reddy'
-        ];
-        foreach ($nameMappings as $hindi => $english) {
-            if (strpos($hindiName, $hindi) !== false) {
-                return $english . ' ' . ($nameMappings[array_rand($nameMappings)] ?? 'Kumar');
-            }
-        }
-        $indianNames = ['Rajesh Kumar', 'Priya Singh', 'Amit Patel', 'Sunita Sharma', 'Vikram Mehta'];
-        return $indianNames[array_rand($indianNames)];
+        $authenticNames = [
+            'Rajesh Sharma', 'Priya Singh', 'Amit Patel', 'Sunita Verma', 
+            'Vikram Mehta', 'Anita Kapoor', 'Rahul Khanna', 'Deepika Reddy',
+            'Sanjay Gupta', 'Neha Malhotra', 'Arun Kumar', 'Jyoti Choudhary',
+            'Deepa Sharma', 'Amit Verma', 'Pooja Singh', 'Ravi Gupta', 'Neha Patel'
+        ];        
+        return $authenticNames[array_rand($authenticNames)];
     }
     
     public function regenerateAIReview(Request $request)
@@ -247,7 +319,7 @@ class ProductReviewAutoAiGenerateController extends Controller
             $request->validate([
                 'reviews' => 'required|array|min:1|max:5',
                 'reviews.*.product_id' => 'required|exists:products,id',
-                'reviews.*.rating' => 'required|integer|min:4|max:5',
+                'reviews.*.rating' => 'required|integer|min:1|max:5',
                 'reviews.*.review_title' => 'required|string|max:255',
                 'reviews.*.review_message' => 'required|string',
                 'reviews.*.review_name' => 'required|string|max:255',
@@ -255,10 +327,10 @@ class ProductReviewAutoAiGenerateController extends Controller
             ]);   
             
             $savedCount = 0;
-            $usedEmails = [];            
+            $usedEmails = [];          
             
             foreach ($request->reviews as $reviewData) {
-                $randomDays = rand(-30, 0);
+                $randomDays = rand(-90, 0);
                 $reviewDate = Carbon::now()->addDays($randomDays);                
                 $baseEmail = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $reviewData['review_name']));
                 $email = $baseEmail . rand(100, 999) . '@example.com';
@@ -288,7 +360,7 @@ class ProductReviewAutoAiGenerateController extends Controller
             ]);
             
         } catch (Exception $e) {
-            \Log::error('Save AI Review Error: ' . $e->getMessage());
+            Log::error('Save AI Review Error: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Error saving reviews: ' . $e->getMessage()
@@ -389,7 +461,7 @@ class ProductReviewAutoAiGenerateController extends Controller
                         <div class="col-md-8">
                             <label class="form-label fw-bold">Custom Prompt (Optional)</label>
                             <textarea class="form-control" id="customPrompt" rows="2" 
-                            placeholder="Example: Generate reviews focusing on product durability and customer service...">' . $promptValue . '</textarea>
+                            placeholder="Example: Generate short, authentic reviews...">' . $promptValue . '</textarea>
                         </div>
                         <div class="col-md-4 d-flex align-items-end">
                             <button type="button" class="btn btn-warning w-100 regenerate-with-prompt" data-product-id="' . $product->id . '">
@@ -437,7 +509,7 @@ class ProductReviewAutoAiGenerateController extends Controller
             <div class="card border-warning mb-3">
                 <div class="card-body">
                     <h6><i class="ti ti-message"></i> Try Again with Custom Prompt</h6>
-                    <p class="text-muted small">Suggestions: "Generate 5 star reviews only", "Focus on product quality", "Write in pure Hindi"</p>
+                    <p class="text-muted small">Suggestions: "Generate short, authentic reviews", "Focus on quality and durability"</p>
                     <div class="mb-3">
                         <textarea class="form-control" id="customPrompt" rows="3" 
                          placeholder="Enter custom instructions..."></textarea>

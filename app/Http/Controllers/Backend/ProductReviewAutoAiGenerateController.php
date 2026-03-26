@@ -20,12 +20,17 @@ class ProductReviewAutoAiGenerateController extends Controller
             $client = new Client();
             $customPrompt = session('ai_review_prompt', '');            
             $systemPrompt = "You are a helpful assistant that generates realistic, authentic ecommerce product reviews. 
-            You ONLY generate POSITIVE reviews (1-5 stars only).             
+            You can generate reviews with DIFFERENT ratings:
+            - 5 star: Excellent, very satisfied
+            - 4 star: Good, satisfied with minor issues
+            - 3 star: Average, mixed feelings
+            - 2 star: Below expectations, some problems
+            - 1 star: Very dissatisfied, major issues
+            
             REVIEW STYLE GUIDELINES:
             - Reviews should sound like real customer reviews, not marketing content
             - Use short, simple sentences like real people write
-            - Include casual expressions like 'Good product', 'Awesome', 'Nice', 'Very good'
-            - Mix of very short reviews (2-3 lines) and slightly longer ones (4-5 lines)
+            - Include casual expressions
             - Write in natural, conversational language
             
             You write in TWO formats:
@@ -43,44 +48,54 @@ class ProductReviewAutoAiGenerateController extends Controller
             - Each review should sound like it's from a different person with unique writing style
             - Some reviews should be very short and simple
             - Some reviews should be slightly more detailed
-            - Vary the expressions used (Good, Awesome, Nice, Super, Excellent, etc.)
+            - Vary the expressions based on rating
             - Don't use formal or marketing language - keep it authentic
             
-            Never generate negative or average reviews (only 4 or 5 stars).
-            Never generate Hinglish or mixed language.";
+            You can generate Hinglish or mixed language occasionally.
+            Generate a MIX of positive, neutral, and negative reviews for authenticity.";
             
-            $userPrompt = $customPrompt ?: "Generate 5 authentic, real-sounding positive customer reviews for: {$product->title}
+            $userPrompt = $customPrompt ?: "Generate 5 authentic, real-sounding customer reviews for: {$product->title}, {$product->category->title}
 
             REQUIREMENTS:
-            - Generate ONLY 1 or 5 star ratings
-            - Write 1 review in simple, conversational Hindi (Devanagari script only)
-            - Write 4 reviews in natural, casual US English
+            - Generate a MIX of ratings (1-5 stars)
+            - Include 1-2 negative reviews (1-3 stars) and 3-4 positive reviews (4-5 stars)
+            - Write 1-2 reviews in simple, conversational Hindi (Devanagari script)
+            - Write 3-4 reviews in natural, casual US English
             - Reviews should sound like real customers wrote them, NOT like marketing content
             
-            REVIEW STYLE EXAMPLES - Follow this authentic style:
+            REVIEW STYLE EXAMPLES:
+            ENGLISH EXAMPLES (Different ratings):
+            
+            5 Star - Very Positive:
+            - Excellent product! Exceeded my expectations. Highly recommended!
+            - Perfect! Works exactly as described. Very happy with this purchase.
+            
+            4 Star - Positive:
+            - Good product. Works well but price could be better.
+            - Nice quality. Delivery was a bit slow but product is good.
+            
+            3 Star - Average:
+            - Average product. Does the job but nothing special.
+            - Okay product. Works fine but build quality could be better.
+            
+            2 Star - Below Average:
+            - Not great. Has some issues with performance.
+            - Disappointed. Expected better quality for this price.
+            
+            1 Star - Very Negative:
+            - Very poor quality. Stopped working within a week.
+            - Waste of money. Would not recommend to anyone.
 
-            ENGLISH EXAMPLES (use this style):
-            - Good product, very strong material. Working well for daily use.
-            - Awesome! The quality is superb. Really happy with this purchase.
-            - Nice product. Looks great in my kitchen and works perfectly.
-            - Very good product. The build quality is excellent. Value for money.
-            - Super product! Heats up quickly and cooks food evenly. Recommended!
-            - Excellent! Exactly what I needed. Working great so far.
-            - Good product also strong. Using it daily and no issues.
-            - Very helpful kitchen appliance. Makes cooking easy and fast.
-            - Nice design and good performance. Happy with my purchase.
-            - Superb quality! Worth every penny. Definitely recommend.
-
-            HINDI EXAMPLES (use this style):
-            - बहुत अच्छा प्रोडक्ट है। मजबूत और टिकाऊ।
-            - शानदार! क्वालिटी बहुत अच्छी है।
-            - बेहतरीन प्रोडक्ट। रोज़ाना इस्तेमाल के लिए परफेक्ट।
-            - वाह! कमाल का प्रोडक्ट है। बहुत खुश हूं।
-            - अच्छा प्रोडक्ट है। मजबूत भी है और अच्छा काम करता है।
+            HINDI EXAMPLES:
+            - बहुत बढ़िया प्रोडक्ट! पूरी उम्मीद पर खरा उतरा। (5 Star)
+            - अच्छा प्रोडक्ट है लेकिन कीमत थोड़ी ज्यादा है। (4 Star)
+            - ठीक-ठाक प्रोडक्ट है। काम चला लिया। (3 Star)
+            - निराश किया। क्वालिटी उम्मीद से कम है। (2 Star)
+            - बिल्कुल बेकार। पैसे बर्बाद। (1 Star)
 
             CRITICAL - NAME REQUIREMENTS:
             1. ALL 5 customer names MUST BE UNIQUE - no duplicates
-            2. Use authentic Indian names in English script (like: Deepa Sharma, Amit Verma, Pooja Singh, Ravi Gupta, Neha Patel, Rajesh Kumar, Priya Singh, Babita Mukherjee, Jismi Verma)
+            2. Use authentic Indian names in English script
             3. DO NOT use Western names
             4. Each name should be completely different from others
             
@@ -88,11 +103,13 @@ class ProductReviewAutoAiGenerateController extends Controller
             [
             {
                 \"title\": \"Short catchy title (2-10 words) in same language as review\",
-                \"rating\": 5,
+                \"rating\": 1-5,
                 \"review\": \"Authentic, natural-sounding review in simple language\",
                 \"name\": \"Unique Indian customer name in English script\",
                 \"language\": \"hindi\" or \"english\"
-            }]";
+            }]
+            
+            IMPORTANT: Generate a mix of ratings (some 1-3 stars and some 4-5 stars) for authentic reviews.";
             
             $response = $client->post('https://api.openai.com/v1/chat/completions', [
                 'headers' => [
@@ -111,13 +128,14 @@ class ProductReviewAutoAiGenerateController extends Controller
             ]);
             
             $result = json_decode($response->getBody(), true);
+            Log::info('AI Response', ['result' => $result]);
             $tokensUsed = $result['usage']['total_tokens'] ?? 0;            
             
             if (!isset($result['choices'][0]['message']['content'])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'AI response failed. Please try again.',
-                    'form' => $this->getErrorForm('AI response failed. Please try again.', $product->id)
+                    'form' => $this->getErrorForm('AI response failed.o Please try again.', $product->id)
                 ]);
             }            
             

@@ -482,9 +482,9 @@ class OrderController extends Controller
             $waPayload['delivery_expected_date'] =
             $courierData['delivery_expected_date']
             ?? now()->setTimezone('Asia/Kolkata')->addDays(2)->format('d-m-Y');
-            Mail::to($order->customer->email)->queue(new OrderDetailsMail($orderDetails));
+           // Mail::to($order->customer->email)->queue(new OrderDetailsMail($orderDetails));
             Mail::to('akshat.gd@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
-            $this->sendWhatsAppNotifications($order->order_id, $payment_status, $waPayload);
+            //$this->sendWhatsAppNotifications($order->order_id, $payment_status, $waPayload);
             DB::commit();
             /* Clear session data */
             session()->forget(['checkout_data', 'cart_items', 'cart', 'courierData']);
@@ -568,11 +568,11 @@ class OrderController extends Controller
         try {
             $customerEmail = $order->customer->email;
             $customerName = $order->customer->name;
-            Mail::to($customerEmail)->queue(new PaymentFailedMail(
-                order: $order,
-                reason: $reason,
-                customerName: $customerName
-            ));
+            // Mail::to($customerEmail)->queue(new PaymentFailedMail(
+            //     order: $order,
+            //     reason: $reason,
+            //     customerName: $customerName
+            // ));
             Mail::to('rahulkumarmaurya464@gmail.com')->queue(new PaymentFailedMail(
                 order: $order,
                 reason: $reason,
@@ -878,7 +878,7 @@ class OrderController extends Controller
                     ?? null;
                 $mailTo = $resolvedShippingEmail ?? ($order->customer->email ?? null);
                 if ($mailTo) {
-                    Mail::to($mailTo)->queue(new OrderDetailsMail($orderDetails));
+                    //Mail::to($mailTo)->queue(new OrderDetailsMail($orderDetails));
                 } else {
                     Log::warning('No email found to send OrderDetailsMail', [
                         'order_id' => $order->id,
@@ -1120,7 +1120,7 @@ class OrderController extends Controller
                     ?? ($customer_address->name ?? null)
                     ?? ($orderDetails->shippingAddress->full_name ?? null)
                     ?? 'Customer';
-                Mail::to($checkoutData['ship_email'])->queue(new OrderDetailsMail($orderDetails));
+                //Mail::to($checkoutData['ship_email'])->queue(new OrderDetailsMail($orderDetails));
 				Mail::to('akshat@gdsons.co.in')->queue(new OrderDetailsMail($orderDetails, $customerName));
 				//Mail::to('rahulkumarmaurya464@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
 				$this->sendWhatsAppNotifications($orderId, $payment_status, $checkoutData);

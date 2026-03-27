@@ -291,8 +291,24 @@ class OrderController extends Controller
         }
         elseif ($request->input('payment_type') == 'Razorpay')
         {
+            Log::info('LOG 1: Starting Razorpay payment processing ===', [
+                'payment_type' => $request->input('payment_type'),
+                'grand_total_amount' => $request->input('grand_total_amount'),
+                'user_id' => auth('customer')->id() ?? 'guest',
+                'timestamp' => now()
+            ]);
             try {
+                Log::info('LOG 2: Calling storeOrderAfterPayment ===', [
+                    'request_data' => $request->except(['_token']),
+                    'session_checkout_data' => session('checkout_data'),
+                    'timestamp' => now()
+                ]);
                 $orderResponse = $this->storeOrderAfterPayment($request);
+                Log::info('=== LOG 3: storeOrderAfterPayment response received ===', [
+                    'response_type' => gettype($orderResponse),
+                    'response' => $orderResponse,
+                    'timestamp' => now()
+                ]);
                 if (is_string($orderResponse)) {
                     $responseData = json_decode($orderResponse, true);
                 } elseif ($orderResponse instanceof \Illuminate\Http\JsonResponse) {
@@ -315,6 +331,14 @@ class OrderController extends Controller
                     throw new \Exception('Created order not found');
                 }
                 
+                Log::info('LOG 4: Creating Razorpay order ===', [
+                    'order_db_id' => $order->id,
+                    'order_id' => $order->order_id,
+                    'grand_total_amount' => $order->grand_total_amount,
+                    'payment_mode' => $order->payment_mode,
+                    'customer_id' => $order->customer_id,
+                    'timestamp' => now()
+                ]);
                 $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
                 $grandTotal = $request->input('grand_total_amount');
                 if (!is_numeric($grandTotal) || $grandTotal <= 0) {
@@ -323,22 +347,43 @@ class OrderController extends Controller
                         'status' => 'error',
                         'message' => 'Invalid order amount'
                     ], 422);
-                }                
+                }       
+                //$razorpayAmount = 100;   
                 $razorpayAmount = $grandTotal * 100;
+                $actualAmount = $request->input('grand_total_amount');
                 $orderData = [
                     'receipt' => 'order_rcpt_' . $order->id,
                     'amount' => (int) $razorpayAmount,
                     'currency' => 'INR',
                     'payment_capture' => 1,
                     'notes' => [
-                        'order_db_id' => $order->id
+                        'order_db_id' => $order->id,
+                        'actual_amount' => $actualAmount,
+                        'is_test_payment' => false 
                     ]
                 ];
-                $razorpayOrder = $api->order->create($orderData);                
+                Log::info('LOG 5: Sending request to Razorpay API ===', [
+                    'razorpay_key' => config('services.razorpay.key'),
+                    'order_data' => $orderData,
+                    'razorpay_amount_in_paise' => $razorpayAmount,
+                    'razorpay_amount_in_rupees' => $razorpayAmount / 100,
+                    'actual_order_amount' => $actualAmount,
+                    'timestamp' => now()
+                ]);
+                $razorpayOrder = $api->order->create($orderData);      
+                Log::info('LOG 6: RAZORPAY ORDER CREATED SUCCESSFULLY ===', [
+                    'razorpay_order_id' => $razorpayOrder->id,
+                    'razorpay_amount' => $razorpayOrder->amount,
+                    'razorpay_currency' => $razorpayOrder->currency,
+                    'razorpay_status' => $razorpayOrder->status,
+                    'order_db_id' => $order->id,
+                    'timestamp' => now()
+                ]);          
                 return response()->json([
                     'status' => 'razorpay',
                     'order_id' => $razorpayOrder->id,
                     'amount' => $razorpayAmount,
+                    'actual_amount' => $actualAmount,
                     'name' => auth('customer')->user()->name ?? $request->ship_full_name ?? 'Customer',
                     'email' => auth('customer')->user()->email ?? $request->ship_email,
                     'contact' => auth('customer')->user()->phone_number ?? $request->ship_phone_number,
@@ -348,6 +393,15 @@ class OrderController extends Controller
                 ]);
                 
             } catch (\Exception $e) {
+                Log::error('=== RAZORPAY PAYMENT INITIATION FAILED ===', [
+                    'error_message' => $e->getMessage(),
+                    'error_code' => $e->getCode(),
+                    'error_file' => $e->getFile(),
+                    'error_line' => $e->getLine(),
+                    'error_trace' => $e->getTraceAsString(),
+                    'request_data' => $request->all(),
+                    'timestamp' => now()
+                ]);
                 if (isset($order) && $order instanceof Orders) {
                     $order->delete();
                 }
@@ -372,7 +426,7 @@ class OrderController extends Controller
     {
         $input = $request->all();
         $checkoutData = session('checkout_data');
-        Log::info('Razorpay callback input:', $input);
+        Log::info('Razorpay callback input handleRazorpayCallback:', $input);
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
         DB::beginTransaction();
         try {
@@ -394,12 +448,11 @@ class OrderController extends Controller
             $order->update([
                 'razorpay_payment_id' => $input['razorpay_payment_id'],
                 'payment_received' => true,
-                'payment_status' => 'Success',
+                'payment_status' => $payment_status,
                 'razorpay_signature_id' => $input['razorpay_signature'],
                 'razorpay_order_id' => $input['razorpay_order_id'],
                 'razorpay_method' => 'Razorpay'
-            ]);
-
+            ]);            
             foreach ($order->orderLines as $orderLine) {
                 $inventory = Inventory::where('product_id', $orderLine->product_id)
                     ->where('mrp', $orderLine->price)
@@ -1019,7 +1072,9 @@ class OrderController extends Controller
                 'customer_id' => $customerId,
                 'shipping_address_id' => $shippingAddressId,
                 'billing_address_id' => $billingAddressId,
-                'order_status_id' => $orderStatus->id,
+                'order_status_id' => $orderStatus->id ?? null,
+                'payment_status' => 'Pending',
+                'payment_received' => false,
             ]);
             Log::info('storeOrderAfterPayment in: ', ['create order' => $order]);
             /* Add order lines */
@@ -1320,16 +1375,15 @@ class OrderController extends Controller
     public function createOrder(Request $request)
     {
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
-
+        $razorpayAmount = 100;
+        // $request->amount * 100
         $orderData = [
-            'amount' => $request->amount * 100, // Razorpay expects amount in paise
+            'amount' => $razorpayAmount, /* Razorpay expects amount in paise */
             'currency' => 'INR',
             'receipt' => 'order_rcpt_' . uniqid(),
-            'payment_capture' => 1 // auto capture
+            'payment_capture' => 1
         ];
-
         $order = $api->order->create($orderData);
-
         return response()->json($order);
     }
 

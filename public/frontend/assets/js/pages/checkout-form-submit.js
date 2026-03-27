@@ -84,11 +84,13 @@ $(document).ready(function () {
         });
     });
 
-    // Initialize Razorpay Payment
+    /* Initialize Razorpay Payment */
     function initializeRazorpayPayment(response) {
+        /* alert(JSON.stringify(response));*/
         var options = {
             "key": window.razorpayKey,
             "amount": response.amount,
+            //"amount": 100,
             "currency": "INR",
             "name": "GD Sons",
             "description": "Order Payment",
@@ -103,7 +105,8 @@ $(document).ready(function () {
                 "contact": response.contact
             },
             "notes": {
-                "address": "Customer Address"
+                "address": "Customer Address",
+                "actual_amount": response.amount
             },
             "theme": {
                 "color": "#F37254"
@@ -122,7 +125,6 @@ $(document).ready(function () {
             handlePaymentFailure(response, response.order_db_id);
         });
     }
-
     // Handle Payment Success
     function handlePaymentSuccess(initResponse, razorpayResponse) {
         let submitButton = $('#checkoutFormSubmit button[type="submit"]');

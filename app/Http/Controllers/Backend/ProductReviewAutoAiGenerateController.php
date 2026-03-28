@@ -19,73 +19,85 @@ class ProductReviewAutoAiGenerateController extends Controller
             $product = Product::with('category')->findOrFail($id);            
             $client = new Client();
             $customPrompt = session('ai_review_prompt', '');            
-            $systemPrompt = "You are a helpful assistant that generates realistic, authentic ecommerce product reviews. 
-            You can generate reviews with DIFFERENT ratings:
-            - 5 star: Excellent, very satisfied
-            - 4 star: Good, satisfied with minor issues
-            - 3 star: Average, mixed feelings
-            - 2 star: Below expectations, some problems
-            - 1 star: Very dissatisfied, major issues
+            $systemPrompt = "You are an expert ecommerce review generator trained to write highly realistic, human-like customer reviews.
+            Your job is to create reviews that feel 100% genuine, like they were written by real customers after actual usage.
+
+            RATING LOGIC:
+            - 5 Star → Extremely happy, exceeded expectations, strong recommendation
+            - 4 Star → Good product, satisfied but minor issues
+            - 3 Star → Average experience, mixed opinion
+            - 2 Star → Not great, noticeable problems
+            - 1 Star → Very bad experience, strong dissatisfaction
             
-            REVIEW STYLE GUIDELINES:
-            - Reviews should sound like real customer reviews, not marketing content
-            - Use short, simple sentences like real people write
-            - Include casual expressions
-            - Write in natural, conversational language
+            WRITING STYLE RULES:
+            - Write like real people, NOT like a brand or marketing copy
+            - Use short, simple, natural sentences
+            - Add casual tone (like 'nice', 'okay', 'not bad', 'didn't like', etc.)
+            - Avoid over-polished or robotic language
+            - Add small imperfections to make it human-like
+            - Sometimes include personal experience (usage, delivery, quality, etc.)
+            - Do NOT repeat the same sentence structure
             
-            You write in TWO formats:
-            1. Proper Hindi in Devanagari script (simple, conversational Hindi)
-            2. Natural US English (casual, authentic tone)
+            LANGUAGE MIX:
+            - Write in TWO languages:
+            1. Simple conversational Hindi (Devanagari)
+            2. Natural casual English (US style)
+            - You may occasionally include Hinglish (mix of Hindi + English)
             
-            IMPORTANT RULES FOR NAMES:
-            - ALL 5 customer names MUST BE COMPLETELY DIFFERENT from each other
-            - Use ONLY Indian names in English script
-            - Names should be authentic Indian names (like: Deepa Sharma, Amit Verma, Pooja Singh, Ravi Gupta, Neha Patel)
-            - DO NOT use Western names like John, Sarah, Michael, etc.
-            - Each name must be unique - no duplicates across all 5 reviews
+            CUSTOMER NAME RULES (VERY IMPORTANT):
+            - ALL names must be UNIQUE
+            - Use ONLY real Indian names (in English script)
+            - Examples: Ankit Mishra, Sneha Yadav, Rajesh Kumar, Pooja Sharma
+            - NO western names like John, David, etc.
+            - Do not repeat any name
             
-            IMPORTANT FOR CONTENT VARIETY:
-            - Each review should sound like it's from a different person with unique writing style
-            - Some reviews should be very short and simple
-            - Some reviews should be slightly more detailed
-            - Vary the expressions based on rating
-            - Don't use formal or marketing language - keep it authentic
+            VARIETY & HUMAN BEHAVIOR:
+            - Each review must feel like written by a DIFFERENT person
+            - Mix writing styles:
+            - Some very short (1 line)
+            - Some medium (2-3 lines)
+            - Add realistic elements:
+            - delivery experience
+            - packaging
+            - quality
+            - pricing opinion
+            - expectations vs reality
             
-            You can generate Hinglish or mixed language occasionally.
-            Generate a MIX of positive, neutral, and negative reviews for authenticity.";
+            IMPORTANT:
+            - Avoid generic phrases like 'Great product' repeatedly
+            - Avoid copy-paste style repetition
+            - Reviews must feel spontaneous and natural
+            Return ONLY valid JSON. No explanation.";
             
-            $userPrompt = $customPrompt ?: "Generate 5 authentic, real-sounding customer reviews for: {$product->title}, {$product->category->title}
+            $userPrompt = $customPrompt ?: "Generate 5 realistic customer reviews for the product:
+            Product Name: {$product->title}
+            Category: {$product->category->title}
 
             REQUIREMENTS:
-            - Generate a MIX of ratings (1-5 stars)
-            - Include 1-2 negative reviews (1-3 stars) and 3-4 positive reviews (4-5 stars)
-            - Write 1-2 reviews in simple, conversational Hindi (Devanagari script)
-            - Write 3-4 reviews in natural, casual US English
-            - Reviews should sound like real customers wrote them, NOT like marketing content
+            Ratings Distribution:
+            - Mix of ratings (1 to 5 stars)
+            - At least:
+            - 1 negative (1-2 star)
+            - 1 average (3 star)
+            - 2-3 positive (4-5 star)
             
-            REVIEW STYLE EXAMPLES:
-            ENGLISH EXAMPLES (Different ratings):
+            Language Distribution:
+            - 1-2 reviews in Hindi (Devanagari)
+            - 3-4 reviews in natural English
             
-            5 Star - Very Positive:
-            - Excellent product! Exceeded my expectations. Highly recommended!
-            - Perfect! Works exactly as described. Very happy with this purchase.
-            
-            4 Star - Positive:
-            - Good product. Works well but price could be better.
-            - Nice quality. Delivery was a bit slow but product is good.
-            
-            3 Star - Average:
-            - Average product. Does the job but nothing special.
-            - Okay product. Works fine but build quality could be better.
-            
-            2 Star - Below Average:
-            - Not great. Has some issues with performance.
-            - Disappointed. Expected better quality for this price.
-            
-            1 Star - Very Negative:
-            - Very poor quality. Stopped working within a week.
-            - Waste of money. Would not recommend to anyone.
-
+            CONTENT GUIDELINES:
+            - Each review MUST be unique in tone and structure
+            - Do NOT repeat words or sentence patterns
+            - Add human-like expressions:
+            - 'delivery was late'
+            - 'quality is okay'
+            - 'expected better'
+            - 'totally worth it'
+            - Some reviews can mention:
+            - value for money
+            - packaging
+            - durability
+            - actual usage experience
             HINDI EXAMPLES:
             - बहुत बढ़िया प्रोडक्ट! पूरी उम्मीद पर खरा उतरा। (5 Star)
             - अच्छा प्रोडक्ट है लेकिन कीमत थोड़ी ज्यादा है। (4 Star)
@@ -93,18 +105,32 @@ class ProductReviewAutoAiGenerateController extends Controller
             - निराश किया। क्वालिटी उम्मीद से कम है। (2 Star)
             - बिल्कुल बेकार। पैसे बर्बाद। (1 Star)
 
-            CRITICAL - NAME REQUIREMENTS:
-            1. ALL 5 customer names MUST BE UNIQUE - no duplicates
-            2. Use authentic Indian names in English script
-            3. DO NOT use Western names
-            4. Each name should be completely different from others
+            STYLE VARIATION:
+            - 1 review → very short (1 line)
+            - 2-3 reviews → medium length
+            - 1 review → slightly detailed
+
+            REALISTIC TONE:
+            - Use casual expressions like:
+            - 'not bad'
+            - 'okay product'
+            - 'loved it'
+            - 'not worth the price'
+            - Hindi should be simple & conversational (not formal)
+
+            STRICT NAME RULES:
+            1. ALL 5 names MUST be UNIQUE
+            2. Only Indian names (English script)
+            3. No duplicates
+            4. No western names
+
             
             Return ONLY valid JSON array in this exact format:
             [
             {
                 \"title\": \"Short catchy title (2-10 words) in same language as review\",
                 \"rating\": 1-5,
-                \"review\": \"Authentic, natural-sounding review in simple language\",
+                \"review\": \"Authentic, Natural, human-like review\",
                 \"name\": \"Unique Indian customer name in English script\",
                 \"language\": \"hindi\" or \"english\"
             }]

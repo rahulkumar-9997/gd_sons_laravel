@@ -473,14 +473,22 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex align-items-center gap-2">
-                        @php
-                            $profileImg = $order->customer->profile_img ?? null;
+                       @php
+                            $customer = $order->customer;
+                            $profileImg = optional($customer)->profile_img;
+                            $name = $customer->name ?? 'User';
                         @endphp
 
-                        <img 
-                            src="{{ $profileImg ? asset('images/customer/' . $profileImg) : asset('assets/images/users/avatar-1.jpg') }}" 
-                            alt="Profile Image" 
-                            class="avatar rounded-3 border border-light border-3">
+                        @if($profileImg && file_exists(public_path('images/customer/' . $profileImg)))
+                            <img 
+                                src="{{ asset('images/customer/' . $profileImg) }}" 
+                                alt="{{ $name }}" 
+                                class="avatar rounded-3 border border-light border-3">
+                        @else
+                            <div class="avatar rounded-3 border border-light border-3 d-flex align-items-center justify-content-center bg-primary text-white">
+                                {{ strtoupper(substr($name, 0, 1)) }}
+                            </div>
+                        @endif
                         <div>
                             <p class="mb-1">{{ $order->customer->name }}</p>
                             <a href="#!" class="link-primary fw-medium">
@@ -506,6 +514,11 @@
                     <div>
                         <p class="mb-1">{{ $order->shippingAddress->full_name ?? 'N/A' }}</p>
                         <p class="mb-1">{{ $order->shippingAddress->full_address ?? 'N/A' }}</p>
+                        @if($order->shippingAddress->apartment)
+                        <p style="margin-top: 3px; margin-bottom: 3px;">
+                            {{ $order->shippingAddress->apartment ?? 'N/A' }}
+                        </p>
+                        @endif
                         <p class="mb-1">{{ $order->shippingAddress->city_name ?? 'N/A' }}, {{ $order->shippingAddress->state ?? 'N/A' }} {{ $order->shippingAddress->pin_code ?? 'N/A' }}</p>
                         <p class="mb-1">{{ $order->shippingAddress->country ?? 'N/A' }}</p>
                         <p class="mb-1">{{ $order->shippingAddress->phone_number ?? 'N/A' }}</p>

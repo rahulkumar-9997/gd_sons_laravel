@@ -15494,6 +15494,7 @@ textarea.form-control-lg {
     padding-left: var(--bs-main-nav-width);
     border-bottom: 1px solid #e8eef3;
     margin-bottom: 10PX;
+    box-shadow: 0px 3px 10px 0px rgb(154 135 135);
 }
 .topbar .navbar-header {
   display: -webkit-box;

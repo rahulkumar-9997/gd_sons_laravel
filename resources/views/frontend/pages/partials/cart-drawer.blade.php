@@ -8,7 +8,7 @@ $sessionCart = session('cart', []);
 	<div class="drawer__content bg-light inner-glow shadow-md flex flex-column" role="dialog" aria-labelledby="drawer-cart-title" aria-modal="true">
 		<header class="minicart-header border-bottom">
 			<h4 id="drawer-cart-title" class="text-base text-truncate">
-				Your Cart (<span class="cart-count">{{ $cart_count  ?? 0 }}</span>)
+				Your Cart (<span class="cart-count">{{ $cart_count  ?? 0 }} </span>)
 			</h4>
 			<button class="drawer__close-btn js-drawer__close" aria-label="Close cart">
 				<i class="fa-solid fa-xmark"></i>
@@ -31,20 +31,18 @@ $sessionCart = session('cart', []);
 				$mrp = $item->mrp;
 				$group_offer_rate = null;
 				$special_offer_rate = null;
-
-				// Group offer logic
 				if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
-				$group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-				if ($group_percentage > 0 && $offer_rate !== null) {
-				$group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-				$group_offer_rate = floor($group_offer_rate);
-				}
+					$group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+					if ($group_percentage > 0 && $offer_rate !== null) {
+						$group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+						$group_offer_rate = floor($group_offer_rate);
+					}
 				}
 
 				if(!empty($specialOffers)){
-				if (isset($specialOffers[$item->product_id])) {
-				$special_offer_rate = (float) $specialOffers[$item->product_id];
-				}
+					if (isset($specialOffers[$item->id])) {
+						$special_offer_rate = (float) $specialOffers[$item->id];
+					}
 				}
 
 				$final_offer_rate = collect([$offer_rate, $group_offer_rate, $special_offer_rate])->filter()->min();
@@ -52,14 +50,13 @@ $sessionCart = session('cart', []);
 				$totalPrice = $final_offer_rate * $quantity;
 				$subtotal += $totalPrice;
 
-				// Discount calculation
 				$discountPercent = 0;
 				if($mrp && $final_offer_rate < $mrp){
 					$discountPercent=(($mrp - $final_offer_rate)/$mrp) * 100;
 					$discountPercent=number_format($discountPercent, 2);
 					}
 					@endphp
-
+						
 					<li class="item d-flex justify-content-center align-items-center">
 					<a class="product-image rounded-3" href="{{ url('products/'.$item->slug.'/'.$attributes_value) }}">
 						@if($item->images->isNotEmpty())
@@ -73,7 +70,9 @@ $sessionCart = session('cart', []);
 						@endif
 					</a>
 					<div class="product-details">
-						<a class="product-title" href="{{ url('products/'.$item->slug.'/'.$attributes_value) }}">{{ ucwords(strtolower($item->title)) }}</a>
+						<a class="product-title" href="{{ url('products/'.$item->slug.'/'.$attributes_value) }}">
+							{{ ucwords(strtolower($item->title)) }}
+						</a>
 						<div class="priceRow">
 							<div class="product-price">
 								<span class="price">Rs. {{ number_format($final_offer_rate, 2) }}</span>

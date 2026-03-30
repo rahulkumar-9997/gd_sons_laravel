@@ -706,7 +706,7 @@ class FrontendController extends Controller
                         $cleanUrl = rtrim($cleanUrl, '?&');
                         if (auth()->guard('customer')->check()) {
                             return redirect()->to($cleanUrl)
-                                ->with('success', 'Login successful!')
+                                //->with('success', 'Login successful!')
                                 ->withHeaders([
                                     'Cache-Control' => 'no-store, no-cache, must-revalidate',
                                     'Pragma' => 'no-cache'

@@ -27,7 +27,6 @@ class AppServiceProvider extends ServiceProvider
             $customer = Auth::guard('customer')->user();
             return $customer ? $customer->load(['customerGroup', 'groupCategory']) : null;
         });
-
         $this->app->singleton('cartData', function () {
             /*$customerId = Auth::guard('customer')->id();
             $specialOffers = getCustomerSpecialOffers();
@@ -84,7 +83,7 @@ class AppServiceProvider extends ServiceProvider
                 ->get();
             
             $cartCount = count($cartItems);
-
+            //dd(json_encode($cartItems, JSON_PRETTY_PRINT));
             return [
                 'cartItems' => $cartItems,
                 'cart_count' => $cartCount,

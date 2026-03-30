@@ -98,21 +98,20 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         $offer_rate_display = '<br><span>Regular offer price</span><del class="text-content"> Rs. ' . number_format($offer_rate, 2) . '</del>';
                                         }
                                         }
-
-                                        // Check for a special offer rate (provided by $specialOffers array)
+                                        
                                         if (isset($specialOffers[$product->id])) {
-                                        $special_offer_rate = (float) $specialOffers[$product->id];
+                                            $special_offer_rate = (float) $specialOffers[$product->id];
                                         }
 
-                                        // Determine the minimum (best) offer from available offers
+                                        
                                         $all_offer_prices = array_filter([
-                                        $special_offer_rate,
-                                        $group_offer_rate,
-                                        $product->offer_rate,
+                                            $special_offer_rate,
+                                            $group_offer_rate,
+                                            $product->offer_rate,
                                         ]);
 
                                         if (!empty($all_offer_prices)) {
-                                        $final_offer_rate = min($all_offer_prices);
+                                            $final_offer_rate = min($all_offer_prices);
                                         }
                                     @endphp
 

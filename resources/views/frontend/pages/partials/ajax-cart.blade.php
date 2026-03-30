@@ -33,9 +33,9 @@ $columnClass = $carts->isEmpty() ? 'col-md-12 col-lg-12' : 'col-md-9 col-lg-9';
                 }
                 }
 
-                // Special Offer Rate (if available)
-                if (isset($specialOffers[$cart->product_id])) {
-                $special_offer_rate = (float) $specialOffers[$cart->product_id];
+                /*Special Offer Rate (if available) */
+                if (isset($specialOffers[$cart->id])) {
+                    $special_offer_rate = (float) $specialOffers[$cart->id];
                 }
 
                 // Final offer rate — take minimum from all available

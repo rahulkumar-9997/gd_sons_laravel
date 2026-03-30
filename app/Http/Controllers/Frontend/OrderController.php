@@ -115,7 +115,6 @@ class OrderController extends Controller
         elseif ($request->input('payment_type') == 'Razorpay')
         {
             $orderResponse = $this->storeOrderAfterPayment($request);
-
             $responseData = is_string($orderResponse) ? json_decode($orderResponse, true) : (is_object($orderResponse) ? $orderResponse->getData(true) : (array) $orderResponse);
             if (!isset($responseData['order_id'])) {
                 return response()->json(['status' => 'error', 'message' => 'Order creation failed - no order ID returned'], 500);
@@ -133,7 +132,6 @@ class OrderController extends Controller
                 'currency' => 'INR',
                 'payment_capture' => 1
             ];
-
             try {
                 $razorpayOrder = $api->order->create($orderData);
                 return response()->json([
@@ -451,7 +449,8 @@ class OrderController extends Controller
                 'payment_status' => $payment_status,
                 'razorpay_signature_id' => $input['razorpay_signature'],
                 'razorpay_order_id' => $input['razorpay_order_id'],
-                'razorpay_method' => 'Razorpay'
+                'razorpay_method' => 'Razorpay',
+                'order_status_comment' => 'complete_order',
             ]);            
             foreach ($order->orderLines as $orderLine) {
                 $inventory = Inventory::where('product_id', $orderLine->product_id)
@@ -536,6 +535,8 @@ class OrderController extends Controller
                 'order_status_id' => $failedStatus->id,
                 'razorpay_method' => 'Razorpay',
                 'failure_reason' => $failureReason,
+                'order_status_comment' => 'complete_order',
+
             ]);
             Log::warning('Payment failed details', [
                 'order_id' => $order->id,
@@ -835,6 +836,9 @@ class OrderController extends Controller
             }
             $paymentType = $checkoutData['payment_type'] ?? null;
             if ($paymentType && ($paymentType == 'Cash on Delivery' || $paymentType == 'Razorpay')) {
+                if($paymentType == 'Cash on Delivery'){
+                    $order->update(['order_status_comment' => 'complete_order']);
+                }
                 /* Shiprocket Courier Insert data */
                 $courierData = session('courierData', []);
                 if (!empty($courierData)) {
@@ -1259,8 +1263,9 @@ class OrderController extends Controller
             'orderLines.product',
             'orderLines.product.images',
         ])
-            ->where('customer_id', $customerId)
-            ->orderBy('id', 'desc')->get();
+        ->where('customer_id', $customerId)
+        ->orderBy('id', 'desc')->get();
+
         //->paginate(10);
         //return response()->json($order);
         return view('frontend.pages.customer.orders.index', compact('order'));

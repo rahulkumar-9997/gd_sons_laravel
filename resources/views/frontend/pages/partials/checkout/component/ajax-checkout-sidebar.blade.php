@@ -52,8 +52,8 @@
                 }
 
                 /* Special offer */
-                if (isset($specialOffers[$cart->product_id])) {
-                    $special_offer_rate = (float) $specialOffers[$cart->product_id];
+                if (isset($specialOffers[$cart->id])) {
+                    $special_offer_rate = (float) $specialOffers[$cart->id];
                 }
 
                 $final_offer_rate = collect([$offer_rate, $group_offer_rate, $special_offer_rate])->filter()->min();

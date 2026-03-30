@@ -784,7 +784,7 @@ class FrontendController extends Controller
         /**Review */
         // Calculate review statistics
         $reviews = $data['product_details']->reviews ?? collect();
-        $data['reviews'] = $data['product_details']->reviews()->paginate(10);
+        $data['reviews'] = $data['product_details']->reviews()->latest()->paginate(10);
         $totalReviews = $reviews->count();
         $data['review_stats'] = [
             'average_rating' => $totalReviews > 0 ? round($reviews->avg('rating_star_value'), 1) : 0,

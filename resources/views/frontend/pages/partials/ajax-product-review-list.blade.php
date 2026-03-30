@@ -18,7 +18,7 @@
                                     @endif
                                     <span class="rate-di-date">
                                         @if($review->review_post_date)
-                                            {{ \Carbon\Carbon::parse($review->review_post_date)->format('m/d/Y') }}
+                                            {{ \Carbon\Carbon::parse($review->review_post_date)->format('d/m/Y') }}
                                         @endif
                                     </span>
                                 </div>

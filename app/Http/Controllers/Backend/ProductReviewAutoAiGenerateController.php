@@ -23,20 +23,19 @@ class ProductReviewAutoAiGenerateController extends Controller
             Your job is to create reviews that feel 100% genuine, like they were written by real customers after actual usage.
 
             RATING LOGIC:
-            - 5 Star → Extremely happy, exceeded expectations, strong recommendation
-            - 4 Star → Good product, satisfied but minor issues
-            - 3 Star → Average experience, mixed opinion
-            - 2 Star → Not great, noticeable problems
-            - 1 Star → Very bad experience, strong dissatisfaction
+            - 5 Star → Very happy, loved the product, strong recommendation
+            - 4 Star → Good product, satisfied with minor issues
+            - 3 Star → Decent product, okay experience (no strong complaints)
+            - 2 Star → Slight disappointment but still usable
+            - 1 Star → Rare case, mild dissatisfaction (avoid harsh negativity)
             
             WRITING STYLE RULES:
-            - Write like real people, NOT like a brand or marketing copy
-            - Use short, simple, natural sentences
-            - Add casual tone (like 'nice', 'okay', 'not bad', 'didn't like', etc.)
-            - Avoid over-polished or robotic language
-            - Add small imperfections to make it human-like
-            - Sometimes include personal experience (usage, delivery, quality, etc.)
-            - Do NOT repeat the same sentence structure
+            - Write like real customers, not like marketing content
+            - Keep sentences simple, casual, and natural
+            - Use friendly tone (like 'nice', 'good', 'happy with it', 'okay product')
+            - Avoid robotic or over-polished language
+            - Add small human imperfections (like slight grammar looseness)
+            - Include real-life experiences (delivery, packaging, usage)
             
             LANGUAGE MIX:
             - Write in TWO languages:
@@ -74,36 +73,35 @@ class ProductReviewAutoAiGenerateController extends Controller
             Category: {$product->category->title}
 
             REQUIREMENTS:
-            Ratings Distribution:
-            - Mix of ratings (1 to 5 stars)
+            RATINGS DISTRIBUTION:
+            - Mostly positive reviews
             - At least:
-            - 1 negative (1-2 star)
-            - 1 average (3 star)
-            - 2-3 positive (4-5 star)
+            - 2 reviews → 5 stars
+            - 2 reviews → 4 stars
+            - 1 review → 3 star (optional mild issue)
+            - Avoid strong negative (1-2 stars only if very soft tone)
             
             Language Distribution:
             - 1-2 reviews in Hindi (Devanagari)
             - 3-4 reviews in natural English
             
-            CONTENT GUIDELINES:
-            - Each review MUST be unique in tone and structure
-            - Do NOT repeat words or sentence patterns
-            - Add human-like expressions:
-            - 'delivery was late'
-            - 'quality is okay'
-            - 'expected better'
-            - 'totally worth it'
-            - Some reviews can mention:
-            - value for money
-            - packaging
-            - durability
-            - actual usage experience
-            HINDI EXAMPLES:
-            - बहुत बढ़िया प्रोडक्ट! पूरी उम्मीद पर खरा उतरा। (5 Star)
-            - अच्छा प्रोडक्ट है लेकिन कीमत थोड़ी ज्यादा है। (4 Star)
-            - ठीक-ठाक प्रोडक्ट है। काम चला लिया। (3 Star)
-            - निराश किया। क्वालिटी उम्मीद से कम है। (2 Star)
-            - बिल्कुल बेकार। पैसे बर्बाद। (1 Star)
+           CONTENT GUIDELINES:
+            - Each review must be unique
+            - Avoid repetition
+            - Use natural expressions like:
+            - 'nice product'
+            - 'value for money'
+            - 'quality is good'
+            - 'delivery was quick'
+            - 'happy with purchase'
+            - 'packaging was fine'
+
+            HINDI STYLE:
+            - Simple conversational Hindi
+            Examples:
+            - बहुत अच्छा प्रोडक्ट है, पसंद आया।
+            - अच्छा है, पैसे के हिसाब से ठीक है।
+            - ठीक-ठाक है, काम सही कर रहा है।
 
             STYLE VARIATION:
             - 1 review → very short (1 line)

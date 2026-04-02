@@ -39,6 +39,7 @@ class Product extends Model
         'meta_title',
         'meta_description',
         'product_description',
+        'vector_embedding',
         'product_specification',
         'video_id',
         'created_at',

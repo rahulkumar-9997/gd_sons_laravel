@@ -139,11 +139,6 @@ class AppServiceProvider extends ServiceProvider
             ],
             SharedDataComposer::class
         );
-        // View::composer(
-        //     '*',
-        //     SharedDataComposer::class
-        // );
-        
     }
 
     

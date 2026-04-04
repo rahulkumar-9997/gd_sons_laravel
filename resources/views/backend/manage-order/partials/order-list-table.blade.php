@@ -58,12 +58,30 @@
             </td>
             <td>
                 <span class="badge border border-success text-success">{{ $order->payment_mode }}</span>
+                
             </td>
             <td>
                 @if($order->payment_received == 1)
                 <span class="badge bg-success text-light">Paid</span>
                 @else
                 <span class="badge bg-light text-dark">Unpaid</span>
+                @endif
+                @if($order->order_status_comment == 'incomplete_order')
+                    <span class="badge bg-danger text-light mt-1"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        data-bs-html="true"
+                        title="This is an incomplete order. Click only the order button.">
+                        Incomplete Order ?
+                    </span>
+                @else
+                    <span class="badge bg-success text-light mt-1"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        data-bs-html="true"
+                        title="This is a complete order.">
+                        Completed Order ?
+                    </span>
                 @endif
 
             </td>

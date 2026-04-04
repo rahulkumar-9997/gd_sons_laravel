@@ -9,6 +9,7 @@
             <th style="width: 10%;">Total</th>
             <th>Payment Mode</th>
             <th>Payment Status</th>
+            <th>Order Status</th>
             <th>Items</th>
             <th>
                 <span class="text-info">Order Status</span>
@@ -36,6 +37,7 @@
             <td>
                 <span class="badge border border-success text-success  px-2 py-1 fs-13">{{ $order->payment_mode }}</span>
             </td>
+           
             <td>
                 @if($order->payment_received == 1)
                 <span class="badge bg-success text-light  px-2 py-1 fs-13">Paid</span>
@@ -43,6 +45,13 @@
                 <span class="badge bg-light text-dark  px-2 py-1 fs-13">Unpaid</span>
                 @endif
 
+            </td>
+            <td>
+            @if($order->order_status_comment=='incomplete_order')
+                <span class="badge bg-danger text-light  px-2 py-1 fs-13">Incomplete Order</span>
+            @else
+                 <span class="badge bg-success text-light  px-2 py-1 fs-13">Complete Order</span>
+            @endif
             </td>
             <td>{{ $order->orderLines->count() }}</td>
             <td>

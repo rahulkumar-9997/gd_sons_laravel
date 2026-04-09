@@ -35,7 +35,7 @@ class ProductsController extends Controller
     public function index(Request $request){       
         $data['categories'] = Category::all(); 
         //Log::info('Request Data:', $request->all());
-        $query = Product::select('id','title', 'slug', 'category_id', 'subcategory_id', 'brand_id', 'label_id', 'length', 'breadth', 'height', 'weight', 'volumetric_weight_kg', 'created_at')
+        $query = Product::select('id','title', 'slug', 'category_id', 'subcategory_id', 'brand_id', 'label_id', 'length', 'breadth', 'height', 'weight', 'volumetric_weight_kg', 'created_at', 'visitor_count')
         ->with(
             ['images' => function ($query) {
                     $query->select('id', 'product_id', 'image_path')->orderBy('sort_order');

@@ -28,7 +28,7 @@
                         <a href="https://www.google.com/search?q={{ urlencode($product->title) }}&udm=2" target="_blank" class="text-primary">
                             
                             {{ ucwords(strtolower($product->title)) }}
-                            <span class="badge bg-warning">{{ $product->visitor_count }}</span>
+                            <span class="badge bg-warning" data-bs-original-title="Visitor Count {{ $product->visitor_count }}" title="Visitor Count {{ $product->visitor_count }}" data-bs-toggle="tooltip">{{ $product->visitor_count }}</span>
                         </a>
                         @if($product->length && $product->breadth && $product->height && $product->weight)
                             <br>

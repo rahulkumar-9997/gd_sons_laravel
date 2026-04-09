@@ -80,8 +80,8 @@
                         @endif
                     </td>
                     <td>
-                        <span class="badge {{ $product->product_status === 1 ? 'bg-success' : 'bg-danger' }}">
-                            {{ $product->product_status === 1 ? 'Published' : 'Not Published' }}
+                        <span class="badge {{ $product->product_status == 1 ? 'bg-success' : 'bg-danger' }}">
+                            {{ $product->product_status == 1 ? 'Published' : 'Not Published' }}
                         </span>
                     </td>
                     <td>{{ $product->category->title ?? 'No Category' }}</td>

@@ -589,7 +589,7 @@ class FrontendController extends Controller
             })
             ->whereHas('images')/*only select which product whose images have (if all product selected than remove this line)*/
             ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
-            ->paginate(32);
+            ->paginate(20);
 			
 			
 			// $products = $productsQuery->with([
@@ -1078,7 +1078,7 @@ class FrontendController extends Controller
                 })
                 ->whereHas('images')/*only select which product whose images have (if all product selected than remove this line)*/
                 ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
-                ->paginate(32);
+                ->paginate(20);
             $specialOffers = getCustomerSpecialOffers();
             //return response()->json($products); 
             //dd($specialOffers);
@@ -2091,6 +2091,110 @@ class FrontendController extends Controller
         
     }
 
+    public function checkServiceability(Request $request)
+    {
+        $request->validate([
+            'pincode' => 'required|digits:6',
+            'product_data' => 'required|json',
+        ]);
+        $pincode = $request->pincode;
+        $productData = json_decode($request->product_data, true);
+        $totalWeight = $this->calculateTotalWeight($productData);
+        $fromPin = config('services.shiprocket.shiprocket_pickup_pincode');
+        if (!$fromPin) {
+            return response()->json([
+                'success' => false,
+                'checkout_sidebar' => 'Pickup pincode missing.'
+            ]);
+        }
+        $ship = app(\App\Services\ShiprocketService::class);
+        $response = $ship->getServiceability($fromPin, $pincode, $totalWeight,  0);
+        if (!$response || !$response['success']) {
+            return response()->json([
+                'success' => false,
+                'checkout_sidebar' => $response['response']['message'] ?? 'Delivery not available.'
+            ]);
+        }
+        Log::info('Serviceability response: ' . json_encode($response));
+        $couriers = [];
+        foreach ($response['raw']['data']['available_courier_companies'] as $c) {
+            $rate = $c['rate'] ?? $c['freight_charge'] ?? null;
+            if (!$rate) continue;
+            $couriers[] = [
+                'courier' => $c['courier_name'] ?? 'Unknown',
+                'etd'     => $c['etd'] ?? '',
+                'rate'    => $rate,
+            ];
+        }
+        if (empty($couriers)) {
+            return response()->json([
+                'success' => false,
+                'checkout_sidebar' => 'No courier services available.'
+            ]);
+        }
+        $locality = $ship->getShiprocketLocalityDetails($pincode);
+        if (!empty($locality['success'])) {
+            $city = strtolower($locality['data']['city'] ?? '');
+            if (str_contains($city, 'varanasi') || str_contains($city, 'banaras')) {
+                foreach ($couriers as &$c) {
+                    $c['rate'] = 0;
+                }
+            }
+        }
+        usort($couriers, fn($a, $b) => $a['rate'] <=> $b['rate']);
+        session()->put('courier_options_' . $pincode, $couriers);
+        session()->put('user_pincode', $pincode);
+        session()->put('product_items', $request->product_data);
+        return response()->json([
+            'success' => true,
+            'delivery_options' => view('frontend.pages.partials.delivery-checker', [
+                'couriers' => $couriers
+            ])->render(),
+        ]);
+    }
+
+
+    public function editServiceability()
+    {
+        $pincode = session('user_pincode');
+        session()->forget('user_pincode');
+        if ($pincode) {
+            session()->forget('courier_options_' . $pincode);
+        }
+        $productData = session('product_items');
+        return response()->json([
+            'success' => true,
+            'html' => view('frontend.pages.partials.delivery-checker',[
+                'product_items_for_js' => json_decode($productData, true)
+            ])->render()
+        ]);
+    }
+
+    function calculateTotalWeight($productData)
+    {
+        if (isset($productData['weight'])) {
+            $items = [$productData];
+        } else {
+            $items = $productData;
+        }
+        $totalWeight = 0;
+        foreach ($items as $item) {
+            $qty = (float) ($item['qty'] ?? 1);
+            $length  = (float) ($item['length'] ?? 0);
+            $breadth = (float) ($item['breadth'] ?? 0);
+            $height  = (float) ($item['height'] ?? 0);
+            $physicalWeight = (float) ($item['weight'] ?? 0);
+            $volWeight = 0;
+            if ($length > 0 && $breadth > 0 && $height > 0) {
+                $volWeight = ($length * $breadth * $height) / 5000;
+            }
+            $finalWeight = max($physicalWeight, $volWeight);
+            $totalWeight += ($finalWeight * $qty);
+        }
+        $totalWeight = ceil($totalWeight);
+        $totalWeight = max(0.5, $totalWeight);
+        return $totalWeight;
+    }
 }
 
 

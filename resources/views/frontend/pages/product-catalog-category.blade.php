@@ -396,31 +396,72 @@
             window.history.replaceState({}, '', newUrl);
             fetchFilteredProducts(newUrl, false);
         });
-
-        // Handle Load More functionality
-        // $(document).on('click', '#load-more', function() {
-        //     currentPage++;
-        //     let baseUrl = window.location.href.split('?')[0];
-        //     let queryParams = new URLSearchParams(window.location.search);
-        //     queryParams.set('page', currentPage);
-        //     let url = `${baseUrl}?${queryParams.toString()}`;
-        //     fetchFilteredProducts(url, true);
-        // });
-        // Handle Load More functionality
-        $(document).on('click', '#load-more', function() {
-            currentPage++;
-            let baseUrl = window.location.href.split('?')[0];
-            let queryParams = new URLSearchParams(window.location.search);
-            queryParams.set('page', currentPage);
-            queryParams.set('load_more', true);  // Add load_more parameter
-            let url = `${baseUrl}?${queryParams.toString()}`;
-            fetchFilteredProducts(url, true);
+        /**Auto load  products */
+        let isLoading = false;
+        $(window).on('scroll', function () {
+            if (isLoading) return;
+            let trigger = $('#load-more-trigger');
+            if (!trigger.length) return;
+            let scrollTop = $(window).scrollTop();
+            let windowHeight = $(window).height();
+            let documentHeight = $(document).height();
+            //let footerHeight = $('footer').outerHeight() || 0;
+            let scrollPercent = (scrollTop / (documentHeight - windowHeight)) * 100;
+            if (scrollPercent >= 60) {
+                let currentPage = parseInt(trigger.data('current-page'));
+                let lastPage = parseInt(trigger.data('last-page'));
+                if (currentPage >= lastPage) {
+                    trigger.remove();
+                    return;
+                }
+                isLoading = true;
+                $('#loading').show();
+                currentPage++;
+                let baseUrl = window.location.href.split('?')[0];
+                let queryParams = new URLSearchParams(window.location.search);
+                queryParams.set('page', currentPage);
+                queryParams.set('load_more', true);
+                let url = `${baseUrl}?${queryParams.toString()}`;
+                fetchProductsWithoutLoader(url, true)
+                .done(function () {
+                    trigger.data('current-page', currentPage);
+                    if (currentPage >= lastPage) {
+                        trigger.remove();
+                    }
+                })
+                .fail(function (err) {
+                    console.error(err);
+                })
+                .always(function () {
+                    isLoading = false;
+                    $('#loading').hide();
+                });
+            }
         });
+        /*Fetch product without loader */
+        function fetchProductsWithoutLoader(url, append = false) {
+            return $.ajax({
+                url: url,
+                method: 'GET',
+                success: function(response) {
+                    if (append) {
+                        $('#load-more-append').append(response.products);
+                    } else {
+                        $('#product-catalog-frontend').html(response.products);
+                    }
+
+                    feather.replace();
+                },
+                error: function(xhr) {
+                    console.error('Error fetching products:', xhr.responseText);
+                }
+            });
+        }
+        /*Fetch product without loader */
 
 
         /*Function to update the URL based on filters*/
         function updateURL() {
-            //const filterParams = [];
             const filterParams = ['filter=1'];
             $.each(filters, function(attributeSlug, valueSlugs) {
                 filterParams.push(attributeSlug + '=' + valueSlugs.join(','));
@@ -448,7 +489,6 @@
                     showLoader();
                 },
                 success: function(response) {
-                    // alert(response.hasMore);
                     if (append) {
                         $('#load-more-append').append(response.products);
                     } else {

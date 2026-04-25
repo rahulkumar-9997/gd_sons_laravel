@@ -126,13 +126,22 @@
                 @include('frontend.pages.partials.product-category-catalog-load-more', [$products])
             </div>
             @if ($products->hasMorePages())
+                <div id="load-more-trigger"
+                    data-current-page="{{ $products->currentPage() }}"
+                    data-last-page="{{ $products->lastPage() }}">
+                </div>
+            @endif
+            <div id="loading" style="display:none;text-align:center;margin:20px;">
+                <strong>Loading...</strong>
+            </div>
+            <!-- @if ($products->hasMorePages())
                 <div
                     class="show-more-products d-flex justify-content-center">
                     <button id="load-more" class="btn text-white theme-bg-color btn-md mt-sm-4 mt-3 fw-bold" data-next-page="{{ $products->currentPage() + 1 }}" data-last-page="{{ $products->lastPage() }}">
                         Load More
                     </button>
                 </div>
-            @endif
+            @endif -->
         @else
             <p>No products found in this category.</p>
         @endif

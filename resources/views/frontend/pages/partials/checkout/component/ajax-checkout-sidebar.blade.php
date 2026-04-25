@@ -35,7 +35,7 @@
                     'height' => (float) ($cart->height ?? 0),
                     'weight' => (float) ($cart->weight ?? 0),
                 ];
-
+                
                 $purchase_rate = $cart->purchase_rate ?? 0;
                 $offer_rate = $cart->offer_rate ?? 0;
                 $mrp = $cart->mrp ?? 0;

@@ -37,28 +37,32 @@ class DashboardController extends Controller
         return view('backend.dashboard.index', compact('data'));
     }
 
-    public function getFilteredProductData(Request $request){
-        $filter = $request->input('filter', 'all');
-        $query = Product::selectRaw('MONTH(created_at) as month, COUNT(*) as total_products')
-            ->groupBy('month')->orderBy('month');
-        if ($filter === '1M') {
-            $query->where('created_at', '>=', now()->subMonth());
-        } elseif ($filter === '6M') {
-            $query->where('created_at', '>=', now()->subMonths(6));
-        } elseif ($filter === '1Y') {
-            $query->where('created_at', '>=', now()->subYear());
-        }
-        $filteredData = $query->get();
-        $formattedData = [
-            'months' => [],
-            'totals' => []
-        ];
-        foreach ($filteredData as $data) {
-            $formattedData['months'][] = date('F', mktime(0, 0, 0, $data->month, 1)); 
-            $formattedData['totals'][] = $data->total_products;
-        }
-        return response()->json($formattedData); // Return JSON response
-    }
+    public function getFilteredProductData(Request $request)
+	{
+		$filter = $request->input('filter', 'all');
+		$query = Product::selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total_products')
+			->groupBy('year', 'month')
+			->orderBy('year')
+			->orderBy('month');		
+		if ($filter === '1M') {
+			$query->where('created_at', '>=', now()->subMonth());
+		} elseif ($filter === '6M') {
+			$query->where('created_at', '>=', now()->subMonths(6));
+		} elseif ($filter === '1Y') {
+			$query->where('created_at', '>=', now()->subYear());
+		}
+		$filteredData = $query->get();		
+		$formattedData = [
+			'months' => [],
+			'totals' => []
+		];		
+		foreach ($filteredData as $data) {
+			$formattedData['months'][] = date('F Y', mktime(0, 0, 0, $data->month, 1, $data->year));
+			$formattedData['totals'][] = $data->total_products;
+		}
+		
+		return response()->json($formattedData);
+	}
 
 
     public function showProfileUpdateForm(){
@@ -130,27 +134,28 @@ class DashboardController extends Controller
         }
     }
 
-    public function getVisitorStats(){
-        $monthlyData = VisitorTracking::selectRaw('DATE(visited_at) as date, COUNT(DISTINCT ip_address) as unique_visitors')
-        ->whereBetween('visited_at', [Carbon::now()->startOfYear(), Carbon::now()->endOfYear()])
-        ->groupBy('date')
-        ->orderBy('date', 'ASC')
-        ->get();
+   public function getVisitorStats(){
+		$startDate = Carbon::now()->subDays(30);
+		$endDate = Carbon::now();		
+		$monthlyData = VisitorTracking::selectRaw('DATE(visited_at) as date, COUNT(DISTINCT ip_address) as unique_visitors')
+			->whereBetween('visited_at', [$startDate, $endDate])
+			->groupBy('date')
+			->orderBy('date', 'ASC')
+			->get();
 
-        $formattedData = [];
-        $categories = [];
+		$formattedData = [];
+		$categories = [];
 
-        foreach ($monthlyData as $data) {
-            $formattedData[] = $data->unique_visitors; 
-            $categories[] = Carbon::parse($data->date)->format('M d');
-        }
+		foreach ($monthlyData as $data) {
+			$formattedData[] = $data->unique_visitors; 
+			$categories[] = Carbon::parse($data->date)->format('M d');
+		}
 
-        return response()->json([
-            'data' => $formattedData,
-            'categories' => $categories
-        ]);
-    
-    }
+		return response()->json([
+			'data' => $formattedData,
+			'categories' => $categories
+		]);
+	}
 
     public function getVisitorList(){
         $data['visitor_list'] = VisitorTracking::orderBy('id', 'desc')->paginate(50);

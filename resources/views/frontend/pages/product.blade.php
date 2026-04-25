@@ -480,6 +480,25 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 </div>
                             </div>
                             @endif
+                            @php
+                                $product_items_for_js = [];
+                            @endphp
+                            @if(intval($p->mrp) > 0 && intval($p->stock_quantity) > 0 && $hasDimensions)
+                                @php
+                                    $product_items_for_js = [
+                                        'product_id' => $data['product_details']->id,
+                                        'length' => (float) ($data['product_details']->length ?? 0),
+                                        'breadth' => (float) ($data['product_details']->breadth ?? 0),
+                                        'height' => (float) ($data['product_details']->height ?? 0),
+                                        'weight' => (float) ($data['product_details']->weight ?? 0),
+                                        'qty' => 1
+                                    ];
+                                @endphp
+                                <!--Check Delivery option-->
+                                <div id="courier_partner">
+                                    @include('frontend.pages.partials.delivery-checker', ['product_items_for_js' => $product_items_for_js])
+                                </div>
+                            @endif
                             @if(!empty($data['product_details']->video_id))
                                 <div class="video-btn-link">
                                     <a class="btn theme-bg-color text-white btn-sm product-video-btn" 
@@ -989,61 +1008,8 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 <script src="{{asset('frontend/assets/js/pages/addto-cart.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
 <script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
 <script src="{{asset('frontend/assets/js/pages/review.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
-<!-- <script>
-    $(document).ready(function() {
-        function isYouTubeShort(videoId) {
-            return videoId.length === 11;
-        }
+<script src="{{asset('frontend/assets/js/pages/product-check-Shiprocket-service.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
 
-        function loadYouTubePlayer($container) {
-            const videoId = $container.data('video-id');
-            const isShort = isYouTubeShort(videoId);
-            $container.addClass(isShort ? 'short' : 'regular');
-            const params = {
-                autoplay: 1,
-                mute: 0,
-                enablejsapi: 1,
-                playsinline: 1,
-                rel: 0,
-                modestbranding: 1
-            };
-            if (isShort) {
-                params.loop = 1;
-                params.playlist = videoId;
-            }
-
-            const iframe = $('<iframe/>', {
-                src: `https://www.youtube.com/embed/${videoId}?${$.param(params)}`,
-                allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
-                allowfullscreen: '',
-                loading: 'lazy'
-            });
-            iframe.on('load', function() {
-                $container.find('.video-loading').hide();
-            });
-            $container.append(iframe);
-        }
-
-
-        function initVideoObserver() {
-            const observer = new IntersectionObserver(function(entries) {
-                $.each(entries, function(index, entry) {
-                    if (entry.isIntersecting) {
-                        const $container = $(entry.target);
-                        loadYouTubePlayer($container);
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, {
-                rootMargin: '200px'
-            });
-            $('.product-video-container').each(function() {
-                observer.observe(this);
-            });
-        }
-        initVideoObserver();
-    });
-</script> -->
 <script>
     const stars = document.querySelectorAll('.stars-box .star');
     const ratingInput = document.getElementById('rating-value');

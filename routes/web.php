@@ -105,7 +105,10 @@ Route::middleware([TrackVisitor::class])->group(function () {
     Route::get('lp', [FrontLandingPageController::class, 'landingPage'])->name('lp');
     Route::get('privacy-policy', [FrontendController::class, 'privacyPolicy'])->name('privacy-policy');
     Route::get('terms-of-use', [FrontendController::class, 'termsOfUse'])->name('terms-of-use');
-
+    Route::post('check-serviceability', [FrontendController::class, 'checkServiceability'])
+    ->name('check.serviceability');
+    Route::post('check-serviceability-edit', [FrontendController::class, 'editServiceability'])
+    ->name('check.serviceability.edit');
     Route::post('add-to-cart', [CustomerController::class, 'addToCart'])->name('add.to.cart');
     Route::match(['get', 'post'], 'cart', [CustomerController::class, 'cartList'])->name('cart');
     Route::post('/cart/remove', [CustomerController::class, 'removeFromCart'])->name('cart.remove');

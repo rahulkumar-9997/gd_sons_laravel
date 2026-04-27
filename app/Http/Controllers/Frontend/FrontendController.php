@@ -2098,6 +2098,7 @@ class FrontendController extends Controller
             'product_data' => 'required|json',
         ]);
         $pincode = $request->pincode;
+        $product_id = $request->product_id ?? null;
         $productData = json_decode($request->product_data, true);
         $totalWeight = $this->calculateTotalWeight($productData);
         $fromPin = config('services.shiprocket.shiprocket_pickup_pincode');
@@ -2115,7 +2116,7 @@ class FrontendController extends Controller
                 'checkout_sidebar' => $response['response']['message'] ?? 'Delivery not available.'
             ]);
         }
-        Log::info('Serviceability response: ' . json_encode($response));
+        //Log::info('Serviceability response: ' . json_encode($response));
         $couriers = [];
         foreach ($response['raw']['data']['available_courier_companies'] as $c) {
             $rate = $c['rate'] ?? $c['freight_charge'] ?? null;
@@ -2123,6 +2124,7 @@ class FrontendController extends Controller
             $couriers[] = [
                 'courier' => $c['courier_name'] ?? 'Unknown',
                 'etd'     => $c['etd'] ?? '',
+                'estimated_delivery_days' => $c['estimated_delivery_days'] ?? '',
                 'rate'    => $rate,
             ];
         }
@@ -2133,6 +2135,7 @@ class FrontendController extends Controller
             ]);
         }
         $locality = $ship->getShiprocketLocalityDetails($pincode);
+        //Log::info('Locality details for pincode ' . $pincode . ': ' . json_encode($locality));
         if (!empty($locality['success'])) {
             $city = strtolower($locality['data']['city'] ?? '');
             if (str_contains($city, 'varanasi') || str_contains($city, 'banaras')) {
@@ -2142,30 +2145,37 @@ class FrontendController extends Controller
             }
         }
         usort($couriers, fn($a, $b) => $a['rate'] <=> $b['rate']);
-        session()->put('courier_options_' . $pincode, $couriers);
-        session()->put('user_pincode', $pincode);
-        session()->put('product_items', $request->product_data);
+        //Log::info('Available couriers: ' . json_encode($couriers));
+        $key = 'courier_options_' . $product_id . '_' . $pincode;
+        session()->put($key, [
+            'data' => $couriers,
+            'time' => now()->timestamp
+        ]);
+        session()->put('user_pincode_' . $product_id, $pincode);
         return response()->json([
             'success' => true,
             'delivery_options' => view('frontend.pages.partials.delivery-checker', [
-                'couriers' => $couriers
+                'couriers' => $couriers,
+                'product_id' => $product_id
             ])->render(),
         ]);
     }
 
 
-    public function editServiceability()
+    public function editServiceability(Request $request)
     {
-        $pincode = session('user_pincode');
-        session()->forget('user_pincode');
+        $productData = $request->product_data;
+        $product_id = $request->product_id;
+        $pincode = session('user_pincode_' . $product_id);
         if ($pincode) {
-            session()->forget('courier_options_' . $pincode);
+            session()->forget('courier_options_' . $product_id . '_' . $pincode);
+            session()->forget('user_pincode_' . $product_id);
         }
-        $productData = session('product_items');
         return response()->json([
             'success' => true,
             'html' => view('frontend.pages.partials.delivery-checker',[
-                'product_items_for_js' => json_decode($productData, true)
+                'product_items_for_js' => json_decode($productData, true),
+                'product_id' => $product_id
             ])->render()
         ]);
     }

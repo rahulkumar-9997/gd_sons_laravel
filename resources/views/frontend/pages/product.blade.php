@@ -496,7 +496,10 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 @endphp
                                 <!--Check Delivery option-->
                                 <div id="courier_partner">
-                                    @include('frontend.pages.partials.delivery-checker', ['product_items_for_js' => $product_items_for_js])
+                                    @include('frontend.pages.partials.delivery-checker', [
+                                    'product_items_for_js' => $product_items_for_js,
+                                    'product_id' => $data['product_details']->id
+                                    ])
                                 </div>
                             @endif
                             @if(!empty($data['product_details']->video_id))

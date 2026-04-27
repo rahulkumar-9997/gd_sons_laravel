@@ -8,6 +8,7 @@
     if ($courierSession) {
         if (now()->timestamp - ($courierSession['time'] ?? 0) <= 1200) {
             $couriers = $courierSession['data'];
+            $locality = $courierSession['locality'] ?? null;
         } else {
             session()->forget('courier_options_' . $product_id . '_' . $pincode);
             session()->forget('user_pincode_' . $product_id);
@@ -48,6 +49,12 @@
                 <div class="delivery-time">
                     Delivery in {{ $cheapest['estimated_delivery_days'] ?? 'N/A' }}-7 business days                    
                 </div>
+                @if(!empty($cheapest['city']))
+                <div class="delivery-city mt-1">                    
+                    <strong>Delivery to : </strong>
+                    {{ $cheapest['city'] ?? '' }}                    
+                </div>
+                @endif
             </div>
             <div>
                 <span class="text-success fw-bold">

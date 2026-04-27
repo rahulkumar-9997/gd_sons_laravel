@@ -2116,7 +2116,7 @@ class FrontendController extends Controller
                 'checkout_sidebar' => $response['response']['message'] ?? 'Delivery not available.'
             ]);
         }
-        //Log::info('Serviceability response: ' . json_encode($response));
+        //Log::info('Serviceability response: ' . json_encode($response, JSON_PRETTY_PRINT));
         $couriers = [];
         foreach ($response['raw']['data']['available_courier_companies'] as $c) {
             $rate = $c['rate'] ?? $c['freight_charge'] ?? null;
@@ -2126,6 +2126,7 @@ class FrontendController extends Controller
                 'etd'     => $c['etd'] ?? '',
                 'estimated_delivery_days' => $c['estimated_delivery_days'] ?? '',
                 'rate'    => $rate,
+                'city'    => $c['city'] ?? '',
             ];
         }
         if (empty($couriers)) {
@@ -2135,7 +2136,7 @@ class FrontendController extends Controller
             ]);
         }
         $locality = $ship->getShiprocketLocalityDetails($pincode);
-        //Log::info('Locality details for pincode ' . $pincode . ': ' . json_encode($locality));
+        //Log::info('Locality details for pincode ' . $pincode . ': ' . json_encode($locality, JSON_PRETTY_PRINT));
         if (!empty($locality['success'])) {
             $city = strtolower($locality['data']['city'] ?? '');
             if (str_contains($city, 'varanasi') || str_contains($city, 'banaras')) {
@@ -2145,10 +2146,11 @@ class FrontendController extends Controller
             }
         }
         usort($couriers, fn($a, $b) => $a['rate'] <=> $b['rate']);
-        //Log::info('Available couriers: ' . json_encode($couriers));
+        //Log::info('Available couriers: ' . json_encode($couriers, JSON_PRETTY_PRINT));
         $key = 'courier_options_' . $product_id . '_' . $pincode;
         session()->put($key, [
             'data' => $couriers,
+            'locality' => $locality,
             'time' => now()->timestamp
         ]);
         session()->put('user_pincode_' . $product_id, $pincode);
@@ -2156,7 +2158,9 @@ class FrontendController extends Controller
             'success' => true,
             'delivery_options' => view('frontend.pages.partials.delivery-checker', [
                 'couriers' => $couriers,
-                'product_id' => $product_id
+                'product_id' => $product_id,
+                'product_items_for_js' => $productData,
+                'locality' => $locality ?? null,
             ])->render(),
         ]);
     }
@@ -2175,7 +2179,7 @@ class FrontendController extends Controller
             'success' => true,
             'html' => view('frontend.pages.partials.delivery-checker',[
                 'product_items_for_js' => json_decode($productData, true),
-                'product_id' => $product_id
+                'product_id' => $product_id,
             ])->render()
         ]);
     }

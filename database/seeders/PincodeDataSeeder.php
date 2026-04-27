@@ -1,0 +1,163 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class PincodeDataSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        DB::table('pincode_rates')->insert([
+            [
+                'pincode' => '110010',
+                'post_office' => '505 A.B. WORKSHOP',
+                'weight_450gm' => 0,
+                'weight_750gm' => 0,
+                'weight_1350gm' => 0,
+                'weight_3400gm' => 0,
+                'weight_7500gm' => 0,
+                'weight_14kg' => 0,
+                'weight_25kg' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'pincode' => '828124',
+                'post_office' => 'A.C.C COLONY',
+                'weight_450gm' => 0,
+                'weight_750gm' => 0,
+                'weight_1350gm' => 0,
+                'weight_3400gm' => 0,
+                'weight_7500gm' => 0,
+                'weight_14kg' => 0,
+                'weight_25kg' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'pincode' => '695039',
+                'post_office' => 'A.G. OFFICE THIRUVANANTHAPURAM',
+                'weight_450gm' => 0,
+                'weight_750gm' => 0,
+                'weight_1350gm' => 0,
+                'weight_3400gm' => 0,
+                'weight_7500gm' => 0,
+                'weight_14kg' => 0,
+                'weight_25kg' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'pincode' => '221001',
+                'post_office' => 'A.G.PALACE VARANASI',
+                'weight_450gm' => 0,
+                'weight_750gm' => 0,
+                'weight_1350gm' => 0,
+                'weight_3400gm' => 0,
+                'weight_7500gm' => 0,
+                'weight_14kg' => 0,
+                'weight_25kg' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'pincode' => '734421',
+                'post_office' => 'A.P. BAGDOGRA',
+                'weight_450gm' => 0,
+                'weight_750gm' => 0,
+                'weight_1350gm' => 0,
+                'weight_3400gm' => 0,
+                'weight_7500gm' => 0,
+                'weight_14kg' => 0,
+                'weight_25kg' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'pincode' => '520008',
+                'post_office' => 'A.P.U OF HEALTH SCIENCES',
+                'weight_450gm' => 0,
+                'weight_750gm' => 0,
+                'weight_1350gm' => 0,
+                'weight_3400gm' => 0,
+                'weight_7500gm' => 0,
+                'weight_14kg' => 0,
+                'weight_25kg' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'pincode' => '506144',
+                'post_office' => 'ABADIGHANPUR',
+                'weight_450gm' => 0,
+                'weight_750gm' => 0,
+                'weight_1350gm' => 0,
+                'weight_3400gm' => 0,
+                'weight_7500gm' => 0,
+                'weight_14kg' => 0,
+                'weight_25kg' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'pincode' => '676305',
+                'post_office' => 'ABDUL RAHMAN NAGAR',
+                'weight_450gm' => 0,
+                'weight_750gm' => 0,
+                'weight_1350gm' => 0,
+                'weight_3400gm' => 0,
+                'weight_7500gm' => 0,
+                'weight_14kg' => 0,
+                'weight_25kg' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'pincode' => '753014',
+                'post_office' => 'ABHINAV BIDANASI CUTTACK',
+                'weight_450gm' => 0,
+                'weight_750gm' => 0,
+                'weight_1350gm' => 0,
+                'weight_3400gm' => 0,
+                'weight_7500gm' => 0,
+                'weight_14kg' => 0,
+                'weight_25kg' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'pincode' => '212601',
+                'post_office' => 'ABOONAGAR (FATEHPUR)',
+                'weight_450gm' => 0,
+                'weight_750gm' => 0,
+                'weight_1350gm' => 0,
+                'weight_3400gm' => 0,
+                'weight_7500gm' => 0,
+                'weight_14kg' => 0,
+                'weight_25kg' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'pincode' => '250001',
+                'post_office' => 'ABULANE (MEERUT CANTT)',
+                'weight_450gm' => 0,
+                'weight_750gm' => 0,
+                'weight_1350gm' => 0,
+                'weight_3400gm' => 0,
+                'weight_7500gm' => 0,
+                'weight_14kg' => 0,
+                'weight_25kg' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+    }
+}

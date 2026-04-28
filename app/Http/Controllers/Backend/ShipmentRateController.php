@@ -72,4 +72,28 @@ class ShipmentRateController extends Controller
             'id' => $id
         ]);
     }
+
+    public function destroy($id)
+    {
+        $row = ShippingRates::find($id);
+        if (!$row) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Record not found'
+            ]);
+        }
+        try {
+            $row->delete();
+            return response()->json([
+                'status' => true,
+                'message' => 'Record deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Delete Shipping Rate Error: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong'
+            ]);
+        }
+    }
 }

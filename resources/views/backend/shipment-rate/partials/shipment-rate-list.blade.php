@@ -61,12 +61,12 @@
                                 data-id="{{ $shipping_rate->id }}">
                                 Refresh
                             </button>
-                            <form method="POST" action="{{ route('manage-customer.delete', $shipping_rate->id) }}">
+                            <form method="POST" action="{{ route('shipment-rate.destroy', $shipping_rate->id) }}" class="delete-form">
                                 @csrf
-                                <input name="_method" type="hidden" value="DELETE">
-                                    <a href="javascript:void(0);" title="Delete" class="show_confirm_customer btn btn-soft-danger btn-sm" data-title="Delete" data-bs-toggle="tooltip" >
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-soft-danger btn-sm show_confirm">
                                     <i class="ti ti-trash"></i>
-                                </a>
+                                </button>
                             </form>
                         </div>
                     </td>

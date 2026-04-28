@@ -32,7 +32,6 @@
 <!-- modal--->
 @endsection
 @push('scripts')
-<script src="{{ asset('backend/assets/js/pages/shipping-rate.js') }}"></script>
 <script>
     window.appConfig = {
         routes: {
@@ -42,4 +41,5 @@
         csrfToken: "{{ csrf_token() }}"
     };
 </script>
+<script src="{{ asset('backend/assets/js/pages/shipping-rate.js') }}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 @endpush

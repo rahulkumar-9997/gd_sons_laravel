@@ -48,6 +48,7 @@ use App\Http\Controllers\Backend\VideoController;
 use App\Http\Controllers\Backend\EnquiryController;
 use App\Http\Controllers\Backend\CouponCodeController;
 use App\Http\Controllers\Backend\RelatedProductController;
+use App\Http\Controllers\Backend\ShipmentRateController;
 use App\Http\Controllers\Backend\ProductReviewAutoAiGenerateController;
 
 /*
@@ -357,6 +358,7 @@ Route::group(['middleware' => ['admin']], function () {
     Route::delete('group-category/{id}', [GroupController::class, 'groupCategoryDelete'])->name('group-category.delete');
     /**Customer route */
     /**Order Route */
+
     Route::get('order-list', [OrderControllerBackend::class, 'showAllOrderList'])->name('order-list');
     Route::get('order-details/{id}', [OrderControllerBackend::class, 'showOrderDetails'])->name('order-details');
     Route::get('edit-order/{id}', [OrderControllerBackend::class, 'editOrder'])->name('edit-order');
@@ -364,7 +366,7 @@ Route::group(['middleware' => ['admin']], function () {
     Route::post('update-order-status/{orderId}', [OrderControllerBackend::class, 'updateOrderStatus'])->name('update-order-status');
     Route::get('download-invoice/{orderId}', [OrderControllerBackend::class, 'downloadInvoice'])->name('download-invoice');
     /**Order Route */
-    /**Blog Route */
+    /**Blog Route */    
     Route::resource('manage-blog-category', BlogCategoryController::class);
     Route::resource('manage-blog', BlogController::class);
     Route::delete('remove-blog-paragraphs/{id}', [BlogController::class, 'removeBlogParagraphs'])->name('remove-blog-paragraphs');
@@ -414,6 +416,10 @@ Route::group(['middleware' => ['admin']], function () {
     });	
     Route::Resource('manage-coupon', CouponCodeController::class);
     Route::Resource('manage-related-product', RelatedProductController::class);
+    
+    Route::resource('shipment-rate', ShipmentRateController::class);
+    Route::post('shipment-rate/{id}/refresh-single', [ShipmentRateController::class, 'refreshSingle'])
+    ->name('shipment-rate.refresh.single');
 
     Route::get('generate-ai-review/{id}',[ProductReviewAutoAiGenerateController::class,'generateAIReview'])
     ->name('generate.ai.review.single');

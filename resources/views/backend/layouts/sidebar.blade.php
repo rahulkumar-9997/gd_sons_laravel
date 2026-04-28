@@ -112,6 +112,9 @@
                      <li class="sub-nav-item">
                         <a class="sub-nav-link" href="{{ route('order-list') }}">Order</a>
                      </li>
+                     <li class="sub-nav-item">
+                        <a class="sub-nav-link" href="{{ route('shipment-rate.index') }}">Shipment Rate</a>
+                     </li>
                </ul>
             </div>
          </li>

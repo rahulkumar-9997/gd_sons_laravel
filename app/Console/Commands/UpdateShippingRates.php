@@ -41,7 +41,7 @@ class UpdateShippingRates extends Command
                             $weight,
                             0
                         );
-                        Log::info('Serviceability response for ' . $row->pincode . ', weight ' . $weight . ': ' . json_encode($response, JSON_PRETTY_PRINT));
+                        //Log::info('Serviceability response for ' . $row->pincode . ', weight ' . $weight . ': ' . json_encode($response, JSON_PRETTY_PRINT));
                         $companies = $response['raw']['data']['available_courier_companies'] ?? [];
                         if (empty($companies)) {
                             $this->warn("  No courier available");
@@ -71,10 +71,10 @@ class UpdateShippingRates extends Command
                             ->where('id', $row->id)
                             ->update($update);
                         $this->info("Updated: " . $row->pincode);
-                        Log::info("Updated rates", [
-                            'pincode' => $row->pincode,
-                            'data' => $update
-                        ]);
+                        // Log::info("Updated rates", [
+                        //     'pincode' => $row->pincode,
+                        //     'data' => $update
+                        // ]);
                     } else {
                         $this->warn("No rates updated for: " . $row->pincode);
                     }

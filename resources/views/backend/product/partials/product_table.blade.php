@@ -26,27 +26,35 @@
                     <td>{{ $sr_no++ }}</td>
                     <td>
                         <a href="https://www.google.com/search?q={{ urlencode($product->title) }}&udm=2" target="_blank" class="text-primary">
-                            
                             {{ ucwords(strtolower($product->title)) }}
-                            <span class="badge bg-warning" data-bs-original-title="Visitor Count {{ $product->visitor_count }}" title="Visitor Count {{ $product->visitor_count }}" data-bs-toggle="tooltip">{{ $product->visitor_count }}</span>
                         </a>
+                        <span class="badge bg-info ms-1" title="Visitor Count {{ $product->visitor_count }}">
+                            <i class="ti ti-eye"></i> {{ $product->visitor_count }}
+                        </span>
                         @if($product->length && $product->breadth && $product->height && $product->weight)
-                            <br>
-                            <small class="text-muted">
-                                <div style="line-height: 1.1; margin: 0; padding: 0;">Length in CM: {{ number_format($product->length, 2) }}</div>
-                                <div style="line-height: 1.1; margin: 0; padding: 0;">Breadth in CM: {{ number_format($product->breadth, 2) }}</div>
-                                <div style="line-height: 1.1; margin: 0; padding: 0;">Height in CM: {{ number_format($product->height, 2) }}</div>
-                                <div style="line-height: 1.1; margin: 0; padding: 0;">Weight in Kg: {{ number_format($product->weight, 2) }}</div>
-                                <div style="line-height: 1.1; margin: 0; padding: 0;">Volumetric Weight Kg: {{ number_format($product->volumetric_weight_kg, 2) }}</div>
-                            </small>
+                            <div class="mt-1 d-flex flex-wrap gap-1">
+                                <span class="badge bg-light text-dark">L: {{ number_format($product->length, 1) }}cm</span>
+                                <span class="badge bg-light text-dark">B: {{ number_format($product->breadth, 1) }}cm</span>
+                                <span class="badge bg-light text-dark">H: {{ number_format($product->height, 1) }}cm</span>
+                                <span class="badge bg-light text-dark">W: {{ number_format($product->weight, 1) }}kg</span>
+                                <span class="badge bg-purple text-white">VW: {{ number_format($product->volumetric_weight_kg, 1) }}kg</span>
+                            </div>
                         @endif
-                        <!-- {{ $product->title }} -->
                     </td>
                     <td>
-                        @if($product->images->isNotEmpty())
-                            <img src="{{ asset('images/product/thumb/' . $product->images[0]->image_path) }}" class="img-thumbnail" style="width: 70px; height: 70px;" alt="{{ $product->title }}">
+                        @php
+                            $imagePath = null;
+                            if ($product->images->isNotEmpty()) {
+                                $file = 'images/product/thumb/' . $product->images[0]->image_path;
+                                if (file_exists(public_path($file))) {
+                                    $imagePath = asset($file);
+                                }
+                            }
+                        @endphp
+                        @if($imagePath)
+                            <img src="{{ $imagePath }}" class="img-thumbnail" style="width: 70px; height: 70px;" alt="{{ $product->title }}">
                         @else
-                            <span>No images.</span>
+                            <span>No image found.</span>
                         @endif
                         <br>
                         <a href="javascript:void(0)" data-ajax-image-popup="true" data-size="lg" data-title="Upload Image ({{ $product->title }})" data-url="{{route('products.modal-image-form')}}" data-bs-toggle="tooltip" data-pid="{{$product->id}}" data-bs-original-title="Upload Image">
@@ -57,27 +65,28 @@
                     </td>
                     <td>{{ $product->hsn_code }}</td>
                     <td>{{ $product->gst_in_per }}</td>
-                    <td>
+                    <td>                        
                         @php
                             $reviewCount = $product->reviews->count();
-                            $averageRating = $product->reviews->avg('rating'); // If you have rating field
+                            $averageRating = $product->reviews->avg('rating_star_value');
                         @endphp
                         <span class="badge bg-info">
                             {{ $reviewCount }} {{ Str::plural('Review', $reviewCount) }}
                         </span>
-                        @if($averageRating)
-                            <br>
-                            <small class="text-warning">
-                                @for($i = 1; $i <= 5; $i++)
-                                    @if($i <= round($averageRating))
-                                        <i class="ti ti-star-filled"></i>
-                                    @else
-                                        <i class="ti ti-star"></i>
-                                    @endif
-                                @endfor
-                                ({{ number_format($averageRating, 1) }})
-                            </small>
-                        @endif
+                        @if($reviewCount > 0)
+                        <br>
+                        <small class="text-warning">
+                            @php $roundedRating = (int) round((float) $averageRating); @endphp
+                            @for($i = 1; $i <= 5; $i++)
+                                @if($i <= $roundedRating)
+                                    <i class="ti ti-star-filled"></i>
+                                @else
+                                    <i class="ti ti-star"></i>
+                                @endif
+                            @endfor
+                            ({{ number_format((float)$averageRating, 1) }})
+                        </small>
+                    @endif
                     </td>
                     <td>
                         <span class="badge {{ $product->product_status == 1 ? 'bg-success' : 'bg-danger' }}">
@@ -87,17 +96,19 @@
                     <td>{{ $product->category->title ?? 'No Category' }}</td>
                     <td><span class="text-success">{{ $product->created_at->toFormattedDateString() }}</span></td>
                     <td>
-                        <table class="table table-striped table-centered">
-                            @foreach($product->attributes as $attribute)
-                                <tr>
-                                    <td><strong>{{ $attribute->attribute->title ?? 'No Title' }}:</strong>
-                                        @foreach($attribute->values as $value)
-                                            <span>{{ $value->attributeValue->name ?? 'No Value' }}</span>@if(!$loop->last), @endif
-                                        @endforeach
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </table>
+                        <div class="overflow-auto" style="max-width: 200px; max-height: 80px; overflow: auto; white-space: nowrap;">
+                            <table class="table table-striped table-centered">
+                                @foreach($product->attributes as $attribute)
+                                    <tr>
+                                        <td><strong>{{ $attribute->attribute->title ?? 'No Title' }}:</strong>
+                                            @foreach($attribute->values as $value)
+                                                <span>{{ $value->attributeValue->name ?? 'No Value' }}</span>@if(!$loop->last), @endif
+                                            @endforeach
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        </div>
                     </td>
                     <td>
                         <div class="d-flex gap-1">
@@ -121,9 +132,10 @@
             @endforeach
         </tbody>
     </table>
+    <div class="my-pagination mt-2 mb-2" id="pagination-links">
+        {{ $data['product_list']->links('vendor.pagination.bootstrap-4') }}
+    </div>
 @else
     <p>No products found in this category.</p>
 @endif
-<div class="my-pagination" id="pagination-links">
-    {{ $data['product_list']->links('vendor.pagination.bootstrap-4') }}
-</div>
+

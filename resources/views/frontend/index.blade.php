@@ -39,7 +39,7 @@
 <!-- Home Section Start -->
 <section class="home-section pt-2">
     <div class="container-fluid-lg">
-		<!--
+        <!--
         <div class="row g-2">
             <div class="col-xl-8 ratio_65">
                 <div class="home-contain h-1001">
@@ -120,7 +120,7 @@
             </div>
         </div>
         -->
-		<div class="row">
+        <div class="row">
             <div class="col-lg-12">
                 <div class="text-center mt-2">
                     <h1 class="class-h1-tags">
@@ -270,7 +270,106 @@
 <section class="product-section">
     <div class="container-fluid-lg">
         <div class="row g-sm-4 g-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20 aos-init aos-animate">
+                <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/40 hover:border-indigo-100">
+                    <div class="relative h-64 overflow-hidden image-shine bg-gradient-to-br from-gray-100 to-gray-200">
+                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=500&fit=crop" alt="Luxury timepiece" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md rounded-full px-3 py-1 text-xs font-semibold text-indigo-700 shadow-sm flex items-center gap-1">
+                            <i class="fas fa-star text-yellow-400 text-[10px]"></i> <span>Best Seller</span>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-xs font-semibold text-indigo-500 uppercase tracking-wider">Horology</span>
+                                <h3 class="text-xl font-bold text-slate-800 mt-1 group-hover:text-indigo-700 transition-colors">Aeon Chronograph</h3>
+                            </div>
+                            <i class="far fa-heart text-slate-400 hover:text-rose-500 cursor-pointer transition text-xl"></i>
+                        </div>
+                        <p class="text-slate-500 mt-2 text-sm leading-relaxed">Sapphire crystal, automatic movement, and Italian leather strap.</p>
+                        <div class="mt-4 flex items-center justify-between">
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-2xl font-bold text-slate-800">$489</span>
+                                <span class="text-sm text-slate-400 line-through">$649</span>
+                            </div>
+                            <div class="flex gap-0.5 text-yellow-400">
+                                <i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="fas fa-star-half-alt text-sm"></i>
+                                <span class="text-xs text-slate-500 ml-1">(142)</span>
+                            </div>
+                        </div>
+                        <button class="mt-5 w-full py-3 rounded-xl bg-slate-800 text-white font-medium transition-all hover:bg-indigo-700 hover:shadow-lg flex items-center justify-center gap-2 group/btn">
+                            <span>Discover</span> <i class="fas fa-arrow-right text-xs transition-transform group-hover/btn:translate-x-1"></i>
+                        </button>
+                    </div>
+                </div>
 
+                <!-- Product 2 - Modern Speakers -->
+                <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/40 hover:border-indigo-100">
+                    <div class="relative h-64 overflow-hidden image-shine bg-gradient-to-br from-gray-100 to-gray-200">
+                        <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&h=500&fit=crop" alt="Premium wireless speaker" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute top-4 left-4 bg-emerald-500/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-semibold text-white shadow-md flex items-center gap-1">
+                            <i class="fas fa-bolt"></i> New
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Audio</span>
+                                <h3 class="text-xl font-bold text-slate-800 mt-1">Orbit SoundSphere</h3>
+                            </div>
+                            <i class="far fa-heart text-slate-400 hover:text-rose-500 cursor-pointer transition text-xl"></i>
+                        </div>
+                        <p class="text-slate-500 mt-2 text-sm leading-relaxed">360° immersive audio, 24h battery, and water-resistant elegance.</p>
+                        <div class="mt-4 flex items-center justify-between">
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-2xl font-bold text-slate-800">$249</span>
+                                <span class="text-sm text-slate-400 line-through">$329</span>
+                            </div>
+                            <div class="flex gap-0.5 text-yellow-400">
+                                <i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i>
+                                <span class="text-xs text-slate-500 ml-1">(89)</span>
+                            </div>
+                        </div>
+                        <button class="mt-5 w-full py-3 rounded-xl bg-slate-800 text-white font-medium transition-all hover:bg-indigo-700 hover:shadow-lg flex items-center justify-center gap-2 group/btn">
+                            <span>Shop now</span> <i class="fas fa-arrow-right text-xs transition-transform group-hover/btn:translate-x-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 3 - Ceramic Vessel / Art object -->
+                <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/40 hover:border-indigo-100">
+                    <div class="relative h-64 overflow-hidden image-shine bg-gradient-to-br from-amber-50 to-stone-100">
+                        <img src="https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=600&h=500&fit=crop" alt="Handcrafted ceramic vase" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute top-4 left-4 bg-amber-600/80 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-semibold text-white shadow-md">
+                            Limited
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-xs font-semibold text-amber-700 uppercase tracking-wider">Artisan</span>
+                                <h3 class="text-xl font-bold text-slate-800 mt-1">Terra Glaze Vase</h3>
+                            </div>
+                            <i class="far fa-heart text-slate-400 hover:text-rose-500 cursor-pointer transition text-xl"></i>
+                        </div>
+                        <p class="text-slate-500 mt-2 text-sm leading-relaxed">Hand-thrown stoneware, reactive glaze, each piece one-of-a-kind.</p>
+                        <div class="mt-4 flex items-center justify-between">
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-2xl font-bold text-slate-800">$159</span>
+                                <span class="text-sm text-slate-400 line-through">$199</span>
+                            </div>
+                            <div class="flex gap-0.5 text-yellow-400">
+                                <i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="far fa-star text-sm"></i>
+                                <span class="text-xs text-slate-500 ml-1">(36)</span>
+                            </div>
+                        </div>
+                        <button class="mt-5 w-full py-3 rounded-xl bg-slate-800 text-white font-medium transition-all hover:bg-indigo-700 hover:shadow-lg flex items-center justify-center gap-2 group/btn">
+                            <span>View details</span> <i class="fas fa-arrow-right text-xs transition-transform group-hover/btn:translate-x-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
             @if ($data['primary_category'] && $data['primary_category']->isNotEmpty())
             <div class="highlighted-products">
                 <div class="title d-block text-center">
@@ -412,21 +511,21 @@
                                                     </a>
                                                 </div>
                                                 @php
-                                                $hasDimensions = 
-                                                !empty($popular_product_row->length) && 
-                                                !empty($popular_product_row->breadth) && 
-                                                !empty($popular_product_row->height) && 
+                                                $hasDimensions =
+                                                !empty($popular_product_row->length) &&
+                                                !empty($popular_product_row->breadth) &&
+                                                !empty($popular_product_row->height) &&
                                                 !empty($popular_product_row->weight);
                                                 @endphp
-                                               @if(($popular_product_row->mrp > 0 && $popular_product_row->stock_quantity <= 0) || !$hasDimensions)
+                                                @if(($popular_product_row->mrp > 0 && $popular_product_row->stock_quantity <= 0) || !$hasDimensions)
                                                     <ul class="product-option">
-                                                        <li title="Out of Stock">
-                                                            <a href="javascript:void(0)" class="out_of_stock">
+                                                    <li title="Out of Stock">
+                                                        <a href="javascript:void(0)" class="out_of_stock">
                                                             Out of Stock
-                                                            </a>
-                                                        </li>
+                                                        </a>
+                                                    </li>
                                                     </ul>
-                                                @endif
+                                                    @endif
                                             </div>
                                             <div class="product-detail">
                                                 <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
@@ -513,7 +612,7 @@
                             ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
                             : 0;
                             @endphp
-                            <div>                                
+                            <div>
                                 <div class="product-box">
                                     <div class="product-image">
                                         @if ($discountPercentage>0)
@@ -566,39 +665,39 @@
 
                                     </div>
                                     @php
-                                    $hasDimensions_trending = 
-                                    !empty($trending_products_row->length) && 
-                                    !empty($trending_products_row->breadth) && 
-                                    !empty($trending_products_row->height) && 
+                                    $hasDimensions_trending =
+                                    !empty($trending_products_row->length) &&
+                                    !empty($trending_products_row->breadth) &&
+                                    !empty($trending_products_row->height) &&
                                     !empty($trending_products_row->weight);
                                     @endphp
                                     @if(($trending_products_row->mrp > 0 && $trending_products_row->stock_quantity <= 0) || !$hasDimensions_trending)
                                         <ul class="product-option">
-                                            <li title="Out of Stock">
-                                                <a href="javascript:void(0)" class="out_of_stock">
+                                        <li title="Out of Stock">
+                                            <a href="javascript:void(0)" class="out_of_stock">
                                                 Out of Stock
-                                                </a>
-                                            </li>
+                                            </a>
+                                        </li>
                                         </ul>
-                                    @endif
-                                    <div class="product-detail">
-                                        <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value)}}">
-                                            <h6 class="name h-100">
-                                                {{ ucwords(strtolower($trending_products_row->title)) }}
-                                            </h6>
-                                        </a>
-                                        <h5 class="sold text-content">
-                                            @if ($trending_products_row->offer_rate === null)
-                                            <span class="theme-color price">Price not available</span>
-                                            @else
-                                            <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
-                                            @endif
+                                        @endif
+                                        <div class="product-detail">
+                                            <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value)}}">
+                                                <h6 class="name h-100">
+                                                    {{ ucwords(strtolower($trending_products_row->title)) }}
+                                                </h6>
+                                            </a>
+                                            <h5 class="sold text-content">
+                                                @if ($trending_products_row->offer_rate === null)
+                                                <span class="theme-color price">Price not available</span>
+                                                @else
+                                                <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
+                                                @endif
 
-                                            @if ($mrp !== null)
-                                            <del>Rs. {{ $mrp }}</del>
-                                            @endif
-                                        </h5>
-                                    </div>
+                                                @if ($mrp !== null)
+                                                <del>Rs. {{ $mrp }}</del>
+                                                @endif
+                                            </h5>
+                                        </div>
                                 </div>
                             </div>
                             @endforeach

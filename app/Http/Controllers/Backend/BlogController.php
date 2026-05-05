@@ -20,7 +20,7 @@ class BlogController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(){
-        $blogs = Blog::with(['category', 'paragraphs.productLinks'])->orderBy('id', 'desc')->get();
+        $blogs = Blog::with(['category', 'paragraphs.productLinks'])->orderBy('id', 'desc')->paginate(20);
         return view('backend.manage-blog.blog.index', compact('blogs'));
        
     }

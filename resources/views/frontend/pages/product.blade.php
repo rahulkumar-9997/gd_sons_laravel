@@ -960,13 +960,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                 "price": "{{ $schema_offer }}",
                 "priceCurrency": "INR",
                 "url": "{{ url()->current() }}",
-                "priceSpecification": {
-                    "@type": "PriceSpecification",
-                    "price": "{{ $product->mrp }}",
-                    "priceCurrency": "INR",
-                    "valueAddedTaxIncluded": "true",
-					"priceType": "ListPrice"
-                },
+                
                 "availability": "http://schema.org/InStock",
 				"itemCondition": "https://schema.org/NewCondition",
 				"priceValidUntil": "{{ \Carbon\Carbon::now()->addYear()->format('Y-m-d') }}"

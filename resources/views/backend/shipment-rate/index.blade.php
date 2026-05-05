@@ -33,13 +33,13 @@
 @endsection
 @push('scripts')
 <script>
-    window.appConfig = {
-        routes: {
-            shipmentRateIndex: "{{ route('shipment-rate.index') }}",
-            refreshSingle: "{{ url('shipment-rate') }}"
-        },
-        csrfToken: "{{ csrf_token() }}"
-    };
+   window.appConfig = {
+      routes: {
+         shipmentRateIndex: "{{ route('shipment-rate.index') }}",
+         refreshSingle: "{{ url('shipment-rate') }}"
+      },
+      csrfToken: "{{ csrf_token() }}"
+   };
 </script>
 <script src="{{ asset('backend/assets/js/pages/shipping-rate.js') }}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 @endpush

@@ -18,9 +18,9 @@ class PrimaryCategory extends Model
         'product_id'
     ];
 
-    public function product()
+    public function products()
     {
-        return $this->belongsTo(Product::class, 'product_id');
+        return $this->belongsToMany(Product::class, 'primary_category_products');
     }
 
     /**

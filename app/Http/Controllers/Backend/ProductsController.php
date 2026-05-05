@@ -1933,5 +1933,38 @@ class ProductsController extends Controller
         })->encode('jpg', 90)->save($destination_path_thumb . '/' . $image_file_name);        
     }
 
+    public function productSelect2Autocomplete(Request $request)
+    {
+        $query = $request->input('search');
+        $selectedProductIds = $request->input('selected_ids', []); 
+        if (!$query) {
+            return response()->json([]);
+        }
+        $searchTerms = explode(' ', $query);
+        $booleanQuery = '+' . implode(' +', $searchTerms);
+
+        $products = Product::where(function ($q) use ($searchTerms, $booleanQuery) {
+            $q->whereRaw("MATCH(title) AGAINST(? IN BOOLEAN MODE)", [$booleanQuery])
+            ->orWhere(function ($subQ) use ($searchTerms) {
+                foreach ($searchTerms as $term) {
+                    $subQ->where('title', 'like', '%' . $term . '%');
+                }
+            });
+        })
+        ->whereNotIn('id', $selectedProductIds)
+        ->select('id', 'title')
+        ->limit(25)
+        ->orderBy('title')
+        ->get();
+        $results = $products->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'text' => $product->title
+            ];
+        });
+
+        return response()->json(['results' => $results]);
+    }
+
     
 }    

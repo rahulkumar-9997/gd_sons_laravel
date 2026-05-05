@@ -118,8 +118,7 @@ $(document).ready(function () {
                     </div>
                 </td>
                 <td>
-                    <div class="snow-editor" style="height: 150px; width: 100%;"></div>
-                    <textarea name="paragraphs_description[${rowCount}]" class="hidden-textarea" style="display:none;"></textarea>
+                    <textarea name="paragraphs_description[${rowCount}]" class="hidden-textarea ckeditor4"></textarea>
                     
                     <button type="button" class="btn btn-danger remove-row btn-sm">Remove</button>
                 </td>
@@ -127,7 +126,7 @@ $(document).ready(function () {
         `;
         
         $('table tbody').append(newRow);
-        initializeQuillEditorsAppend();
+        initCkEditor();
         initializeProductAutocomplete();
     });
     $(document).on('click', '.remove-row', function () {

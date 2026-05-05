@@ -2,12 +2,6 @@
 @section('title','Manage Blog')
 @section('main-content')
 @push('styles')
-<link href="{{asset('backend/assets/vendor/datatables/css/jquery.dataTables.css')}}" rel="stylesheet" type="text/css" media="screen"/>
-<link href="{{asset('backend/assets/vendor/datatables/extensions/TableTools/css/dataTables.tableTools.min.css')}}" rel="stylesheet" type="text/css" media="screen"/>
-<link href="{{asset('backend/assets/vendor/datatables/extensions/Responsive/css/dataTables.responsive.css')}}" rel="stylesheet" type="text/css" media="screen"/>
-<link href="{{asset('backend/assets/vendor/datatables/extensions/Responsive/bootstrap/3/dataTables.bootstrap.css')}}" rel="stylesheet" type="text/css" media="screen"/> 
-<link href="{{asset('backend/assets/plugins/select2/select2.css')}}" rel="stylesheet" type="text/css" media="screen"/>
-<link href="{{asset('backend/assets/plugins/multi-select/css/multi-select.css')}}" rel="stylesheet" type="text/css" media="screen"/>   
 @endpush
 <!-- Start Container Fluid -->
 <div class="container-fluid">
@@ -28,7 +22,7 @@
             <div class="card-body">
                @if (isset($blogs) && $blogs->count() > 0)
                   <div class="table-responsive1">
-                     <table id="example-1" class="table align-middle mb-0 table-hover table-centered">
+                     <table class="table align-middle mb-0 table-hover table-centered">
                         <thead class="bg-light-subtle">
                               <tr>
                                  <th>Sr. No.</th>
@@ -50,7 +44,9 @@
                                     <td>{{ $blogs_row->title }}</td>
                                     <td>{{ $blogs_row->category->title }}</td>
                                     <td>
-                                       {!! $blogs_row->bog_description !!}
+                                       <div style="max-width: 250px;">
+                                          {!! \Illuminate\Support\Str::limit(strip_tags($blogs_row->bog_description), 60) !!}
+                                       </div>
                                     </td>
                                     <td>
                                        <img src="{{ asset($blogs_row->blog_image) }}" class="img-thumbnail" style="width: 70px; height: 70px;" alt="{{ $blogs_row->title }}">
@@ -81,8 +77,10 @@
                         </tbody>
                      </table>
                   </div>
+                  <div class="my-pagination mt-2 mb-2">
+                     {{ $blogs->links('vendor.pagination.bootstrap-4') }}
+                  </div>
                   @endif
-
             </div>
          </div>
       </div>

@@ -147,6 +147,11 @@ class Product extends Model
     {
         return $this->hasMany(RelatedProduct::class, 'product_id');
     }
+
+    public function primaryCategories()
+    {
+        return $this->belongsToMany(PrimaryCategory::class, 'primary_category_products');
+    }
         
     /** 
      * Write code on Method

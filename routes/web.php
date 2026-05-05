@@ -50,6 +50,7 @@ use App\Http\Controllers\Backend\CouponCodeController;
 use App\Http\Controllers\Backend\RelatedProductController;
 use App\Http\Controllers\Backend\ShipmentRateController;
 use App\Http\Controllers\Backend\ProductReviewAutoAiGenerateController;
+use App\Http\Controllers\Backend\CkeditorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -217,7 +218,8 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('get-visitor-stats', [DashboardController::class, 'getVisitorStats'])->name('get-visitor-stats');
     Route::get('get-visitor-list', [DashboardController::class, 'getVisitorList'])->name('get-visitor-list');
     Route::post('visitors/bulk-delete',[DashboardController::class,'bulkDeleteVisitor'])->name('visitors.bulk-delete');
-     Route::get('click-details', [DashboardController::class, 'getClickDetails'])->name('get-click-details');
+    Route::get('click-details', [DashboardController::class, 'getClickDetails'])->name('get-click-details');
+    Route::get('order-analytics', [DashboardController::class, 'orderAnalytics'])->name('order.analytics');
 
     Route::get('brand', [BrandController::class, 'index'])->name('brand');
     Route::post('brand/create', [BrandController::class, 'create'])->name('brand.create');
@@ -297,7 +299,7 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('product-multiple-update', [ProductsController::class, 'productMultipleUpdatePage'])->name('product-multiple-update');
     Route::post('product-update-all', [ProductsController::class, 'productMultipleUpdatePageSubmit'])->name('product-update-all');
     
-    //Route::POST('/product-update-gst/create', [ProductsController::class, 'updateHSNCodeGstForm'])->name('product-update-gst.create');
+    Route::get('product-autocomplete', [ProductsController::class,'productSelect2Autocomplete'])->name('product.autocomplete');
     Route::POST('/product-update-gst/store', [ProductsController::class, 'updateHSNCodeGstFormSubmit'])->name('product-update-gst.store');
     /**Product route */
     /**inventory route */
@@ -426,4 +428,7 @@ Route::group(['middleware' => ['admin']], function () {
     Route::post('save-ai-review',[ProductReviewAutoAiGenerateController::class,'saveAIReview'])
     ->name('save.ai.review');
     Route::post('regenerate-ai-review', [ProductReviewAutoAiGenerateController::class, 'regenerateAIReview'])->name('regenerate.ai.review');
+    Route::post('/ckeditor/upload', [CkeditorController::class, 'upload'])->name('ckeditor.upload');
+    Route::get('/ckeditor/images', [CkeditorController::class, 'imageList'])->name('ckeditor.images');
+    Route::delete('/ckeditor/image', [CkeditorController::class, 'deleteImage'])->name('ckeditor.delete');
 });

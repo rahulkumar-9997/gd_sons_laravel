@@ -445,8 +445,7 @@
                               Product Description
                            </h5>
                            <div class="mb-3">
-                              <div class="snow-editor" style="height: 200px; width: 100%;">{!! $data['product']->product_description !!}</div>
-                              <textarea name="product_description" class="hidden-textarea" style="display:none;">{!! $data['product']->product_description !!}</textarea>
+                              <textarea name="product_description" class="hidden-textarea ckeditor4">{!! $data['product']->product_description !!}</textarea>
                            </div>
                         </div>
                      </div>
@@ -457,9 +456,8 @@
                            <h5 class="card-title mb-1 anchor" id="quill-snow-editor">
                               Product Specification
                            </h5>
-                           <div class="mb-3">
-                              <div class="snow-editor" style="height: 200px; width: 100%;">{!! $data['product']->product_specification !!}</div>
-                              <textarea name="product_specification" class="hidden-textarea" style="display:none;">{!! $data['product']->product_specification !!}</textarea>
+                           <div class="mb-3">                              
+                              <textarea name="product_specification" class="hidden-textarea ckeditor4">{!! $data['product']->product_specification !!}</textarea>
                            </div>
                         </div>
                      </div>
@@ -488,7 +486,16 @@
 <!-- modal--->
 @endsection
 @push('scripts')
-<script src="{{asset('backend/assets/js/components/form-quilljs.js')}}"></script>
+<script src="{{ asset('backend/assets/ckeditor-4/ckeditor.js') }}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
+<script>
+    window.CKEDITOR_ROUTES = {
+        upload: "{{ route('ckeditor.upload') }}",
+        imagelist: "{{ route('ckeditor.images') }}",
+        delete: "{{ route('ckeditor.delete') }}"
+    };
+    window.csrfToken = "{{ csrf_token() }}";
+</script>
+<script src="{{ asset('backend/assets/ckeditor-4/ckeditor-r-create-config.js') }}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
 <script src="{{asset('backend/assets/plugins/select2/select2.min.js')}}" type="text/javascript"></script>
 <script src="{{asset('backend/assets/plugins/multi-select/js/jquery.multi-select.js')}}" type="text/javascript"></script>
 <script src="{{asset('backend/assets/plugins/multi-select/js/jquery.quicksearch.js')}}" type="text/javascript"></script> 

@@ -8,8 +8,7 @@
       <!-- Start here.... -->
       <div class="row">
          <div class="col-xxl-12">
-            <div class="row">
-               
+            <div class="row">               
                <div class="col-md-3">
                   <div class="card overflow-hidden">
                      <div class="card-body">
@@ -160,8 +159,7 @@
                      2 => 'bx bx-package',
                      4 => 'bx bx-check-circle',
                      5 => 'bx bx-check-double',
-                     6 => 'bx bx-cross',
-                     
+                     6 => 'bx bx-cross',                     
                   ];
                @endphp
                @if($data['order_status_count']->isNotEmpty())
@@ -304,18 +302,39 @@
             </div>
             <!-- end card -->
          </div>
-         <!-- end col -->
+         <div class="col-xxl-12">
+            <div class="card">
+               <div class="card-header d-flex justify-content-between">
+                  <h4>Order Analytics</h4>
+                  <div class="dropdown">
+                        <button class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                           <span id="selectedYear">{{ date('Y') }}</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                           @for($i = date('Y'); $i >= date('Y') - 5; $i--)
+                              <li>                                    <a href="javascript:void(0)" class="dropdown-item year-option" data-year="{{ $i }}">
+                                       {{ $i }}
+                                    </a>
+                              </li>
+                           @endfor
+                        </ul>
+                  </div>
+               </div>
+               <div class="card-body">
+                  <div id="order_analysis"></div>
+               </div>
+            </div>
+         </div>
       </div>
    </div>
 
 @endsection
 
 @push('scripts')
-<!-- <script src="{{asset('backend/assets/vendor/jsvectormap/js/jsvectormap.min.js')}}"></script> -->
-<!-- <script src="{{asset('backend/assets/vendor/jsvectormap/maps/world-merc.js')}}"></script> -->
-<!-- <script src="{{asset('backend/assets/vendor/jsvectormap/maps/world.js')}}"></script> -->
-<!-- <script src="{{asset('backend/assets/js/pages/dashboard.js')}}"></script> -->
- <!-- <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script> -->
+<script>
+    window.orderAnalyticsUrl = "{{ route('order.analytics') }}";
+</script>
+<script src="{{ asset('backend/assets/js/pages/order-analytics.js') }}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 <script>
    $(document).ready(function () {
       var options = {

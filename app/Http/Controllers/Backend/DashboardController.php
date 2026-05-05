@@ -64,7 +64,6 @@ class DashboardController extends Controller
 		return response()->json($formattedData);
 	}
 
-
     public function showProfileUpdateForm(){
         $user = Auth::user();
         return view('backend.profile.index' , compact('user'));
@@ -72,14 +71,6 @@ class DashboardController extends Controller
 
     public function updateProfile(Request $request){
         $user_id = Auth::user()->id;
-        
-        // $this->validate($request, [
-        //     'profile_name' => ['nullable', 'required'],
-        //     'mobile_number' =>  ['nullable', 'required|numeric|digits:10'],
-        //     //'profile_photo' =>  ['nullable', 'required'],
-        //     'update_password' =>  ['nullable', 'required|digits:8'],
-        // ]);
-
         $input['name'] = $request->input('profile_name');
         $input['phone_number'] = $request->input('mobile_number');
         $input['email'] = $request->input('profile_email');
@@ -134,7 +125,8 @@ class DashboardController extends Controller
         }
     }
 
-   public function getVisitorStats(){
+    public function getVisitorStats()
+    {
 		$startDate = Carbon::now()->subDays(30);
 		$endDate = Carbon::now();		
 		$monthlyData = VisitorTracking::selectRaw('DATE(visited_at) as date, COUNT(DISTINCT ip_address) as unique_visitors')
@@ -203,5 +195,42 @@ class DashboardController extends Controller
                 'data' => $data
             ])->render()
         ]);
+    }
+
+    public function orderAnalytics(Request $request){
+        $year = $request->year ?? date('Y');
+        $orders = Orders::select(
+                DB::raw('MONTH(order_date) as month'),
+                DB::raw('COUNT(*) as total'),
+                DB::raw("SUM(CASE WHEN order_status_id = 1 THEN 1 ELSE 0 END) as new"),
+                DB::raw("SUM(CASE WHEN order_status_id = 2 THEN 1 ELSE 0 END) as packed"),
+                DB::raw("SUM(CASE WHEN order_status_id = 3 THEN 1 ELSE 0 END) as processing"),
+                DB::raw("SUM(CASE WHEN order_status_id = 4 THEN 1 ELSE 0 END) as shipped"),
+                DB::raw("SUM(CASE WHEN order_status_id = 5 THEN 1 ELSE 0 END) as delivered"),
+                DB::raw("SUM(CASE WHEN order_status_id = 6 THEN 1 ELSE 0 END) as cancelled")
+            )
+            ->whereYear('order_date', $year)
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+        if ($orders->isEmpty()) {
+            return response()->json([]);
+        }
+        $result = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $row = $orders->firstWhere('month', $m);
+            $result[] = [
+                'month' => Carbon::create()->month($m)->format('M') . ' ' . $year,
+                'total' => $row->total ?? 0,
+                'new' => $row->new ?? 0,
+                'packed' => $row->packed ?? 0,
+                'processing' => $row->processing ?? 0,
+                'shipped' => $row->shipped ?? 0,
+                'delivered' => $row->delivered ?? 0,
+                'cancelled' => $row->cancelled ?? 0,
+            ];
+        }
+
+        return response()->json($result);
     }
 }

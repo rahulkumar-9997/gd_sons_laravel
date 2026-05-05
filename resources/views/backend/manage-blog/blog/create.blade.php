@@ -61,10 +61,7 @@
                                         Blog Description *
                                     </h5>
                                     <div class="mb-3">
-                                        <div class="snow-editor" style="height: 150px; width: 100%;">
-                                            {{ old('blog_description')}}
-                                        </div>
-                                        <textarea name="blog_description" class="hidden-textarea" style="display:none;"> {{ old('blog_description')}}</textarea>
+                                        <textarea name="blog_description" class="hidden-textarea ckeditor4"> {{ old('blog_description')}}</textarea>
                                         @if($errors->has('blog_description'))
                                         <div class="text-danger">{{ $errors->first('blog_description') }}</div>
                                         @endif
@@ -140,8 +137,7 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <div class="snow-editor" style="height: 150px; width: 100%;"></div>
-                                            <textarea name="paragraphs_description[]" class="hidden-textarea" style="display:none;"></textarea>
+                                            <textarea name="paragraphs_description[]" class="hidden-textarea ckeditor4"></textarea>
                                             @if($errors->has('paragraphs_description'))
                                             <div class="text-danger">{{ $errors->first('paragraphs_description') }}</div>
                                             @endif
@@ -175,10 +171,19 @@
 @endsection
 @push('scripts')
 <!--autocomplete-->
+<script src="{{ asset('backend/assets/ckeditor-4/ckeditor.js') }}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
+<script>
+    window.CKEDITOR_ROUTES = {
+        upload: "{{ route('ckeditor.upload') }}",
+        imagelist: "{{ route('ckeditor.images') }}",
+        delete: "{{ route('ckeditor.delete') }}"
+    };
+    window.csrfToken = "{{ csrf_token() }}";
+</script>
+<script src="{{ asset('backend/assets/ckeditor-4/ckeditor-r-create-config.js') }}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
 <link rel="stylesheet" href="{{asset('backend/assets/js/autocomplete/jquery-ui.css')}}">
 <script src="{{asset('backend/assets/js/autocomplete/jquery-ui.min.js')}}"></script>
 <!--autocomplete-->
-<script src="{{asset('backend/assets/js/components/form-quilljs.js')}}"></script>
 <script src="{{asset('backend/assets/js/pages/create-blog.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}" type="text/javascript"></script>
 
 @endpush

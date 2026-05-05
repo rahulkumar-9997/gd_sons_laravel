@@ -2,10 +2,6 @@
 @section('title','Edit Blog')
 @section('main-content')
 @push('styles')
-<link href="{{asset('backend/assets/vendor/datatables/css/jquery.dataTables.css')}}" rel="stylesheet" type="text/css" media="screen"/>
-<link href="{{asset('backend/assets/vendor/datatables/extensions/TableTools/css/dataTables.tableTools.min.css')}}" rel="stylesheet" type="text/css" media="screen"/>
-<link href="{{asset('backend/assets/vendor/datatables/extensions/Responsive/css/dataTables.responsive.css')}}" rel="stylesheet" type="text/css" media="screen"/>
-<link href="{{asset('backend/assets/vendor/datatables/extensions/Responsive/bootstrap/3/dataTables.bootstrap.css')}}" rel="stylesheet" type="text/css" media="screen"/> 
 <link href="{{asset('backend/assets/plugins/select2/select2.css')}}" rel="stylesheet" type="text/css" media="screen"/>
 <link href="{{asset('backend/assets/plugins/multi-select/css/multi-select.css')}}" rel="stylesheet" type="text/css" media="screen"/>   
 @endpush
@@ -64,11 +60,8 @@
                                 <h5 class="card-title mb-1 anchor" id="quill-snow-editor">
                                     Blog Description *
                                 </h5>
-                                <div class="mb-3">
-                                    <div class="snow-editor" style="height: 150px; width: 100%;">
-                                    {!! $blog->bog_description !!}
-                                    </div>
-                                    <textarea name="blog_description" class="hidden-textarea" style="display:none;"> 
+                                <div class="mb-3">                                    
+                                    <textarea name="blog_description" class="hidden-textarea ckeditor4"> 
                                     {!! $blog->bog_description !!}
                                     </textarea>
                                     @if($errors->has('blog_description'))
@@ -168,9 +161,8 @@
                                                 @endif -->
                                             @endif
                                         </td>
-                                        <td>
-                                            <div class="snow-editor" style="height: 150px; width: 100%;"> {!! $paragraph->bog_paragraph_description !!}</div>
-                                            <textarea name="paragraphs_description[]" class="hidden-textarea" style="display:none;">
+                                        <td>                                           
+                                            <textarea name="paragraphs_description[]" class="hidden-textarea ckeditor4">
                                             {!! $paragraph->bog_paragraph_description !!}
                                             </textarea>
                                             @if($errors->has('paragraphs_description'))
@@ -210,6 +202,16 @@
 @endsection
 @push('scripts')
 <!--autocomplete-->
+<script src="{{ asset('backend/assets/ckeditor-4/ckeditor.js') }}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
+<script>
+    window.CKEDITOR_ROUTES = {
+        upload: "{{ route('ckeditor.upload') }}",
+        imagelist: "{{ route('ckeditor.images') }}",
+        delete: "{{ route('ckeditor.delete') }}"
+    };
+    window.csrfToken = "{{ csrf_token() }}";
+</script>
+<script src="{{ asset('backend/assets/ckeditor-4/ckeditor-r-create-config.js') }}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
 <link rel="stylesheet" href="{{asset('backend/assets/js/autocomplete/jquery-ui.css')}}">
 <script src="{{asset('backend/assets/js/autocomplete/jquery-ui.min.js')}}"></script>
 <!--autocomplete-->

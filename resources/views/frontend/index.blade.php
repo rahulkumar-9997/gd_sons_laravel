@@ -179,99 +179,6 @@
     </div>
 </section>
 
-<section class="why-choose-section">
-    <div class="container-fluid-lg">
-        <div class="flex flex-col lg:flex-row gap-8 items-center">
-            <div class="choose-card relative bg-[#0f1e36] p-10 lg:w-[480px] flex flex-col justify-between overflow-hidden shadow-2xl rounded-[16px]">
-                <div class="relative text-center">
-                    <p class="text-primary-teal text-[22px] font-semibold mb-1">Why Choose</p>
-                    <h2 class="font-display text-white text-3xl leading-tight mb-4">
-                        Girdhar Das & Sons?
-                    </h2>
-                    <p class="text-white leading-relaxed text-[16px]">
-                        Since 1970, we've been Varanasi's most trusted kitchen store. From pressure cookers to chimneys — we have everything to make your cooking experience better.
-                    </p>
-                </div>
-                <div class="text-center mt-10">
-                    <a href="{{ route('about-us') }}"
-                        class="inline-block relative bg-primary-teal text-white hover:!text-black hover:bg-background-light text-sm font-semibold px-6 py-3 rounded-full transition-all duration-300">
-                        Read More
-                    </a>
-                </div>
-            </div>
-            <div class="flex-1 flex flex-col gap-4">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <div class="icon-circle w-14 h-14 bg-primary-teal rounded-full flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">50+ Years of Trust</p>
-                        <p class="text-[15px] text-slate-400 leading-relaxed">Serving Varanasi since 1970</p>
-                    </div>
-                    <!-- Feature 2: Wide Range -->
-                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <div class="icon-circle w-14 h-14 bg-primary-teal rounded-full flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                            </svg>
-                        </div>
-                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">Wide Range of Products</p>
-                        <p class="text-[15px] text-slate-400 leading-relaxed">Everything for your kitchen</p>
-                    </div>
-                    <!-- Feature 3: Best Quality -->
-                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <div class="icon-circle w-14 h-14 bg-primary-teal rounded-full flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                            </svg>
-                        </div>
-                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">Best Quality Guarantee</p>
-                        <p class="text-[15px] text-slate-400 leading-relaxed">100% original &amp; durable</p>
-                    </div>
-                    <!-- Feature 4: Fast Delivery -->
-                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <div class="icon-circle w-14 h-14 bg-primary-teal rounded-full flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-                            </svg>
-                        </div>
-                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">Fast &amp; Safe Delivery</p>
-                        <p class="text-[15px] text-slate-400 leading-relaxed">Quick delivery across Varanasi</p>
-                    </div>
-                </div>
-
-                <!-- second grid: 4 stat cards (metrics) -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- Stat 1: Happy Customers -->
-                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <span class="font-display text-2xl font-bold text-primary-teal stat-num">15K+</span>
-                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Happy Customers</span>
-                    </div>
-                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <span class="font-display text-2xl font-bold text-primary-teal stat-num">200+</span>
-                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Top Brands</span>
-                    </div>
-                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <span class="font-display text-2xl font-bold text-primary-teal stat-num">10K+</span>
-                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Products</span>
-                    </div>
-                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <div class="flex items-center gap-1.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary-teal" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" />
-                            </svg>
-                            <span class="font-display text-2xl font-bold text-primary-teal stat-num">4.8</span>
-                        </div>
-                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Average Rating</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 <section class="product-section">
     <div class="container-fluid-lg">
         <div class="row g-sm-4 g-3">
@@ -550,6 +457,99 @@
         </div>
     </div>
     </div>
+    </div>
+</section>
+
+<section class="why-choose-section bg-gray pb-5">
+    <div class="container-fluid-lg">
+        <div class="flex flex-col lg:flex-row gap-8 items-center">
+            <div class="choose-card relative bg-[#0f1e36] p-10 lg:w-[480px] flex flex-col justify-between overflow-hidden shadow-2xl rounded-[16px]">
+                <div class="relative text-center">
+                    <p class="text-primary-teal text-[22px] font-semibold mb-1">Why Choose</p>
+                    <h2 class="font-display text-white text-3xl leading-tight mb-4">
+                        Girdhar Das & Sons?
+                    </h2>
+                    <p class="text-white leading-relaxed text-[16px]">
+                        Since 1970, we've been Varanasi's most trusted kitchen store. From pressure cookers to chimneys — we have everything to make your cooking experience better.
+                    </p>
+                </div>
+                <div class="text-center mt-10">
+                    <a href="{{ route('about-us') }}"
+                        class="inline-block relative bg-primary-teal text-white hover:!text-black hover:bg-background-light text-sm font-semibold px-6 py-3 rounded-full transition-all duration-300">
+                        Read More
+                    </a>
+                </div>
+            </div>
+            <div class="flex-1 flex flex-col gap-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
+                        <div class="icon-circle w-14 h-14 bg-primary-teal rounded-full flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">50+ Years of Trust</p>
+                        <p class="text-[15px] text-slate-400 leading-relaxed">Serving Varanasi since 1970</p>
+                    </div>
+                    <!-- Feature 2: Wide Range -->
+                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
+                        <div class="icon-circle w-14 h-14 bg-primary-teal rounded-full flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                            </svg>
+                        </div>
+                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">Wide Range of Products</p>
+                        <p class="text-[15px] text-slate-400 leading-relaxed">Everything for your kitchen</p>
+                    </div>
+                    <!-- Feature 3: Best Quality -->
+                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
+                        <div class="icon-circle w-14 h-14 bg-primary-teal rounded-full flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">Best Quality Guarantee</p>
+                        <p class="text-[15px] text-slate-400 leading-relaxed">100% original &amp; durable</p>
+                    </div>
+                    <!-- Feature 4: Fast Delivery -->
+                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
+                        <div class="icon-circle w-14 h-14 bg-primary-teal rounded-full flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                            </svg>
+                        </div>
+                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">Fast &amp; Safe Delivery</p>
+                        <p class="text-[15px] text-slate-400 leading-relaxed">Quick delivery across Varanasi</p>
+                    </div>
+                </div>
+
+                <!-- second grid: 4 stat cards (metrics) -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Stat 1: Happy Customers -->
+                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
+                        <span class="font-display text-2xl font-bold text-primary-teal stat-num">15K+</span>
+                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Happy Customers</span>
+                    </div>
+                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
+                        <span class="font-display text-2xl font-bold text-primary-teal stat-num">200+</span>
+                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Top Brands</span>
+                    </div>
+                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
+                        <span class="font-display text-2xl font-bold text-primary-teal stat-num">10K+</span>
+                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Products</span>
+                    </div>
+                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
+                        <div class="flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary-teal" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" />
+                            </svg>
+                            <span class="font-display text-2xl font-bold text-primary-teal stat-num">4.8</span>
+                        </div>
+                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Average Rating</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 @if ($data['blogs'] && $data['blogs']->isNotEmpty())

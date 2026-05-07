@@ -206,7 +206,7 @@
 }
 
 .left-slider .slick-list .slick-track .slick-slide.slick-current .sidebar-image {
-  border: 2px solid #f8471d;
+  border: 2px solid var(--theme-color2);
 }
 
 .gd-shadow-top {
@@ -856,7 +856,7 @@ header .navbar.navbar-expand-xl .navbar-nav .nav-link.mobile-link::before {
   outline: none;
   padding: 0 0 0 0.5rem;
   right: 0;
-  color: #f8471d;
+  color: var(--theme-color2);
 }
 
 .mobile-menu-bar .header-nav {

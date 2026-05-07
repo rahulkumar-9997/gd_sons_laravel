@@ -46979,7 +46979,7 @@ body.rtl .theme-product-section .right-box-contain .license-list .accordion-item
 .policy-header h1 {
     font-size: 22px;
     font-weight: 600;
-    color: #f8471d;
+    color: var(--theme-color2);
 }
 
 .policy-header p {

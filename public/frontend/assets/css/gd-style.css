@@ -5,7 +5,14 @@
   margin-top: 0px;
   font-weight: 600;
   font-size: 35px;
-  color: #d6091a;
+  color: #062B45;
+}
+.top-header .gd-logo .sons {
+  color: #062B45;
+}
+.top-header .gd-logo .and {
+  color: #0F8B8D;
+  margin-right: 5px;
 }
 
 .home-section .ratio_65 {
@@ -39,12 +46,13 @@
   margin-top: 4px;
   font-weight: 600;
   font-size: 20px;
-  color: #d6091a;
+  color: var(--theme-color);
+}
+.choose-card {
+    clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%);
+    border-radius: 16px 0 0 16px;
 }
 
-.top-header .gd-logo span {
-  color: black;
-}
 
 .home-banner-carousel .col {
   padding-right: 1px;
@@ -617,7 +625,7 @@
 
 .blog-paragraphs .recent-name {
   margin-bottom: 11px;
-  color: #ee3d43;
+  color: var(--theme-color);
 }
 
 .blog-section .blog-detail-image .blog-image-contain h1 {
@@ -668,7 +676,7 @@ header .navbar.navbar-expand-xl .navbar-nav .nav-link.mobile-link::before {
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #d6091a, #d6091a);
+  background-color: var(--theme-color);
   color: #ffffff;
   text-decoration: none;
   border-radius: 50%;
@@ -740,6 +748,7 @@ header .navbar.navbar-expand-xl .navbar-nav .nav-link.mobile-link::before {
   color: #ffffff;
 }
 @media screen and (min-width: 769px) {
+  
   .mobile_search_bar {
     display: none;
   }
@@ -759,6 +768,10 @@ header .navbar.navbar-expand-xl .navbar-nav .nav-link.mobile-link::before {
 
 }
 @media screen and (max-width: 768px) {
+  .why-choose-section .choose-card{
+    clip-path: none;
+    border-radius: 16px 16px 16px 16px;
+  }
   .d-none-mobile {
     display: none !important;
   }
@@ -1232,8 +1245,8 @@ a.cntshop {
   }
 
   header.mobile-header .navbar-toggler-icon {
-    color: #ffffff;
-    -webkit-text-fill-color: #ffffff;
+    color: var(--theme-color);
+    -webkit-text-fill-color: var(--theme-color);
   }
 
   header.mobile-header .header-nav .header-nav-left .category-dropdown .category-list {
@@ -2580,4 +2593,12 @@ a.cntshop {
     margin: calc(10px + 4 * (100vw - 320px) / 1600) 0;
     font-weight: 700;
     font-size: calc(22px + 12 * (100vw - 320px) / 1600);
+}
+#accordionExample .show{
+	display: block;
+	visibility: visible;
+}
+.left-sidebar-box .show{
+  display: block;
+	visibility: visible;
 }

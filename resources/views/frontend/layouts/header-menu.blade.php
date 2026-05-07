@@ -69,7 +69,7 @@ $search_value = !empty($query) ? $query : '';
                   </button>
                   <a href="{{URL::to('')}}" class="web-logo nav-logo gd-logo">
                      <!--<img src="{{asset('frontend/assets/images/logo/1.png')}}" class="img-fluid blur-up lazyload" alt="">-->
-                     Girdhar Das <span>& Sons</span>
+                     Girdhar Das <span class="and"> & </span><span class="sons"> Sons</span>
                   </a>
                   <div class="middle-box">
                      <!--<div class="location-box">

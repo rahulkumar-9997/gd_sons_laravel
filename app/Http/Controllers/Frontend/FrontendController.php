@@ -137,6 +137,13 @@ class FrontendController extends Controller
             ->select('id', 'image_path_desktop', 'link_desktop', 'title')
             ->get();
         });
+        $data['blogs'] = Blog::select('id', 'title', 'slug', 'blog_category_id', 'blog_image', 'bog_description')
+            ->with([
+                'category:id,title,slug'
+            ])
+            ->inRandomOrder()
+            ->take(4)
+            ->get();
 
         // $data['video'] = Cache::remember('home_random_videos', 3600, function () {
         //     return Video::inRandomOrder()

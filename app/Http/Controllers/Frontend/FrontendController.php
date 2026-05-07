@@ -40,12 +40,6 @@ class FrontendController extends Controller
 {
     public function home()
     {
-
-        /*$labels = Label::whereIn('title', ['Popular Product', 'Trending Product'])
-            ->get()
-            ->keyBy('title');
-        */
-        /* 24 Hours Cache use */
         $labels = Cache::remember('home_labels', 86400, function () {
         return Label::whereIn('title', ['Popular Product', 'Trending Product'])
             ->get()
@@ -53,39 +47,104 @@ class FrontendController extends Controller
         });
 
         $specialOffers = getCustomerSpecialOffers();
+
         $popular_label_id = $labels['Popular Product']->id ?? null;
         $trending_label_id = $labels['Trending Product']->id ?? null;
-        /*$data['category_list'] = Category::where('status', 'on')->get(['id', 'title', 'slug', 'image']);*/
         $data['category_list'] = Cache::remember('home_categories', 86400, function () {
         return Category::where('status', 'on')
             ->select('id', 'title', 'slug', 'image')
             ->get();
         });
-        
-        /*$data['primary_category'] = PrimaryCategory::where('status', 1)
-        ->orderBy('title')->get(['id', 'title', 'link']);
-        */
-        $data['primary_category'] = Cache::remember('home_primary_categories', 86400, function () {
-            return PrimaryCategory::where('status', 1)
-                ->orderBy('title')
-                ->select('id', 'title', 'link')
-                ->get();
+
+        $data['primary_category'] = PrimaryCategory::select('id', 'title', 'link', 'primary_category_description')
+        ->where('status', 1)
+        ->whereHas('products', function($q) {
+            $q->where('product_status', 1);
+        })
+        ->inRandomOrder()
+        ->limit(15)
+        ->get()
+        ->map(function ($category) {
+            return [
+                'id' => $category->id,
+                'title' => $category->title,
+                'link' => $category->link,
+                'description' =>$category->primary_category_description,
+                'products' => $category->products()
+                    ->where('product_status', 1)
+                    ->select(
+                        'products.id',
+                        'products.title',
+                        'products.slug'
+                    )
+                    ->with([
+                        'firstSortedImage:id,product_id,image_path',
+                        'productAttributesValues' => function ($q) {
+                            $q->select(
+                                    'id',
+                                    'product_id',
+                                    'product_attribute_id',
+                                    'attributes_value_id'
+                                )
+                                ->with([
+                                    'attributeValue:id,slug'
+                                ]);
+                        }
+                    ])
+                    ->leftJoin('inventories', function ($join) {
+                        $join->on('products.id', '=', 'inventories.product_id')
+                            ->whereRaw('inventories.mrp = (
+                                SELECT MIN(mrp)
+                                FROM inventories
+                                WHERE product_id = products.id
+                            )');
+                    })
+                    ->addSelect([
+                        'inventories.mrp',
+                        'inventories.offer_rate',
+                        'inventories.purchase_rate',
+                        'inventories.sku',
+                        'inventories.stock_quantity'
+                    ])
+                    ->inRandomOrder()
+                    ->limit(2)
+                    ->get()
+                    ->map(function ($product) {
+                        $attributes_value = null;
+                        if ($product->productAttributesValues->isNotEmpty()) {
+                            $attributes_value = optional($product->productAttributesValues->first()->attributeValue)->slug;
+                        }
+                        return [
+                            'id' => $product->id,
+                            'title' => $product->title,
+                            'slug' => $product->slug,
+                            'mrp' => $product->mrp,
+                            'offer_rate' => $product->offer_rate,
+                            'purchase_rate' =>$product->purchase_rate,
+                            'sku' => $product->sku,
+                            'stock_quantity' => $product->stock_quantity,
+                           'image' => $product->firstSortedImage && $product->firstSortedImage->image_path && file_exists(public_path('images/product/small/' . $product->firstSortedImage->image_path))
+                            ? asset('images/product/small/' . $product->firstSortedImage->image_path)
+                            : null,
+                            'attributes_value_slug' => $attributes_value
+                        ];
+                    })
+            ];
         });
         //return response()->json($data['primary_category']); 
-        /*$data['banner'] = Banner::orderBy('id', 'desc')->get(['id', 'image_path_desktop', 'link_desktop', 'title']);*/
         $data['banner'] = Cache::remember('home_banners', 86400, function () {
             return Banner::orderByDesc('id')
-                ->select('id', 'image_path_desktop', 'link_desktop', 'title')
-                ->get();
+            ->select('id', 'image_path_desktop', 'link_desktop', 'title')
+            ->get();
         });
-        /*$data['video'] = Video::inRandomOrder()->select('video_url')->take(2)->get();*/
-        $data['video'] = Cache::remember('home_random_videos', 3600, function () {
-            return Video::inRandomOrder()
-                ->select('video_url')
-                ->limit(2)
-                ->get();
-        });
-        /* Fetch all required products in one query */
+
+        // $data['video'] = Cache::remember('home_random_videos', 3600, function () {
+        //     return Video::inRandomOrder()
+        //     ->select('video_url')
+        //     ->limit(2)
+        //     ->get();
+        // });
+        
         $products = Product::where('product_status', 1)
             ->whereIn('label_id', [$popular_label_id, $trending_label_id])
             ->with([
@@ -108,7 +167,7 @@ class FrontendController extends Controller
 
         /* Split products into popular and trending */
         $data['popular_products'] = $products->where('label_id', $popular_label_id)->take(20);
-        $data['trending_products'] = $products->where('label_id', $trending_label_id)->take(20);
+        //$data['trending_products'] = $products->where('label_id', $trending_label_id)->take(20);
         //return response()->json($data['popular_products']);
         return view('frontend.index', compact('data', 'specialOffers'));
     }

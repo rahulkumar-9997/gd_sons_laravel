@@ -18421,7 +18421,7 @@ section,
 }
 
 .container-fluid-lg {
-    padding: 0 calc(12px + 148*(100vw - 320px)/1600)
+    padding:0 calc(12px + 60*(100vw - 320px)/1600);
 }
 
 .container-fluid-md {
@@ -22207,7 +22207,8 @@ header .nav-about-2 {
 header .top-nav {
     /* padding: 24px 0; */
     padding: 5px 0;
-    background-color: #ee3d43;
+    background-color: #ffffff;
+    border-bottom: 1px solid #ececec;
 }
 
 @media(max-width: 767px) {
@@ -22456,7 +22457,8 @@ header .top-nav .navbar-top .middle-box .search-box .input-group .form-control {
         line-height: 1.0;
         /* border-radius: 20px; */
         border-radius: 20px;
-        border-color: #ececec;
+        /* border-color: #d6091a; */
+        border-color: #2EA1FF;
     }
 }
 
@@ -22530,7 +22532,7 @@ header .top-nav .navbar-top .rightside-box .right-side-menu {
 
 header .top-nav .navbar-top .rightside-box .right-side-menu .right-side {
     position: relative;
-    padding-right: 32px
+    padding-right: 20px;
 }
 
 [dir=rtl] header .top-nav .navbar-top .rightside-box .right-side-menu .right-side {
@@ -22616,7 +22618,7 @@ header .top-nav .navbar-top .rightside-box .right-side-menu .right-side .deliver
 }
 
 header .top-nav .navbar-top .rightside-box .right-side-menu .right-side .delivery-login-box .delivery-icon .feather {
-    color: #ffffff;
+    color: #000000;
     margin-right: 14px;
     stroke-width: 1.5
 }
@@ -22664,7 +22666,7 @@ header .top-nav .navbar-top .rightside-box .right-side-menu .right-side .header-
 
 @media(max-width: 1660px) {
     header .top-nav .navbar-top .rightside-box .right-side-menu .right-side .header-wishlist .feather {
-        color: #ffffff;
+        color: #000000;
     }
 }
 
@@ -47040,13 +47042,13 @@ ul.custom-list li {
 
     0%,
     100% {
-        background-color: #e60000;
+        background-color: #2EA1FF;
         /* box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); */
         opacity: 1;
     }
 
     50% {
-        background-color: #ff4d4d;
+        background-color: #2EA1FF;
         /* box-shadow: 0 0 20px rgba(255, 80, 80, 0.8); */
         opacity: 0.7;
     }

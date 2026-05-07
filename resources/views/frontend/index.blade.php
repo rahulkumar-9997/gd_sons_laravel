@@ -19,7 +19,7 @@
                                         <img src="https://www.cdn.gdsons.co.in/category/icon/{{ $category->image }}" class="img-fluid blur-up lazyload"
                                             alt="{{ $category->title }}" loading="lazy">
                                         @else
-                                        <img src="https://themes.pixelstrap.com/fastkart/assets/images/veg-3/category/1.png" class="img-fluid blur-up lazyload" alt="{{ $category->title }}" loading="lazy">
+
                                         @endif
                                     </div>
                                 </a>
@@ -36,7 +36,6 @@
     </div>
 </section>
 @endif
-<!-- Home Section Start -->
 <section class="home-section pt-2">
     <div class="container-fluid-lg">
         <!--
@@ -131,7 +130,8 @@
         </div>
     </div>
 </section>
-<section>
+
+<section class="single-bn-mo-dblock">
     <div class="container">
         <div class="row">
             <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dblock">
@@ -178,516 +178,357 @@
         </div>
     </div>
 </section>
-<!-- Home Section End -->
-<!-- Banner Section Start -->
-<section class="banner-section ratio_60 gd5">
+
+<section class="why-choose-section">
     <div class="container-fluid-lg">
-        <div class="row g-3">
-            <div class="col-xl-20">
-                <div class="banner-contain hover-effect">
-                    <a href="https://gdsons.co.in/categories/vacuum-flask" aria-label="Browse Vacuum Flasks">
-                        <img
-                            src="{{ asset('frontend/assets/gd-img/banner-bottom/bottlesU.webp') }}"
-                            class="img-fluid blur-up lazyload"
-                            alt="bottles"
-                            loading="lazy"
-                            width="400"
-                            height="437"
-                            decoding="async"
-                            fetchpriority="low">
+        <div class="flex flex-col lg:flex-row gap-8 items-center">
+            <div class="relative bg-[#0f1e36] p-10 lg:w-[480px] flex flex-col justify-between overflow-hidden shadow-2xl"
+            style="clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%); border-radius: 16px 0 0 16px;">
+                <div class="relative text-center">
+                    <p class="text-red-500 text-[20px] font-semibold tracking-[0.2em] uppercase mb-1">Why Choose</p>
+                    <h2 class="font-display text-white text-3xl leading-tight mb-4">
+                        Girdhar Das & Sons?
+                    </h2>
+                    <p class="text-white leading-relaxed text-lg">
+                        Since 1970, we've been Varanasi's most trusted kitchen store. From pressure cookers to chimneys — we have everything to make your cooking experience better.
+                    </p>
+                </div>
+                <div class="text-center mt-10">
+                    <a href="{{route('about-us')}}" class="relative bg-red-600 hover:bg-red-700 active:scale-95 transition-all text-white text-sm font-semibold px-6 py-3 rounded-full w-fit shadow-lg shadow-red-900/40">
+                        Read More                    
                     </a>
                 </div>
             </div>
-
-            <div class="col-xl-20">
-                <div class="banner-contain hover-effect">
-                    <a href="https://gdsons.co.in/categories/lpg-gas-stoves" aria-label="Browse LPG Gas Stoves">
-                        <img
-                            src="{{ asset('frontend/assets/gd-img/banner-bottom/stovesU.webp') }}"
-                            class="img-fluid blur-up lazyload"
-                            alt="lpg gas stoves"
-                            loading="lazy"
-                            width="400"
-                            height="437"
-                            decoding="async"
-                            fetchpriority="low">
-                    </a>
+            <div class="flex-1 flex flex-col gap-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center 
+                    shadow-[0_0px_30px_rgba(0,0,0,0.08)]
+                    hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] 
+                    hover:-translate-y-1 transition-all duration-200 cursor-default">
+                        <div class="icon-circle w-14 h-14 bg-[#2EA1FF]/50 rounded-full flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">50+ Years of Trust</p>
+                        <p class="text-[15px] text-slate-400 leading-relaxed">Serving Varanasi since 1970</p>
+                    </div>
+                    <!-- Feature 2: Wide Range -->
+                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
+                        <div class="icon-circle w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                            </svg>
+                        </div>
+                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">Wide Range of Products</p>
+                        <p class="text-[15px] text-slate-400 leading-relaxed">Everything for your kitchen</p>
+                    </div>
+                    <!-- Feature 3: Best Quality -->
+                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
+                        <div class="icon-circle w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">Best Quality Guarantee</p>
+                        <p class="text-[15px] text-slate-400 leading-relaxed">100% original &amp; durable</p>
+                    </div>
+                    <!-- Feature 4: Fast Delivery -->
+                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
+                        <div class="icon-circle w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                            </svg>
+                        </div>
+                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">Fast &amp; Safe Delivery</p>
+                        <p class="text-[15px] text-slate-400 leading-relaxed">Quick delivery across Varanasi</p>
+                    </div>
                 </div>
-            </div>
 
-            <div class="col-xl-20">
-                <div class="banner-contain hover-effect">
-                    <a href="https://gdsons.co.in/categories/lunchbox-tiffin" aria-label="Browse Lunchboxes and Tiffins">
-                        <img
-                            src="{{ asset('frontend/assets/gd-img/banner-bottom/tiffinsU.webp') }}"
-                            class="img-fluid blur-up lazyload"
-                            alt="Tiffins"
-                            loading="lazy"
-                            width="400"
-                            height="437"
-                            decoding="async"
-                            fetchpriority="low">
-                    </a>
-                </div>
-            </div>
-
-            <div class="col-xl-20">
-                <div class="banner-contain hover-effect">
-                    <a href="https://gdsons.co.in/categories/kitchen-appliances" aria-label="Browse Kitchen Appliances">
-                        <img
-                            src="{{ asset('frontend/assets/gd-img/banner-bottom/appliances_0.webp') }}"
-                            class="img-fluid blur-up lazyload"
-                            alt="Application"
-                            loading="lazy"
-                            width="400"
-                            height="437"
-                            decoding="async"
-                            fetchpriority="low">
-                    </a>
-                </div>
-            </div>
-
-            <div class="col-xl-20">
-                <div class="banner-contain hover-effect">
-                    <a href="https://gdsons.co.in/categories/pressure-cooker" aria-label="Browse Pressure Cookers">
-                        <img
-                            src="{{ asset('frontend/assets/gd-img/banner-bottom/CookerPosterF1.webp') }}"
-                            class="img-fluid blur-up lazyload"
-                            alt="Pressure Cooker"
-                            loading="lazy"
-                            width="236"
-                            height="258"
-                            decoding="async"
-                            fetchpriority="low">
-                    </a>
+                <!-- second grid: 4 stat cards (metrics) -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Stat 1: Happy Customers -->
+                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
+                        <span class="font-display text-2xl font-bold text-red-600 stat-num">15K+</span>
+                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Happy Customers</span>
+                    </div>
+                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
+                        <span class="font-display text-2xl font-bold text-red-600 stat-num">200+</span>
+                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Top Brands</span>
+                    </div>
+                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
+                        <span class="font-display text-2xl font-bold text-red-600 stat-num">10K+</span>
+                        <span class="text-xs text-slate-500 mt-1.5 font-medium">Products</span>
+                    </div>
+                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
+                        <div class="flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-500" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" />
+                            </svg>
+                            <span class="font-display text-2xl font-bold text-red-600 stat-num">4.8</span>
+                        </div>
+                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Average Rating</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
-<!-- Banner Section End -->
-<!-- Product Section Start -->
+
 <section class="product-section">
     <div class="container-fluid-lg">
         <div class="row g-sm-4 g-3">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20 aos-init aos-animate">
-                <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/40 hover:border-indigo-100">
-                    <div class="relative h-64 overflow-hidden image-shine bg-gradient-to-br from-gray-100 to-gray-200">
-                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=500&fit=crop" alt="Luxury timepiece" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md rounded-full px-3 py-1 text-xs font-semibold text-indigo-700 shadow-sm flex items-center gap-1">
-                            <i class="fas fa-star text-yellow-400 text-[10px]"></i> <span>Best Seller</span>
-                        </div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    </div>
-                    <div class="p-6">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-xs font-semibold text-indigo-500 uppercase tracking-wider">Horology</span>
-                                <h3 class="text-xl font-bold text-slate-800 mt-1 group-hover:text-indigo-700 transition-colors">Aeon Chronograph</h3>
-                            </div>
-                            <i class="far fa-heart text-slate-400 hover:text-rose-500 cursor-pointer transition text-xl"></i>
-                        </div>
-                        <p class="text-slate-500 mt-2 text-sm leading-relaxed">Sapphire crystal, automatic movement, and Italian leather strap.</p>
-                        <div class="mt-4 flex items-center justify-between">
-                            <div class="flex items-baseline gap-2">
-                                <span class="text-2xl font-bold text-slate-800">$489</span>
-                                <span class="text-sm text-slate-400 line-through">$649</span>
-                            </div>
-                            <div class="flex gap-0.5 text-yellow-400">
-                                <i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="fas fa-star-half-alt text-sm"></i>
-                                <span class="text-xs text-slate-500 ml-1">(142)</span>
-                            </div>
-                        </div>
-                        <button class="mt-5 w-full py-3 rounded-xl bg-slate-800 text-white font-medium transition-all hover:bg-indigo-700 hover:shadow-lg flex items-center justify-center gap-2 group/btn">
-                            <span>Discover</span> <i class="fas fa-arrow-right text-xs transition-transform group-hover/btn:translate-x-1"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Product 2 - Modern Speakers -->
-                <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/40 hover:border-indigo-100">
-                    <div class="relative h-64 overflow-hidden image-shine bg-gradient-to-br from-gray-100 to-gray-200">
-                        <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&h=500&fit=crop" alt="Premium wireless speaker" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        <div class="absolute top-4 left-4 bg-emerald-500/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-semibold text-white shadow-md flex items-center gap-1">
-                            <i class="fas fa-bolt"></i> New
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Audio</span>
-                                <h3 class="text-xl font-bold text-slate-800 mt-1">Orbit SoundSphere</h3>
-                            </div>
-                            <i class="far fa-heart text-slate-400 hover:text-rose-500 cursor-pointer transition text-xl"></i>
-                        </div>
-                        <p class="text-slate-500 mt-2 text-sm leading-relaxed">360° immersive audio, 24h battery, and water-resistant elegance.</p>
-                        <div class="mt-4 flex items-center justify-between">
-                            <div class="flex items-baseline gap-2">
-                                <span class="text-2xl font-bold text-slate-800">$249</span>
-                                <span class="text-sm text-slate-400 line-through">$329</span>
-                            </div>
-                            <div class="flex gap-0.5 text-yellow-400">
-                                <i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i>
-                                <span class="text-xs text-slate-500 ml-1">(89)</span>
-                            </div>
-                        </div>
-                        <button class="mt-5 w-full py-3 rounded-xl bg-slate-800 text-white font-medium transition-all hover:bg-indigo-700 hover:shadow-lg flex items-center justify-center gap-2 group/btn">
-                            <span>Shop now</span> <i class="fas fa-arrow-right text-xs transition-transform group-hover/btn:translate-x-1"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Product 3 - Ceramic Vessel / Art object -->
-                <div class="group relative bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-white/40 hover:border-indigo-100">
-                    <div class="relative h-64 overflow-hidden image-shine bg-gradient-to-br from-amber-50 to-stone-100">
-                        <img src="https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=600&h=500&fit=crop" alt="Handcrafted ceramic vase" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        <div class="absolute top-4 left-4 bg-amber-600/80 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-semibold text-white shadow-md">
-                            Limited
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="text-xs font-semibold text-amber-700 uppercase tracking-wider">Artisan</span>
-                                <h3 class="text-xl font-bold text-slate-800 mt-1">Terra Glaze Vase</h3>
-                            </div>
-                            <i class="far fa-heart text-slate-400 hover:text-rose-500 cursor-pointer transition text-xl"></i>
-                        </div>
-                        <p class="text-slate-500 mt-2 text-sm leading-relaxed">Hand-thrown stoneware, reactive glaze, each piece one-of-a-kind.</p>
-                        <div class="mt-4 flex items-center justify-between">
-                            <div class="flex items-baseline gap-2">
-                                <span class="text-2xl font-bold text-slate-800">$159</span>
-                                <span class="text-sm text-slate-400 line-through">$199</span>
-                            </div>
-                            <div class="flex gap-0.5 text-yellow-400">
-                                <i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="fas fa-star text-sm"></i><i class="far fa-star text-sm"></i>
-                                <span class="text-xs text-slate-500 ml-1">(36)</span>
-                            </div>
-                        </div>
-                        <button class="mt-5 w-full py-3 rounded-xl bg-slate-800 text-white font-medium transition-all hover:bg-indigo-700 hover:shadow-lg flex items-center justify-center gap-2 group/btn">
-                            <span>View details</span> <i class="fas fa-arrow-right text-xs transition-transform group-hover/btn:translate-x-1"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
             @if ($data['primary_category'] && $data['primary_category']->isNotEmpty())
-            <div class="highlighted-products">
-                <div class="title d-block text-center">
-                    <div>
-                        <h2>Highlighted Products</h2>
-                        <span class="title-leaf"></span>
-                    </div>
-                </div>
-                <div class="section-b-space h-button-area">
-                    <ul class="list text-center">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-15">
+                @foreach ($data['primary_category'] as $index =>$primary_category_row)
+                <div class="p-1 group relative rounded overflow-hidden shadow-2xl hover:shadow-2xl transition-shadow duration-300">
+                    <div class="grid grid-cols-2 gap-2">
+                        @foreach ($primary_category_row['products'] as $productIndex => $product)
                         @php
-                        $colors = [
-                        '#FF5733', '#a1521b', '#FF69B4',
-                        '#8A2BE2', '#efab49', '#00CED1', '#DC143C',
-                        '#4682B4', '#FF8C00', '#8B008B', '#2E8B57'
-                        ];
-                        @endphp
-                        @foreach ($data['primary_category'] as $index =>$primary_category_row)
-                        <li>
-                            <a class="btn text-white" href="{{$primary_category_row->link}}" style="background-color: {{ $colors[$index % count($colors)] }};">
-                                {{$primary_category_row->title}}
-                            </a>
-                        </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-            @endif
-            <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12">
-                @if ($data['popular_products'] && $data['popular_products']->isNotEmpty())
-                <div class="title d-block text-center">
-                    <div>
-                        <h2>Popular Products</h2>
-                        <span class="title-leaf"></span>
-                    </div>
-                </div>
-                <div class="section-b-space">
-                    <div class="non-product-border non-border-row no-overflow-hidden">
-                        <div class="product-box-slider1 no-arrow1">
-                            @php
-                            $row_count = 0;
-                            @endphp
-                            <div>
-                                <div class="row g-sm-4 g-3 row-cols-xxl-5 row-cols-xl-5 row-cols-lg-5 row-cols-md-3 row-cols-2 m-0">
-                                    @foreach ($data['popular_products'] as $popular_product_row)
-                                    @php
-                                    $firstImage = $popular_product_row->images->get(0);
-                                    $secondImage = $popular_product_row->images->get(1);
-                                    $attributes_value ='na';
-                                    if($popular_product_row->ProductAttributesValues->isNotEmpty()){
-                                    $attributes_value = $popular_product_row->ProductAttributesValues->first()->attributeValue->slug;
-                                    }
-                                    @endphp
-                                    @php
-                                    $final_offer_rate = $popular_product_row->offer_rate;
-                                    $mrp = $popular_product_row->mrp;
+                        $offer_rate = $product['offer_rate'];
+                        $mrp = $product['mrp'];
+                        $purchase_rate = $product['purchase_rate'];
+                        $group_offer_rate = null;
+                        $special_offer_rate = null;
 
-                                    $purchase_rate = $popular_product_row->purchase_rate;
-                                    $offer_rate = $popular_product_row->offer_rate;
+                        if ($groupCategory && $offer_rate !== null) {
+                        $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                        if ($group_percentage > 0) {
+                        $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                        $group_offer_rate = floor($group_offer_rate);
+                        }
+                        }
 
-                                    $group_offer_rate = null;
-                                    $special_offer_rate = null;
+                        /*Special Offer*/
+                        if (isset($specialOffers[$product['id']])) {
+                        $special_offer_rate = (float) $specialOffers[$product['id']];
+                        }
+                        /* Choose lowest rate */
+                        $all_rates = array_filter([
+                        $offer_rate,
+                        $group_offer_rate,
+                        $special_offer_rate
+                        ]);
+                        if (!empty($all_rates)) {
+                        $final_offer_rate = min($all_rates);
+                        } else {
+                        $final_offer_rate = $offer_rate;
+                        }
 
-                                    /*Group Offer*/
-                                    if ($groupCategory && $offer_rate !== null) {
-                                    $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                    if ($group_percentage > 0) {
-                                    $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-                                    $group_offer_rate = floor($group_offer_rate);
-                                    }
-                                    }
-
-                                    /*Special Offer*/
-                                    if (isset($specialOffers[$popular_product_row->id])) {
-                                    $special_offer_rate = (float) $specialOffers[$popular_product_row->id];
-                                    }
-
-                                    /* Choose lowest rate */
-                                    $all_rates = array_filter([
-                                    $offer_rate,
-                                    $group_offer_rate,
-                                    $special_offer_rate
-                                    ]);
-                                    if (!empty($all_rates)) {
-                                    $final_offer_rate = min($all_rates);
-                                    }
-
-                                    /* Calculate discount */
-                                    $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
-                                    ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
-                                    : 0;
-                                    @endphp
-                                    <div>
-                                        <div class="product-box mb-1 h-100">
-                                            <div class="product-image">
-                                                @if ($discountPercentage>0)
-                                                <div class="label-flex">
-                                                    <div class="discount">
-                                                        <label>
-                                                            Save {{ $discountPercentage }}%
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                @endif
-                                                <div class="product-img">
-                                                    <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
-                                                        @if ($firstImage)
-                                                        <picture>
-                                                            <source
-                                                                media="(max-width: 767px)"
-                                                                srcset="https://www.cdn.gdsons.co.in/product/icon/{{ $firstImage->image_path }}">
-
-                                                            <img
-                                                                class="img-fluid blur-up lazyload"
-                                                                data-src="https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImage->image_path }}"
-                                                                src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                                srcset="
-                                                                    https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImage->image_path }} 600w,
-                                                                    https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImage->image_path }} 1200w
-                                                                "
-                                                                sizes="(max-width: 600px) 600px, 1200px"
-                                                                alt="{{ $popular_product_row->title }}"
-                                                                title="{{ $popular_product_row->title }}"
-                                                                loading="lazy"
-                                                                width="300"
-                                                                height="300"
-                                                                onload="this.style.opacity=1">
-                                                        </picture>
-
-                                                        @else
-                                                        <img
-                                                            src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                            class="img-fluid blur-up lazyload"
-                                                            alt="{{ $popular_product_row->title }}"
-                                                            loading="lazy"
-                                                            width="300"
-                                                            height="300">
-                                                        @endif
-                                                    </a>
-                                                </div>
-                                                @php
-                                                $hasDimensions =
-                                                !empty($popular_product_row->length) &&
-                                                !empty($popular_product_row->breadth) &&
-                                                !empty($popular_product_row->height) &&
-                                                !empty($popular_product_row->weight);
-                                                @endphp
-                                                @if(($popular_product_row->mrp > 0 && $popular_product_row->stock_quantity <= 0) || !$hasDimensions)
-                                                    <ul class="product-option">
-                                                    <li title="Out of Stock">
-                                                        <a href="javascript:void(0)" class="out_of_stock">
-                                                            Out of Stock
-                                                        </a>
-                                                    </li>
-                                                    </ul>
-                                                    @endif
-                                            </div>
-                                            <div class="product-detail">
-                                                <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
-                                                    <h5 class="name">{{ ucwords(strtolower($popular_product_row->title)) }}</h5>
-                                                </a>
-                                                <h5 class="sold text-content">
-                                                    @if ($final_offer_rate === null)
-                                                    <span class="theme-color price">Price not available</span>
-                                                    @else
-                                                    <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
-                                                    @endif
-
-                                                    @if ($mrp !== null)
-                                                    <del>Rs. {{ $mrp }}</del>
-                                                    @endif
-                                                </h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    @php
-                                    $row_count++;
-                                    @endphp
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @endif
-                @if ($data['trending_products'] && $data['trending_products']->isNotEmpty())
-                <div class="title d-block text-center">
-                    <h2>Trending Products</h2>
-                    <span class="title-leaf">
-                        <!-- <svg class="icon-width">
-                                <use xlink:href="{{asset('frontend/assets/svg/leaf.svg#leaf')}}"></use>
-                            </svg> -->
-                    </span>
-                    <!-- <p>A virtual assistant collects the products from your list</p> -->
-                </div>
-                <div class="home-trending-section">
-                    <div class="no-product-border no-overflow-hidden">
-                        <div class="product-box-slider trending-product-box">
-                            @foreach ($data['trending_products'] as $trending_products_row)
-                            @php
-                            $firstImageTrending = $trending_products_row->images->get(0);
-                            $secondImageTrending = $trending_products_row->images->get(1);
-                            $attributes_value ='na';
-                            if($trending_products_row->ProductAttributesValues->isNotEmpty()){
-                            $attributes_value = $trending_products_row->ProductAttributesValues->first()->attributeValue->slug;
-                            }
-                            @endphp
-                            @php
-                            $purchase_rate = $trending_products_row->purchase_rate;
-                            $offer_rate = $trending_products_row->offer_rate;
-                            $mrp = $trending_products_row->mrp;
-
-                            $group_offer_rate = null;
-                            $special_offer_rate = null;
-
-                            /* Group Price Calculation */
-                            if ($groupCategory && $offer_rate !== null) {
-                            $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                            if ($group_percentage > 0) {
-                            $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-                            $group_offer_rate = floor($group_offer_rate);
-                            }
-                            }
-
-                            /* Special Offer from array */
-                            if (isset($specialOffers[$trending_products_row->id])) {
-                            $special_offer_rate = (float) $specialOffers[$trending_products_row->id];
-                            }
-
-                            /* Final Rate: Minimum of all */
-                            $all_rates = array_filter([
-                            $offer_rate,
-                            $group_offer_rate,
-                            $special_offer_rate
-                            ]);
-                            $final_offer_rate = !empty($all_rates) ? min($all_rates) : null;
-
-                            /* Discount Calculation */
-                            $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
+                        /* Calculate discount */
+                        $discountPercentage = ($mrp > 0 && $final_offer_rate > 0 && $final_offer_rate < $mrp)
                             ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
                             : 0;
+
                             @endphp
-                            <div>
-                                <div class="product-box">
-                                    <div class="product-image">
-                                        @if ($discountPercentage>0)
-                                        <div class="label-flex">
-                                            <div class="discount">
-                                                <label>
+                            <div class="w-full h-full border border-gray-600 rounded-xl bg-white group/product transition-all duration-300 ease-in-out hover:border-primary-300 hover:shadow-lg">
+                            <div class="relative w-full h-full">
+                                <a href="{{ url('products/'.$product['slug'].'/'.$product['attributes_value_slug']) }}" class="block">
+                                    <div class="overflow-hidden rounded-t-xl">
+                                        <div class="relative overflow-hidden image-shine product-img aspect-square">
+                                            <img src="{{ $product['image'] ?? 'https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png' }}"
+                                                alt="{{ $product['title'] }}"
+                                                loading="lazy"
+                                                class="absolute top-0 left-0 w-full h-full object-contain blur-up lazyloaded transition-transform duration-500 group-hover/product:scale-105">
+                                            @if($discountPercentage > 0)
+                                            <div class="discount absolute top-2 left-2 z-1">
+                                                <label class="bg-gradient-to-r from-red-600 to-red-500 text-white px-2 py-1 rounded-md text-xs font-bold shadow-md">
                                                     Save {{ $discountPercentage }}%
                                                 </label>
                                             </div>
+                                            @endif
                                         </div>
-                                        @endif
-                                        <div class="product-img">
-                                            <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value) }}">
-                                                @if ($firstImageTrending)
-                                                <picture>
-                                                    <source
-                                                        media="(max-width: 767px)"
-                                                        srcset="https://www.cdn.gdsons.co.in/product/icon/{{ $firstImageTrending->image_path }}">
+                                    </div>
+                                    <div class="w-full px-2 py-2 space-y-2">
+                                        <div class="mt-1 product-detail">
+                                            <h5 class="name line-clamp-2 text-sm font-medium text-gray-800 group-hover/product:text-primary-600 transition-colors">
+                                                {{ ucwords(strtolower($product['title'])) }}
+                                            </h5>
+                                            <div class="mt-2 flex justify-between items-center">
+                                                @if ($offer_rate === null || $offer_rate == 0)
+                                                <span class="text-xs text-gray-500">Price not available</span>
+                                                @else
+                                                <div class="flex flex-col">
+                                                    <h5 class="text-base font-bold text-primary-600">Rs. {{ number_format($offer_rate) }}</h5>
+                                                </div>
+                                                @endif
+                                                @if ($mrp !== null && $mrp > $final_offer_rate)
+                                                <del class="text-xs text-gray-400">Rs. {{ number_format($mrp) }}</del>
+                                                @endif
+                                            </div>
+                                            @if($product['stock_quantity'] !== null)
+                                            @if($product['stock_quantity'] <= 0)
+                                                <span class="text-xs text-red-500 block mt-1">Out of Stock</span>
+                                                @elseif($product['stock_quantity'] < 10)
+                                                    <span class="text-xs text-orange-500 block mt-1">Only {{ $product['stock_quantity'] }} left</span>
+                                                    @endif
+                                                    @endif
+                                                    <!-- <div class="flex items-center mt-2">
+                                                    <div class="flex text-yellow-400 text-xs">
+                                                        ★★★★★
+                                                    </div>
+                                                    <span class="text-xs text-gray-500 ml-1">(0)</span>
+                                                </div> -->
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                    </div>
+                    @endforeach
+                </div>
+                <div class="p-2 mt-2 text-center">
+                    <a href="{{ $primary_category_row['link'] ?? '#' }}" class="inline-block group/category">
+                        <h3 class="text-lg font-bold text-slate-800 group-hover/category:text-primary-600 transition-colors duration-300">
+                            {{ $primary_category_row['title'] }}
+                            <span class="block h-0.5 bg-primary-600 scale-x-0 group-hover/category:scale-x-100 transition-transform duration-300 origin-center"></span>
+                        </h3>
+                        @if(isset($primary_category_row['description']))
+                        <div class="mt-2 text-[black] text-sm line-clamp-2">
+                            {!! strip_tags($primary_category_row['description']) !!}
+                        </div>
+                        @endif
+                    </a>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        @endif
 
+        <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12">
+            @if ($data['popular_products'] && $data['popular_products']->isNotEmpty())
+            <div class="title d-block text-center">
+                <div>
+                    <h2>Popular Products</h2>
+                    <span class="title-leaf"></span>
+                </div>
+            </div>
+            <div class="section-b-space">
+                <div class="non-product-border non-border-row no-overflow-hidden">
+                    <div class="product-box-slider1 no-arrow1">
+                        @php
+                        $row_count = 0;
+                        @endphp
+                        <div>
+                            <div class="row g-sm-4 g-3 row-cols-xxl-6 row-cols-xl-6 row-cols-lg-5 row-cols-md-3 row-cols-2 m-0">
+                                @foreach ($data['popular_products'] as $popular_product_row)
+                                @php
+                                $firstImage = $popular_product_row->images->get(0);
+                                $secondImage = $popular_product_row->images->get(1);
+                                $attributes_value ='na';
+                                if($popular_product_row->ProductAttributesValues->isNotEmpty()){
+                                $attributes_value = $popular_product_row->ProductAttributesValues->first()->attributeValue->slug;
+                                }
+                                @endphp
+                                @php
+                                $final_offer_rate = $popular_product_row->offer_rate;
+                                $mrp = $popular_product_row->mrp;
+
+                                $purchase_rate = $popular_product_row->purchase_rate;
+                                $offer_rate = $popular_product_row->offer_rate;
+
+                                $group_offer_rate = null;
+                                $special_offer_rate = null;
+
+                                /*Group Offer*/
+                                if ($groupCategory && $offer_rate !== null) {
+                                $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                if ($group_percentage > 0) {
+                                $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                                $group_offer_rate = floor($group_offer_rate);
+                                }
+                                }
+
+                                /*Special Offer*/
+                                if (isset($specialOffers[$popular_product_row->id])) {
+                                $special_offer_rate = (float) $specialOffers[$popular_product_row->id];
+                                }
+
+                                /* Choose lowest rate */
+                                $all_rates = array_filter([
+                                $offer_rate,
+                                $group_offer_rate,
+                                $special_offer_rate
+                                ]);
+                                if (!empty($all_rates)) {
+                                $final_offer_rate = min($all_rates);
+                                }
+
+                                /* Calculate discount */
+                                $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
+                                ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+                                : 0;
+                                @endphp
+                                <div>
+                                    <div class="p-1 group relative rounded overflow-hidden shadow-2xl hover:shadow-2xl transition-shadow duration-300 product-box mb-1 h-100">
+                                        <div class="product-image">
+                                            @if ($discountPercentage>0)
+                                            <div class="label-flex">
+                                                <div class="discount">
+                                                    <label>
+                                                        Save {{ $discountPercentage }}%
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            @endif
+                                            <div class="product-img">
+                                                <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
+                                                    @if ($firstImage)
+                                                    <picture>
+                                                        <source
+                                                            media="(max-width: 767px)"
+                                                            srcset="https://www.cdn.gdsons.co.in/product/icon/{{ $firstImage->image_path }}">
+
+                                                        <img
+                                                            class="img-fluid blur-up lazyload"
+                                                            data-src="https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImage->image_path }}"
+                                                            src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                                            srcset="
+                                                                    https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImage->image_path }} 600w,
+                                                                    https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImage->image_path }} 1200w
+                                                                "
+                                                            sizes="(max-width: 600px) 600px, 1200px"
+                                                            alt="{{ $popular_product_row->title }}"
+                                                            title="{{ $popular_product_row->title }}"
+                                                            loading="lazy"
+                                                            width="300"
+                                                            height="300"
+                                                            onload="this.style.opacity=1">
+                                                    </picture>
+
+                                                    @else
                                                     <img
-                                                        class="img-fluid blur-up lazyload"
-                                                        data-src="https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImageTrending->image_path }}"
                                                         src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                        srcset="
-                                                            https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImageTrending->image_path }} 600w,
-                                                            https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImageTrending->image_path }} 1200w
-                                                        "
-                                                        sizes="(max-width: 600px) 600px, 1200px"
-                                                        alt="{{ $trending_products_row->title }}"
-                                                        title="{{ $trending_products_row->title }}"
+                                                        class="img-fluid blur-up lazyload"
+                                                        alt="{{ $popular_product_row->title }}"
                                                         loading="lazy"
                                                         width="300"
-                                                        height="300"
-                                                        onload="this.style.opacity=1">
-                                                </picture>
-
-                                                @else
-                                                <img
-                                                    src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                    class="img-fluid blur-up lazyload"
-                                                    alt="{{ $trending_products_row->title }}"
-                                                    loading="lazy"
-                                                    width="300"
-                                                    height="300"
-                                                    onload="this.style.opacity=1">
+                                                        height="300">
+                                                    @endif
+                                                </a>
+                                            </div>
+                                            @php
+                                            $hasDimensions =
+                                            !empty($popular_product_row->length) &&
+                                            !empty($popular_product_row->breadth) &&
+                                            !empty($popular_product_row->height) &&
+                                            !empty($popular_product_row->weight);
+                                            @endphp
+                                            @if(($popular_product_row->mrp > 0 && $popular_product_row->stock_quantity <= 0) || !$hasDimensions)
+                                                <ul class="product-option">
+                                                <li title="Out of Stock">
+                                                    <a href="javascript:void(0)" class="out_of_stock">
+                                                        Out of Stock
+                                                    </a>
+                                                </li>
+                                                </ul>
                                                 @endif
-                                            </a>
                                         </div>
-
-
-                                    </div>
-                                    @php
-                                    $hasDimensions_trending =
-                                    !empty($trending_products_row->length) &&
-                                    !empty($trending_products_row->breadth) &&
-                                    !empty($trending_products_row->height) &&
-                                    !empty($trending_products_row->weight);
-                                    @endphp
-                                    @if(($trending_products_row->mrp > 0 && $trending_products_row->stock_quantity <= 0) || !$hasDimensions_trending)
-                                        <ul class="product-option">
-                                        <li title="Out of Stock">
-                                            <a href="javascript:void(0)" class="out_of_stock">
-                                                Out of Stock
-                                            </a>
-                                        </li>
-                                        </ul>
-                                        @endif
                                         <div class="product-detail">
-                                            <a href="{{ url('products/'.$trending_products_row->slug.'/'.$attributes_value)}}">
-                                                <h6 class="name h-100">
-                                                    {{ ucwords(strtolower($trending_products_row->title)) }}
-                                                </h6>
+                                            <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
+                                                <h5 class="name">{{ ucwords(strtolower($popular_product_row->title)) }}</h5>
                                             </a>
                                             <h5 class="sold text-content">
-                                                @if ($trending_products_row->offer_rate === null)
+                                                @if ($final_offer_rate === null)
                                                 <span class="theme-color price">Price not available</span>
                                                 @else
                                                 <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
@@ -698,58 +539,24 @@
                                                 @endif
                                             </h5>
                                         </div>
+                                    </div>
                                 </div>
+                                @php
+                                $row_count++;
+                                @endphp
+                                @endforeach
                             </div>
-                            @endforeach
                         </div>
                     </div>
-                    @endif
                 </div>
             </div>
-        </div>
-    </div>
-</section>
-<!-- Product Section End -->
-@if (!empty($data['video']) && $data['video']->isNotEmpty())
-@push('head')
-<link rel="preconnect" href="https://www.youtube.com">
-<link rel="preconnect" href="https://www.google.com">
-<link rel="dns-prefetch" href="https://www.youtube.com">
-@endpush
+            @endif
 
-<section class="video-shorts">
-    <div class="container-fluid-lg">
-        <div class="videoSwiper">
-            @foreach ($data['video'] as $video_row)
-            @php
-            $videoId = str_replace(['https://www.youtube.com/shorts/','https://youtube.com/shorts/'], '', $video_row->video_url);
-            @endphp
-            <div>
-                <div class="row m-1">
-                    <div class="col-12 px-0">
-                        <div class="short-container">
-                            <div class="youtube-lazy"
-                                data-id="{{ $videoId }}"
-                                data-loaded="false">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endforeach
-        </div>
-        <div class="row justify-content-md-center">
-            <div class="col-lg-2">
-                <div class="youtube-btn mt-2">
-                    <a class="btn text-white" target="_blank" href="https://www.youtube.com/@GirdharDasandSons" style="background-color: #FF5733;">
-                        <i class="youtube-icon fa fa-youtube"></i> Visit Our Youtube
-                    </a>
-                </div>
-            </div>
         </div>
     </div>
+    </div>
+    </div>
 </section>
-@endif
 @endsection
 @push('schema')
 <!-- Organization Schema -->
@@ -838,40 +645,5 @@
 </script>
 @endpush
 @push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const container = entry.target;
-                    if (container.dataset.loaded === 'true') return;
 
-                    const videoId = container.dataset.id;
-                    container.innerHTML = `
-                        <iframe 
-                            src="https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&loop=1&mute=1&playlist=${videoId}&enablejsapi=1" 
-                            loading="lazy"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen
-                            style="width:100%;height:100%;border-radius: 10px!important;"
-                            title="YouTube Short">
-                        </iframe>`;
-
-                    container.dataset.loaded = 'true';
-                    observer.unobserve(container);
-                }
-            });
-        }, {
-            rootMargin: '500px',
-            threshold: 0.01
-        });
-
-        document.querySelectorAll('.youtube-lazy').forEach(el => {
-            observer.observe(el);
-        });
-    });
-</script>
-<!-- <script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}"></script>
-<script src="{{asset('frontend/assets/js/pages/quick-view.js')}}"></script>
-<script src="{{asset('frontend/assets/js/pages/addto-cart.js')}}"></script> -->
 @endpush

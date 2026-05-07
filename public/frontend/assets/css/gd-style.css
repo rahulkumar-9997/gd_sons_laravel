@@ -5,7 +5,7 @@
   margin-top: 0px;
   font-weight: 600;
   font-size: 35px;
-  color: #ffffff;
+  color: #d6091a;
 }
 
 .home-section .ratio_65 {
@@ -1711,8 +1711,8 @@ a.cntshop {
 }
 
 .category-img-container {
-  width: 125px;
-  height: 125px;
+  width: 90px;
+  height: 90px;
   margin: 0 auto;
   border-radius: 50%;
   overflow: hidden;
@@ -1860,7 +1860,7 @@ a.cntshop {
 
 
 .product-detail .name {
-  font-size: 16px;
+  font-size: 15px;
   line-height: 22px;
   font-weight: 500;
   color: #333;

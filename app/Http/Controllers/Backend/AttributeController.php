@@ -521,12 +521,13 @@ class AttributeController extends Controller
         ]);
     }
 
-    public function showFormSubmit(Request $request){
+    public function showFormSubmit(Request $request)
+    {
         $request->validate([
             'attributes_value_id' => 'required|exists:attributes_value,id',
             'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
-        DB::beginTransaction();    
+        DB::beginTransaction();
         try {
             $attrValue = Attribute_values::find($request->attributes_value_id);
             if ($attrValue->images) {
@@ -537,25 +538,28 @@ class AttributeController extends Controller
             }
             $image = $request->file('image');
             $webpImageName = 'gd-sons-img-' . $attrValue->slug . '-' . uniqid() . '.webp';
-            $destinationPath = public_path('images/attribute-values/');
+            $destinationPath = public_path('images/attribute-values');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0777, true);
+            }
             $img_original = Image::make($image->getRealPath());
-            $img_original->encode('webp', 75)->save($destinationPath . '/' . $webpImageName);
+            $img_original
+                ->encode('webp', 75)
+                ->save($destinationPath . DIRECTORY_SEPARATOR . $webpImageName);
             $attrValue->images = $webpImageName;
             $attrValue->save();
             DB::commit();
-            Cache::forget('attribute_value_' . $attrValue->id);
             return response()->json([
                 'status' => 'success',
                 'message' => 'Image uploaded successfully.',
             ]);
-    
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error uploading images: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Something went wrong. Please try again later.',
-                'error_details' => $e->getMessage() 
+                'message' => 'Something went wrong.',
+                'error_details' => $e->getMessage()
             ]);
         }
     }

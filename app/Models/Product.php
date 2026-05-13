@@ -152,8 +152,7 @@ class Product extends Model
     {
         return $this->belongsToMany(PrimaryCategory::class, 'primary_category_products');
     }
-       
-    
+        
     /** 
      * Write code on Method
      *

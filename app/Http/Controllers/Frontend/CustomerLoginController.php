@@ -267,28 +267,17 @@ class CustomerLoginController extends Controller
     // https://www.codexworld.com/login-with-google-api-using-php/
     public function handleGoogleCallback(Request $request){
         try {
-            $googleUser = Socialite::driver('google')->stateless()->user();
+			if (!$request->has('state') || !$request->has('code')) {
+				throw new \Exception('Invalid callback request');
+			}
+			$googleUser = Socialite::driver('google')->stateless()->user();
             $user = Customer::where('email', $googleUser->getEmail())->first();
+            $redirectUrl = session('redirect_url', route('home'));
             if ($user) {
                 //$this->sendNotification($user, "Currently {$user->name} has logged in.");
-                Auth::guard('customer')->login($user);
-                $redirectUrl = session('redirect_url', route('home'));
+                Auth::guard('customer')->login($user);               
                 return redirect()->to($redirectUrl);
-            } else {
-                /*$randomPassword = Str::random(16);
-                $hashedPassword = Hash::make($randomPassword);
-        
-                $user = Customer::create([
-                    'email' => $googleUser->getEmail(),
-                    'name' => $googleUser->getName(),
-                    'google_id' => $googleUser->getId(),
-                    'password' => $hashedPassword, 
-                ]);
-                //$this->sendNotification($user, "Currently {$user->name} has logged in.");
-                Auth::guard('customer')->login($user);
-               $redirectUrl = session('redirect_url', route('home'));
-               return redirect()->to($redirectUrl);
-                */
+            } else {                
                 session([
                     'google_user' => [
                         'email' => $googleUser->getEmail(),
@@ -299,7 +288,7 @@ class CustomerLoginController extends Controller
                 return redirect()->route('google.complete-profile');
             }
             return redirect()->to($redirectUrl);
-        } catch (\Exception $e) {
+        } catch (\Exception $e) {			
             return back()->with('error', 'Google login failed. Please try again.');
         }
     }

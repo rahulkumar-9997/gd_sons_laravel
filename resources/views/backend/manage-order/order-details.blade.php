@@ -29,7 +29,7 @@
                                             {{ $order->orderStatus->status_name }}
                                         </span>
                                     </h4>
-                                    <p class="mb-0">Order / Order Details / {{ $order->order_id }} -  {{ \Carbon\Carbon::parse($order->order_date)->format('d M Y, h:i:s A') }}</p>
+                                    <p class="mb-0">Order / Order Details / {{ $order->order_id }} - {{ \Carbon\Carbon::parse($order->order_date)->format('d M Y, h:i:s A') }}</p>
                                 </div>
                                 <!-- <div>
                                     <a href="#!" class="btn btn-outline-secondary">Refund</a>
@@ -109,133 +109,118 @@
                                     </thead>
                                     <tbody>
                                         @if($order->orderLines->isNotEmpty())
-                                            @php
-                                                $itemsSubTotal = $order->orderLines->sum(function ($line) {
-                                                    return $line->quantity * $line->price;
-                                                });
-                                                $shippingCharge = $order->shiprocketCourier->courier_shipping_rate ?? 0;
-                                                $discountAmount = $order->coupon_discount_amount ?? 0;
-                                                $finalPayable = ($itemsSubTotal - $discountAmount) + $shippingCharge;
-                                            @endphp
-                                            @foreach($order->orderLines as $line)
-                                            @php
-                                                $attributes_value ='na';
-                                                if($line->product->ProductAttributesValues->isNotEmpty()){
-                                                    $attributes_value = $line->product->ProductAttributesValues->first()->attributeValue->slug;
-                                                }
-                                            @endphp
-                                            <tr>
-                                                <td>
-                                                    <a href="{{ url('products/'.$line->product->slug.'/'.$attributes_value) }}" target="_blank" class="text-dark fw-medium">
-                                                        <div class="d-flex align-items-center gap-2">
-                                                            <div class="rounded bg-light avatar-md d-flex align-items-center justify-content-center">
-                                                                @if($line->product->images->first())
-                                                                <img src="{{ asset('images/product/thumb/' . $line->product->images->first()->image_path) }}"
-                                                                    class="avatar-md" alt="{{ $line->product->title }}">
-                                                                @else
-                                                                <img src="{{ asset('images/default.png') }}" class="avatar-md" alt="Default Image">
-                                                                @endif
-
-                                                            </div>
-                                                            <div>
-                                                                <span class="text-dark fw-medium fs-16">
+                                        @php
+                                        $itemsSubTotal = $order->orderLines->sum(function ($line) {
+                                        return $line->quantity * $line->price;
+                                        });
+                                        $shippingCharge = $order->shiprocketCourier->courier_shipping_rate ?? 0;
+                                        $discountAmount = $order->coupon_discount_amount ?? 0;
+                                        $finalPayable = ($itemsSubTotal - $discountAmount) + $shippingCharge;
+                                        @endphp
+                                        @foreach($order->orderLines as $line)
+                                        @php
+                                        $attributes_value ='na';
+                                        if($line->product->ProductAttributesValues->isNotEmpty()){
+                                        $attributes_value = $line->product->ProductAttributesValues->first()->attributeValue->slug;
+                                        }
+                                        @endphp
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="rounded bg-light avatar-md d-flex align-items-center justify-content-center">
+                                                        @if($line->product->images->first())
+                                                        <img src="{{ asset('images/product/thumb/' . $line->product->images->first()->image_path) }}"
+                                                            class="avatar-md" alt="{{ $line->product->title }}">
+                                                        @else
+                                                        <img src="{{ asset('images/default.png') }}" class="avatar-md" alt="Default Image">
+                                                        @endif
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                                            <a href="{{ url('products/'.$line->product->slug.'/'.$attributes_value) }}" target="_blank" class="text-orange fw-medium text-decoration-none">
+                                                                <span class="text-orange fw-medium fs-16">
                                                                     {{ ucwords(strtolower($line->product->title)) }}
                                                                 </span>
-                                                                @if($line->product->length && $line->product->breadth &&
-                                                                $line->product->height &&
-                                                                $line->product->weight)
-                                                                    <ul>
-                                                                        <li>
-                                                                            <strong>
-                                                                                Length in CM :
-                                                                            </strong>
-                                                                            {{ $line->product->length }}
-                                                                        </li>
-                                                                        <li>
-                                                                            <strong>
-                                                                                Breadth in CM:
-                                                                            </strong>
-                                                                            {{ $line->product->breadth }}
-                                                                        </li>
-                                                                        <li>
-                                                                            <strong>
-                                                                                Height in CM:
-                                                                            </strong>
-                                                                            {{ $line->product->height }}
-                                                                        </li>
-                                                                        <li>
-                                                                            <strong>
-                                                                                Weight in Kg :
-                                                                            </strong>
-                                                                            {{ $line->product->weight }}
-                                                                        </li>
-                                                                        <li>
-                                                                            <strong>
-                                                                                Volumetric Weight Kg :
-                                                                            </strong>
-                                                                            {{ $line->product->volumetric_weight_kg }}
-                                                                        </li>
-                                                                    </ul>
-
-                                                                @endif
-
-
-                                                            </div>
+                                                            </a>
+                                                            <button type="button" 
+                                                                class="btn btn-sm btn-link p-0 copy-product-btn" 
+                                                                data-product-name="{{ ucwords(strtolower($line->product->title)) }}"
+                                                                onclick="copyProductName(this); event.stopPropagation();"
+                                                                style="text-decoration: none;">
+                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                                                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                                                </svg>
+                                                            </button>
+                                                            <span class="copy-feedback-{{ $line->id }}" style="display: none; font-size: 12px; color: green;">
+                                                                Copied!
+                                                            </span>
                                                         </div>
-                                                    </a>
-                                                </td>
-                                                <td>{{ $line->quantity }}</td>
-                                                <td>Rs. {{ number_format($line->price, 2) }}</td>
-                                                <td>
-                                                    Rs. {{ number_format($line->quantity * $line->price, 2) }}
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                            <tr class="bg-light">
-                                                <td colspan="3" class="text-end fw-bold">
-                                                    Items Sub Total
-                                                </td>
-                                                <td class="fw-bold">
-                                                    Rs. {{ number_format($itemsSubTotal, 2) }}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="3" class="text-end fw-bold">
-                                                    Discount
-                                                    @if($order->coupon_code)
-                                                        <br>
-                                                        <small class="text-info">
-                                                            Coupon : {{ $order->coupon_code }}
-                                                        </small>
-                                                    @endif
-                                                    
-                                                </td>
-                                                <td class="fw-bold text-danger">
-                                                    - Rs. {{ number_format($discountAmount, 2) }}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="3" class="text-end fw-bold">
-                                                    Shipping Charges
-                                                    @if($order->shiprocketCourier)
-                                                        <br>
-                                                        <small class="text-info">
-                                                            {{ $order->shiprocketCourier->courier_name }}
-                                                        </small>
-                                                    @endif
-                                                </td>
-                                                <td class="fw-bold">
-                                                    Rs. {{ number_format($shippingCharge, 2) }}
-                                                </td>
-                                            </tr>
-                                            <tr class="table-active">
-                                                <td colspan="3" class="text-end fw-bold fs-16">
-                                                    Total Payable
-                                                </td>
-                                                <td class="fw-bold fs-16">
-                                                    Rs. {{ number_format($finalPayable, 2) }}
-                                                </td>
-                                            </tr>
+                                                        
+                                                        @if($line->product->length && $line->product->breadth && $line->product->height && $line->product->weight)
+                                                            <ul class="list-unstyled small mb-0">
+                                                                <li><strong>Length in CM :</strong> {{ $line->product->length }}</li>
+                                                                <li><strong>Breadth in CM :</strong> {{ $line->product->breadth }}</li>
+                                                                <li><strong>Height in CM :</strong> {{ $line->product->height }}</li>
+                                                                <li><strong>Weight in Kg :</strong> {{ $line->product->weight }}</li>
+                                                                <li><strong>Volumetric Weight Kg :</strong> {{ $line->product->volumetric_weight_kg }}</li>
+                                                            </ul>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ $line->quantity }}</td>
+                                            <td>Rs. {{ number_format($line->price, 2) }}</td>
+                                            <td>
+                                                Rs. {{ number_format($line->quantity * $line->price, 2) }}
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                        <tr class="bg-light">
+                                            <td colspan="3" class="text-end fw-bold">
+                                                Items Sub Total
+                                            </td>
+                                            <td class="fw-bold">
+                                                Rs. {{ number_format($itemsSubTotal, 2) }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" class="text-end fw-bold">
+                                                Discount
+                                                @if($order->coupon_code)
+                                                <br>
+                                                <small class="text-info">
+                                                    Coupon : {{ $order->coupon_code }}
+                                                </small>
+                                                @endif
+
+                                            </td>
+                                            <td class="fw-bold text-danger">
+                                                - Rs. {{ number_format($discountAmount, 2) }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" class="text-end fw-bold">
+                                                Shipping Charges
+                                                @if($order->shiprocketCourier)
+                                                <br>
+                                                <small class="text-info">
+                                                    {{ $order->shiprocketCourier->courier_name }}
+                                                </small>
+                                                @endif
+                                            </td>
+                                            <td class="fw-bold">
+                                                Rs. {{ number_format($shippingCharge, 2) }}
+                                            </td>
+                                        </tr>
+                                        <tr class="table-active">
+                                            <td colspan="3" class="text-end fw-bold fs-16">
+                                                Total Payable
+                                            </td>
+                                            <td class="fw-bold fs-16">
+                                                Rs. {{ number_format($finalPayable, 2) }}
+                                            </td>
+                                        </tr>
                                         @else
                                         <tr>
                                             <td colspan="6" class="text-center">No order items found</td>
@@ -245,105 +230,7 @@
                                 </table>
                             </div>
                         </div>
-
                     </div>
-                    <!-- <div class="card">
-                        <div class="card-header">
-                            <h4 class="card-title">Order Timeline</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="position-relative ms-2">
-                                <span class="position-absolute start-0  top-0 border border-dashed h-100"></span>
-                                <div class="position-relative ps-4">
-                                    <div class="mb-4">
-                                        <span class="position-absolute start-0 avatar-sm translate-middle-x bg-light d-inline-flex align-items-center justify-content-center rounded-circle">
-                                            <div class="spinner-border spinner-border-sm text-warning" role="status">
-                                                <span class="visually-hidden">Loading...</span>
-                                            </div>
-                                        </span>
-                                        <div class="ms-2 d-flex flex-wrap gap-2 align-items-center justify-content-between">
-                                            <div>
-                                                <h5 class="mb-1 text-dark fw-medium fs-15">The packing has been started</h5>
-                                                <p class="mb-0">Confirmed by Gaston Lapierre</p>
-                                            </div>
-                                            <p class="mb-0">April 23, 2024, 09:40 am</p>
-
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="position-relative ps-4">
-                                    <div class="mb-4">
-                                        <span class="position-absolute start-0 avatar-sm translate-middle-x bg-light d-inline-flex align-items-center justify-content-center rounded-circle text-success fs-20">
-                                            <i class='bx bx-check-circle'></i>
-                                        </span>
-                                        <div class="ms-2 d-flex flex-wrap gap-2  align-items-center justify-content-between">
-                                            <div>
-                                                <h5 class="mb-1 text-dark fw-medium fs-15">The Invoice has been sent to the customer</h5>
-                                                <p class="mb-2">Invoice email was sent to <a href="#!" class="link-primary">hello@dundermuffilin.com</a></p>
-                                                <a href="#!" class="btn btn-light">Resend Invoice</a>
-                                            </div>
-                                            <p class="mb-0">April 23, 2024, 09:40 am</p>
-
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="position-relative ps-4">
-                                    <div class="mb-4">
-                                        <span class="position-absolute start-0 avatar-sm translate-middle-x bg-light d-inline-flex align-items-center justify-content-center rounded-circle text-success fs-20">
-                                            <i class='bx bx-check-circle'></i>
-                                        </span>
-                                        <div class="ms-2 d-flex flex-wrap gap-2 align-items-center justify-content-between">
-                                            <div>
-                                                <h5 class="mb-1 text-dark fw-medium fs-15">The Invoice has been created</h5>
-                                                <p class="mb-2">Invoice created by Gaston Lapierre</p>
-                                                <a href="#!" class="btn btn-primary">Download Invoice</a>
-                                            </div>
-                                            <p class="mb-0">April 23, 2024, 09:40 am</p>
-
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="position-relative ps-4">
-                                    <div class="mb-4">
-                                        <span class="position-absolute start-0 avatar-sm translate-middle-x bg-light d-inline-flex align-items-center justify-content-center rounded-circle text-success fs-20">
-                                            <i class='bx bx-check-circle'></i>
-                                        </span>
-                                        <div class="ms-2 d-flex flex-wrap gap-2 align-items-center justify-content-between">
-                                            <div>
-                                                <h5 class="mb-1 text-dark fw-medium fs-15">Order Payment</h5>
-                                                <p class="mb-2">Using Master Card</p>
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <p class="mb-1 text-dark fw-medium">Status :</p>
-                                                    <span class="badge bg-success-subtle text-success  px-2 py-1 fs-13">Paid</span>
-                                                </div>
-                                            </div>
-                                            <p class="mb-0">April 23, 2024, 09:40 am</p>
-
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="position-relative ps-4">
-                                    <div class="mb-2">
-                                        <span class="position-absolute start-0 avatar-sm translate-middle-x bg-light d-inline-flex align-items-center justify-content-center rounded-circle text-success fs-20">
-                                            <i class='bx bx-check-circle'></i>
-                                        </span>
-                                        <div class="ms-2 d-flex flex-wrap gap-2  align-items-center justify-content-between">
-                                            <div>
-                                                <h5 class="mb-2 text-dark fw-medium fs-15">4 Order conform by Gaston Lapierre</h5>
-                                                <a href="#!" class="badge bg-light text-dark fw-normal  px-2 py-1 fs-13">Order 1</a>
-                                                <a href="#!" class="badge bg-light text-dark fw-normal  px-2 py-1 fs-13">Order 2</a>
-                                                <a href="#!" class="badge bg-light text-dark fw-normal  px-2 py-1 fs-13">Order 3</a>
-                                                <a href="#!" class="badge bg-light text-dark fw-normal  px-2 py-1 fs-13">Order 4</a>
-                                            </div>
-                                            <p class="mb-0">April 23, 2024, 09:40 am</p>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
-
                 </div>
             </div>
         </div>
@@ -376,59 +263,59 @@
                                 <tr>
                                     <td class="px-0">
                                         <p class="d-flex mb-0 align-items-center gap-1">
-                                            <iconify-icon icon="solar:ticket-broken" class="align-middle"></iconify-icon> 
+                                            <iconify-icon icon="solar:ticket-broken" class="align-middle"></iconify-icon>
                                             Discount :
                                         </p>
 
                                         @if(!empty($order->coupon_code))
-                                            <small class="text-success">
-                                                Coupon : {{ $order->coupon_code }}
-                                            </small>
+                                        <small class="text-success">
+                                            Coupon : {{ $order->coupon_code }}
+                                        </small>
                                         @endif
                                     </td>
 
                                     <td class="text-end text-dark fw-medium px-0">
                                         @if(!empty($order->coupon_discount_amount) && $order->coupon_discount_amount > 0)
-                                            - Rs. {{ number_format($order->coupon_discount_amount, 2) }}
+                                        - Rs. {{ number_format($order->coupon_discount_amount, 2) }}
                                         @else
-                                            Rs. 0.00
+                                        Rs. 0.00
                                         @endif
                                     </td>
                                 </tr>
                                 @if($order->shiprocketCourier)
-                                    <tr>
-                                        <td class="px-0">
-                                            <p class="d-flex mb-0 align-items-center gap-1">
-                                                <iconify-icon icon="solar:kick-scooter-broken" class="align-middle"></iconify-icon> 
-                                                Delivery Charge : 
-                                                
-                                            </p>
-                                            <p class="mb-0">
-                                                <span class="text-success">
+                                <tr>
+                                    <td class="px-0">
+                                        <p class="d-flex mb-0 align-items-center gap-1">
+                                            <iconify-icon icon="solar:kick-scooter-broken" class="align-middle"></iconify-icon>
+                                            Delivery Charge :
+
+                                        </p>
+                                        <p class="mb-0">
+                                            <span class="text-success">
                                                 <strong> Courier Partner :</strong>
                                                 {{ $order->shiprocketCourier->courier_name }}
-                                                </span>
-                                            </p>
-                                            <p>
-                                                <span class="text-success">
+                                            </span>
+                                        </p>
+                                        <p>
+                                            <span class="text-success">
                                                 <strong> Delivery Expected Date :</strong>
                                                 {{ $order->shiprocketCourier->delivery_expected_date }}
-                                                </span>
-                                            </p>
-                                        </td>
-                                        <td class="text-end text-dark fw-medium px-0">
-                                            Rs. {{ number_format( $order->shiprocketCourier->courier_shipping_rate, 2) }}
-                                        </td>
-                                    </tr>
+                                            </span>
+                                        </p>
+                                    </td>
+                                    <td class="text-end text-dark fw-medium px-0">
+                                        Rs. {{ number_format( $order->shiprocketCourier->courier_shipping_rate, 2) }}
+                                    </td>
+                                </tr>
                                 @else
-                                    <tr>
-                                        <td class="px-0">
-                                            <p class="d-flex mb-0 align-items-center gap-1"><iconify-icon icon="solar:kick-scooter-broken" class="align-middle"></iconify-icon> Delivery Charge : </p>
-                                        </td>
-                                        <td class="text-end text-dark fw-medium px-0">Rs. 00</td>
-                                    </tr>
+                                <tr>
+                                    <td class="px-0">
+                                        <p class="d-flex mb-0 align-items-center gap-1"><iconify-icon icon="solar:kick-scooter-broken" class="align-middle"></iconify-icon> Delivery Charge : </p>
+                                    </td>
+                                    <td class="text-end text-dark fw-medium px-0">Rs. 00</td>
+                                </tr>
                                 @endif
-                                
+
                             </tbody>
                         </table>
                     </div>
@@ -473,21 +360,21 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex align-items-center gap-2">
-                       @php
-                            $customer = $order->customer;
-                            $profileImg = optional($customer)->profile_img;
-                            $name = $customer->name ?? 'User';
+                        @php
+                        $customer = $order->customer;
+                        $profileImg = optional($customer)->profile_img;
+                        $name = $customer->name ?? 'User';
                         @endphp
 
                         @if($profileImg && file_exists(public_path('images/customer/' . $profileImg)))
-                            <img 
-                                src="{{ asset('images/customer/' . $profileImg) }}" 
-                                alt="{{ $name }}" 
-                                class="avatar rounded-3 border border-light border-3">
+                        <img
+                            src="{{ asset('images/customer/' . $profileImg) }}"
+                            alt="{{ $name }}"
+                            class="avatar rounded-3 border border-light border-3">
                         @else
-                            <div class="avatar rounded-3 border border-light border-3 d-flex align-items-center justify-content-center bg-primary text-white">
-                                {{ strtoupper(substr($name, 0, 1)) }}
-                            </div>
+                        <div class="avatar rounded-3 border border-light border-3 d-flex align-items-center justify-content-center bg-primary text-white">
+                            {{ strtoupper(substr($name, 0, 1)) }}
+                        </div>
                         @endif
                         <div>
                             <p class="mb-1">{{ $order->customer->name }}</p>
@@ -557,5 +444,24 @@
 <!-- modal--->
 @endsection
 @push('scripts')
-
+<script>
+function copyProductName(button) {
+    const productName = button.getAttribute('data-product-name');
+    navigator.clipboard.writeText(productName).then(function() {
+        const feedbackSpan = button.nextElementSibling;
+        feedbackSpan.style.display = 'inline-block';
+        feedbackSpan.style.opacity = '1';
+        setTimeout(function() {
+            feedbackSpan.style.opacity = '0';
+            setTimeout(function() {
+                feedbackSpan.style.display = 'none';
+                feedbackSpan.style.opacity = '1';
+            }, 300);
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+        alert('Failed to copy product name');
+    });
+}
+</script>
 @endpush

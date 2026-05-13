@@ -49,6 +49,18 @@
                                 <span>
                                     {{ $value->name }},                 
                                 </span>
+                                @if(!empty($value->images))
+                                    <img src="{{ asset('images/attribute-values/' . $value->images) }}"
+                                        alt="{{ $value->name }}"
+                                        class="rounded border"
+                                        style="width:40px;height:40px;object-fit:cover;"
+                                        data-bs-toggle="tooltip"
+                                        title="Uploaded Image">
+                                @else
+                                    <span class="badge bg-danger">
+                                        No Image
+                                    </span>
+                                @endif
                                 @if($value->map_attributes_value_to_categories->isNotEmpty())
                                     <span>
                                         <strong> Mapped Category :</strong>

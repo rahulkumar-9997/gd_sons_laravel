@@ -10,7 +10,7 @@ $search_value = !empty($query) ? $query : '';
             <div class="col-lg-6 col-md-6 d-xxl-block d-sm-none varanasi-top">
                <div class="top-left-header">
                   <!-- <i class="iconly-Location icli text-white"></i> -->
-                  <h4 class="text-white">Varanasi's Largest Kitchen Store – Everything for Your Kitchen!</h4>
+                  <h4 class="text-white">Genuine products. All across India. 55 years of honest service!</h4>
                </div>
             </div>
             <!-- <div class="col-xxl-4 col-lg-9 d-lg-block d-none">

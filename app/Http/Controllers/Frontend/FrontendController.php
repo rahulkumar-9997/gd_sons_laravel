@@ -50,6 +50,7 @@ class FrontendController extends Controller
 
         $popular_label_id = $labels['Popular Product']->id ?? null;
         $trending_label_id = $labels['Trending Product']->id ?? null;
+
         $data['category_list'] = Cache::remember('home_categories', 86400, function () {
         return Category::where('status', 'on')
             ->select('id', 'title', 'slug', 'image')
@@ -131,26 +132,14 @@ class FrontendController extends Controller
                     })
             ];
         });
-        //return response()->json($data['primary_category']); 
-        $data['banner'] = Cache::remember('home_banners', 86400, function () {
-            return Banner::orderByDesc('id')
-            ->select('id', 'image_path_desktop', 'link_desktop', 'title')
-            ->get();
-        });
+        
         $data['blogs'] = Blog::select('id', 'title', 'slug', 'blog_category_id', 'blog_image', 'bog_description')
             ->with([
                 'category:id,title,slug'
             ])
             ->inRandomOrder()
             ->take(4)
-            ->get();
-
-        // $data['video'] = Cache::remember('home_random_videos', 3600, function () {
-        //     return Video::inRandomOrder()
-        //     ->select('video_url')
-        //     ->limit(2)
-        //     ->get();
-        // });
+            ->get();        
         
         $products = Product::where('product_status', 1)
             ->whereIn('label_id', [$popular_label_id, $trending_label_id])
@@ -171,10 +160,13 @@ class FrontendController extends Controller
             ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
             ->get()
             ->shuffle();
-
-        /* Split products into popular and trending */
-        $data['popular_products'] = $products->where('label_id', $popular_label_id)->take(20);
-        //$data['trending_products'] = $products->where('label_id', $trending_label_id)->take(20);
+        $data['popular_products'] = $products->where('label_id', $popular_label_id)->take(18);
+        
+        $data['attributes_value'] = Attribute_values::select('name', 'slug', 'images')->whereNotNull('images')
+            ->where('images', '!=', '')
+            ->inRandomOrder()
+            ->take(8)
+            ->get();
         //return response()->json($data['popular_products']);
         return view('frontend.index', compact('data', 'specialOffers'));
     }

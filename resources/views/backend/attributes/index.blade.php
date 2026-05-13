@@ -2,10 +2,6 @@
 @section('title','Manage Attributes')
 @section('main-content')
 @push('styles')
-<link href="{{asset('backend/assets/vendor/datatables/css/jquery.dataTables.css')}}" rel="stylesheet" type="text/css" media="screen"/>
-<link href="{{asset('backend/assets/vendor/datatables/extensions/TableTools/css/dataTables.tableTools.min.css')}}" rel="stylesheet" type="text/css" media="screen"/>
-<link href="{{asset('backend/assets/vendor/datatables/extensions/Responsive/css/dataTables.responsive.css')}}" rel="stylesheet" type="text/css" media="screen"/>
-<link href="{{asset('backend/assets/vendor/datatables/extensions/Responsive/bootstrap/3/dataTables.bootstrap.css')}}" rel="stylesheet" type="text/css" media="screen"/>   
 @endpush
 <!-- Start Container Fluid -->
 <div class="container-fluid">
@@ -31,24 +27,11 @@
                   class="btn btn-sm btn-primary">
                   Add Attributes
                </a>
-               <div class="dropdown">
-                  <a href="#" class="dropdown-toggle btn btn-sm btn-outline-light" data-bs-toggle="dropdown" aria-expanded="false">
-                  This Month
-                  </a>
-                  <div class="dropdown-menu dropdown-menu-end">
-                     <!-- item-->
-                     <a href="#!" class="dropdown-item">Download</a>
-                     <!-- item-->
-                     <a href="#!" class="dropdown-item">Export</a>
-                     <!-- item-->
-                     <a href="#!" class="dropdown-item">Import</a>
-                  </div>
-               </div>
             </div>
             <div class="card-body">
             @if (isset($data['attributes_list']) && $data['attributes_list']->count() > 0)
                <div class="table-responsive1">
-                  <table id="example-1" class="table align-middle mb-0 table-hover table-centered">
+                  <table class="table align-middle mb-0 table-hover table-centered">
                      <thead class="bg-light-subtle">
                         <tr>
                            <th>Sr. No.</th>
@@ -72,13 +55,25 @@
                               </td>
                               <td>
                               @foreach($attributes_list_row->AttributesValues as $value)
-                              <a href="{{route('product-catalog-attributes-value', $value->id)}}">
-                                 <span class="mb-1 mt-1 badge bg-light-subtle text-muted border py-1 px-1"  data-bs-toggle="tooltip" data-bs-original-title="{{ $value->name }} ">
-                                    {{ $value->name }} 
-                                    <span class="badge bg-primary ms-1" data-bs-toggle="tooltip" data-bs-original-title="Total Products on This Attributes Value">   {{$value->product_attributes_values_count}}
+                                 <a href="{{route('product-catalog-attributes-value', $value->id)}}">
+                                    <span class="mb-1 mt-1 badge bg-light-subtle text-muted border py-1 px-2"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-original-title="{{ $value->name }}">
+                                       {{ $value->name }}
+                                       <span class="badge bg-primary ms-1"
+                                             data-bs-toggle="tooltip"
+                                             data-bs-original-title="Total Products on This Attributes Value">
+                                             {{$value->product_attributes_values_count}}
+                                       </span>
+                                       @if(!empty($value->images))
+                                             <span class="badge bg-success ms-1"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-original-title="Image Uploaded">
+                                                <iconify-icon icon="solar:gallery-bold" class="align-middle"></iconify-icon>
+                                             </span>
+                                       @endif
                                     </span>
-                                 </span>
-                              </a>
+                                 </a>
                               @endforeach
                               <a href="{{ route('attributes-option', $attributes_list_row->id) }}">
                                  <span class="badge bg-success text-white py-1 px-2">Configure Values</span>
@@ -127,9 +122,9 @@
 <script>
    $(document).ready(function() {
       $('.show_confirm').click(function(event) {
-         var form = $(this).closest("form");  // Assuming there's a form related to this button
-         var name = $(this).data("name");     // You can use this data attribute if needed
-         event.preventDefault();              // Prevent default button action
+         var form = $(this).closest("form");
+         var name = $(this).data("name");
+         event.preventDefault(); 
 
          Swal.fire({
                title: `Are you sure you want to delete this ${name}?`,
@@ -141,7 +136,7 @@
                dangerMode: true,
          }).then((result) => {
                if (result.isConfirmed) {
-                  form.submit();  // Submit the form if confirmed
+                  form.submit();
                }
          });
       });

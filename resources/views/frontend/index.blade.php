@@ -1,6 +1,6 @@
 @extends('frontend.layouts.master')
-@section('title','Best Kitchen Retail Store in Varanasi now goes Online')
-@section('description', 'Best Kitchen Retail Store in Varanasi now goes Online')
+@section('title','Buy Kitchen Appliances & Cookware Online — Best Brands | GD Sons')
+@section('description', 'Shop kitchen appliances, cookware, mixer grinders, pressure cookers and more from trusted brands of India. Genuine products, pan-India delivery and expert advice — from a store serving Indian kitchens since 1970.')
 @section('keywords', 'Best Kitchen Retail Store in Varanasi now goes Online')
 @section('main-content')
 @if(isset($data['category_list']) && count($data['category_list']) > 0)
@@ -37,93 +37,12 @@
 </section>
 @endif
 <section class="home-section pt-2">
-    <div class="container-fluid-lg">
-        <!--
-        <div class="row g-2">
-            <div class="col-xl-8 ratio_65">
-                <div class="home-contain h-1001">
-                    @if ($data['banner'] && $data['banner']->isNotEmpty())
-                    <div id="homeBannerCarousel" class="carousel slide silk-carousel-wrapper home-banner-carousel" data-bs-ride="carousel" data-bs-interval="3000">
-                        <div class="carousel-indicators">
-                            @foreach ($data['banner'] as $index => $banner)
-                            <button type="button" data-bs-target="#homeBannerCarousel" data-bs-slide-to="{{ $index }}"
-                                class="{{ $index === 0 ? 'active' : '' }}" aria-current="{{ $index === 0 ? 'true' : '' }}"
-                                aria-label="Slide {{ $index + 1 }}"></button>
-                            @endforeach
-                        </div>
-                        <div class="carousel-inner">
-                            @foreach ($data['banner'] as $index => $banner)
-                            <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                                <div class="row1">
-                                    <div class="col1">
-                                        <a href="{{ $banner->link_desktop }}">
-                                            <img src="{{ asset($banner->image_path_desktop) }}"
-                                                class="d-block w-100"
-                                                srcset="{{ asset($banner->image_path_desktop) }} 600w, {{ asset($banner->image_path_desktop) }} 1200w"
-                                                sizes="(max-width: 600px) 600px, 1200px"
-                                                alt="{{ $banner->title }}"
-                                                loading="lazy">
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#homeBannerCarousel" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#homeBannerCarousel" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
-                    </div>
-                    @endif
-
-                </div>
-            </div>
-            <div class="col-xl-4 ratio_65 banner-side two-banner-home">
-                <div class="row g-2 h-100">
-                    <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dnone">
-                        <div class="home-contain">
-                            <img src="{{asset('frontend/assets/images/side-banner-1.png')}}" class="img-responsive blur-up lazyload"
-                                alt="side banner" loading="lazy">
-                            <div class="home-detail p-center-left home-p-sm w-75">
-                                <div>
-                                    <h3 class="mt-0 theme-color fw-bold">eCom Website</h3>
-                                    <h4 class="text-danger">Kitchenware & Dinnerware</h4>
-                                    <p class="organic">Exclusive for Varanasi & Nearby</p>
-                                    <a href="{{ route('contact-us') }}" class="shop-button">Contact Now <i
-                                            class="fa-solid fa-right-long"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dnone">
-                        <div class="home-contain">
-                            <img src="{{asset('frontend/assets/images/side-banner-2.jpg')}}" class="img-responsive blur-up lazyload"
-                                alt="side banner" loading="lazy">
-                            <div class="home-detail p-center-left home-p-sm w-75">
-                                <div>
-                                    <h3 class="mt-0 theme-color fw-bold">Buy from Store</h3>
-                                    <h4 class="text-danger">or Online</h4>
-                                    <p class="organic">Biggest range of Kitchenware</p>
-                                    <a href="{{ route('contact-us') }}" class="shop-button">Call Now <i
-                                            class="fa-solid fa-right-long"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
-        -->
+    <div class="container-fluid-lg">        
         <div class="row">
             <div class="col-lg-12">
                 <div class="text-center mt-2">
                     <h1 class="class-h1-tags">
-                        Best Kitchen Retail Store in Varanasi now goes Online.
+                        Buy Kitchen Appliances, Cookware & More Online — Pan-India delivery.
                     </h1>
                 </div>
             </div>
@@ -185,7 +104,15 @@
             @if ($data['primary_category'] && $data['primary_category']->isNotEmpty())
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-15">
                 @foreach ($data['primary_category'] as $index =>$primary_category_row)
-                <div class="p-1 group relative rounded overflow-hidden shadow-2xl hover:shadow-2xl transition-shadow duration-300">
+
+                <div class="p-1 group relative rounded overflow-hidden shadow-2xl hover:shadow-2xl transition-shadow duration-300 text-center">
+                    <a href="{{ $primary_category_row['link'] ?? '#' }}" class="inline-block group/category">
+                        <h3 class="text-[18px] sm:text-[16px] md:text-[18px] lg:text-[20px] mb-2 font-bold text-slate-800 group-hover/category:text-primary-600 transition-colors duration-300">
+                            {{ $primary_category_row['title'] }}
+                            <span class="block h-0.5 bg-primary-600 scale-x-0 group-hover/category:scale-x-100 transition-transform duration-300 origin-center"></span>
+                        </h3>
+
+                    </a>
                     <div class="grid grid-cols-2 gap-2">
                         @foreach ($primary_category_row['products'] as $productIndex => $product)
                         @php
@@ -280,12 +207,9 @@
                 </div>
                 <div class="p-2 mt-2 text-center">
                     <a href="{{ $primary_category_row['link'] ?? '#' }}" class="inline-block group/category">
-                        <h3 class="text-lg font-bold text-slate-800 group-hover/category:text-primary-600 transition-colors duration-300">
-                            {{ $primary_category_row['title'] }}
-                            <span class="block h-0.5 bg-primary-600 scale-x-0 group-hover/category:scale-x-100 transition-transform duration-300 origin-center"></span>
-                        </h3>
+
                         @if(isset($primary_category_row['description']))
-                        <div class="mt-2 text-[black] text-sm line-clamp-2">
+                        <div class="mt-2 text-slate-500 line-clamp-2 text-[16px]">
                             {!! strip_tags($primary_category_row['description']) !!}
                         </div>
                         @endif
@@ -470,7 +394,9 @@
                         Girdhar Das & Sons?
                     </h2>
                     <p class="text-white leading-relaxed text-[16px]">
-                        Since 1970, we've been Varanasi's most trusted kitchen store. From pressure cookers to chimneys — we have everything to make your cooking experience better.
+                        More than a store. A Kitchen Companion since 1970. For over five decades, Girdhar Das & Sons has been the kitchen the heart of kitchenware retail in Varanasi — trusted by home cooks, hotels, and professional chefs alike.
+
+
                     </p>
                 </div>
                 <div class="text-center mt-10">
@@ -488,7 +414,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">50+ Years of Trust</p>
+                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">55+ Years of Trust</p>
                         <p class="text-[15px] text-slate-400 leading-relaxed">Serving Varanasi since 1970</p>
                     </div>
                     <!-- Feature 2: Wide Range -->
@@ -527,15 +453,15 @@
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <!-- Stat 1: Happy Customers -->
                     <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <span class="font-display text-2xl font-bold text-primary-teal stat-num">15K+</span>
-                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Happy Customers</span>
+                        <span class="font-display text-2xl font-bold text-primary-teal stat-num">55+</span>
+                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Years in Business</span>
                     </div>
                     <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <span class="font-display text-2xl font-bold text-primary-teal stat-num">200+</span>
+                        <span class="font-display text-2xl font-bold text-primary-teal stat-num">25+</span>
                         <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Top Brands</span>
                     </div>
                     <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <span class="font-display text-2xl font-bold text-primary-teal stat-num">10K+</span>
+                        <span class="font-display text-2xl font-bold text-primary-teal stat-num">5K+</span>
                         <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Products</span>
                     </div>
                     <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
@@ -545,63 +471,127 @@
                             </svg>
                             <span class="font-display text-2xl font-bold text-primary-teal stat-num">4.8</span>
                         </div>
-                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Average Rating</span>
+                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Rated by Google</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
 @if ($data['blogs'] && $data['blogs']->isNotEmpty())
-    <section class="home-blog-section pb-5">
+<section class="home-blog-section pb-4">
+    <div class="container-fluid-lg">
+        <div class="blog-heading text-center mb-4">
+            <div class="title d-block text-center">
+                <div>
+                    <h2>Our Blog</h2>
+                    <span class="title-leaf"></span>
+                </div>
+            </div>
+            <p class="leading-relaxed text-[16px]">
+                Expert advice, product guides and cooking tips from Varanasi's most trusted kitchen store since 1970.
+            </p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            @foreach ($data['blogs'] as $blog_row)
+            <div class="blog-card bg-white rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.07)]">
+                <a href="{{ route('blog.details', ['slug' => $blog_row->slug]) }}">
+                    <div class="overflow-hidden h-56 relative">
+                        <img src="{{asset($blog_row->blog_image) }}" alt="{{$blog_row->title}}"
+                            class="blog-img w-full h-full object-cover" />
+                        <span class="absolute top-4 left-4 bg-primary-teal text-white text-[10px] font-semibold px-3 py-1 rounded-full shadow">
+                            {{$blog_row->category->title}}
+                        </span>
+                    </div>
+                    <div class="p-3 pb-2">
+                        <h6 class="font-display text-slate-800 text-[20px] mb-3 line-clamp-3">
+                            {{$blog_row->title}}
+                        </h6>
+                        @if(!empty($blog_row->bog_description))
+                        <p class="text-slate-500 text-[16px] leading-relaxed line-clamp-3">
+                            {!! strip_tags($blog_row->bog_description) !!}
+                        </p>
+                        @endif
+                    </div>
+                </a>
+                <div class="px-2 pb-3 pt-3 border-t border-slate-100 text-center">
+                    <a href="{{ route('blog.details', ['slug' => $blog_row->slug]) }}" class="inline-flex items-center gap-1.5 text-primary-teal text-[16px] font-semibold hover:gap-3 transition-all">
+                        Read More
+                        <svg class="w-3.5 h-3.5 arrow-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+@if ($data['attributes_value'] && $data['attributes_value']->isNotEmpty())
+    <section class="top-brand-we-dealin pb-5">
         <div class="container-fluid-lg">
-            <div class="blog-heading text-center mb-4">
-                <div class="title d-block text-center">
-                    <div>
-                        <h2>Our Blog</h2>
-                        <span class="title-leaf"></span>
+            <div class="flex flex-wrap items-center gap-3 mb-7">
+                <h4 class="lg:text-[20px] md:text-[18px] font-bold text-[#222]">Top Brands We Deal In</h4>
+                <div class="flex-1 h-[1px] bg-primary-teal max-w-[100px]"></div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div class="lg:col-span-2 bg-gray-100 p-4 rounded-xl animate-fadeup">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                        @foreach($data['attributes_value'] as $value)
+                            <a href="{{ route('search', ['query' => strtolower(urlencode($value->name))]) }}" class="block">
+                                <div class="group flex flex-col items-center justify-center bg-white rounded-xl p-2 cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-teal-500/15">
+                                    <div class="w-full h-[100px] flex items-center justify-center overflow-hidden rounded-lg">
+                                        <img src="{{ asset('images/attribute-values/' . $value->images) }}"
+                                            alt="{{ $value->name }}"
+                                            loading="lazy"
+                                            class="w-full h-full object-contain transition-all duration-300 group-hover:scale-105"
+                                            onerror="this.outerHTML='<span class=\'text-[16px] font-semibold text-red-500 px-2 py-1 bg-red-50 rounded-lg\'>{{ $value->name }}</span>'">
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
                     </div>
                 </div>
-                <p class="leading-relaxed text-[16px]">
-                    Expert advice, product guides and cooking tips from Varanasi's most trusted kitchen store since 1970.
-                </p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                @foreach ($data['blogs'] as $blog_row)
-                    <div class="blog-card bg-white rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.07)]">
-                        <a href="{{ route('blog.details', ['slug' => $blog_row->slug]) }}">
-                            <div class="overflow-hidden h-56 relative">
-                                <img src="{{asset($blog_row->blog_image) }}" alt="{{$blog_row->title}}"
-                                class="blog-img w-full h-full object-cover" />
-                                <span class="absolute top-4 left-4 bg-primary-teal text-white text-[10px] font-semibold px-3 py-1 rounded-full shadow">
-                                   {{$blog_row->category->title}}
+                <div class="bg-gray-100 rounded-xl p-6 flex items-center">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 items-center w-full">
+                        <div class="flex justify-center lg:order-2 sm:order-1 md:order-1">
+                            <img src="{{ asset('frontend/assets/gd-img/bulk-image.png') }}" alt="Bulk Orders" class="w-full max-w-[220px] animate-floatbox">
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900 leading-tight mb-2 tracking-tight">
+                                Bulk
+                                <span class="text-primary-teal">
+                                    Orders?
                                 </span>
-                            </div>
-                            <div class="p-3 pb-2">
-                                <h6 class="font-display text-slate-800 text-[20px] mb-3 line-clamp-3">
-                                    {{$blog_row->title}}
-                                </h6>                                
-                                @if(!empty($blog_row->bog_description))
-                                <p class="text-slate-500 text-[15px] leading-relaxed line-clamp-3">
-                                    {!! strip_tags($blog_row->bog_description) !!}
-                                </p>
-                                @endif
-                            </div>
-                        </a>
-                        <div class="px-2 pb-3 pt-3 border-t border-slate-100 text-center">
-                            <a href="{{ route('blog.details', ['slug' => $blog_row->slug]) }}" class="inline-flex items-center gap-1.5 text-primary-teal text-[16px] font-semibold hover:gap-3 transition-all">
-                                Read More
-                                <svg class="w-3.5 h-3.5 arrow-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                <br />
+                                <span class="text-black-700 text-xl">Save More.</span>
+                            </h2>
+                            <p class="mb-6 text-slate-500 text-[16px]">
+                                Exclusive discounts for businesses, restaurants &amp; wholesalers on bulk purchases.
+                            </p>
+                            <a href="{{ route('contact-us') }}"
+                                class="group flex items-center gap-2 bg-slate-900 hover:bg-slate-700 text-white text-[13px] font-bold px-4 py-3 rounded-full w-fit transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+                                Contact Us
+                                <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M5 12h14M12 5l7 7-7 7" />
                                 </svg>
                             </a>
                         </div>
                     </div>
-                @endforeach
+                </div>
             </div>
         </div>
     </section>
 @endif
+
 @endsection
 @push('schema')
 <!-- Organization Schema -->

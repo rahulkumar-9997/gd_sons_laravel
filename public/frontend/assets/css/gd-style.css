@@ -1225,6 +1225,12 @@ a.cntshop {
     height: 100%;
     padding-bottom: 20px;
   }
+  .class-added{
+    margin-top: -30px;
+  }
+  .footer-botom-footer .nav-link{
+    padding: 0.3rem 0.3rem;
+  }
 
   .mobile-menu-bar .header-nav {
     padding-top: 0px;

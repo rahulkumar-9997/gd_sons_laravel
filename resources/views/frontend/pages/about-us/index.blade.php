@@ -33,17 +33,6 @@
         <div class="container mx-auto">
             <div class="flex flex-col gap-4 lg:gap-4 xl:gap-4">
                 <div class="w-full">
-                    <div class="flex flex-col gap-4 sm:gap-6">
-                        <div class="rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500">
-                            <div class="bg-size blur-up lazyloaded">
-                                <img src="{{ asset('/frontend/assets/gd-img/about-us.jpg') }}"
-                                class="blur-up img-responsive lazyloaded w-full object-cover hover:scale-105 transition-transform duration-700 w-100"
-                                alt="about us">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="w-full">
                     <div class="space-y-6 md:space-y-8">
                         <div>
                             <h1 class="text-[22px] lg:text-[26px] font-bold text-gray-800 leading-tight">
@@ -64,6 +53,28 @@
                                 With years of experience and deep understanding of customer needs, we are now making it easier for you to explore and shop from us, no matter where you are. 
                             </p>
                         </div>
+					</div>
+				</div>
+				<div class="w-full">
+				  <div class="flex flex-col gap-4 sm:gap-6">
+					<div class="rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500">
+					  <div class="relative w-full" style="padding-top: 56.25%;">
+						<iframe
+						  class="absolute top-0 left-0 w-full h-full"
+						src="https://www.youtube.com/embed/KnpiBosBEA4?si=uTZZ9Egt1B2BgBFb&autoplay=1&mute=1&loop=1&playlist=KnpiBosBEA4"
+						  title="YouTube video player"
+						  frameborder="0"
+						  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+						  referrerpolicy="strict-origin-when-cross-origin"
+						  allowfullscreen
+						></iframe>
+					  </div>
+					</div>
+				  </div>
+				</div>               
+                <div class="w-full">
+                    <div class="space-y-6 md:space-y-8">
+				
                         <div class="space-y-6">
                             <div>
                                 <h3 class="text-xl md:text-2xl font-bold text-gray-800 border-l-4 border-teal-500 pl-3 mb-3">
@@ -96,6 +107,24 @@
                                     We don’t focus on unnecessary variety—we focus on keeping products that are useful, reliable, and worth buying. 
                                 </p>
                             </div>
+					</div>
+				  </div>
+				</div>               
+				<div class="w-full">
+                    <div class="flex flex-col gap-4 sm:gap-6">
+                        <div class="rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500">
+                            <div class="bg-size blur-up lazyloaded">
+                                <img src="{{ asset('/frontend/assets/gd-img/about-us.jpg') }}"
+                                class="blur-up img-responsive lazyloaded w-full object-cover hover:scale-105 transition-transform duration-700 w-100"
+                                alt="about us">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full">
+                    <div class="space-y-6 md:space-y-8">
+				
+                        <div class="space-y-6">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 py-2">
                                 <div class="bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 group hover:border-teal-200 text-center">
                                     <div class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center mb-3 group-hover:bg-teal-600 transition-colors duration-300 mx-auto">

@@ -67,7 +67,7 @@ $search_value = !empty($query) ? $query : '';
                         <i class="fa-solid fa-bars"></i>
                      </span>
                   </button>
-                  <a href="{{URL::to('')}}" class="web-logo nav-logo gd-logo">
+                  <a href="{{ url('/') }}" class="web-logo nav-logo gd-logo">
                      <!--<img src="{{asset('frontend/assets/images/logo/1.png')}}" class="img-fluid blur-up lazyload" alt="">-->
                      Girdhar Das <span class="and"> & </span><span class="sons"> Sons</span>
                   </a>

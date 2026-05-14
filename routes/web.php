@@ -98,6 +98,7 @@ Route::middleware([TrackVisitor::class])->group(function () {
     Route::get('quick/view', [FrontendController::class, 'QuickViewModal'])->name('quick.view');
     /**Blog route */
     Route::get('blogs/list/{slug}', [FrontendController::class, 'blogList'])->name('blog.list');
+    Route::get('blogs', [FrontendController::class, 'blogListDisplay'])->name('blogs');
     Route::get('blogs/{slug}', [FrontendController::class, 'blogDetails'])->name('blog.details');
     Route::get('contact-us', [FrontendController::class, 'contactUs'])->name('contact-us');
     Route::post('contact-us/submit', [FrontendController::class, 'contactUsSubmit'])->name('contact-us.submit');

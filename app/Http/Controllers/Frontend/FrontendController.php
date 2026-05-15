@@ -47,7 +47,6 @@ class FrontendController extends Controller
         });
 
         $specialOffers = getCustomerSpecialOffers();
-
         $popular_label_id = $labels['Popular Product']->id ?? null;
         $trending_label_id = $labels['Trending Product']->id ?? null;
 
@@ -137,7 +136,7 @@ class FrontendController extends Controller
             ->with([
                 'category:id,title,slug'
             ])
-            ->inRandomOrder()
+            ->latest('id')
             ->take(4)
             ->get();
 
@@ -163,6 +162,7 @@ class FrontendController extends Controller
         $data['popular_products'] = $products->where('label_id', $popular_label_id)->take(12);
 
         $data['attributes_value'] = Attribute_values::select('name', 'slug', 'images')->whereNotNull('images')
+            ->whereNotNull('images')
             ->where('images', '!=', '')
             ->inRandomOrder()
             ->take(8)

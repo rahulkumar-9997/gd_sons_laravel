@@ -399,8 +399,9 @@ $(".close_button").click(function () {
    22. Category Box js
    ==========================*/
 $(".mobile-category").click(function () {
-    $(".bg-overlay, .category-dropdown").addClass("show");
+    $(".bg-overlay, .category-dropdown").toggleClass("show");
 });
+
 $(".close-button, .bg-overlay").click(function () {
     $(".bg-overlay, .category-dropdown").removeClass("show");
 });

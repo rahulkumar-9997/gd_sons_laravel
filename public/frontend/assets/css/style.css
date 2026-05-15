@@ -21918,7 +21918,7 @@ header .onhover-category-list .onhover-category-box {
     }
 
     header .onhover-category-list .onhover-category-box .list-2 {
-        margin-top: 15px
+        margin-top: 1px
     }
 }
 
@@ -21987,7 +21987,7 @@ header .onhover-category-list .onhover-category-box ul li::after {
 
 header .onhover-category-list .onhover-category-box ul li a {
     margin-left: 18px;
-    font-weight: 600;
+    font-weight: 500;
     line-height: 20px;
 }
 
@@ -23151,6 +23151,7 @@ header .header-nav .header-nav-left .category-dropdown {
         -webkit-box-shadow: none;
         box-shadow: none;
         overflow-y: scroll;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
     }
 
     header .header-nav .header-nav-left .category-dropdown .category-list .col-lg-4 li {
@@ -23193,8 +23194,8 @@ header .header-nav .header-nav-left .category-dropdown .category-title {
         -webkit-box-pack: justify;
         -ms-flex-pack: justify;
         justify-content: space-between;
-        padding: 20px 24px;
-        border-bottom: 1px solid #ececec;
+        padding: 13px 24px;
+        border-bottom: 2px solid #0f8b8d;
         -webkit-box-shadow: 0 2px 10px -3px rgba(34, 34, 34, .1);
         box-shadow: 0 2px 10px -3px rgba(34, 34, 34, .1)
     }
@@ -23202,7 +23203,8 @@ header .header-nav .header-nav-left .category-dropdown .category-title {
 
 header .header-nav .header-nav-left .category-dropdown .category-title h5 {
     color: var(--theme-color);
-    font-weight: 600
+    font-weight: 600;
+    font-size: 18px;
 }
 
 header .header-nav .header-nav-left .category-dropdown .category-list {
@@ -23216,10 +23218,10 @@ header .header-nav .header-nav-left .category-dropdown .category-list {
 
 }
 
-header .header-nav .header-nav-left .category-dropdown .category-list li {
+.header-nav .header-nav-left .category-dropdown .category-list li {
     display: block;
     width: 100%;
-    padding: 10px 0 10px 0;
+    padding: 6px 0 7px 0;
 }
 
 header .header-nav .header-nav-left .category-dropdown .category-list li a {
@@ -23239,9 +23241,11 @@ header .header-nav .header-nav-left .category-dropdown .category-list li a:hover
     letter-spacing: .3px
 }
 
+/*
 header .header-nav .header-nav-left .category-dropdown .category-list li a:hover h6::before {
     width: 65px
 }
+*/
 
 header .header-nav .header-nav-left .category-dropdown .category-list li a img {
     width: 23px;
@@ -23251,13 +23255,14 @@ header .header-nav .header-nav-left .category-dropdown .category-list li a img {
 }
 
 header .header-nav .header-nav-left .category-dropdown .category-list li a h6 {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 500;
     position: relative;
     -webkit-transition: all .3s ease-in-out;
-    transition: all .3s ease-in-out
+    transition: all .3s ease-in-out;
+    margin-top: 0px;
 }
-
+/*
 header .header-nav .header-nav-left .category-dropdown .category-list li a h6:before {
     content: "";
     position: absolute;
@@ -23270,6 +23275,7 @@ header .header-nav .header-nav-left .category-dropdown .category-list li a h6:be
     -webkit-transition: all .3s ease-in-out;
     transition: all .3s ease-in-out
 }
+*/
 
 [dir=rtl] header .header-nav .header-nav-left .category-dropdown .category-list li a h6:before {
     left: unset;
@@ -23277,7 +23283,8 @@ header .header-nav .header-nav-left .category-dropdown .category-list li a h6:be
 }
 
 header .header-nav .header-nav-left .category-dropdown .category-list li a .according-menu {
-    margin-left: auto
+    margin-left: auto;
+    font-size: 18px;
 }
 
 [dir=rtl] header .header-nav .header-nav-left .category-dropdown .category-list li a .according-menu {
@@ -43962,6 +43969,7 @@ body.rtl .question-answer li .question-box .link-dislike-box {
     .shop-section .top-filter-category>.row>div {
         border: none
     }
+
 }
 
 .category-slider-section .category-contain .category-contain-image {
@@ -44185,6 +44193,9 @@ body.rtl .question-answer li .question-box .link-dislike-box {
 }
 
 @media(max-width: 767px) {
+    .shop-section .show-button .top-filter-menu .category-dropdown h5 {
+        display: none
+    }
     .product-section .right-box-contain {
         text-align: left;
         position: unset;

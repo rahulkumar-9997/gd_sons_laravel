@@ -41,9 +41,9 @@ class FrontendController extends Controller
     public function home()
     {
         $labels = Cache::remember('home_labels', 86400, function () {
-        return Label::whereIn('title', ['Popular Product', 'Trending Product'])
-            ->get()
-            ->keyBy('title');
+            return Label::whereIn('title', ['Popular Product', 'Trending Product'])
+                ->get()
+                ->keyBy('title');
         });
 
         $specialOffers = getCustomerSpecialOffers();
@@ -52,95 +52,95 @@ class FrontendController extends Controller
         $trending_label_id = $labels['Trending Product']->id ?? null;
 
         $data['category_list'] = Cache::remember('home_categories', 86400, function () {
-        return Category::where('status', 'on')
-            ->select('id', 'title', 'slug', 'image')
-            ->get();
+            return Category::where('status', 'on')
+                ->select('id', 'title', 'slug', 'image')
+                ->get();
         });
 
         $data['primary_category'] = PrimaryCategory::select('id', 'title', 'link', 'primary_category_description')
-        ->where('status', 1)
-        ->whereHas('products', function($q) {
-            $q->where('product_status', 1);
-        })
-        ->inRandomOrder()
-        ->limit(15)
-        ->get()
-        ->map(function ($category) {
-            return [
-                'id' => $category->id,
-                'title' => $category->title,
-                'link' => $category->link,
-                'description' =>$category->primary_category_description,
-                'products' => $category->products()
-                    ->where('product_status', 1)
-                    ->select(
-                        'products.id',
-                        'products.title',
-                        'products.slug'
-                    )
-                    ->with([
-                        'firstSortedImage:id,product_id,image_path',
-                        'productAttributesValues' => function ($q) {
-                            $q->select(
+            ->where('status', 1)
+            ->whereHas('products', function ($q) {
+                $q->where('product_status', 1);
+            })
+            ->inRandomOrder()
+            ->limit(15)
+            ->get()
+            ->map(function ($category) {
+                return [
+                    'id' => $category->id,
+                    'title' => $category->title,
+                    'link' => $category->link,
+                    'description' => $category->primary_category_description,
+                    'products' => $category->products()
+                        ->where('product_status', 1)
+                        ->select(
+                            'products.id',
+                            'products.title',
+                            'products.slug'
+                        )
+                        ->with([
+                            'firstSortedImage:id,product_id,image_path',
+                            'productAttributesValues' => function ($q) {
+                                $q->select(
                                     'id',
                                     'product_id',
                                     'product_attribute_id',
                                     'attributes_value_id'
                                 )
-                                ->with([
-                                    'attributeValue:id,slug'
-                                ]);
-                        }
-                    ])
-                    ->leftJoin('inventories', function ($join) {
-                        $join->on('products.id', '=', 'inventories.product_id')
-                            ->whereRaw('inventories.mrp = (
+                                    ->with([
+                                        'attributeValue:id,slug'
+                                    ]);
+                            }
+                        ])
+                        ->leftJoin('inventories', function ($join) {
+                            $join->on('products.id', '=', 'inventories.product_id')
+                                ->whereRaw('inventories.mrp = (
                                 SELECT MIN(mrp)
                                 FROM inventories
                                 WHERE product_id = products.id
                             )');
-                    })
-                    ->addSelect([
-                        'inventories.mrp',
-                        'inventories.offer_rate',
-                        'inventories.purchase_rate',
-                        'inventories.sku',
-                        'inventories.stock_quantity'
-                    ])
-                    ->inRandomOrder()
-                    ->limit(2)
-                    ->get()
-                    ->map(function ($product) {
-                        $attributes_value = null;
-                        if ($product->productAttributesValues->isNotEmpty()) {
-                            $attributes_value = optional($product->productAttributesValues->first()->attributeValue)->slug;
-                        }
-                        return [
-                            'id' => $product->id,
-                            'title' => $product->title,
-                            'slug' => $product->slug,
-                            'mrp' => $product->mrp,
-                            'offer_rate' => $product->offer_rate,
-                            'purchase_rate' =>$product->purchase_rate,
-                            'sku' => $product->sku,
-                            'stock_quantity' => $product->stock_quantity,
-                           'image' => $product->firstSortedImage && $product->firstSortedImage->image_path && file_exists(public_path('images/product/small/' . $product->firstSortedImage->image_path))
-                            ? asset('images/product/small/' . $product->firstSortedImage->image_path)
-                            : null,
-                            'attributes_value_slug' => $attributes_value
-                        ];
-                    })
-            ];
-        });
-        
+                        })
+                        ->addSelect([
+                            'inventories.mrp',
+                            'inventories.offer_rate',
+                            'inventories.purchase_rate',
+                            'inventories.sku',
+                            'inventories.stock_quantity'
+                        ])
+                        ->inRandomOrder()
+                        ->limit(2)
+                        ->get()
+                        ->map(function ($product) {
+                            $attributes_value = null;
+                            if ($product->productAttributesValues->isNotEmpty()) {
+                                $attributes_value = optional($product->productAttributesValues->first()->attributeValue)->slug;
+                            }
+                            return [
+                                'id' => $product->id,
+                                'title' => $product->title,
+                                'slug' => $product->slug,
+                                'mrp' => $product->mrp,
+                                'offer_rate' => $product->offer_rate,
+                                'purchase_rate' => $product->purchase_rate,
+                                'sku' => $product->sku,
+                                'stock_quantity' => $product->stock_quantity,
+                                'image' => $product->firstSortedImage && $product->firstSortedImage->image_path && file_exists(public_path('images/product/small/' . $product->firstSortedImage->image_path))
+                                    ? asset('images/product/small/' . $product->firstSortedImage->image_path)
+                                    : null,
+                                'attributes_value_slug' => $attributes_value
+                            ];
+                        })
+                ];
+            });
+
         $data['blogs'] = Blog::select('id', 'title', 'slug', 'blog_category_id', 'blog_image', 'bog_description')
             ->with([
                 'category:id,title,slug'
             ])
             ->inRandomOrder()
             ->take(4)
-            ->get();        
-        
+            ->get();
+
         $products = Product::where('product_status', 1)
             ->whereIn('label_id', [$popular_label_id, $trending_label_id])
             ->with([
@@ -160,13 +160,114 @@ class FrontendController extends Controller
             ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
             ->get()
             ->shuffle();
-        $data['popular_products'] = $products->where('label_id', $popular_label_id)->take(18);
-        
+        $data['popular_products'] = $products->where('label_id', $popular_label_id)->take(12);
+
         $data['attributes_value'] = Attribute_values::select('name', 'slug', 'images')->whereNotNull('images')
             ->where('images', '!=', '')
             ->inRandomOrder()
             ->take(8)
             ->get();
+
+        $data['trending_products_weekly'] = Cache::remember(
+            'trending_products_weekly',
+            now()->addDays(7),
+            function () {
+                return Product::query()
+                    ->withCount([
+                        'orderLines as weekly_orders' => function ($q) {
+                            $q->where('created_at', '>=', now()->subDays(7));
+                        }
+                    ])
+                    ->select(
+                        'products.id',
+                        'products.title',
+                        'products.slug',
+                        'products.visitor_count',
+                        'products.category_id',
+                        'products.length',
+                        'products.breadth',
+                        'products.height',
+                        'products.weight',
+                    )
+                    ->with([
+                        'category:id,title',
+                        'firstSortedImage:id,product_id,image_path',
+                        'productAttributesValues' => function ($q) {
+                            $q->select(
+                                'id',
+                                'product_id',
+                                'product_attribute_id',
+                                'attributes_value_id'
+                            )->with([
+                                'attributeValue:id,slug'
+                            ]);
+                        }
+                    ])
+                    ->leftJoin('inventories', function ($join) {
+                        $join->on('products.id', '=', 'inventories.product_id')
+                            ->whereRaw('inventories.mrp = (
+                                SELECT MIN(mrp)
+                                FROM inventories
+                                WHERE product_id = products.id
+                            )');
+                    })
+                    ->addSelect([
+                        'inventories.mrp',
+                        'inventories.offer_rate',
+                        'inventories.purchase_rate',
+                        'inventories.sku',
+                        'inventories.stock_quantity'
+                    ])
+                    ->where('products.product_status', 1)
+                    ->get()
+                    ->map(function ($product) {
+                        $attributes_value = null;
+                        if ($product->productAttributesValues->isNotEmpty()) {
+                            $attributes_value = optional(
+                                $product->productAttributesValues->first()->attributeValue
+                            )->slug;
+                        }
+                        $trending_score =
+                            ($product->visitor_count ?? 0) * 1 +
+                            ($product->weekly_orders ?? 0) * 5;
+                        return [
+                            'id' => $product->id,
+                            'title' => $product->title,
+                            'category_title' => optional($product->category)->title,
+                            'slug' => $product->slug,
+                            'length' => $product->length,
+                            'breadth' => $product->breadth,
+                            'height' => $product->height,
+                            'weight' => $product->weight,
+                            'mrp' => $product->mrp,
+                            'offer_rate' => $product->offer_rate,
+                            'purchase_rate' => $product->purchase_rate,
+                            'sku' => $product->sku,
+                            'stock_quantity' => $product->stock_quantity,
+                            'weekly_orders' => $product->weekly_orders,
+                            'visitor_count' => $product->visitor_count,
+                            'trending_score' => $trending_score,
+                            'image' => $product->firstSortedImage &&
+                                $product->firstSortedImage->image_path &&
+                                file_exists(
+                                    public_path(
+                                        'images/product/small/' .
+                                        $product->firstSortedImage->image_path
+                                    )
+                                )
+                                    ? asset(
+                                        'images/product/small/' .
+                                        $product->firstSortedImage->image_path
+                                    )
+                                    : null,
+                            'attributes_value_slug' => $attributes_value
+                        ];
+                    })
+                    ->sortByDesc('trending_score')
+                    ->take(9)
+                    ->values();
+            }
+        );
         //return response()->json($data['popular_products']);
         return view('frontend.index', compact('data', 'specialOffers'));
     }
@@ -540,7 +641,7 @@ class FrontendController extends Controller
 
 
             $productsQuery = Product::where('category_id', $category->id)
-               ->where('product_status', 1);
+                ->where('product_status', 1);
             $productsQuery->whereHas('attributes', function ($query) use ($attribute_top, $attributeValue) {
                 $query->where('attributes_id', $attribute_top->id)
                     ->whereHas('values', function ($q) use ($attributeValue) {
@@ -636,18 +737,19 @@ class FrontendController extends Controller
                 'ProductAttributesValues' => function ($query) {
                     $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
                         ->with([
-                            'attributeValue:id,slug', 'productAttribute:id,attributes_id'
+                            'attributeValue:id,slug',
+                            'productAttribute:id,attributes_id'
                         ])
                         ->orderBy('id');
                 },
             ])
-            ->leftJoin('inventories', function ($join) {
-                $join->on('products.id', '=', 'inventories.product_id')
-                    ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-            })
-            ->whereHas('images')/*only select which product whose images have (if all product selected than remove this line)*/
-            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
-            ->paginate(20);
+                ->leftJoin('inventories', function ($join) {
+                    $join->on('products.id', '=', 'inventories.product_id')
+                        ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+                })
+                ->whereHas('images')/*only select which product whose images have (if all product selected than remove this line)*/
+                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
+                ->paginate(20);
 			
 			
 			// $products = $productsQuery->with([
@@ -664,8 +766,8 @@ class FrontendController extends Controller
                         // ->orderBy('id');
                 // }
             // ])
-			
-			
+
+
             /**special offer rate */
             $specialOffers = getCustomerSpecialOffers();
             /**special offer rate */
@@ -684,32 +786,28 @@ class FrontendController extends Controller
                 }
             }
             DB::disconnect();
-			
-			$transformedstr = '';
-			$l1 = 0;			
-			foreach ($attributes_with_values_for_filter_list as $arritem) {
-				$l2 = 0;
-				$transformedstr .= $arritem['title'].'s like ';
-				foreach($arritem->AttributesValues as $aval)
-				{
-					if($aval->name == 'NA' || $aval->name == 'N/A')
-					{
-						continue;
-					}
-					$transformedstr .= $aval->name.' ';
-					$l2++;
-					if($l2 >= 3)
-					{
-						break;
-					}
-				}
-				$l1++;
-				if($l1 >= 3)
-				{
-					
-					break;
-				}
-			}			
+
+            $transformedstr = '';
+            $l1 = 0;
+            foreach ($attributes_with_values_for_filter_list as $arritem) {
+                $l2 = 0;
+                $transformedstr .= $arritem['title'] . 's like ';
+                foreach ($arritem->AttributesValues as $aval) {
+                    if ($aval->name == 'NA' || $aval->name == 'N/A') {
+                        continue;
+                    }
+                    $transformedstr .= $aval->name . ' ';
+                    $l2++;
+                    if ($l2 >= 3) {
+                        break;
+                    }
+                }
+                $l1++;
+                if ($l1 >= 3) {
+
+                    break;
+                }
+            }
             return view('frontend.pages.product-catalog', compact(
                 'products',
                 'category',
@@ -717,30 +815,30 @@ class FrontendController extends Controller
                 'attribute_top',
                 'primary_category',
                 'specialOffers',
-                'attributes_with_values_for_filter_list', 'transformedstr'
+                'attributes_with_values_for_filter_list',
+                'transformedstr'
             ));
         } catch (\Exception $e) {
             Log::error('Error fetching product catalog: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
-			return response()->json([
-				'error' => $e->getMessage(),
-				'file' => $e->getFile(),
-				'line' => $e->getLine(),
-			], 500);
+            return response()->json([
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ], 500);
         }
     }
 
-    
+
     public function showProductDetails(Request $request, $slug, $attributes_value_slug)
     {
-        
+
         if ($request->has('token') && !auth()->guard('customer')->check()) {
             $decoded = Hashids::decode($request->get('token'));
             $customer_id = $decoded[0] ?? null;
             $product_id = $decoded[1] ?? null;
             $originalUrl = $request->fullUrl();
-            if (!is_null($customer_id) && !is_null($product_id))
-            {
+            if (!is_null($customer_id) && !is_null($product_id)) {
                 $offer = SpecialOffer::where('customer_id', $customer_id)
                     ->where('product_id', $product_id)
                     ->first();
@@ -751,13 +849,12 @@ class FrontendController extends Controller
                     }
                     //$customer = Customer::select('phone_number')->where('id', $customer_id)->first();
                     $customer = Customer::where('id', $customer_id)->first();
-                    if ($customer)
-                    {
+                    if ($customer) {
                         Auth::shouldUse('customer');
                         /*Manually set the customer in session before redirect*/
                         session()->put('auth.customer_id', $customer->id);
                         /*Force save the session*/
-                        session()->save(); 
+                        session()->save();
                         /*Now perform the actual login*/
                         Auth::guard('customer')->login($customer);
                         $cleanUrl = preg_replace('/([&?])token=[^&]+(&)?/', '$1', $originalUrl);
@@ -775,7 +872,7 @@ class FrontendController extends Controller
                                 'session_id' => session()->getId()
                             ]);
                             return redirect('/')->with('error', 'Login failed. Please try again.');
-                        }                        
+                        }
                     } else {
                         return redirect('/')->with('error', 'Customer not found!');
                     }
@@ -803,9 +900,7 @@ class FrontendController extends Controller
                     }
                     */
                 }
-            }
-            else
-            {
+            } else {
                 $cleanUrl = preg_replace('/([&?])token=[^&]+(&)?/', '$1', $originalUrl);
                 $clean_url = rtrim($cleanUrl, '?&');
                 return redirect($clean_url)->with('error', 'You did not get special offer rate!');
@@ -832,13 +927,13 @@ class FrontendController extends Controller
             'additionalFeatures.feature',
             'reviews.reviewFiles',
         ])
-        ->leftJoin('inventories', function ($join) {
-            $join->on('products.id', '=', 'inventories.product_id')
-                ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-        })
-        ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
-        ->where('products.slug', $slug)
-        ->firstOrFail();
+            ->leftJoin('inventories', function ($join) {
+                $join->on('products.id', '=', 'inventories.product_id')
+                    ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+            })
+            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
+            ->where('products.slug', $slug)
+            ->firstOrFail();
         /**Review */
         // Calculate review statistics
         $reviews = $data['product_details']->reviews ?? collect();
@@ -884,15 +979,15 @@ class FrontendController extends Controller
             ->inRandomOrder()
             ->limit(10)
             ->get();
-            /*Related product from related table*/
-            $variantIds = RelatedProduct::where('product_id', $product->id)->pluck('variant_id');
+        /*Related product from related table*/
+        $variantIds = RelatedProduct::where('product_id', $product->id)->pluck('variant_id');
 
-            $data['other_related_products'] = RelatedProduct::with([
+        $data['other_related_products'] = RelatedProduct::with([
             'product' => function ($query) use ($attributeValue) {
-                $query->select('id','title','slug')
+                $query->select('id', 'title', 'slug')
                     ->with([
                         'ProductAttributesValues' => function ($q) use ($attributeValue) {
-                            $q->select('id','product_id','product_attribute_id','attributes_value_id')
+                            $q->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
                                 ->where('attributes_value_id', $attributeValue->id)
                                 ->with([
                                     'attributeValue:id,slug'
@@ -902,10 +997,10 @@ class FrontendController extends Controller
                     ]);
             }
         ])
-        ->whereIn('variant_id', $variantIds)
-        ->select('product_id','variant_id','title','group_title', 'description')
-        ->get()
-        ->groupBy('group_title');
+            ->whereIn('variant_id', $variantIds)
+            ->select('product_id', 'variant_id', 'title', 'group_title', 'description')
+            ->get()
+            ->groupBy('group_title');
         /*Related product from related table */
 
         DB::disconnect();
@@ -1037,7 +1132,7 @@ class FrontendController extends Controller
             if (!$primary_category) {
                 Log::error("No primary category found for URL: " . $request->url());
                 // continue;
-				//return response()->json(['error' => 'No primary category found for URL'], 404);
+                //return response()->json(['error' => 'No primary category found for URL'], 404);
             }
 
             if (!$category) {
@@ -1046,7 +1141,7 @@ class FrontendController extends Controller
             }
 
             $productsQuery = Product::where('category_id', $category->id)->where('product_status', 1);
-            /** for filter code */            
+            /** for filter code */
             if ($request->has('filter')) {
                 Log::info('Filters category catalog: ' . json_encode($request->query()));
                 $filters = $request->except(['filter', 'sort', 'page']);
@@ -1125,7 +1220,8 @@ class FrontendController extends Controller
                 'ProductAttributesValues' => function ($query) {
                     $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
                         ->with([
-                            'attributeValue:id,slug', 'productAttribute:id,attributes_id'
+                            'attributeValue:id,slug',
+                            'productAttribute:id,attributes_id'
                         ])
                         ->orderBy('id');
                 }
@@ -1154,50 +1250,46 @@ class FrontendController extends Controller
                 }
             }
             DB::disconnect();
-			// return response()->json($attributes_with_values_for_filter_list);
-			 
-			$transformedstr = '';
-			$l1 = 0;
-			
-			$brand = '';
-			foreach ($attributes_with_values_for_filter_list as $arritem) {
-				$l2 = 0;
-				// if($arritem['title'] == 'Brand')
-				// {
-					// $brand = 
-				// }
-				$transformedstr .= $arritem['title'].'s like ';
-				foreach($arritem->AttributesValues as $aval)
-				{
-					if($aval->name == 'NA' || $aval->name == 'N/A')
-					{
-						continue;
-					}
-					$transformedstr .= $aval->name.' ';
-					$l2++;
-					if($l2 >= 3)
-					{
-						break;
-					}
-				}
-				$l1++;
-				if($l1 >= 3)
-				{
-					
-					break;
-				}
-			}
+            // return response()->json($attributes_with_values_for_filter_list);
 
-			// return response()->json($products);
+            $transformedstr = '';
+            $l1 = 0;
+
+            $brand = '';
+            foreach ($attributes_with_values_for_filter_list as $arritem) {
+                $l2 = 0;
+                // if($arritem['title'] == 'Brand')
+                // {
+                // $brand = 
+                // }
+                $transformedstr .= $arritem['title'] . 's like ';
+                foreach ($arritem->AttributesValues as $aval) {
+                    if ($aval->name == 'NA' || $aval->name == 'N/A') {
+                        continue;
+                    }
+                    $transformedstr .= $aval->name . ' ';
+                    $l2++;
+                    if ($l2 >= 3) {
+                        break;
+                    }
+                }
+                $l1++;
+                if ($l1 >= 3) {
+
+                    break;
+                }
+            }
+
+            // return response()->json($products);
             return view('frontend.pages.product-catalog-category', compact('products', 'specialOffers', 'category', 'attributes_with_values_for_filter_list', 'primary_category', 'transformedstr', 'categorySlug'));
         } catch (\Exception $e) {
             Log::error('Error fetching product catalog: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
-			return response()->json([
-				'error' => $e->getMessage(),
-				'file' => $e->getFile(),
-				'line' => $e->getLine(),
-			], 500);
+            return response()->json([
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ], 500);
         }
     }
 
@@ -1362,7 +1454,7 @@ class FrontendController extends Controller
             ->with([
                 'category:id,title,slug'
             ])
-            ->paginate(20);  
+            ->paginate(20);
         return view('frontend.pages.blog.index', compact('blogs'));
     }
     public function blogList($blogCategorySlug)
@@ -1760,7 +1852,7 @@ class FrontendController extends Controller
     {
         $flashLabel = Label::where('title', 'Flash Sale')->first();
         $flash_label_id = $flashLabel->id;
-        $specialOffers = getCustomerSpecialOffers(); 
+        $specialOffers = getCustomerSpecialOffers();
         $query = Product::where('product_status', 1)
             ->where('label_id', $flash_label_id)
             ->with([
@@ -1776,7 +1868,7 @@ class FrontendController extends Controller
                     ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
             })
             ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity');
-        /*Apply filters*/        
+        /*Apply filters*/
         if ($request->has('filter')) {
             Log::info('Filters flash sale: ' . json_encode($request->query()));
             foreach ($request->all() as $attributeSlug => $valueSlugs) {
@@ -1784,8 +1876,8 @@ class FrontendController extends Controller
                     continue;
                 }
                 $valueSlugsArray = array_filter(explode(',', $valueSlugs));
-                $query->whereHas('attributes.values.attributeValue', function($q) use ($attributeSlug, $valueSlugsArray) {
-                    $q->whereHas('attribute', function($q) use ($attributeSlug) {
+                $query->whereHas('attributes.values.attributeValue', function ($q) use ($attributeSlug, $valueSlugsArray) {
+                    $q->whereHas('attribute', function ($q) use ($attributeSlug) {
                         $q->where('slug', $attributeSlug);
                     })->whereIn('slug', $valueSlugsArray);
                 });
@@ -1845,7 +1937,7 @@ class FrontendController extends Controller
                 foreach ($attributeRelation->values as $valueRelation) {
                     $attributeValue = $valueRelation->attributeValue;
                     if ($attributeValue && !isset($attributes_with_values_for_filter_list[$attrId]['values'][$attributeValue->id])) {
-                        if($attributeValue->name !== 'NA') {
+                        if ($attributeValue->name !== 'NA') {
                             $attributes_with_values_for_filter_list[$attrId]['values'][$attributeValue->id] = [
                                 'id' => $attributeValue->id,
                                 'name' => $attributeValue->name ?? $attributeValue->slug,
@@ -1861,15 +1953,16 @@ class FrontendController extends Controller
         return view('frontend.pages.flash-sale', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list'));
     }
 
-    public function requestProductEnquiryForm(Request $request){
-        $action = $request->input('action');        
+    public function requestProductEnquiryForm(Request $request)
+    {
+        $action = $request->input('action');
         $form = '
         <!--<form method="POST" action="' . route('request.product.enquiry.submit') . '" accept-charset="UTF-8" enctype="multipart/form-data" id="productEnquiryForm">
             ' . csrf_field() . '
             <input type="hidden" name="check_spam">
             ';
-            if ($action == 'PageReloadModal') {
-                $form .= '
+        if ($action == 'PageReloadModal') {
+            $form .= '
                 <input type="hidden" name="page_reload" value="1">
                 <div class="row">
                     <div class="col-md-12">
@@ -1929,9 +2022,9 @@ class FrontendController extends Controller
                         </div>
                     </div>
                 </div>';
-                $action = 'PageReloadModal';
-            }else{
-                $form .= '                
+            $action = 'PageReloadModal';
+        } else {
+            $form .= '                
                 <div class="row">
                     <div class="col-md-12">
                         <div class="mb-md-4 mb-3 custom-form">
@@ -1962,17 +2055,17 @@ class FrontendController extends Controller
                         <button style="color:#ffffff;" type="submit" class="btn btn-2-animation btn-lg fw-bold">Submit</button>
                     </div>
                 </div>';
-                $action = 'Modal';
-            }
+            $action = 'Modal';
+        }
         $form .= '
         </form>-->';
-            $form = '<iframe src="https://forms.wizards.co.in/2a158dfb-e751-4fad-a29d-de2d10ec1805/submit" 
+        $form = '<iframe src="https://forms.wizards.co.in/2a158dfb-e751-4fad-a29d-de2d10ec1805/submit" 
                         width="100%" 
                         height="500" 
                         frameborder="0" 
                         style="border: none;">
                 </iframe>';
-        
+
         return response()->json([
             'message' => 'Form created successfully',
             'form' => $form,
@@ -2006,7 +2099,7 @@ class FrontendController extends Controller
                 'message' => $request->message,
                 'reload_modal' => $request->input('page_reload') == '1' ? '1' : '0'
             ]);
-            
+
 
             $basePayload = [
                 'apiKey' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY',
@@ -2060,7 +2153,6 @@ class FrontendController extends Controller
                 'status' => 'success',
                 'message' => 'Your enquiry has been submitted successfully. Our team will contact you shortly.'
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('ProductEnquiry Error: ' . $e->getMessage(), [
@@ -2085,21 +2177,21 @@ class FrontendController extends Controller
         $pageUrl = $request->page_url;
         /* Check if the same IP+URL clicked in the last 5 minutes */
         //$recentClickExists = ClickTrackers::where('ip_address', $ip)
-         //   ->where('page_url', $pageUrl)
-         //   ->where('click_time', '>=', now()->subMinutes(5))
-         //   ->exists();
+        //   ->where('page_url', $pageUrl)
+        //   ->where('click_time', '>=', now()->subMinutes(5))
+        //   ->exists();
         //if (!$recentClickExists) {
-            ClickTrackers::create([
-                'button_type' => $request->btn_type,
-                'page_url' => $request->page_url,
-                'ip_address' => $request->ip(),
-                'click_time' => now()->setTimezone('Asia/Kolkata'),
-                'device_type' => $this->getDeviceType($agent),
-            ]);
+        ClickTrackers::create([
+            'button_type' => $request->btn_type,
+            'page_url' => $request->page_url,
+            'ip_address' => $request->ip(),
+            'click_time' => now()->setTimezone('Asia/Kolkata'),
+            'device_type' => $this->getDeviceType($agent),
+        ]);
         //}
         return response()->json(['success' => true]);
     }
-    
+
     protected function getDeviceType($agent)
     {
         if ($agent->isMobile()) {
@@ -2114,7 +2206,7 @@ class FrontendController extends Controller
     public function loadMoreReviews(Request $request)
     {
         try {
-            $product = Product::findOrFail($request->product_id);            
+            $product = Product::findOrFail($request->product_id);
             $reviews = $product->reviews()
                 ->with('reviewFiles')
                 ->orderBy('review_post_date', 'desc')
@@ -2134,7 +2226,6 @@ class FrontendController extends Controller
                 'total' => $reviews->total(),
                 'loadedCount' => $reviews->lastItem()
             ]);
-
         } catch (\Exception $e) {
             Log::error('Load More Reviews Error: ' . $e->getMessage());
             return response()->json([
@@ -2145,17 +2236,16 @@ class FrontendController extends Controller
     }
 
     public function productVideo(Request $request, $slug)
-    {  
-        $product = Product::with([            
+    {
+        $product = Product::with([
             'category',
-        ])        
-        ->select('products.*')
-        ->where('products.slug', $slug)
-        ->firstOrFail(); 
+        ])
+            ->select('products.*')
+            ->where('products.slug', $slug)
+            ->firstOrFail();
         $ref = $request->get('ref');
         //return response()->json($product);
-        return view('frontend.pages.product-video', compact('product', 'ref'));       
-        
+        return view('frontend.pages.product-video', compact('product', 'ref'));
     }
 
     public function checkServiceability(Request $request)
@@ -2244,7 +2334,7 @@ class FrontendController extends Controller
         }
         return response()->json([
             'success' => true,
-            'html' => view('frontend.pages.partials.delivery-checker',[
+            'html' => view('frontend.pages.partials.delivery-checker', [
                 'product_items_for_js' => json_decode($productData, true),
                 'product_id' => $product_id,
             ])->render()
@@ -2277,6 +2367,3 @@ class FrontendController extends Controller
         return $totalWeight;
     }
 }
-
-
-

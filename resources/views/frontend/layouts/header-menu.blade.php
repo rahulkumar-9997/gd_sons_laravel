@@ -209,7 +209,7 @@ $search_value = !empty($query) ? $query : '';
                               @if(!empty($category['attributes']))
 
                               <div class="onhover-category-box">
-                                 <a href="{{ url('categories/'.$category['category-slug'])}}" class="btn btn-md mt-1 mb-3 theme-bg-color text-white ">
+                                 <a href="{{ url('categories/'.$category['category-slug'])}}" class="btn btn-md mt-1 mb-2 theme-bg-color text-white ">
                                     All {{ $category['title'] }}
                                  </a>
                                  <div class="col-lg-12">

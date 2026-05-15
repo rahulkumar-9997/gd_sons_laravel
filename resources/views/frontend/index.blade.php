@@ -37,7 +37,7 @@
 </section>
 @endif
 <section class="home-section pt-2">
-    <div class="container-fluid-lg">        
+    <div class="container-fluid-lg">
         <div class="row">
             <div class="col-lg-12">
                 <div class="text-center mt-2">
@@ -105,7 +105,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-15">
                 @foreach ($data['primary_category'] as $index =>$primary_category_row)
 
-                <div class="p-1 group relative rounded overflow-hidden shadow-2xl hover:shadow-2xl transition-shadow duration-300 text-center">
+                <div class="p-1 group relative rounded overflow-hidden shadow-2xl hover:shadow-2xl transition-shadow duration-300">
                     <a href="{{ $primary_category_row['link'] ?? '#' }}" class="inline-block group/category">
                         <h3 class="text-[18px] sm:text-[16px] md:text-[18px] lg:text-[20px] mb-2 font-bold text-slate-800 group-hover/category:text-primary-600 transition-colors duration-300">
                             {{ $primary_category_row['title'] }}
@@ -163,9 +163,9 @@
                                                 class="absolute top-0 left-0 w-full h-full object-contain blur-up lazyloaded transition-transform duration-500 group-hover/product:scale-105">
                                             @if($discountPercentage > 0)
                                             <div class="discount absolute top-2 left-2 z-1">
-                                                <label class="bg-gradient-to-r bg-primary-teal text-white px-2 py-1 rounded-md text-xs font-bold shadow-md">
-                                                    Save {{ $discountPercentage }}%
-                                                </label>
+                                                <span class="group/badge relative inline-flex items-center gap-1 bg-green-700 text-white text-[10px] font-bold tracking-wide px-2 py-[3px] rounded-full cursor-default shadow-badge hover:shadow-badge-hover hover:scale-105 transition-all duration-200">
+                                                    {{ $discountPercentage }}% OFF
+                                                </span>
                                             </div>
                                             @endif
                                         </div>
@@ -184,20 +184,16 @@
                                                 </div>
                                                 @endif
                                                 @if ($mrp !== null && $mrp > $final_offer_rate)
-                                                <del class="text-xs text-gray-400">Rs. {{ number_format($mrp) }}</del>
+                                                <del class="text-[14px] text-gray-400">Rs. {{ number_format($mrp) }}</del>
                                                 @endif
                                             </div>
                                             @if($product['stock_quantity'] !== null)
-                                            @if($product['stock_quantity'] <= 0)
-                                                <span class="text-xs text-red-500 block mt-1">Out of Stock</span>
+                                                @if($product['stock_quantity'] <= 0)
+                                                    <span class="text-xs text-red-500 block mt-1">
+                                                        Out of Stock
+                                                    </span>
                                                 @endif
-                                                @endif
-                                                <!--<div class="flex items-center mt-2">
-                                                <div class="flex text-yellow-400 text-xs">
-                                                    ★★★★★
-                                                </div>
-                                                <span class="text-xs text-gray-500 ml-1">(0)</span>
-                                            </div>-->
+                                            @endif                                                
                                         </div>
                                     </div>
                                 </a>
@@ -219,7 +215,6 @@
             @endforeach
         </div>
         @endif
-
         <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12">
             @if ($data['popular_products'] && $data['popular_products']->isNotEmpty())
             <div class="title d-block text-center">
@@ -289,11 +284,9 @@
                                         <div class="product-image">
                                             @if ($discountPercentage>0)
                                             <div class="label-flex">
-                                                <div class="discount">
-                                                    <label>
-                                                        Save {{ $discountPercentage }}%
-                                                    </label>
-                                                </div>
+                                                <span class="group/badge relative inline-flex items-center gap-1 bg-green-700 text-white text-[10px] font-bold tracking-wide px-2 py-[3px] rounded-full cursor-default shadow-badge hover:shadow-badge-hover hover:scale-105 transition-all duration-200">
+                                                    {{ $discountPercentage }}% OFF
+                                                </span>
                                             </div>
                                             @endif
                                             <div class="product-img">
@@ -303,7 +296,6 @@
                                                         <source
                                                             media="(max-width: 767px)"
                                                             srcset="https://www.cdn.gdsons.co.in/product/icon/{{ $firstImage->image_path }}">
-
                                                         <img
                                                             class="img-fluid blur-up lazyload"
                                                             data-src="https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImage->image_path }}"
@@ -338,32 +330,29 @@
                                             !empty($popular_product_row->breadth) &&
                                             !empty($popular_product_row->height) &&
                                             !empty($popular_product_row->weight);
-                                            @endphp
-                                            @if(($popular_product_row->mrp > 0 && $popular_product_row->stock_quantity <= 0) || !$hasDimensions)
-                                                <ul class="product-option">
-                                                <li title="Out of Stock">
-                                                    <a href="javascript:void(0)" class="out_of_stock">
-                                                        Out of Stock
-                                                    </a>
-                                                </li>
-                                                </ul>
-                                                @endif
+                                            @endphp                                            
                                         </div>
                                         <div class="product-detail">
                                             <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
-                                                <h5 class="name">{{ ucwords(strtolower($popular_product_row->title)) }}</h5>
+                                                <h5 class="name line-clamp-2 text-sm font-medium text-gray-800 group-hover/product:text-primary-600 transition-colors">{{ ucwords(strtolower($popular_product_row->title)) }}</h5>
                                             </a>
-                                            <h5 class="sold text-content">
-                                                @if ($final_offer_rate === null)
-                                                <span class="theme-color price">Price not available</span>
+                                            <div class="mt-2 flex justify-between items-center">
+                                                @if ($final_offer_rate === null || $final_offer_rate == 0)
+                                                <span class="text-xs text-gray-500">Price not available</span>
                                                 @else
-                                                <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
+                                                <div class="flex flex-col">
+                                                    <h5 class="text-base font-bold text-primary-600">Rs. {{ number_format($final_offer_rate) }}</h5>
+                                                </div>
                                                 @endif
-
                                                 @if ($mrp !== null)
-                                                <del>Rs. {{ $mrp }}</del>
+                                                <del class="text-[14px] text-gray-400">Rs. {{ number_format($mrp) }}</del>
                                                 @endif
-                                            </h5>
+                                            </div>                                            
+                                            @if(($popular_product_row->mrp > 0 && $popular_product_row->stock_quantity <= 0) || !$hasDimensions)
+                                                <span class="text-xs text-red-500 block mt-1">
+                                                    Out of Stock
+                                                </span>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -384,7 +373,7 @@
     </div>
 </section>
 
-<section class="why-choose-section bg-gray pb-5">
+<section class="why-choose-section bg-gray-50 pb-5">
     <div class="container-fluid-lg">
         <div class="flex flex-col lg:flex-row gap-8 items-center">
             <div class="choose-card relative bg-[#0f1e36] p-10 lg:w-[480px] flex flex-col justify-between overflow-hidden shadow-2xl rounded-[16px]">
@@ -479,7 +468,112 @@
     </div>
 </section>
 
-@if ($data['blogs'] && $data['blogs']->isNotEmpty())
+@if ($data['trending_products_weekly'] && $data['trending_products_weekly']->isNotEmpty())
+<section class="current-week-product pb-12 bg-[#f5f5f0]">
+    <div class="container-fluid-lg">
+        <div class="title d-block text-center">
+            <div>
+                <h2>Trending This Week</h2>
+                <span class="title-leaf"></span>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            @foreach ($data['trending_products_weekly'] as $index =>$product)
+                @php
+                    $offer_rate = $product['offer_rate'];
+                    $mrp = $product['mrp'];
+                    $purchase_rate = $product['purchase_rate'];
+                    $group_offer_rate = null;
+                    $special_offer_rate = null;
+
+                    if ($groupCategory && $offer_rate !== null) {
+                        $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                        if ($group_percentage > 0) {
+                            $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                            $group_offer_rate = floor($group_offer_rate);
+                        }
+                    }
+                    /*Special Offer*/
+                    if (isset($specialOffers[$product['id']])) {
+                        $special_offer_rate = (float) $specialOffers[$product['id']];
+                    }
+                    /* Choose lowest rate */
+                    $all_rates = array_filter([
+                        $offer_rate,
+                        $group_offer_rate,
+                        $special_offer_rate
+                    ]);
+                    if (!empty($all_rates)) {
+                        $final_offer_rate = min($all_rates);
+                    } else {
+                        $final_offer_rate = $offer_rate;
+                    }
+                    /* Calculate discount */
+                    $discountPercentage = ($mrp > 0 && $final_offer_rate > 0 && $final_offer_rate < $mrp)
+                    ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+                    : 0;
+
+                @endphp
+                @php
+                    $hasDimensions =
+                    !empty($product['length']) &&
+                    !empty($product['breadth']) &&
+                    !empty($product['height']) &&
+                    !empty($product['weight']);
+                @endphp 
+                <div class="product-card bg-white rounded-2xl p-2">
+                    <a href="{{ url('products/'.$product['slug'].'/'.$product['attributes_value_slug']) }}">
+                        <div class="flex items-center gap-2">
+                            <img src="{{ $product['image'] ?? 'https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png' }}" class="w-20 h-20 rounded-xl object-contain flex-shrink-0 bg-white p-1">
+                            <div class="flex-1 min-w-0">
+                                <div class="text-[13px] font-semibold tracking-widest text-primary-navy mb-1">
+                                    {{ $product['category_title'] }}
+                                </div>
+                                <div class="product-detail">
+                                    <h5 class="name line-clamp-1 text-sm font-medium text-gray-800 group-hover/product:text-primary-600 transition-colors">
+                                        {{ ucwords(strtolower($product['title'])) }}
+                                    </h5>
+                                </div>
+                                <div class="flex items-center gap-2 mt-2 flex-wrap">
+                                    @if ($offer_rate === null || $offer_rate == 0)
+                                        <h5 class="text-base font-bold text-primary-600">
+                                            Price not available
+                                        </h5>
+                                    @else
+                                        <h5 class="text-base font-bold text-primary-600">
+                                            Rs. {{ number_format($offer_rate) }}
+                                        </h5>
+                                    @endif
+                                    @if ($mrp !== null && $mrp > $final_offer_rate)
+                                        <del class="text-[14px] text-gray-400">Rs. {{ number_format($mrp) }}</del>
+                                    @endif
+                                    @if($discountPercentage>0)
+                                        <span class="group/badge relative inline-flex items-center gap-1 bg-green-700 text-white text-[10px] font-bold tracking-wide px-2 py-[3px] rounded-full cursor-default shadow-badge hover:shadow-badge-hover hover:scale-105 transition-all duration-200">
+                                            {{ $discountPercentage }}% OFF
+                                        </span>
+                                    @endif
+                                </div>
+                                @if(($product['mrp'] > 0 && $product['stock_quantity'] <= 0) || !$hasDimensions)
+                                    <span class="text-xs text-red-500 block mt-1">
+                                        Out of Stock
+                                    </span>
+                                @endif                                
+                            </div>
+                            <button class="arrow-btn w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </a>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
+@if($data['blogs'] && $data['blogs']->isNotEmpty())
 <section class="home-blog-section pb-4">
     <div class="container-fluid-lg">
         <div class="blog-heading text-center mb-4">
@@ -529,67 +623,68 @@
     </div>
 </section>
 @endif
+
 @if ($data['attributes_value'] && $data['attributes_value']->isNotEmpty())
-    <section class="top-brand-we-dealin pb-5">
-        <div class="container-fluid-lg">
-            <div class="flex flex-wrap items-center gap-3 mb-7">
-                <h4 class="lg:text-[20px] md:text-[18px] font-bold text-[#222]">Top Brands We Deal In</h4>
-                <div class="flex-1 h-[1px] bg-primary-teal max-w-[100px]"></div>
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <div class="lg:col-span-2 bg-gray-100 p-4 rounded-xl animate-fadeup">
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                        @foreach($data['attributes_value'] as $value)
-                            <a href="{{ route('search', ['query' => strtolower(urlencode($value->name))]) }}" class="block">
-                                <div class="group flex flex-col items-center justify-center bg-white rounded-xl p-2 cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-teal-500/15">
-                                    <div class="w-full h-[100px] flex items-center justify-center overflow-hidden rounded-lg">
-                                        <img src="{{ asset('images/attribute-values/' . $value->images) }}"
-                                            alt="{{ $value->name }}"
-                                            loading="lazy"
-                                            class="w-full h-full object-contain transition-all duration-300 group-hover:scale-105"
-                                            onerror="this.outerHTML='<span class=\'text-[16px] font-semibold text-red-500 px-2 py-1 bg-red-50 rounded-lg\'>{{ $value->name }}</span>'">
-                                    </div>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
+<section class="top-brand-we-dealin pb-5">
+    <div class="container-fluid-lg">
+        <div class="flex flex-wrap items-center gap-3 mb-7">
+            <h4 class="lg:text-[20px] md:text-[18px] font-bold text-[#222]">Top Brands We Deal In</h4>
+            <div class="flex-1 h-[1px] bg-primary-teal max-w-[100px]"></div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div class="lg:col-span-2 bg-gray-100 p-4 rounded-xl animate-fadeup">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                    @foreach($data['attributes_value'] as $value)
+                    <a href="{{ route('search', ['query' => strtolower(urlencode($value->name))]) }}" class="block">
+                        <div class="group flex flex-col items-center justify-center bg-white rounded-xl p-2 cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-teal-500/15">
+                            <div class="w-full h-[100px] flex items-center justify-center overflow-hidden rounded-lg">
+                                <img src="{{ asset('images/attribute-values/' . $value->images) }}"
+                                    alt="{{ $value->name }}"
+                                    loading="lazy"
+                                    class="w-full h-full object-contain transition-all duration-300 group-hover:scale-105"
+                                    onerror="this.outerHTML='<span class=\'text-[16px] font-semibold text-red-500 px-2 py-1 bg-red-50 rounded-lg\'>{{ $value->name }}</span>'">
+                            </div>
+                        </div>
+                    </a>
+                    @endforeach
                 </div>
-                <div class="bg-gray-100 rounded-xl p-6 flex items-center">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 items-center w-full">
-                        <div class="flex justify-center lg:order-2 sm:order-1 md:order-1">
-                            <img src="{{ asset('frontend/assets/gd-img/bulk-image.png') }}" alt="Bulk Orders" class="w-full max-w-[220px] animate-floatbox">
-                        </div>
-                        <div>
-                            <h2 class="text-2xl font-black text-slate-900 leading-tight mb-2 tracking-tight">
-                                Bulk
-                                <span class="text-primary-teal">
-                                    Orders?
-                                </span>
-                                <br />
-                                <span class="text-black-700 text-xl">Save More.</span>
-                            </h2>
-                            <p class="mb-6 text-slate-500 text-[16px]">
-                                Exclusive discounts for businesses, restaurants &amp; wholesalers on bulk purchases.
-                            </p>
-                            <a href="{{ route('contact-us') }}"
-                                class="group flex items-center gap-2 bg-slate-900 hover:bg-slate-700 text-white text-[13px] font-bold px-4 py-3 rounded-full w-fit transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
-                                Contact Us
-                                <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M5 12h14M12 5l7 7-7 7" />
-                                </svg>
-                            </a>
-                        </div>
+            </div>
+            <div class="bg-gray-100 rounded-xl p-6 flex items-center">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 items-center w-full">
+                    <div class="flex justify-center lg:order-2 sm:order-1 md:order-1">
+                        <img src="{{ asset('frontend/assets/gd-img/bulk-image.png') }}" alt="Bulk Orders" class="w-full max-w-[220px] animate-floatbox">
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-900 leading-tight mb-2 tracking-tight">
+                            Bulk
+                            <span class="text-primary-teal">
+                                Orders?
+                            </span>
+                            <br />
+                            <span class="text-black-700 text-xl">Save More.</span>
+                        </h2>
+                        <p class="mb-6 text-slate-500 text-[16px]">
+                            Exclusive discounts for businesses, restaurants &amp; wholesalers on bulk purchases.
+                        </p>
+                        <a href="{{ route('contact-us') }}"
+                            class="group flex items-center gap-2 bg-slate-900 hover:bg-slate-700 text-white text-[13px] font-bold px-4 py-3 rounded-full w-fit transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+                            Contact Us
+                            <svg class="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M5 12h14M12 5l7 7-7 7" />
+                            </svg>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 @endif
 
 @endsection

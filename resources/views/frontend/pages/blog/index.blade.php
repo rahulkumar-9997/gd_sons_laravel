@@ -27,6 +27,7 @@
         </div>
     </div>
 </section>
+
 @if ($blogs && $blogs->isNotEmpty())
 <section class="blog-pages pb-4">
     <div class="container-fluid-lg">

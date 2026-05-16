@@ -106,8 +106,8 @@
                 @foreach ($data['primary_category'] as $index =>$primary_category_row)
 
                 <div class="p-1 group relative rounded overflow-hidden shadow-2xl hover:shadow-2xl transition-shadow duration-300">
-                    <a href="{{ $primary_category_row['link'] ?? '#' }}" class="inline-block group/category">
-                        <h3 class="text-[18px] sm:text-[16px] md:text-[18px] lg:text-[20px] mb-2 font-bold text-slate-800 group-hover/category:text-primary-600 transition-colors duration-300">
+                    <a href="{{ $primary_category_row['link'] ?? '#' }}">
+                        <h3 class="text-[18px] sm:text-[16px] md:text-[18px] lg:text-[20px] mb-2 font-bold text-slate-800 group-hover/category:text-primary-600 transition-colors duration-300 text-center mt-1">
                             {{ $primary_category_row['title'] }}
                             <span class="block h-0.5 bg-primary-600 scale-x-0 group-hover/category:scale-x-100 transition-transform duration-300 origin-center"></span>
                         </h3>

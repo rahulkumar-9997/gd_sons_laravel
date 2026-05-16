@@ -23,12 +23,10 @@
    </div>
    @endif
    <div class="floating-buttons shake1">
-      <a href="https://wa.me/919935070000?text=Hello,+I+visited+your+official+website.+Please+give+me+a+call."
-         class="float-btn whatsapp" target="_blank">
+      <a href="https://wa.me/919935070000?text=Hello,+I+visited+your+official+website.+Please+give+me+a+call." class="float-btn whatsapp" target="_blank" aria-label="whatsapp">
          <i class="fab fa-whatsapp"></i>
       </a>
-      <a href="tel:+919935070000"
-         class="float-btn bg-primary-teal" target="_blank">
+      <a href="tel:+919935070000" class="float-btn bg-primary-teal" target="_blank" aria-label="mobile">
          <i class="fa fa-solid fa-phone" style="font-size: 20px;"></i>
       </a>
    </div>

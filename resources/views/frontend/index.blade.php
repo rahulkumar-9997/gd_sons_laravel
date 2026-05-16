@@ -18,8 +18,6 @@
                                         @if($category->image)
                                         <img src="https://www.cdn.gdsons.co.in/category/icon/{{ $category->image }}" class="img-fluid blur-up lazyload"
                                             alt="{{ $category->title }}" loading="lazy">
-                                        @else
-
                                         @endif
                                     </div>
                                 </a>
@@ -157,10 +155,26 @@
                                 <a href="{{ url('products/'.$product['slug'].'/'.$product['attributes_value_slug']) }}" class="block">
                                     <div class="overflow-hidden rounded-t-xl">
                                         <div class="relative overflow-hidden image-shine product-img aspect-square">
-                                            <img src="{{ $product['image'] ?? 'https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png' }}"
-                                                alt="{{ $product['title'] }}"
-                                                loading="lazy"
-                                                class="absolute top-0 left-0 w-full h-full object-contain blur-up lazyloaded transition-transform duration-500 group-hover/product:scale-105">
+                                            @php
+                                                $defaultImage = 'https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png';
+                                                $originalImage = $product['image'] ?? $defaultImage;
+                                                $isCritical = ($loop->index ?? 0) < 4;
+                                            @endphp
+                                            <picture>
+                                                <source media="(max-width: 767px)" srcset="{{ $originalImage }} 600w">
+                                                <img class="absolute top-0 left-0 w-full h-full     object-contain {{ $isCritical ? '' : 'blur-up lazyloaded' }} transition-transform duration-600 group-hover/product:scale-105 blur-up lazyloaded"
+                                                    data-src="{{ $originalImage }}" 
+                                                    src="{{ $originalImage }}" 
+                                                    srcset="{{ $originalImage }} 600w, {{ $originalImage }} 1200w" 
+                                                    sizes="(max-width: 600px) 600px, 1200px" 
+                                                    alt="{{ $product['title'] }}" 
+                                                    title="{{ $product['title'] }}" 
+                                                    {{ $isCritical ? 'fetchpriority="high"' : 'loading="lazy"' }}
+                                                    width="300" 
+                                                    height="300" 
+                                                    onload="this.style.opacity=1" 
+                                                    style="opacity: 1;">
+                                            </picture>                                             
                                             @if($discountPercentage > 0)
                                             <div class="discount absolute top-2 left-2 z-1">
                                                 <span class="group/badge relative inline-flex items-center gap-1 bg-green-700 text-white text-[10px] font-bold tracking-wide px-2 py-[3px] rounded-full cursor-default shadow-badge hover:shadow-badge-hover hover:scale-105 transition-all duration-200">
@@ -177,19 +191,19 @@
                                             </h5>
                                             <div class="mt-2 flex justify-between items-center">
                                                 @if ($offer_rate === null || $offer_rate == 0)
-                                                <span class="text-xs text-gray-500">Price not available</span>
+                                                <span class="text-xs text-gray-600">Price not available</span>
                                                 @else
                                                 <div class="flex flex-col">
                                                     <h5 class="text-base font-bold text-primary-600">Rs. {{ number_format($offer_rate) }}</h5>
                                                 </div>
                                                 @endif
                                                 @if ($mrp !== null && $mrp > $final_offer_rate)
-                                                <del class="text-[14px] text-gray-400">Rs. {{ number_format($mrp) }}</del>
+                                                <del class="text-[14px] text-gray-600">Rs. {{ number_format($mrp) }}</del>
                                                 @endif
                                             </div>
                                             @if($product['stock_quantity'] !== null)
                                                 @if($product['stock_quantity'] <= 0)
-                                                    <span class="text-xs text-red-500 block mt-1">
+                                                    <span class="text-xs text-red-600 block mt-1">
                                                         Out of Stock
                                                     </span>
                                                 @endif
@@ -205,7 +219,7 @@
                     <a href="{{ $primary_category_row['link'] ?? '#' }}" class="inline-block group/category">
 
                         @if(isset($primary_category_row['description']))
-                        <div class="mt-2 text-slate-500 line-clamp-2 text-[16px]">
+                        <div class="mt-2 text-slate-600 line-clamp-2 text-[16px]">
                             {!! strip_tags($primary_category_row['description']) !!}
                         </div>
                         @endif
@@ -338,18 +352,18 @@
                                             </a>
                                             <div class="mt-2 flex justify-between items-center">
                                                 @if ($final_offer_rate === null || $final_offer_rate == 0)
-                                                <span class="text-xs text-gray-500">Price not available</span>
+                                                <span class="text-xs text-gray-600">Price not available</span>
                                                 @else
                                                 <div class="flex flex-col">
                                                     <h5 class="text-base font-bold text-primary-600">Rs. {{ number_format($final_offer_rate) }}</h5>
                                                 </div>
                                                 @endif
                                                 @if ($mrp !== null)
-                                                <del class="text-[14px] text-gray-400">Rs. {{ number_format($mrp) }}</del>
+                                                <del class="text-[14px] text-gray-600">Rs. {{ number_format($mrp) }}</del>
                                                 @endif
                                             </div>                                            
                                             @if(($popular_product_row->mrp > 0 && $popular_product_row->stock_quantity <= 0) || !$hasDimensions)
-                                                <span class="text-xs text-red-500 block mt-1">
+                                                <span class="text-xs text-red-600 block mt-1">
                                                     Out of Stock
                                                 </span>
                                             @endif
@@ -391,7 +405,7 @@
                 <div class="text-center mt-10">
                     <a href="{{ route('about-us') }}"
                         class="inline-block relative bg-primary-teal text-white hover:!text-black hover:bg-background-light text-sm font-semibold px-6 py-3 rounded-full transition-all duration-300">
-                        Read More
+                        Learn more about GD Sons
                     </a>
                 </div>
             </div>
@@ -404,7 +418,7 @@
                             </svg>
                         </div>
                         <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">55+ Years of Trust</p>
-                        <p class="text-[15px] text-slate-400 leading-relaxed">Serving Varanasi since 1970</p>
+                        <p class="text-[15px] text-slate-600 leading-relaxed">Serving Varanasi since 1970</p>
                     </div>
                     <!-- Feature 2: Wide Range -->
                     <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
@@ -414,7 +428,7 @@
                             </svg>
                         </div>
                         <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">Wide Range of Products</p>
-                        <p class="text-[15px] text-slate-400 leading-relaxed">Everything for your kitchen</p>
+                        <p class="text-[15px] text-slate-600 leading-relaxed">Everything for your kitchen</p>
                     </div>
                     <!-- Feature 3: Best Quality -->
                     <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
@@ -424,7 +438,7 @@
                             </svg>
                         </div>
                         <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">Best Quality Guarantee</p>
-                        <p class="text-[15px] text-slate-400 leading-relaxed">100% original &amp; durable</p>
+                        <p class="text-[15px] text-slate-600 leading-relaxed">100% original &amp; durable</p>
                     </div>
                     <!-- Feature 4: Fast Delivery -->
                     <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
@@ -434,7 +448,7 @@
                             </svg>
                         </div>
                         <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">Fast &amp; Safe Delivery</p>
-                        <p class="text-[15px] text-slate-400 leading-relaxed">Quick delivery across Varanasi</p>
+                        <p class="text-[15px] text-slate-600 leading-relaxed">Quick delivery across Varanasi</p>
                     </div>
                 </div>
 
@@ -443,15 +457,15 @@
                     <!-- Stat 1: Happy Customers -->
                     <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
                         <span class="font-display text-2xl font-bold text-primary-teal stat-num">55+</span>
-                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Years in Business</span>
+                        <span class="text-[15px] text-slate-600 leading-relaxed mt-1.5">Years in Business</span>
                     </div>
                     <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
                         <span class="font-display text-2xl font-bold text-primary-teal stat-num">25+</span>
-                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Top Brands</span>
+                        <span class="text-[15px] text-slate-600 leading-relaxed mt-1.5">Top Brands</span>
                     </div>
                     <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
                         <span class="font-display text-2xl font-bold text-primary-teal stat-num">5K+</span>
-                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Products</span>
+                        <span class="text-[15px] text-slate-600 leading-relaxed mt-1.5">Products</span>
                     </div>
                     <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
                         <div class="flex items-center gap-1.5">
@@ -460,7 +474,7 @@
                             </svg>
                             <span class="font-display text-2xl font-bold text-primary-teal stat-num">4.8</span>
                         </div>
-                        <span class="text-[15px] text-slate-400 leading-relaxed mt-1.5">Rated by Google</span>
+                        <span class="text-[15px] text-slate-600 leading-relaxed mt-1.5">Rated by Google</span>
                     </div>
                 </div>
             </div>
@@ -524,7 +538,26 @@
                 <div class="product-card bg-white rounded-2xl p-2">
                     <a href="{{ url('products/'.$product['slug'].'/'.$product['attributes_value_slug']) }}">
                         <div class="flex items-center gap-2">
-                            <img src="{{ $product['image'] ?? 'https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png' }}" class="w-20 h-20 rounded-xl object-contain flex-shrink-0 bg-white p-1">
+                            @php
+                                $defaultImage = 'https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png';
+                                $originalImage = $product['image'] ?? $defaultImage;
+                                $isCritical = ($loop->index ?? 0) < 4;
+                            @endphp
+                            <picture>
+                                <source media="(max-width: 767px)" srcset="{{ $originalImage }} 600w">
+                                <img class="w-20 h-20 rounded-xl object-contain flex-shrink-0 bg-white p-1 blur-up lazyloaded"
+                                    data-src="{{ $originalImage }}" 
+                                    src="{{ $originalImage }}" 
+                                    srcset="{{ $originalImage }} 600w, {{ $originalImage }} 1200w" 
+                                    sizes="(max-width: 600px) 600px, 1200px" 
+                                    alt="{{ $product['title'] }}" 
+                                    title="{{ $product['title'] }}" 
+                                    {{ $isCritical ? 'fetchpriority="high"' : 'loading="lazy"' }}
+                                    width="300" 
+                                    height="300" 
+                                    onload="this.style.opacity=1" 
+                                    style="opacity: 1;">
+                            </picture>                            
                             <div class="flex-1 min-w-0">
                                 <div class="text-[13px] font-semibold tracking-widest text-primary-navy mb-1">
                                     {{ $product['category_title'] }}
@@ -545,7 +578,7 @@
                                         </h5>
                                     @endif
                                     @if ($mrp !== null && $mrp > $final_offer_rate)
-                                        <del class="text-[14px] text-gray-400">Rs. {{ number_format($mrp) }}</del>
+                                        <del class="text-[14px] text-gray-600">Rs. {{ number_format($mrp) }}</del>
                                     @endif
                                     @if($discountPercentage>0)
                                         <span class="group/badge relative inline-flex items-center gap-1 bg-green-700 text-white text-[10px] font-bold tracking-wide px-2 py-[3px] rounded-full cursor-default shadow-badge hover:shadow-badge-hover hover:scale-105 transition-all duration-200">
@@ -554,12 +587,12 @@
                                     @endif
                                 </div>
                                 @if(($product['mrp'] > 0 && $product['stock_quantity'] <= 0) || !$hasDimensions)
-                                    <span class="text-xs text-red-500 block mt-1">
+                                    <span class="text-xs text-red-600 block mt-1">
                                         Out of Stock
                                     </span>
                                 @endif                                
                             </div>
-                            <button class="arrow-btn w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0">
+                            <button class="arrow-btn w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0" aria-label="{{ ucwords(strtolower($product['title'])) }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
                                 </svg>
@@ -599,22 +632,23 @@
                         </span>
                     </div>
                     <div class="p-3 pb-2">
-                        <h6 class="font-display text-slate-800 text-[20px] mb-3 line-clamp-3">
+                        <h6 class="font-display text-slate-800 text-[20px] mb-3 line-clamp-2">
                             {{$blog_row->title}}
                         </h6>
                         @if(!empty($blog_row->bog_description))
-                        <p class="text-slate-500 text-[16px] leading-relaxed line-clamp-3">
+                        <p class="text-slate-600 text-[16px] leading-relaxed line-clamp-3">
                             {!! strip_tags($blog_row->bog_description) !!}
                         </p>
                         @endif
                     </div>
                 </a>
                 <div class="px-2 pb-3 pt-3 border-t border-slate-100 text-center">
-                    <a href="{{ route('blog.details', ['slug' => $blog_row->slug]) }}" class="inline-flex items-center gap-1.5 text-primary-teal text-[16px] font-semibold hover:gap-3 transition-all">
+                    <a href="{{ route('blog.details', ['slug' => $blog_row->slug]) }}" class="inline-flex items-center gap-1.5 text-primary-teal text-[16px] font-semibold hover:gap-3 transition-all" aria-label="{{$blog_row->title}}">
                         Read More
                         <svg class="w-3.5 h-3.5 arrow-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
+                        <span class="sr-only">{{$blog_row->title}}</span>
                     </a>
                 </div>
             </div>
@@ -642,7 +676,7 @@
                                     alt="{{ $value->name }}"
                                     loading="lazy"
                                     class="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105 rounded-lg"
-                                    onerror="this.outerHTML='<span class=\'text-[16px] font-semibold text-red-500 px-2 py-1 bg-red-50 rounded-lg\'>{{ $value->name }}</span>'">
+                                    onerror="this.outerHTML='<span class=\'text-[16px] font-semibold text-red-600 px-2 py-1 bg-red-50 rounded-lg\'>{{ $value->name }}</span>'">
                             </div>
                         </div>
                     </a>
@@ -663,7 +697,7 @@
                             <br />
                             <span class="text-black-700 text-xl">Save More.</span>
                         </h2>
-                        <p class="mb-6 text-slate-500 text-[16px]">
+                        <p class="mb-6 text-slate-600 text-[16px]">
                             Exclusive discounts for businesses, restaurants &amp; wholesalers on bulk purchases.
                         </p>
                         <a href="{{ route('contact-us') }}"

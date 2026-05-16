@@ -62,7 +62,7 @@ $search_value = !empty($query) ? $query : '';
          <div class="row">
             <div class="col-12">
                <div class="navbar-top">
-                  <button class="navbar-toggler d-xl-none d-inline navbar-menu-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#primaryMenu">
+                  <button class="navbar-toggler d-xl-none d-inline navbar-menu-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#primaryMenu" aria-label="Menu">
                      <span class="navbar-toggler-icon">
                         <i class="fa-solid fa-bars"></i>
                      </span>
@@ -146,7 +146,7 @@ $search_value = !empty($query) ? $query : '';
                                  </div>
                               </a>
                               @else
-                              <a href="{{ route('logincustomer') }}?redirect={{ url()->current() }}">
+                              <a href="{{ route('logincustomer') }}?redirect={{ url()->current() }}" aria-label="Login to your account">
                                  <div class="delivery-icon">
                                     <i data-feather="user"></i>
                                  </div>
@@ -180,7 +180,7 @@ $search_value = !empty($query) ? $query : '';
          <div class="col-12">
             <div class="header-nav">
                <div class="header-nav-left">
-                  <button class="dropdown-category">
+                  <button class="dropdown-category" aria-label="All Categories">
                      <i data-feather="align-left"></i>
                      <span>All Categories</span>
                   </button>
@@ -188,7 +188,7 @@ $search_value = !empty($query) ? $query : '';
                   <div class="category-dropdown desktop-menu-st">
                      <div class="category-title">
                         <h5>Categories</h5>
-                        <button type="button" class="btn p-0 close-button text-content">
+                        <button type="button" class="btn p-0 close-button text-content" aria-label="category">
                            <i class="fa-solid fa-xmark"></i>
                         </button>
                      </div>
@@ -261,7 +261,7 @@ $search_value = !empty($query) ? $query : '';
                                  Girdhar Das <span>& Sons</span>
                               </a>
                            </h5>
-                           <button class="btn-close lead" type="button" data-bs-dismiss="offcanvas"></button>
+                           <button class="btn-close lead" type="button" data-bs-dismiss="offcanvas" aria-label="canvas"></button>
                         </div>
                         <div class="offcanvas-body canvasbody-mobile">
                            <ul class="navbar-nav">
@@ -334,16 +334,17 @@ $search_value = !empty($query) ? $query : '';
                   <!-- <a class="btn deal-button" href="https://wa.me/919935070000?text=Hello,+I+am+interested+in+learning+more+about+your+Services">
                      <i class="fab fa-whatsapp"></i>
                   </a> -->
-                  <a 
+                  <button 
                   class="btn deal-button requestProductBtn"
                   href="javascript:void(0)"
                   data-url="{{ route('request.product.enquiry.form') }}"
                   data-title="Request a Product or Item"
                   data-pageurl="{{url()->current()}}"
                   data-size="md"
+                  aria-label="need something"
                   >
                      Need Something ?
-                  </a>
+                  </button>
                </div>
             </div>
          </div>

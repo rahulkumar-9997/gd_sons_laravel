@@ -11,17 +11,13 @@
 <meta name="product-enquiry-route" content="{{ route('request.product.enquiry.form') }}">
 <link rel="icon" href="{{asset('frontend/assets/gd-img/fav-icon.png')}}" type="image/x-icon">
 <title>@yield('title')</title>
-<!-- Global site tag (gtag.js) - Google Analytics and Ads -->
-<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-HVY0ZB7K57"></script>
 <script>
     window.dataLayer = window.dataLayer || [];
-
     function gtag() {
         dataLayer.push(arguments);
     }
     gtag('js', new Date());
-
     gtag('config', 'G-HVY0ZB7K57');
     gtag('config', 'AW-16456179231');
 </script>
@@ -31,7 +27,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
 <link href="{{ mix('css/app.css') }}?v={{ env('ASSET_VERSION', '1.0.0') }}" rel="stylesheet">
 <link rel="preload" href="{{asset('frontend/assets/css/vendors/bootstrap.css')}}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<!-- <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/bulk-style.css')}}"> -->
 <link rel="preload" href="{{asset('frontend/assets/css/style.css')}}?v={{ env('ASSET_VERSION', '1.0.0') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/gd-style.css')}}?v={{ env('ASSET_VERSION', '1.0.0') }}">
 <link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/cart-drawer.css')}}?v={{ env('ASSET_VERSION', '1.0.0') }}">

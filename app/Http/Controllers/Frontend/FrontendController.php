@@ -165,7 +165,7 @@ class FrontendController extends Controller
             ->whereNotNull('images')
             ->where('images', '!=', '')
             ->inRandomOrder()
-            ->take(8)
+            ->take(10)
             ->get();
 
         $data['trending_products_weekly'] = Cache::remember(
@@ -1457,7 +1457,7 @@ class FrontendController extends Controller
             ->paginate(20);
         return view('frontend.pages.blog.index', compact('blogs'));
     }
-    
+
     public function blogList($blogCategorySlug)
     {
         $blog_category = BlogCategory::where('slug', $blogCategorySlug)->firstOrFail();

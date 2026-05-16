@@ -633,15 +633,15 @@
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div class="lg:col-span-2 bg-gray-100 p-4 rounded-xl animate-fadeup">
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                <div class="grid grid-cols-2 lg:grid-cols-5 gap-2">
                     @foreach($data['attributes_value'] as $value)
                     <a href="{{ route('search', ['query' => strtolower(urlencode($value->name))]) }}" class="block">
-                        <div class="group flex flex-col items-center justify-center bg-white rounded-xl p-2 cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-teal-500/15">
-                            <div class="w-full h-[100px] flex items-center justify-center overflow-hidden rounded-lg">
+                        <div class="group flex flex-col items-center justify-center bg-white rounded-xl border-black-600">
+                            <div class="aspect-square w-full h-[100px] flex items-center justify-center overflow-hidden rounded-lg">
                                 <img src="{{ asset('images/attribute-values/' . $value->images) }}"
                                     alt="{{ $value->name }}"
                                     loading="lazy"
-                                    class="w-full h-full object-contain transition-all duration-300 group-hover:scale-105"
+                                    class="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105 rounded-lg"
                                     onerror="this.outerHTML='<span class=\'text-[16px] font-semibold text-red-500 px-2 py-1 bg-red-50 rounded-lg\'>{{ $value->name }}</span>'">
                             </div>
                         </div>

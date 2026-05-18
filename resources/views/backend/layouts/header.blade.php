@@ -7,47 +7,7 @@
                <button type="button" class="button-toggle-menu me-2">
                   <iconify-icon icon="solar:hamburger-menu-broken" class="fs-24 align-middle"></iconify-icon>
                </button>
-            </div>
-            <div class="topbar-item">
-               <h4 class="fw-bold topbar-button pe-none mb-0 d-flex align-items-center">
-                  @php
-                     $hour = now()->hour;
-                     if ($hour >= 5 && $hour < 12) {
-                        $greeting = 'Good Morning';
-                        $icon = 'solar:sun-fog-bold-duotone';
-                        $color = 'warning';
-                        $emoji = '🌅';
-                     } elseif ($hour >= 12 && $hour < 17) {
-                        $greeting = 'Good Afternoon';
-                        $icon = 'solar:sun-2-bold-duotone';
-                        $color = 'warning';
-                        $emoji = '☀️';
-                     } elseif ($hour >= 17 && $hour < 21) {
-                        $greeting = 'Good Evening';
-                        $icon = 'solar:cloud-sun-2-bold-duotone';
-                        $color = 'info';
-                        $emoji = '🌆';
-                     } else {
-                        $greeting = 'Good Night';
-                        $icon = 'solar:moon-stars-bold-duotone';
-                        $color = 'primary';
-                        $emoji = '🌙';
-                     }
-                  @endphp
-                  <span class="badge bg-warning text-white px-3 py-2 me-3 rounded-pill">
-                     <i class="bx bx-bell me-1"></i> {{ now()->format('l') }}
-                  </span>
-                  <div class="d-flex align-items-center bg-light px-3 py-2 rounded-3">
-                     <iconify-icon icon="{{ $icon }}" class="fs-26 me-2 text-{{ $color }}"></iconify-icon>
-                     <span class="fw-semibold text-dark">{{ $greeting }},</span>
-                     <span class="fw-bold text-success mx-1">{{ auth()->user()->name ?? 'Guest' }}</span>
-                     <span class="ms-2">{{ $emoji }}</span>
-                  </div>
-                  <span class="badge bg-orange text-white px-3 py-2 ms-3 rounded-pill"  id="live-time">
-                     <i class="bx bx-time me-1"></i> {{ now()->format('h:i A') }}
-                  </span>
-               </h4>
-            </div>
+            </div>            
          </div>
          <div class="d-flex align-items-center gap-1">
             <a class="btn btn-outline-info" href="{{route('show.tables')}}">Database</a>

@@ -52,66 +52,77 @@
             </div>
          </div>
          <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center gap-1">
-               <h4 class="card-title flex-grow-1">
-                  All Produtcs List
-                  <!-- Bulk delete button, hidden initially -->
-                  <button type="button" id="bulk-delete-btn" class="btn btn-sm btn-danger" style="display: none;">Delete Selected</button> 
-               </h4>
-               <!-- <input type="text" name="daterange" id="daterange" /> -->
-               <!-- <div class="dropdown">
-                  <select id="category-filter" class="form-select">
-                     <option value="">All Categories</option>
-                     @foreach($data['categories'] as $category)
-                           <option value="{{ $category->id }}">{{ $category->title }}</option>
-                     @endforeach
-                  </select>
-               </div> -->
-               <a href="{{route('manage-related-product.index')}}" 
-                  data-title="Manage Related Product" 
-                  data-bs-toggle="tooltip" 
-                  title="Manage Related Product" 
-                  class="btn btn-sm btn-orange">
-                  Manage Related Product
-               </a>
-                <a href="{{route('product-multiple-update')}}" 
-                    data-title="Product Multiple Update" 
-                    data-bs-toggle="tooltip" 
-                    title="Product Multiple Update" 
-                    class="btn btn-sm btn-info">
-                    Product Multiple Update
-                </a>
-                <a href="{{route('product-update-gst')}}" 
-                    data-title="Import Product" 
-                    data-bs-toggle="tooltip" 
-                    title="Update GST/HSN Code" 
-                    class="btn btn-sm btn-danger">
-                    Update GST/HSN Code
-                </a>
-                <a href="{{route('product.excel.import')}}" 
-                    data-title="Import Product" 
-                    data-bs-toggle="tooltip" 
-                    title="Import Product" 
-                    class="btn btn-sm btn-warning">
-                    Import Product
-                </a>
-                <a href="{{route('product.create')}}" 
-                    data-title="Add Product" 
-                    data-bs-toggle="tooltip" 
-                    title="Add Product" 
-                    class="btn btn-sm btn-success">
-                    Add Product
-                </a>
-                <div class="dropdown">
-                    <a href="#" class="dropdown-toggle btn btn-sm btn-outline-light" data-bs-toggle="dropdown" aria-expanded="false">
-                    Choose any Links
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end">
-                        <a href="{{ route('export.product') }}" class="dropdown-item">Export Product</a>
-                        <!-- item-->
-                        <a href="{{route('product.excel.import')}}" class="dropdown-item">Import Product</a>
-                    </div>
-                </div>
+            <div class="card-header">
+               <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3">
+                  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2 flex-wrap">
+                        <h4 class="card-title mb-0">
+                           All Products List
+                        </h4>
+                        <button
+                           type="button"
+                           id="bulk-delete-btn"
+                           class="btn btn-sm btn-danger"
+                           style="display: none;"
+                        >
+                           Delete Selected
+                        </button>
+                  </div>
+                  <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ route('manage-related-product.index') }}"
+                           data-title="Manage Related Product"
+                           data-bs-toggle="tooltip"
+                           title="Manage Related Product"
+                           class="btn btn-sm btn-orange">
+                           Manage Related Product
+                        </a>
+                        <a href="{{ route('product-multiple-update') }}"
+                           data-title="Product Multiple Update"
+                           data-bs-toggle="tooltip"
+                           title="Product Multiple Update"
+                           class="btn btn-sm btn-info">
+                           Product Multiple Update
+                        </a>
+                        <a href="{{ route('product-update-gst') }}"
+                           data-title="Update GST/HSN Code"
+                           data-bs-toggle="tooltip"
+                           title="Update GST/HSN Code"
+                           class="btn btn-sm btn-danger">
+                           Update GST/HSN Code
+                        </a>
+                        <a href="{{ route('product.excel.import') }}"
+                           data-title="Import Product"
+                           data-bs-toggle="tooltip"
+                           title="Import Product"
+                           class="btn btn-sm btn-warning">
+                           Import Product
+                        </a>
+                        <a href="{{ route('product.create') }}"
+                           data-title="Add Product"
+                           data-bs-toggle="tooltip"
+                           title="Add Product"
+                           class="btn btn-sm btn-success">
+                           Add Product
+                        </a>
+                        <div class="dropdown">
+                           <a href="#"
+                              class="dropdown-toggle btn btn-sm btn-outline-secondary"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false">
+                              Choose any Links
+                           </a>
+                           <div class="dropdown-menu dropdown-menu-end">
+                              <a href="{{ route('export.product') }}"
+                                    class="dropdown-item">
+                                    Export Product
+                              </a>
+                              <a href="{{ route('product.excel.import') }}"
+                                    class="dropdown-item">
+                                    Import Product
+                              </a>
+                           </div>
+                        </div>
+                  </div>
+               </div>
             </div>
             <div class="card-body">
                @if (isset($data['product_list']) && $data['product_list']->count() > 0)

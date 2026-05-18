@@ -39,7 +39,7 @@
                             </a>
                         @endforeach
                     @endif
-                    <div class="table-responsive1" style="margin-top: 20px;" id="order-list-table">
+                    <div class="table-responsive" style="margin-top: 20px;" id="order-list-table">
                         @include('backend.manage-order.partials.order-list-table', ['orders' => $orders, 'orders_status' => $orders_status, 'order_status_id' => $order_status_id])
                     </div>
                 </div>

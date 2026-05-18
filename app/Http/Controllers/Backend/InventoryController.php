@@ -105,74 +105,80 @@ class InventoryController extends Controller
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-borderless table-centered" id="dynamic-fields-table">
-                        <thead>
-                            <tr>
-                                <th>MRP</th>
-                                <th>Purchase Rate</th>
-                                <th>Offer Rate</th>
-                                <th>Stock Quantity</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>';
-                            if (!$product_row->inventories->isEmpty()) {
-                                foreach ($product_row->inventories as $inventory) {
-                                    $form .= '
-                                    <input type="hidden" name="inventory_id[]" class="form-control" value="' . $inventory->id . '">
-                                    
-                                    <tr class="field-group">
-                                        <td>
-                                            <input type="number" name="mrp[]" class="form-control" value="' . $inventory->mrp . '">
-                                        </td>
-                                        <td>
-                                            <input type="number" name="purchase_rate[]" class="form-control" value="' . $inventory->purchase_rate . '">
-                                        </td>
-                                        <td>
-                                            <input type="number" name="offer_rate[]" class="form-control" value="' . $inventory->offer_rate . '">
-                                        </td>
-                                        <td>
-                                            <input type="number" name="stock_quantity[]" class="form-control" value="' . $inventory->stock_quantity . '" >
-                                        </td>
-                                        <td style="display: none;">
-                                            <input type="text" name="sku[]" class="form-control" value="' . $inventory->sku . '" readonly>
-                                        </td>
-                                        <td>
-                                            <button type="button"  data-inventoryid="' . $inventory->id . '"  data-name="' . $inventory->sku . '" class="btn btn-danger btn-sm remove-field delete-inventory-btn">
-                                                <i class="ti ti-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>';
+                <div class="table-responsive" style="overflow-x: auto;">
+                    <div style="
+                    max-height: 400px;
+                    overflow-y: auto;
+                    overflow-x: auto;
+                    ">
+                        <table class="table table-borderless table-centered" id="dynamic-fields-table">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 150px;">MRP</th>
+                                    <th style="min-width: 150px;">Purchase Rate</th>
+                                    <th style="min-width: 150px;">Offer Rate</th>
+                                    <th style="min-width: 150px;">Stock Quantity</th>
+                                    <th style="min-width: 120px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>';
+                                if (!$product_row->inventories->isEmpty()) {
+                                    foreach ($product_row->inventories as $inventory) {
+                                        $form .= '
+                                        <input type="hidden" name="inventory_id[]" class="form-control" value="' . $inventory->id . '">
+                                        
+                                        <tr class="field-group">
+                                            <td>
+                                                <input type="number" name="mrp[]" class="form-control" value="' . $inventory->mrp . '">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="purchase_rate[]" class="form-control" value="' . $inventory->purchase_rate . '">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="offer_rate[]" class="form-control" value="' . $inventory->offer_rate . '">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="stock_quantity[]" class="form-control" value="' . $inventory->stock_quantity . '" >
+                                            </td>
+                                            <td style="display: none;">
+                                                <input type="text" name="sku[]" class="form-control" value="' . $inventory->sku . '" readonly>
+                                            </td>
+                                            <td>
+                                                <button type="button"  data-inventoryid="' . $inventory->id . '"  data-name="' . $inventory->sku . '" class="btn btn-danger btn-sm remove-field delete-inventory-btn">
+                                                    <i class="ti ti-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>';
+                                    }
+                                }else{
+                                $form .= '
+                                <tr class="field-group">
+                                    <td>
+                                        <input type="number" name="mrp[]" class="form-control" required="">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="purchase_rate[]" class="form-control" required="">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="offer_rate[]" class="form-control" required="">
+                                    </td>
+                                    <td>
+                                        <input type="number" name="stock_quantity[]" class="form-control" required="">
+                                    </td>
+                                    <td style="display: none;">
+                                        <input type="text" name="sku[]" class="form-control" value="' . $uniqueSku . '" readonly>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-sm remove-field">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>';
                                 }
-                            }else{
-                            $form .= '
-                            <tr class="field-group">
-                                <td>
-                                    <input type="number" name="mrp[]" class="form-control" required="">
-                                </td>
-                                <td>
-                                    <input type="number" name="purchase_rate[]" class="form-control" required="">
-                                </td>
-                                <td>
-                                    <input type="number" name="offer_rate[]" class="form-control" required="">
-                                </td>
-                                <td>
-                                    <input type="number" name="stock_quantity[]" class="form-control" required="">
-                                </td>
-                                <td style="display: none;">
-                                    <input type="text" name="sku[]" class="form-control" value="' . $uniqueSku . '" readonly>
-                                </td>
-                                <td>
-                                    <button type="button" class="btn btn-danger btn-sm remove-field">
-                                        <i class="ti ti-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>';
-                            }
-                            $form .= '
-                        </tbody>
-                    </table>
+                                $form .= '
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <div class="mb-1">
                     <button type="button" class="btn btn-success btn-sm" id="add-more-fields">Add More</button>

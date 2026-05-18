@@ -5,11 +5,8 @@
                 <th>No.</th>
                 <th style="width: 20%;">Name</th>
                 <th>HSN Code</th>
-                <!-- <th>Image</th> -->
                 <th>Status</th>
                 <th>Category</th>
-                <!--<th>Created Date</th>
-                <th>Attributes</th>-->
                 <th>Action</th>
             </tr>
         </thead>

@@ -9,7 +9,6 @@ use Illuminate\Support\Str;
 class AdditionalFeature extends Model
 {
     use HasFactory;
-
     protected $table = 'additional_features';
 
     protected $fillable = [

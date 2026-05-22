@@ -54,10 +54,12 @@ class Attribute_values extends Model
     {
         return $this->hasOne(UpdateHsnGstWithAttributes::class, 'attributes_value_id');
     }
-    // public function products()
-    // {
-    //     return $this->belongsToMany(Product::class, 'product_attributes_values', 'attributes_value_id', 'product_id')
-    //         ->withPivot('attribute_id');
-    // }
-
+    
+    public function additionalFilterAttributeValues()
+    {
+        return $this->hasMany(
+            AdditionalFilterAttributeValue::class,
+            'attribute_value_id'
+        );
+    }
 }

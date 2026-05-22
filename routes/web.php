@@ -51,6 +51,7 @@ use App\Http\Controllers\Backend\RelatedProductController;
 use App\Http\Controllers\Backend\ShipmentRateController;
 use App\Http\Controllers\Backend\ProductReviewAutoAiGenerateController;
 use App\Http\Controllers\Backend\CkeditorController;
+use App\Http\Controllers\Backend\AdditionalFilterController;
 
 /*
 |--------------------------------------------------------------------------
@@ -432,4 +433,11 @@ Route::group(['middleware' => ['admin']], function () {
     Route::post('/ckeditor/upload', [CkeditorController::class, 'upload'])->name('ckeditor.upload');
     Route::get('/ckeditor/images', [CkeditorController::class, 'imageList'])->name('ckeditor.images');
     Route::delete('/ckeditor/image', [CkeditorController::class, 'deleteImage'])->name('ckeditor.delete');
+
+    Route::get('additional-filter/{id}', [AdditionalFilterController::class, 'additionalFilterIndex'])->name('additional-filter.index');
+    Route::get('additional-filter/create/{id}', [AdditionalFilterController::class, 'additionalFilterCreate'])->name('additional-filter.create');
+    Route::post('additional-filter/{id}/store', [AdditionalFilterController::class, 'additionalFilterStore'])->name('additional-filter.store');
+    Route::get('additional-filter/{id}/edit', [AdditionalFilterController::class, 'additionalFilterEdit'])->name('additional-filter.edit');
+    Route::put('additional-filter/{id}/update', [AdditionalFilterController::class, 'additionalFilterUpdate'])->name('additional-filter.update');
+    Route::delete('additional-filter/{id}/delete', [AdditionalFilterController::class, 'additionalFilterDelete'])->name('additional-filter.delete');
 });

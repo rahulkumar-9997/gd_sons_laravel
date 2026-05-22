@@ -34,6 +34,7 @@ use App\Models\SpecialOffer;
 use App\Models\ProductEnquiry;
 use App\Models\ClickTrackers;
 use App\Models\RelatedProduct;
+use App\Models\AdditionalFilter;
 use Illuminate\Support\Facades\Cache;
 
 class FrontendController extends Controller
@@ -1177,7 +1178,8 @@ class FrontendController extends Controller
                         ->orderBy('name');
                 }])
                 ->orderBy('title')
-                ->get();
+                ->get();            
+
             $productsQuery->orderByRaw("
                 CASE 
                     WHEN inventories.stock_quantity <= 0 
@@ -1234,34 +1236,54 @@ class FrontendController extends Controller
                 ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
                 ->paginate(20);
             $specialOffers = getCustomerSpecialOffers();
-            //return response()->json($products); 
-            //dd($specialOffers);
+            /*Additional Filters */
+            $additionalFilters = AdditionalFilter::with([
+                'filterAttributes.attribute',
+                'filterAttributes.attributeValues.attributeValue'
+            ])
+            ->where('category_id', $category->id)
+            ->where('status', 'active')
+            ->get()
+            ->map(function ($filter) {
+                return [
+                    'filter_button_name' => $filter->filter_button_name,
+                    'slug' => $filter->slug,
+                    'filter_attributes' => $filter->filterAttributes->map(function ($attribute) {
+                        return [
+                            'attribute_name' => $attribute->attribute->title ?? '',
+                            'attribute_slug' => $attribute->attribute->slug ?? '',
+                            'filter_attributes_value' => $attribute->attributeValues->map(function ($value) {
+                                return [
+                                    'name' => $value->attributeValue->name ?? '',
+                                    'slug' => $value->attributeValue->slug ?? '',
+                                ];
+
+                            })->values()
+                        ];
+                    })->values()
+                ];
+            })->values();
+            /*Additional Filters */  
             if ($request->ajax()) {
                 if ($request->has('load_more') && $request->get('load_more') == true) {
                     return response()->json([
-                        'products' => view('frontend.pages.partials.product-category-catalog-load-more', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list'))->render(),
+                        'products' => view('frontend.pages.partials.product-category-catalog-load-more', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list', 'additionalFilters'))->render(),
                         'hasMore' => $products->hasMorePages(),
                     ]);
                 } else {
                     return response()->json([
-                        'products' => view('frontend.pages.ajax-product-category-catalog', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list'))->render(),
+                        'products' => view('frontend.pages.ajax-product-category-catalog', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list', 'additionalFilters'))->render(),
                         'hasMore' => $products->hasMorePages(),
                     ]);
                 }
             }
             DB::disconnect();
             // return response()->json($attributes_with_values_for_filter_list);
-
             $transformedstr = '';
             $l1 = 0;
-
             $brand = '';
             foreach ($attributes_with_values_for_filter_list as $arritem) {
                 $l2 = 0;
-                // if($arritem['title'] == 'Brand')
-                // {
-                // $brand = 
-                // }
                 $transformedstr .= $arritem['title'] . 's like ';
                 foreach ($arritem->AttributesValues as $aval) {
                     if ($aval->name == 'NA' || $aval->name == 'N/A') {
@@ -1279,9 +1301,8 @@ class FrontendController extends Controller
                     break;
                 }
             }
-
-            // return response()->json($products);
-            return view('frontend.pages.product-catalog-category', compact('products', 'specialOffers', 'category', 'attributes_with_values_for_filter_list', 'primary_category', 'transformedstr', 'categorySlug'));
+            //return response()->json($additionalFilters);
+            return view('frontend.pages.product-catalog-category', compact('products', 'specialOffers', 'category', 'attributes_with_values_for_filter_list', 'primary_category', 'transformedstr', 'categorySlug', 'additionalFilters'));
         } catch (\Exception $e) {
             Log::error('Error fetching product catalog: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());

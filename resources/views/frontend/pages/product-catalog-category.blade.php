@@ -49,10 +49,7 @@
          </div>
       </div>
         <div class="row" id="product-catalog-frontend">
-            @include('frontend.pages.ajax-product-category-catalog', [$products, $attributes_with_values_for_filter_list])
-			
-			
-						
+            @include('frontend.pages.ajax-product-category-catalog', [$products, $attributes_with_values_for_filter_list ?? null, $additionalFilters ?? null])	
         </div>
         @if($primary_category)
         <div class="row justify-content-md-center primary-category-div">
@@ -73,8 +70,6 @@
                     <div class="delivery-list-category">
                         <p class="text-content">
                         {{ $category->description }}
-						
-						
                         </p>
                     </div>
                 </div>
@@ -329,7 +324,7 @@
 </script>
 @endpush
 @push('scripts')
-<script src="{{asset('frontend/assets/js/ion.rangeSlider.min.js')}}"></script>
+<!-- <script src="{{asset('frontend/assets/js/ion.rangeSlider.min.js')}}"></script> -->
 <!-- <script src="{{asset('frontend/assets/js/pages/category-filter-load-more.js')}}"></script> -->
 <script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 <script src="{{asset('frontend/assets/js/pages/quick-view.js')}}"></script>

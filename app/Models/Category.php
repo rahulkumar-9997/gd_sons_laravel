@@ -60,6 +60,14 @@ class Category extends Model
         });
     }
   
+    public function additionalFilters()
+    {
+        return $this->hasMany(
+            AdditionalFilter::class,
+            'category_id'
+        );
+    }
+
     /** 
      * Write code on Method
      *

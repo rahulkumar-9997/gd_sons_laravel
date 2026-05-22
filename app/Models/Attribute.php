@@ -53,6 +53,14 @@ class Attribute extends Model
             $facilities->save();
         });
     }
+
+    public function additionalFilterAttributes()
+    {
+        return $this->hasMany(
+            AdditionalFilterAttribute::class,
+            'attribute_id'
+        );
+    }
   
     private function createSlug($title){
         if (static::whereSlug($slug = Str::slug($title))->exists()) {

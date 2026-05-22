@@ -2,10 +2,7 @@
 @section('title','Manage Category')
 @section('main-content')
 @push('styles')
-<link href="{{asset('backend/assets/vendor/datatables/css/jquery.dataTables.css')}}" rel="stylesheet" type="text/css" media="screen"/>
-<link href="{{asset('backend/assets/vendor/datatables/extensions/TableTools/css/dataTables.tableTools.min.css')}}" rel="stylesheet" type="text/css" media="screen"/>
-<link href="{{asset('backend/assets/vendor/datatables/extensions/Responsive/css/dataTables.responsive.css')}}" rel="stylesheet" type="text/css" media="screen"/>
-<link href="{{asset('backend/assets/vendor/datatables/extensions/Responsive/bootstrap/3/dataTables.bootstrap.css')}}" rel="stylesheet" type="text/css" media="screen"/> 
+
 <link href="{{asset('backend/assets/plugins/select2/select2.css')}}" rel="stylesheet" type="text/css" media="screen"/>
 <link href="{{asset('backend/assets/plugins/multi-select/css/multi-select.css')}}" rel="stylesheet" type="text/css" media="screen"/>   
 @endpush
@@ -26,24 +23,12 @@
                   class="btn btn-sm btn-primary">
                   Add Category
                </a>
-               <div class="dropdown">
-                  <a href="#" class="dropdown-toggle btn btn-sm btn-outline-light" data-bs-toggle="dropdown" aria-expanded="false">
-                  This Month
-                  </a>
-                  <div class="dropdown-menu dropdown-menu-end">
-                     <!-- item-->
-                     <a href="#!" class="dropdown-item">Download</a>
-                     <!-- item-->
-                     <a href="#!" class="dropdown-item">Export</a>
-                     <!-- item-->
-                     <a href="#!" class="dropdown-item">Import</a>
-                  </div>
-               </div>
+               
             </div>
             <div class="card-body">
                @if (isset($data['category_list']) && $data['category_list']->count() > 0)
                   <div class="table-responsive1">
-                     <table id="example-1" class="table align-middle mb-0 table-hover table-centered">
+                     <table class="table align-middle mb-0 table-hover table-centered">
                         <thead class="bg-light-subtle">
                               <tr>
                                  <th>Sr. No.</th>
@@ -122,20 +107,23 @@
                                     </td>
                                     <td>
                                           @if($category_list_row->trending == 'on')
-                                             <span class="badge border border-success text-success px-2 py-1 fs-13">Yes</span>
+                                             <span class="badge border border-success text-success">Yes</span>
                                           @else
-                                             <span class="badge border border-danger text-danger px-2 py-1 fs-13">No</span>
+                                             <span class="badge border border-danger text-danger ">No</span>
                                           @endif
                                     </td>
                                     <td>
                                           @if($category_list_row->status == 'on')
-                                             <span class="badge bg-success text-light px-2 py-1 fs-13">Active</span>
+                                             <span class="badge bg-success">Active</span>
                                           @else
-                                             <span class="badge bg-light text-dark px-2 py-1 fs-13">Inactive</span>
+                                             <span class="badge bg-light">Inactive</span>
                                           @endif
                                     </td>
                                     <td>
                                           <div class="d-flex gap-2">
+                                              <a href="{{ route('additional-filter.index', $category_list_row->id) }}" class="btn btn-soft-secondary btn-sm" data-bs-toggle="tooltip" title="Additional Filter">
+                                                Additional Filter
+                                             </a>
                                              <a href="javascript:void(0);" class="btn btn-soft-info btn-sm editCategory" data-catid="{{ $category_list_row->id }}" data-size="lg" data-title="Edit Category" data-bs-toggle="tooltip" data-url="{{ route('category.edit', $category_list_row->id) }}">
                                                 <iconify-icon icon="solar:pen-2-broken" class="align-middle fs-18"></iconify-icon>
                                              </a>

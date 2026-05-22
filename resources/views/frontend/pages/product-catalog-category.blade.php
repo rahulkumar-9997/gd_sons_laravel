@@ -333,6 +333,42 @@
     $(document).ready(function() {
         const filters = {};
         let currentPage = 1;
+        /*Additional Filter Handling */
+        $(document).on('click', '.additional-filter-btn', function () {
+            const button = $(this);
+            const attributeSlug = button.data('attslug');
+            const valueSlugs = button.data('values');
+            button.toggleClass(
+                'active bg-violet-600 text-white border-violet-600'
+            );
+            if (!filters[attributeSlug]) {
+                filters[attributeSlug] = [];
+            }
+            const isActive = button.hasClass('active');
+            if (isActive) {
+                valueSlugs.forEach(function(slug) {
+                    if (
+                        !filters[attributeSlug].includes(slug)
+                    ) {
+
+                        filters[attributeSlug].push(slug);
+                    }
+                });
+            } else {
+                filters[attributeSlug] =
+                    filters[attributeSlug].filter(
+                        slug => !valueSlugs.includes(slug)
+                    );
+                if (
+                    filters[attributeSlug].length === 0
+                ) {
+
+                    delete filters[attributeSlug];
+                }
+            }
+            updateURL();
+        });
+        /*Additional Filter Handling */
         $(document).on('change', '.filter-checkbox', function() {
             const attributeSlug = $(this).data('attslug');
             const valueSlug = $(this).data('attvslug');
@@ -453,7 +489,6 @@
             });
         }
         /*Fetch product without loader */
-
 
         /*Function to update the URL based on filters*/
         function updateURL() {

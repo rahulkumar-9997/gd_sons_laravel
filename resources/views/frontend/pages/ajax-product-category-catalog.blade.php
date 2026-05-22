@@ -52,6 +52,54 @@
     </div>
 </div>
 <div class="col-custom-">
+     @if(!empty($additionalFilters))
+        @php
+            $groupedFilters = [];
+            foreach ($additionalFilters as $filter) {
+                if(isset($filter['filter_attributes'])) {
+                    foreach ($filter['filter_attributes'] as $filterAttribute) {
+                        $attributeName = $filterAttribute['attribute_name'];
+                        $attributeSlug = $filterAttribute['attribute_slug'];
+                        $valueSlugs = [];
+                        foreach ($filterAttribute['filter_attributes_value'] as $attributeValue) {
+                            $valueSlugs[] = $attributeValue['slug'];
+                        }
+
+                        $groupedFilters[$attributeName][] = [
+                            'filter_button_name' => $filter['filter_button_name'],
+                            'attribute_slug' => $attributeSlug,
+                            'value_slugs' => $valueSlugs,
+                        ];
+                    }
+                }
+            }
+        @endphp
+        <div class="additional-filter-section mb-4">
+            <div class="bg-[#fcf4ed] rounded-[10px] border border-gray-70 shadow-sm p-3">
+                @foreach($groupedFilters as $attributeName => $filters)
+                <div class="additional-filter-header mb-2">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-sm font-semibold text-primary-teal tracking-wide">
+                                Choose By {{ $attributeName }}
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2" id="chips">
+                        @foreach($filters as $filter)
+                        <button type="button" class="additional-filter-btn chip flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border border-gray-200 text-gray-600 bg-gray-50 hover:border-violet-400 hover:text-violet-700 hover:bg-violet-50 transition-all duration-150 cursor-pointer"
+                        data-attslug="{{ $filter['attribute_slug'] }}"
+                        data-values='@json($filter['value_slugs'])'>
+                            <span class="dot w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+                            {{ $filter['filter_button_name'] }}
+                        </button>
+                        @endforeach
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
     <div class="show-button filter-bar">
         <div class="top-filter-menu">
             <div class="filter-button-group d-lg-none">
@@ -117,48 +165,7 @@
             @endif
 
         </div>
-    </div>
-    @if(!empty($additionalFilters))
-    <div class="additional-filter-section mb-4">
-        <div class="additional-filter-header">
-            <div class="bg-[#fcf4ed] rounded-2xl border border-gray-100 shadow-sm p-3">
-                @foreach($additionalFilters as $filter)
-                @php
-                $filterHeading = '';
-                $attributeSlug = '';
-                $valueSlugs = [];
-                if(isset($filter['filter_attributes'])) {
-                    foreach ($filter['filter_attributes'] as $filterAttribute) {
-                        $filterHeading ='Choose By ' . $filterAttribute['attribute_name'];
-                        $attributeSlug = $filterAttribute['attribute_slug'];
-                        foreach ($filterAttribute['filter_attributes_value'] as $attributeValue) {
-                            $valueSlugs[] = $attributeValue['slug'];
-                        }
-                    }
-                }
-                @endphp
-                <div class="filter-s mb-4">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-2">
-                            <h2 class="text-sm font-semibold text-gray-800 tracking-wide uppercase">
-                                {{ $filterHeading }}
-                            </h2>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2" id="chips">
-                        <button type="button" class="additional-filter-btn chip flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border border-gray-200 text-gray-600 bg-gray-50 hover:border-violet-400 hover:text-violet-700 hover:bg-violet-50 transition-all duration-150 cursor-pointer"
-                            data-attslug="{{ $attributeSlug }}"
-                            data-values='@json($valueSlugs)'>
-                            <span class="dot w-1.5 h-1.5 rounded-full bg-gray-300"></span>
-                            {{ $filter['filter_button_name'] }}
-                        </button>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
-    @endif
+    </div>   
     @if (isset($products) && $products->isNotEmpty())
     <div class="row g-sm-4 g-3 row-cols-xxl-4 row-cols-xl-4 row-cols-lg-4 row-cols-md-3 row-cols-2 product-list-section" id="load-more-append">
         @include('frontend.pages.partials.product-category-catalog-load-more', [$products])

@@ -36,15 +36,31 @@
       <div class="row">
          <div class="col-lg-12">
             <div class="h1-heading">
-                @if($primary_category)
-                    <h1>
-                        Complete Range of {{ $primary_category->title }} in Varanasi.
-                    </h1>
-                @else
-                    <h1>
-                        Complete Range of {{ $category->title }} in Varanasi.
-                    </h1>
-                @endif
+                <h1>
+                    @if($primary_category)
+                        {{ collect([
+                            "Explore the Complete {$primary_category->title} Collection",
+                            "Premium {$primary_category->title} Range",
+                            "Discover Every Type of {$primary_category->title}",
+                            "Wide Variety of {$primary_category->title} Available",
+                            "Largest Selection of {$primary_category->title}",
+                            "Exclusive {$primary_category->title} Collection",
+                            "Best {$primary_category->title} Store",
+                            "Stylish & Quality {$primary_category->title}"
+                        ])->random() }}
+                    @else
+                        {{ collect([
+                            "Explore the Complete {$category->title} Collection",
+                            "Premium {$category->title} Range",
+                            "Discover Every Type of {$category->title}",
+                            "Wide Variety of {$category->title} Available",
+                            "Largest Selection of {$category->title}",
+                            "Exclusive {$category->title} Collection",
+                            "Best {$category->title} Store",
+                            "Stylish & Quality {$category->title}"
+                        ])->random() }}
+                    @endif
+                </h1>
             </div>
          </div>
       </div>
@@ -333,39 +349,51 @@
     $(document).ready(function() {
         const filters = {};
         let currentPage = 1;
-        /*Additional Filter Handling */
-        $(document).on('click', '.additional-filter-btn', function () {
+        /* Additional Filter Handling */
+        $(document).on('click', '.additional-filter-btn', function() {
             const button = $(this);
-            const attributeSlug = button.data('attslug');
-            const valueSlugs = button.data('values');
-            button.toggleClass(
-                'active bg-violet-600 text-white border-violet-600'
-            );
-            if (!filters[attributeSlug]) {
-                filters[attributeSlug] = [];
-            }
-            const isActive = button.hasClass('active');
-            if (isActive) {
-                valueSlugs.forEach(function(slug) {
-                    if (
-                        !filters[attributeSlug].includes(slug)
-                    ) {
-
-                        filters[attributeSlug].push(slug);
-                    }
-                });
-            } else {
-                filters[attributeSlug] =
-                    filters[attributeSlug].filter(
-                        slug => !valueSlugs.includes(slug)
-                    );
-                if (
-                    filters[attributeSlug].length === 0
-                ) {
-
-                    delete filters[attributeSlug];
+            const filterData = button.data('filters');
+            const alreadyActive = button.hasClass('active');
+            $('.additional-filter-btn').each(function() {
+                const oldFilterData = $(this).data('filters');
+                if(oldFilterData) {
+                    oldFilterData.forEach(function(attribute) {
+                        delete filters[attribute.attribute_slug];
+                    });
                 }
+            });
+            $('.additional-filter-btn').removeClass('active bg-[#117174] text-white border-[#117174]').addClass('border-gray-200 text-gray-600 bg-white');
+            $('.additional-filter-btn .remove-icon').remove();
+            $('.additional-filter-btn .dot').removeClass('bg-white').addClass('bg-gray-300');
+            if(alreadyActive) {
+                updateURL();
+                return;
             }
+            button.addClass('active bg-[#117174] text-white border-[#117174]').removeClass('border-gray-200 text-gray-600 bg-white');
+            button.find('.dot').removeClass('bg-gray-300').addClass('bg-white');
+            if(button.find('.remove-icon').length === 0) {
+                button.append(`
+                    <span class="remove-icon flex items-center justify-center ml-1">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="w-3.5 h-3.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            stroke-width="2">
+
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M6 18L18 6M6 6l12 12"
+                            />
+                        </svg>
+                    </span>
+                `);
+            }
+            filterData.forEach(function(attribute) {
+                filters[attribute.attribute_slug] = [...attribute.value_slugs];
+            });
+            console.log(filters);
             updateURL();
         });
         /*Additional Filter Handling */

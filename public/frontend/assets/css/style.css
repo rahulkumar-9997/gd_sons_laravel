@@ -43895,11 +43895,7 @@ body.rtl .question-answer li .question-box .link-dislike-box {
 
 .shop-section .show-button .filter-category ul li {
     padding: calc(6px + 3*(100vw - 320px)/1600) calc(28px + 6*(100vw - 320px)/1600) calc(6px + 3*(100vw - 320px)/1600) calc(7px + 4*(100vw - 320px)/1600);
-    /* background-color: #f9f8f6; */
     position: relative;
-    border-radius: 4px;
-    /*  */
-    background-color: transparent;
     border: 1px solid #d5d5d5;
     color: #2b2b2b;
 }

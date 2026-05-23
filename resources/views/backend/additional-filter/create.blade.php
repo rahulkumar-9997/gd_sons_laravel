@@ -70,7 +70,7 @@
                                                     <input type="checkbox"
                                                         class="form-check-input"
                                                         id="attribute-value-{{ $value->id }}"
-                                                        name="attribute_values[{{ $attribute->id }}][]" value="{{ $value->id }}"  {{ in_array($value->id, $usedAttributeValueIds) ? 'disabled' : '' }}>
+                                                        name="attribute_values[{{ $attribute->id }}][]" value="{{ $value->id }}">
 
                                                     <label class="form-check-label"
                                                         for="attribute-value-{{ $value->id }}">

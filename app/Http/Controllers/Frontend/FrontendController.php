@@ -751,23 +751,6 @@ class FrontendController extends Controller
                 ->whereHas('images')/*only select which product whose images have (if all product selected than remove this line)*/
                 ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
                 ->paginate(20);
-			
-			
-			// $products = $productsQuery->with([
-                // 'category',
-                // 'images' => function ($query) {
-                    // $query->select('id', 'product_id', 'image_path')
-                        // ->orderBy('sort_order');
-                // },
-                // 'ProductAttributesValues' => function ($query) {
-                    // $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
-                        // ->with([
-                            // 'attributeValue:id,slug', 'productAttribute:id,attributes_id'
-                        // ])
-                        // ->orderBy('id');
-                // }
-            // ])
-
 
             /**special offer rate */
             $specialOffers = getCustomerSpecialOffers();
@@ -1150,18 +1133,16 @@ class FrontendController extends Controller
                     if (is_string($valueSlugs)) {
                         $valueSlugs = explode(',', $valueSlugs);
                     }
-                    $attribute = Attribute::where('slug', $attributeSlug)->first();
-                    if (!$attribute) {
-                        Log::warning("Attribute not found for slug: {$attributeSlug}");
-                        continue;
-                    }
-                    $valueIds = Attribute_values::whereIn('slug', $valueSlugs)->pluck('id')->toArray();
-                    $productsQuery->whereHas('attributes', function ($query) use ($attribute, $valueIds) {
-                        $query->where('attributes_id', $attribute->id)
-                            ->whereHas('values', function ($q) use ($valueIds) {
-                                $q->whereIn('attributes_value_id', $valueIds);
+                    foreach ($valueSlugs as $valueSlug) {
+                        $productsQuery->whereHas('ProductAttributesValues', function ($q) use ($attributeSlug, $valueSlug) {
+                            $q->whereHas('attributeValue', function ($q2) use ($attributeSlug, $valueSlug) {
+                            $q2->where('slug', $valueSlug)
+                                ->whereHas('attribute', function ($q3) use ($attributeSlug) {
+                                    $q3->where('slug', $attributeSlug);
+                                });
                             });
-                    });
+                        });
+                    }
                 }
             }
 
@@ -1238,8 +1219,8 @@ class FrontendController extends Controller
             $specialOffers = getCustomerSpecialOffers();
             /*Additional Filters */
             $additionalFilters = AdditionalFilter::with([
-                'filterAttributes.attribute',
-                'filterAttributes.attributeValues.attributeValue'
+                'filterAttributes.attribute:id,title,slug',
+                'filterAttributes.attributeValues.attributeValue:id,name,slug',
             ])
             ->where('category_id', $category->id)
             ->where('status', 'active')
@@ -1263,6 +1244,9 @@ class FrontendController extends Controller
                     })->values()
                 ];
             })->values();
+            // return response()->json([
+            //     'additionalFilters' => $additionalFilters,
+            // ]);
             /*Additional Filters */  
             if ($request->ajax()) {
                 if ($request->has('load_more') && $request->get('load_more') == true) {

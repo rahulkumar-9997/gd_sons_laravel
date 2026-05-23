@@ -62,11 +62,9 @@
                     <div class="product-image">
                         @if ($discountPercentage>0)
                         <div class="label-flex">
-                            <div class="discount">
-                                <label>
-                                    Save {{ $discountPercentage }}%
-                                </label>
-                            </div>
+                            <span class="group/badge relative inline-flex items-center gap-1 bg-green-700 text-white text-[10px] font-bold tracking-wide px-2 py-[3px] rounded-full cursor-default shadow-badge hover:shadow-badge-hover hover:scale-105 transition-all duration-200">
+                                {{ $discountPercentage }}% OFF
+                            </span>
                         </div>
                         @endif
                         <div class="product-img">

@@ -40,15 +40,32 @@
             
             <div class="col-lg-12">
                 <div class="h1-heading">
-                    @if($primary_category)
-                    <h1>
-                        Complete Range of {{ $primary_category->title }} in Varanasi.
-                    </h1>
-                    @else
-                    <h1>
-                        Complete Range of {{ $attributeValue->name }} {{ $category->title }} in Varanasi.
-                    </h1>
-                    @endif
+                    @php
+                        $titleText = $primary_category
+                            ? collect([
+                                "Buy Premium {$primary_category->title} Online",
+                                "Best Quality {$primary_category->title} Collection",
+                                "Explore Stylish {$primary_category->title}",
+                                "Durable & Trendy {$primary_category->title}",
+                                "Shop Latest {$primary_category->title}",
+                                "Exclusive {$primary_category->title} Online Store",
+                                "Wide Range of {$primary_category->title}",
+                                "Premium {$primary_category->title} at Best Price"
+                            ])->random()
+
+                            : collect([
+                                "Buy Premium {$attributeValue->name} {$category->title} Online",
+                                "Best Quality {$attributeValue->name} {$category->title}",
+                                "Explore Stylish {$attributeValue->name} {$category->title}",
+                                "Durable & Trendy {$attributeValue->name} {$category->title}",
+                                "Shop Latest {$attributeValue->name} {$category->title}",
+                                "Exclusive {$attributeValue->name} {$category->title} Collection",
+                                "Wide Range of {$attributeValue->name} {$category->title}",
+                                "Premium {$attributeValue->name} {$category->title} at Best Price"
+                            ])->random();
+                    @endphp
+
+                    <h1>{{ $titleText }}</h1>
                 </div>
             </div>
             <div class="col-xl-12 col-md-12 mobile-gap single-bn-mo-dblock" style="margin-top: 10px;">

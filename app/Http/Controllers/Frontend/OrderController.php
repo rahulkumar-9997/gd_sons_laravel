@@ -169,7 +169,7 @@ class OrderController extends Controller
     {
         $validatedData = $request->validate([
             'pick_up_status' => 'required|string|in:pick_up_online,pick_up_offline',
-            'payment_type' => 'required|string|in:Cash on Delivery,Razorpay',
+            'payment_type' => 'required|string|in:Cash on Delivery,Razorpay,Pick Up From Store',
             'product_id' => 'required|array',
             'product_id.*' => 'required|integer|exists:products,id',
             'cart_quantity' => 'required|array',
@@ -423,6 +423,10 @@ class OrderController extends Controller
     public function handleRazorpayCallback(Request $request)
     {
         $input = $request->all();
+        Log::info('=== RAZORPAY CALLBACK RECEIVED ===', [
+            'input' => $input,
+            'timestamp' => now()->toDateTimeString()
+        ]);
         $checkoutData = session('checkout_data');
         Log::info('Razorpay callback input handleRazorpayCallback:', $input);
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));

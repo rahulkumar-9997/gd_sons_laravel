@@ -36135,7 +36135,6 @@ body.rtl .menu-label {
     border-radius: 8px;
     -webkit-box-shadow: 0 0 8px #eee;
     box-shadow: 0 0 8px #eee;
-    margin-left: 66px;
     position: relative
 }
 
@@ -36155,16 +36154,7 @@ body.rtl .menu-label {
     }
 }
 
-.checkout-section-2 .left-sidebar-checkout .checkout-detail-box>ul>li .checkout-box::before {
-    content: "";
-    position: absolute;
-    top: 25px;
-    left: -42px;
-    width: 0;
-    height: 115%;
-    border-left: 1px dashed rgba(34, 34, 34, .18);
-    z-index: -1
-}
+
 
 [dir=rtl] .checkout-section-2 .left-sidebar-checkout .checkout-detail-box>ul>li .checkout-box::before {
     left: unset;

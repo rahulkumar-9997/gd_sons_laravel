@@ -82,8 +82,7 @@ Route::group(['middleware' => ['auth.customer']], function() {
     Route::post('/notifications/{id}/read', [CustomerLoginController::class, 'markAsRead']);
 });
 // Route::post('shipping-info', [FrontendController::class, 'checkServiceability'])->name('shipping-info');
-Route::get('pay-modal-form', [OrderController::class, 'payModalForm'])->name('pay-modal-form');
-Route::post('pay-modal-form/submit', [OrderController::class, 'payModalFormSubmit'])->name('pay-modal-form.submit');
+
 Route::middleware([TrackVisitor::class])->group(function () {
     Route::get('/', [FrontendController::class, 'home'])->name('home');
     Route::get('flash-sale', [FrontendController::class, 'flashSale'])->name('flash.sale');

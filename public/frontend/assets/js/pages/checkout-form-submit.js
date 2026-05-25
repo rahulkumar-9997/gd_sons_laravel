@@ -1,7 +1,20 @@
 $(document).ready(function () {
-     $(document).off('submit', '#checkoutFormSubmit').on('submit', '#checkoutFormSubmit', function (e) {
+    let otpVerified = false;
+    let pendingFormSubmit = false;
+    let currentMobileNumber = '';
+    $(document).off('submit', '#checkoutFormSubmit').on('submit', '#checkoutFormSubmit', function (e) {
         e.preventDefault();
         let form = $(this);
+        let paymentType = $('input[name="payment_type"]:checked').val();
+        if ((paymentType === 'Cash on Delivery' || paymentType === 'Pick Up From Store') && !otpVerified) {
+            showOtpModal(function() {
+                submitCheckoutForm(form);
+            });
+            return false;
+        }
+
+
+
         let submitButton = form.find('button[type="submit"]');
         let originalButtonText = submitButton.html();
         form.find('.is-invalid').removeClass('is-invalid');
@@ -15,29 +28,7 @@ $(document).ready(function () {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function (response) {
-                if (response.status == 'success') {
-                    submitButton.prop('disabled', false).html(originalButtonText);
-                    $.ajax({
-                        url: "/pay-modal-form",
-                        type: "get",
-                        data: {
-                            response_data: response.payment_type,
-                            _token: $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function (postResponse) {
-                            if (postResponse.status == 'success') {
-                                $('#commoanModal .modal-render-data').html(postResponse.form);
-                                $("#commoanModal").modal('show');
-                            } else {
-                                showNotificationAll("danger", "", "Something went wrong. Please try again!");
-                            }
-                        },
-                        error: function () {
-                            showNotificationAll("danger", "", "AJAX error occurred. Please try again!");
-                        }
-                    });
-                }
-                else if (response.status == 'cash_on_delivery') {
+                if (response.status == 'cash_on_delivery') {
                     if (response.data && response.data.original) {
                         var responseData = response.data.original;
                         form[0].reset();
@@ -185,58 +176,33 @@ $(document).ready(function () {
             }
         });
     }
-    /**Payment form submit after payment*/
-    $(document).off('submit', '#payModalFormSubmit').on('submit', '#payModalFormSubmit', function (event) {
-        event.preventDefault();
-        let form = $(this);
-        let submitButton = form.find('button[type="submit"]');
-        let originalButtonText = submitButton.html();
-        form.find('.is-invalid').removeClass('is-invalid');
-        form.find('.invalid-feedback').remove();
-        submitButton.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Submitting...');
-        $.ajax({
-            url: form.attr('action'),
-            method: 'POST',
-            data: form.serialize(),
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function (response) {
-                if (response.data && response.data.original) {
-                    var responseData = response.data.original;
-                    form[0].reset();
-                    submitButton.prop('disabled', false).html(originalButtonText);
-                    if (responseData.redirect_url) {
-                        console.log("Redirecting to:", response.redirect_url);
-                        window.location.href = responseData.redirect_url;
-                    }
-                } else {
-                    alert("Something went wrong!");
-                }
-            },
-            error: function (xhr) {
-                if (xhr.status === 422) {
-                    let errors = xhr.responseJSON.errors;
-                    let firstInvalidField = null;
-                    $.each(errors, function (fieldName, messages) {
-                        let input = form.find(`[name="${fieldName}"]`);
-                        input.addClass('is-invalid');
-                        //input.after(`<div class="invalid-feedback">${messages[0]}</div>`);
-                        if (firstInvalidField === null) {
-                            firstInvalidField = input;
-                        }
-                    });
-                    if (firstInvalidField) {
-                        firstInvalidField.focus();
-                    }
-                } else {
-                    showNotificationAll("danger", "", 'An unexpected error occurred. Please try again later.');
-                }
-                submitButton.prop('disabled', false).html(originalButtonText);
-            }
-        });
-    });
-    /**Payment form submit after payment*/
 
+    function getMobileNumberFromForm() {
+        let selectedAddress = $('input[name="customer_address_id"]:checked');
+        if (selectedAddress.length > 0) {
+            let addressDiv = selectedAddress.closest('.delivery-address-box');
+            let phoneText = addressDiv.find('.delivery-address-detail li:last-child h6').text();
+            let phoneMatch = phoneText.match(/\d{10}/);
+            return phoneMatch ? phoneMatch[0] : '';
+        } else {
+            return $('input[name="ship_phone_number"]').val();
+        }
+    }
 
+    function showOtpModal(callback) {
+        currentMobileNumber = getMobileNumberFromForm();
+        if (!currentMobileNumber || currentMobileNumber.length !== 10) {
+            showNotificationAll("danger", "", 'Please provide a valid 10-digit mobile number in address section');
+            return false;
+        }        
+        $('#displayMobileNumber').text(currentMobileNumber);
+        $('#otpSendSection').show();
+        $('#otpVerifySection').hide();
+        $('#otpInput').val('');
+        $('#whatsappOtpModal').modal('show');
+        pendingFormSubmit = callback;
+        return true;
+    }
+    
 });
+

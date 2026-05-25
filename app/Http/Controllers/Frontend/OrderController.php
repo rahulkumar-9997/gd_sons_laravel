@@ -428,7 +428,18 @@ class OrderController extends Controller
             'timestamp' => now()->toDateTimeString()
         ]);
         $checkoutData = session('checkout_data');
-        Log::info('Razorpay callback input handleRazorpayCallback:', $input);
+        $orderDbId = $input['order_db_id'] ?? null;
+        if (!$checkoutData && $orderDbId) {
+            Log::warning('Session checkout_data missing, will use database order data', ['order_db_id' => $orderDbId]);
+            $order = Orders::find($orderDbId);
+            if ($order) {
+                $checkoutData = [
+                    'ship_full_name' => $order->shippingAddress->full_name ?? null,
+                    'ship_email' => $order->shippingAddress->email_id ?? null,
+                    'ship_phone_number' => $order->shippingAddress->phone_number ?? null,
+                ];
+            }
+        }
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
         DB::beginTransaction();
         try {
@@ -611,86 +622,7 @@ class OrderController extends Controller
             'bill_state' => 'nullable|required_if:same_ship_bill_address,1',
             'bill_pin_code' => 'nullable|required_if:same_ship_bill_address,1|digits:6',
         ];
-    }
-
-    public function payModalForm(Request $request)
-    {
-        $response_data = $request->input('response_data');
-        Log::info('response_date: ', ['response_data' => $response_data]);
-        $gPayScannerPath = asset('frontend/assets/images/gpay-scanner.jpeg');
-        $payTmScannerPath = asset('frontend/assets/images/paytm-scanner.jpeg');
-        $form = '
-        <form method="POST" action="' . route('pay-modal-form.submit') . '" accept-charset="UTF-8" enctype="multipart/form-data" id="payModalFormSubmit">
-            ' . csrf_field() . '
-            <div class="row">
-                <div class="col-md-12">';
-                if ($response_data == 'Pay to GPay ID of Girdhar Das and Sons') {
-                    $form .= '
-                                <div class="text-center">
-                                    <!--<div class="mb-3">
-                                        <h4>Google id : girdhardas.sons@okhdfcbank</h4>
-                                    </div>
-                                    <div class="or-area">
-                                        <h6>
-                                            OR
-                                        </h6>
-                                    </div>-->
-                                    <div class="scanner-image mt-3 mb-3">
-                                        <img src="' . $gPayScannerPath . '" class="img-fluid blur-up lazyloaded pay-scanner">
-                                    </div>
-                                    <div class="mt-2 mb-3">
-                                        <span>Note: After payment successfull please click "Confirm Place Order" button.</span>
-                                    </div>
-                                </div>';
-                } elseif ($response_data == 'Pay to PayTM ID of Girdhar Das and Sons') {
-                    $form .= '
-                                <div class="text-center">
-                                    <!--<div class="mb-3">
-                                        <h4>Paytm id : girdhardas.sons@paytm</h4>
-                                    </div>
-                                    <div class="or-area">
-                                        <h6>
-                                            OR
-                                        </h6>
-                                    </div>-->
-                                    <div class="scanner-image mt-3 mb-3">
-                                        <img src="' . $payTmScannerPath . '" class="img-fluid blur-up lazyloaded pay-scanner">
-                                    </div>
-                                    <div class="mt-2 mb-3">
-                                        <span>Note: After payment successfull please click "Confirm Place Order" button.</span>
-                                    </div>
-                                </div>';
-                } else {
-                    $form .= '
-                    <div class="text-center">
-                        <div class="mb-3">
-                            <h4>Note: Please click "Confirm Place Order" button.</h4>
-                        </div>
-                    </div>';
-                }
-                $form .= '
-                        </div>
-                        <div class="modal-footer pb-0">
-                            
-                            <button style="color:#ffffff;" type="submit" class="btn btn-2-animation btn-md fw-bold">Confirm Place Order</button>
-                        </div>
-                    </div>
-                </form>
-                ';
-        return response()->json([
-            'message' => 'Category Form created successfully',
-            'form' => $form,
-            'status' => 'success',
-        ]);
-    }
-
-    public function payModalFormSubmit(Request $request)
-    {
-        $response = $this->storeOrderAfterPayment($request);
-        return response()->json([
-            'data' => $response,
-        ]);
-    }
+    }    
 
     public function storeOrderAfterPayment(Request $request)
     {

@@ -115,13 +115,11 @@ class OrderControllerBackend extends Controller
     
             $existingRecord = OrderShipmentRecords::where('order_id', $orderId)
                 ->where('order_status_id', $request->order_status_id)
-                ->exists();
-    
+                ->exists();			
             if (!$existingRecord) {
                 $order = Orders::findOrFail($orderId);
                 $order->order_status_id = $request->order_status_id;
-                $order->save();
-    
+                $order->save();    
                 OrderShipmentRecords::create([
                     'order_id' => $order->id,
                     'order_status_id' => $request->order_status_id,

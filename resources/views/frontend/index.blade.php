@@ -103,9 +103,9 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-15">
                 @foreach ($data['primary_category'] as $index =>$primary_category_row)
 
-                <div class="p-1 group relative rounded overflow-hidden shadow-2xl hover:shadow-2xl transition-shadow duration-300">
+                <div class="p-1 group relative rounded-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300 border-[1px] border-[#d0d3d3]">
                     <a href="{{ $primary_category_row['link'] ?? '#' }}">
-                        <h3 class="text-[18px] sm:text-[16px] md:text-[18px] lg:text-[20px] mb-2 font-bold text-slate-800 group-hover/category:text-primary-600 transition-colors duration-300 text-center mt-1">
+                        <h3 class="text-[20px] sm:text-[16px] md:text-[20px] lg:text-[20px] mb-2 font-bold text-slate-800 group-hover/category:text-primary-600 transition-colors duration-300 text-center mt-1">
                             {{ $primary_category_row['title'] }}
                             <span class="block h-0.5 bg-primary-600 scale-x-0 group-hover/category:scale-x-100 transition-transform duration-300 origin-center"></span>
                         </h3>
@@ -150,7 +150,7 @@
                             : 0;
 
                             @endphp
-                            <div class="w-full h-full border border-gray-600 rounded-xl bg-white group/product transition-all duration-300 ease-in-out hover:border-primary-300 hover:shadow-lg">
+                            <div class="w-full h-full shadow-[0_1px_2px_rgba(0,0,0,0.04)] rounded-xl bg-white group/product transition-all duration-300 ease-in-out hover:border-primary-300 hover:shadow-lg">
                             <div class="relative w-full h-full">
                                 <a href="{{ url('products/'.$product['slug'].'/'.$product['attributes_value_slug']) }}" class="block">
                                     <div class="overflow-hidden rounded-t-xl">

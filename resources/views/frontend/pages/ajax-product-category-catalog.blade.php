@@ -100,10 +100,12 @@
             <div class="bg-white p-2 overflow-x-auto">
                 <div class="flex items-center gap-2 whitespace-nowrap">
                     @foreach($buttons as $filter)
-                        <button type="button"class="additional-filter-btn inline-flex items-center gap-1.5 px-4 py-3 rounded-full text-[16px] border transition-all duration-150 cursor-pointer flex-shrink-0 {{ $filter['is_selected'] ? 'active bg-[#117174] text-white border-[#117174]' : 'border-gray-200 text-proc_terminate-teal bg-gray hover:border-[#117174] hover:text-[#117174]'}}" data-filters='@json($filter['attribute_data'])'
+                        <button type="button"class="additional-filter-btn inline-flex items-center gap-1.5 px-3 py-3.5 rounded-full text-[16px] transition-all duration-150 cursor-pointer flex-shrink-0 border-[1px] font-medium
+                        {{ $filter['is_selected'] 
+                            ? 'active bg-[#117174] text-white border-[#117174]' 
+                            : 'border-[#0F8B8D] text-primary-navy bg-gray hover:border-[#117174] hover:text-[#117174]' 
+                        }}" data-filters='@json($filter['attribute_data'])'
                         >
-                            <span class="dot w-1.5 h-1.5 rounded-full {{ $filter['is_selected'] ? 'bg-white' : 'bg-gray-300'}}">
-                            </span>
                             <span class="leading-none">
                                 {{ $filter['filter_button_name'] }}
                             </span>

@@ -1133,16 +1133,18 @@ class FrontendController extends Controller
                     if (is_string($valueSlugs)) {
                         $valueSlugs = explode(',', $valueSlugs);
                     }
-                    foreach ($valueSlugs as $valueSlug) {
-                        $productsQuery->whereHas('ProductAttributesValues', function ($q) use ($attributeSlug, $valueSlug) {
-                            $q->whereHas('attributeValue', function ($q2) use ($attributeSlug, $valueSlug) {
-                            $q2->where('slug', $valueSlug)
-                                ->whereHas('attribute', function ($q3) use ($attributeSlug) {
-                                    $q3->where('slug', $attributeSlug);
-                                });
-                            });
-                        });
+                    $attribute = Attribute::where('slug', $attributeSlug)->first();
+                    if (!$attribute) {
+                        Log::warning("Attribute not found for slug: {$attributeSlug}");
+                        continue;
                     }
+                    $valueIds = Attribute_values::whereIn('slug', $valueSlugs)->pluck('id')->toArray();
+                    $productsQuery->whereHas('attributes', function ($query) use ($attribute, $valueIds) {
+                        $query->where('attributes_id', $attribute->id)
+                            ->whereHas('values', function ($q) use ($valueIds) {
+                                $q->whereIn('attributes_value_id', $valueIds);
+                            });
+                    });
                 }
             }
 
@@ -1244,9 +1246,7 @@ class FrontendController extends Controller
                     })->values()
                 ];
             })->values();
-            // return response()->json([
-            //     'additionalFilters' => $additionalFilters,
-            // ]);
+			//return response()->json($additionalFilters);
             /*Additional Filters */  
             if ($request->ajax()) {
                 if ($request->has('load_more') && $request->get('load_more') == true) {

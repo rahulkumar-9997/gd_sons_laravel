@@ -454,10 +454,10 @@
                      <div class="col-lg-12">
                         <div class="mb-2">
                            <h5 class="card-title mb-1 anchor" id="quill-snow-editor">
-                              Product Specification
+                              Faq Schema
                            </h5>
                            <div class="mb-3">                              
-                              <textarea name="product_specification" class="hidden-textarea ckeditor4">{!! $data['product']->product_specification !!}</textarea>
+                              <textarea rows="20" name="faq_schema" id="faq_schema" class="form-control bg-light-subtle">{!! $data['product']->faq_schema !!}</textarea>
                            </div>
                         </div>
                      </div>

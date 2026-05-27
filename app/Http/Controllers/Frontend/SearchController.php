@@ -226,7 +226,123 @@ class SearchController extends Controller
         return response()->json(['suggestions' => $suggestions]);
     }
 
-    public function searchListProduct(Request $request)
+public function searchListProduct(Request $request)
+{
+    $query = trim($request->get('query'));
+    $category = trim($request->get('category'));
+
+    $cleanedQuery = preg_replace('/[^a-zA-Z0-9\s]/', ' ', $query);
+    $cleanedQuery = preg_replace('/\s+/', ' ', $cleanedQuery);
+    $searchTerms = array_values(array_filter(explode(' ', trim($cleanedQuery)), function ($term) {
+        return strlen($term) >= 2;
+    }));
+
+    if (empty($searchTerms)) {
+        return view('frontend.pages.search-catalog', [
+            'productGroups' => [],
+            'categories' => collect(),
+            'query' => $query,
+            'specialOffers' => getCustomerSpecialOffers()
+        ]);
+    }
+
+    // Build all combinations from full length down to 1
+    $allCombinations = [];
+    $totalTerms = count($searchTerms);
+
+    for ($len = $totalTerms; $len >= 1; $len--) {
+        $combos = $this->getCombinations($searchTerms, $len);
+        foreach ($combos as $combo) {
+            $allCombinations[] = $combo;
+        }
+    }
+
+    $seenProductIds = [];
+    $productGroups = [];
+
+    foreach ($allCombinations as $combo) {
+        $booleanQuery = implode(' ', array_map(fn($t) => '+' . $t . '*', $combo));
+
+        $productsQuery = Product::leftJoin('inventories', function ($join) {
+            $join->on('products.id', '=', 'inventories.product_id')
+                ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+        })
+        ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+        ->with([
+            'images' => fn($q) => $q->orderBy('sort_order'),
+            'category',
+            'ProductAttributesValues' => function ($q) {
+                $q->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
+                  ->with(['attributeValue:id,slug'])
+                  ->orderBy('id');
+            }
+        ])
+        ->where(function ($q) use ($combo) {
+			foreach ($combo as $term) {
+				$q->where('title', 'like', '%' . $term . '%');
+			}
+		})
+        ->whereNotIn('products.id', $seenProductIds);
+
+        if ($category) {
+            $categoryIds = explode(',', $category);
+            $productsQuery->whereIn('category_id', $categoryIds);
+        }
+
+        $products = $productsQuery->get();
+
+        if ($products->isNotEmpty()) {
+            // Build group heading
+            if (count($combo) === $totalTerms && $totalTerms > 1) {
+                $heading = 'Best Match: "' . implode(' ', $combo) . '"';
+            } elseif (count($combo) === 1) {
+                $heading = 'Results for "' . $combo[0] . '"';
+            } else {
+                $heading = 'Results for "' . implode(' ', $combo) . '"';
+            }
+
+            $productGroups[] = [
+                'heading' => $heading,
+                'products' => $products,
+            ];
+
+            $seenProductIds = array_merge($seenProductIds, $products->pluck('id')->toArray());
+        }
+    }
+
+    $categories = Category::whereHas('products', function ($q) use ($searchTerms) {
+        foreach ($searchTerms as $term) {
+            $q->orWhere('title', 'like', '%' . $term . '%');
+        }
+    })->orderBy('created_at', 'desc')->get();
+
+    DB::disconnect();
+
+    return view('frontend.pages.search-catalog', [
+        'productGroups' => $productGroups,
+        'categories' => $categories,
+        'query' => $query,
+        'specialOffers' => getCustomerSpecialOffers()
+    ]);
+}
+
+private function getCombinations(array $terms, int $length): array
+{
+    if ($length === 1) {
+        return array_map(fn($t) => [$t], $terms);
+    }
+    $combos = [];
+    $count = count($terms);
+    for ($i = 0; $i <= $count - $length; $i++) {
+        $rest = $this->getCombinations(array_slice($terms, $i + 1), $length - 1);
+        foreach ($rest as $combo) {
+            $combos[] = array_merge([$terms[$i]], $combo);
+        }
+    }
+    return $combos;
+}
+
+    public function searchListProduct_270525(Request $request)
     {
         $query = trim($request->get('query'));
         $category = trim($request->get('category'));

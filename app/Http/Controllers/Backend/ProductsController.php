@@ -162,7 +162,7 @@ class ProductsController extends Controller
         $input['meta_title'] = $request->input('meta_title');
         $input['meta_description'] = $request->input('meta_description');
         $input['product_description'] = $request->input('product_description');
-        $input['product_specification'] = $request->input('product_specification');
+        $input['faq_schema'] = $request->input('faq_schema');
         $add_product = Product::create($input);
         if($add_product){
             if ($request->hasFile('product_images')){
@@ -348,7 +348,7 @@ class ProductsController extends Controller
                 'meta_title' => $request->input('meta_title'),
                 'meta_description' => $request->input('meta_description'),
                 'product_description' => $request->input('product_description'),
-                'product_specification' => $request->input('product_specification'),
+                'faq_schema' => $request->input('faq_schema'),
                 'length' => $request->input('products_length') ?? null,
                 'breadth' => $request->input('products_breadth') ?? null,
                 'height' => $request->input('products_height') ?? null,
@@ -632,7 +632,7 @@ class ProductsController extends Controller
             $input['meta_title'] = $request->input('meta_title');
             $input['meta_description'] = $request->input('meta_description');
             $input['product_description'] = $request->input('product_description');
-            $input['product_specification'] = $request->input('product_specification');
+            $input['faq_schema'] = $request->input('faq_schema');
             $input['length'] = $request->input('products_length') ?? null;
             $input['breadth'] = $request->input('products_breadth') ??  null;
             $input['height'] = $request->input('products_height') ??  null; 
@@ -1652,7 +1652,7 @@ class ProductsController extends Controller
         }
         try {
             $query = Product::with(['images', 'category'])
-                ->select(['id', 'title', 'category_id', 'meta_title', 'meta_description', 'g_tin_no', 'slug', 'category_id', 'product_description', 'product_specification', 'video_id', 'length', 'breadth', 'height', 'weight', 'volumetric_weight_kg']); 
+                ->select(['id', 'title', 'category_id', 'meta_title', 'meta_description', 'g_tin_no', 'slug', 'category_id', 'product_description', 'faq_schema', 'video_id', 'length', 'breadth', 'height', 'weight', 'volumetric_weight_kg']); 
             if ($criteria === 'product-image') {
                 $query->whereDoesntHave('images');
             }            
@@ -1826,7 +1826,7 @@ class ProductsController extends Controller
     
                 if ($criteria === 'product-specification' && isset($request->products_specification[$key])) {
                     Log::info("Updating product specification for product ID: {$productId}.");
-                    $product->product_specification = $request->products_specification[$key];
+                    $product->faq_schema = $request->products_specification[$key];
                     $updated = true;
                     $msg ="Product specification updated successfully.";
                 }

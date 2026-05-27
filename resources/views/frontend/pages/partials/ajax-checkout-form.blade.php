@@ -20,7 +20,14 @@ $customerPhone = '';
             <div class="left-sidebar-checkout">
                 <div class="checkout-detail-box">
                     <ul>
-                        <li>                            
+                        <li>
+                            <div class="checkout-icon">
+                                <lord-icon target=".nav-item" src="https://cdn.lordicon.com/ggihhudh.json"
+                                    trigger="loop-on-hover"
+                                    colors="primary:#121331,secondary:#646e78,tertiary:#0baf9a"
+                                    class="lord-icon">
+                                </lord-icon>
+                            </div>
                             <div class="checkout-box">
                                 <div class="checkout-title">
                                     <h4>Billing & Shipping</h4>
@@ -290,7 +297,13 @@ $customerPhone = '';
                                 </div>
                             </div>
                         </li>
-                        <li>                            
+                        <li>
+                            <div class="checkout-icon">
+                                <lord-icon target=".nav-item" src="https://cdn.lordicon.com/qmcsqnle.json"
+                                    trigger="loop-on-hover" colors="primary:#0baf9a,secondary:#0baf9a"
+                                    class="lord-icon">
+                                </lord-icon>
+                            </div>
                             <div class="checkout-box">
                                 <div class="checkout-title">
                                     <h4>Payment Option</h4>

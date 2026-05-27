@@ -892,6 +892,9 @@ class FrontendController extends Controller
         }
         $specialOffers = getCustomerSpecialOffers();
         $attributeValue = Attribute_values::where('slug', $attributes_value_slug)->first();
+		if($attributeValue){
+			$attribute = Attribute::where('id', $attributeValue->attributes_id )->first();
+		}
         /*First get the product and increment visitor count in one query*/
         $product = Product::where('slug', $slug)->firstOrFail();
         $product->increment('visitor_count');
@@ -989,8 +992,8 @@ class FrontendController extends Controller
 
         DB::disconnect();
         /**Related product display */
-        //return response()->json($data['other_related_products']);
-        return view('frontend.pages.product', compact('data', 'specialOffers'));
+        //return response()->json($attribute);
+        return view('frontend.pages.product', compact('data', 'specialOffers', 'attribute'));
     }
 
     public function showCategoryProduct_old_1_2_2025(Request $request, $categorySlug)

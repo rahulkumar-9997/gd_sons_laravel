@@ -39,6 +39,8 @@ $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
 ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
 : 0;
 @endphp
+
+
 <div>
     <div class="product-box-3 h-100">
         <div class="product-header">

@@ -1,8 +1,16 @@
 @extends('frontend.layouts.master')
-@section('title', ($query ?? 'Search'))
-@section('description', 'GD Sons - ' . ($query ?? 'Search'))
-@section('keywords', 'GD Sons - ' . ($query ?? 'Search'))
-@section('main-content')
+@section('title', ($query ?? 'Search') . ' - Buy Online | Girdhar Das Sons Varanasi')
+@section('description', 'Search results for "' . ($query ?? '') . '" at Girdhar Das Sons — Varanasi\'s trusted kitchenware store since 1970. Genuine products, best prices.')
+@section('keywords', ($query ?? '') . ', kitchenware Varanasi, buy ' . ($query ?? '') . ' online, Girdhar Das Sons')@section('main-content')
+@section('meta')
+@if(request()->has('query') && request()->query('query'))
+<link rel="canonical" href="{{ url('/search') }}?query={{ urlencode(request()->query('query')) }}" />
+@else
+<link rel="canonical" href="{{ url('/search') }}" />
+@endif
+@endsection
+
+
 <!-- Breadcrumb Section Start -->
 <section class="breadcrumb-section pt-0">
     <div class="container-fluid-lg">
@@ -38,7 +46,7 @@
                 @endif
                 <div class="h1-heading">
                 <h1>
-                    You search on {{$query ?? 'Search'}}
+                    Search Results for "{{$query ?? 'Search'}}"
                 </h1>
                 </div>
             </div>
@@ -141,14 +149,18 @@
 
                     </div>
                 </div>
-                @if (isset($products) && $products->isNotEmpty())
-                <div
-                    class="row g-sm-4 g-3 row-cols-xxl-4 row-cols-xl-4 row-cols-lg-4 row-cols-md-3 row-cols-2 product-list-section" id="search-catalog-frontend">
-                    @include('frontend.pages.partials.ajax-search-catalog', [$products])
-                </div>
-                @else
-                <p>No products found on your search query !.</p>
-                @endif
+                @if (!empty($productGroups))
+    @foreach ($productGroups as $group)
+    <div class="col-12 search-group-heading mt-3 mb-2">
+        <h5 class="search-group-title">{{ $group['heading'] }}</h5>
+    </div>
+    <div class="row g-sm-4 g-3 row-cols-xxl-4 row-cols-xl-4 row-cols-lg-4 row-cols-md-3 row-cols-2 product-list-section mb-4">
+        @include('frontend.pages.partials.ajax-search-catalog', ['products' => $group['products']])
+    </div>
+    @endforeach
+@else
+    <p>No products found for your search query.</p>
+@endif
 
             </div>
         </div>

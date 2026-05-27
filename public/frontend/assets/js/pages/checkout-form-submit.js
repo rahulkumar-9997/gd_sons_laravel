@@ -1,20 +1,8 @@
 $(document).ready(function () {
-    let otpVerified = false;
-    let pendingFormSubmit = false;
-    let currentMobileNumber = '';
     $(document).off('submit', '#checkoutFormSubmit').on('submit', '#checkoutFormSubmit', function (e) {
         e.preventDefault();
         let form = $(this);
         let paymentType = $('input[name="payment_type"]:checked').val();
-        if ((paymentType === 'Cash on Delivery' || paymentType === 'Pick Up From Store') && !otpVerified) {
-            showOtpModal(function() {
-                submitCheckoutForm(form);
-            });
-            return false;
-        }
-
-
-
         let submitButton = form.find('button[type="submit"]');
         let originalButtonText = submitButton.html();
         form.find('.is-invalid').removeClass('is-invalid');
@@ -28,17 +16,37 @@ $(document).ready(function () {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function (response) {
-                if (response.status == 'cash_on_delivery') {
-                    if (response.data && response.data.original) {
-                        var responseData = response.data.original;
-                        form[0].reset();
-                        submitButton.prop('disabled', false).html(originalButtonText);
-                        if (responseData.redirect_url) {
-                            window.location.href = responseData.redirect_url;
-                        }
-                    } else {
-                        showNotificationAll("danger", "", 'Something went wrong please try again!.');
+                if (response.status == 'success') {
+                    if(response.payment_type == 'Cash on Delivery' || response.payment_type == 'Pick Up From Store') {
+                        showNotificationAll("success", "", response.message);
+                        var mobileNumber = getMobileNumberFromForm();
+                        var size = 'md';
+                        var data = {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
+                            mobile_number: mobileNumber,
+                        };
+                        $.ajax({
+                            url: otpVerificationUrl,
+                            method: 'GET',
+                            data: data,
+                            success: function (data) {
+                                $('#commoanModal .modal-render-data').html(data.form);
+                                $("#commoanModal .modal-dialog").addClass('modal-' + size);
+                                $("#commoanModal").modal('show');
+                                submitButton.prop('disabled', false).html(originalButtonText);
+                            }
+                        });
                     }
+                    // if (response.data && response.data.original) {
+                    //     var responseData = response.data.original;
+                    //     form[0].reset();
+                    //     submitButton.prop('disabled', false).html(originalButtonText);
+                    //     if (responseData.redirect_url) {
+                    //         window.location.href = responseData.redirect_url;
+                    //     }
+                    // } else {
+                    //     showNotificationAll("danger", "", 'Something went wrong please try again!.');
+                    // }
                 }
                 else if (response.status == 'razorpay') {
                     submitButton.prop('disabled', false).html(originalButtonText);
@@ -176,7 +184,7 @@ $(document).ready(function () {
             }
         });
     }
-
+    
     function getMobileNumberFromForm() {
         let selectedAddress = $('input[name="customer_address_id"]:checked');
         if (selectedAddress.length > 0) {
@@ -189,20 +197,58 @@ $(document).ready(function () {
         }
     }
 
-    function showOtpModal(callback) {
-        currentMobileNumber = getMobileNumberFromForm();
-        if (!currentMobileNumber || currentMobileNumber.length !== 10) {
-            showNotificationAll("danger", "", 'Please provide a valid 10-digit mobile number in address section');
-            return false;
-        }        
-        $('#displayMobileNumber').text(currentMobileNumber);
-        $('#otpSendSection').show();
-        $('#otpVerifySection').hide();
-        $('#otpInput').val('');
-        $('#whatsappOtpModal').modal('show');
-        pendingFormSubmit = callback;
-        return true;
+    function resendOTP(mobileNumber, button, otpResendUrl) {
+        button.prop('disabled', true)
+            .addClass('opacity-50 cursor-not-allowed')
+            .text('Resending...');
+        $.ajax({
+            url: otpResendUrl,
+            method: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                mobile_number: mobileNumber,
+            },
+            success: function (response) {
+                if (response.status == 'success') {
+                    showNotificationAll("success", "", response.message);
+                    let remaining = response.remaining_attempts ?? 0;
+                    if (remaining > 0) {
+                        button.text('Resend OTP (' + remaining + ' left)');
+                        setTimeout(function () {
+                            button.prop('disabled', false)
+                                .removeClass('opacity-50 cursor-not-allowed')
+                                .text('Resend OTP');
+                        }, 30000);
+                    } else {
+                        button.text('Limit Reached')
+                        .addClass('opacity-50 cursor-not-allowed');
+                    }
+                } else {
+                    showNotificationAll("danger", "", response.message);
+                    button.prop('disabled', false)
+                    .removeClass('opacity-50 cursor-not-allowed')
+                    .text('Resend OTP');
+                }
+            },
+            error: function (xhr) {
+                let message = xhr.responseJSON?.message ??
+                'Failed to resend OTP. Please try again.';
+                showNotificationAll("danger", "", message);
+                button.text('Limit Reached')
+                .addClass('opacity-50 cursor-not-allowed');
+            }
+        });
     }
-    
+
+    $(document).off('click', '.resend-otp-btn')
+    .on('click', '.resend-otp-btn', function () {
+        let button = $(this);
+        if (button.prop('disabled')) {
+            return;
+        }
+        let mobileNumber = button.data('mobile');
+        let otpResendUrl = button.data('route');
+        resendOTP(mobileNumber, button, otpResendUrl);
+    });
 });
 

@@ -18,7 +18,8 @@ class ProductReviewAutoAiGenerateController extends Controller
         try {
             $product = Product::with('category')->findOrFail($id);            
             $client = new Client();
-            $customPrompt = session('ai_review_prompt', '');            
+            $customPrompt = session('ai_review_prompt', '');
+            $reviewCount = rand(3, 5); // Randomly decide how many reviews to generate            
             $systemPrompt = "You are an expert ecommerce review generator trained to write highly realistic, human-like customer reviews.
             Your job is to create reviews that feel 100% genuine, like they were written by real customers after actual usage.
 
@@ -44,11 +45,13 @@ class ProductReviewAutoAiGenerateController extends Controller
             - You may occasionally include Hinglish (mix of Hindi + English)
             
             CUSTOMER NAME RULES (VERY IMPORTANT):
-            - ALL names must be UNIQUE
-            - Use ONLY real Indian names (in English script)
-            - Examples: Ankit Mishra, Sneha Yadav, Rajesh Kumar, Pooja Sharma
-            - NO western names like John, David, etc.
-            - Do not repeat any name
+            - GENERATE a fresh, random, realistic Indian full name for EACH review
+            - Do NOT reuse names — every single review must have a completely different name
+            - Names must sound like real Indian people from different parts of India
+            - Mix names from different states and communities (e.g. Sharma, Patel, Nair, Iyer, Yadav, Kaur, Reddy, Menon, Das, Pillai)
+            - Always write names in English script (Roman letters)
+            - NO western names like John, David, Emily, etc.
+            - Do NOT use the same first name or last name twice across the set
             
             VARIETY & HUMAN BEHAVIOR:
             - Each review must feel like written by a DIFFERENT person
@@ -68,72 +71,82 @@ class ProductReviewAutoAiGenerateController extends Controller
             - Reviews must feel spontaneous and natural
             Return ONLY valid JSON. No explanation.";
             
-            $userPrompt = $customPrompt ?: "Generate 5 realistic customer reviews for the product:
+            $userPrompt = $customPrompt ?: "Generate exactly {$reviewCount} realistic customer reviews for the product:
             Product Name: {$product->title}
             Category: {$product->category->title}
 
             REQUIREMENTS:
-            RATINGS DISTRIBUTION:
-            - Mostly positive reviews
-            - At least:
+            RATINGS DISTRIBUTION (STRICT - ONLY 4 AND 5 STAR REVIEWS):
             - 2 reviews → 5 stars
             - 2 reviews → 4 stars
-            - 1 review → 3 star (optional mild issue)
-            - Avoid strong negative (1-2 stars only if very soft tone)
+            - DO NOT generate any review with 1, 2, or 3 stars under any circumstance
             
             Language Distribution:
-            - 1-2 reviews in Hindi (Devanagari)
-            - 3-4 reviews in natural English
+            - Exactly 1 review in Hindi (Devanagari script only)
+            - Exactly 3 reviews in natural conversational English
             
-           CONTENT GUIDELINES:
-            - Each review must be unique
-            - Avoid repetition
-            - Use natural expressions like:
-            - 'nice product'
-            - 'value for money'
-            - 'quality is good'
-            - 'delivery was quick'
-            - 'happy with purchase'
-            - 'packaging was fine'
+            REVIEW TYPE RULES (VERY IMPORTANT):
+            Review #1 — SEO DETAILED REVIEW (English, 5 stars, MINIMUM 100 words):
+            - Must be written in natural, casual, human speaking language — like texting a friend about a good buy
+            - Must naturally include SEO-relevant keywords related to the product name, category, features, usage, and benefits
+            - Keywords must flow organically within sentences — do NOT stuff keywords unnaturally
+            - Cover topics like: product quality, build material, performance, ease of use, daily usage experience, value for money, delivery, packaging
+            - Length: minimum 100 words, maximum 160 words
+            - OPENING RULES (VERY IMPORTANT):
+              * NEVER start with 'I recently purchased', 'I recently bought', 'I purchased', 'I bought', or any variation of these
+              * NEVER start with 'I' at all
+              * START with one of these styles instead:
+                → The product name directly (e.g. 'The Cello Blazing cooktop is...')
+                → A casual observation (e.g. 'Honestly, this thing surprised me...')
+                → A situation or context (e.g. 'Been using this for 3 weeks now...')
+                → A direct opinion (e.g. 'Solid buy for the price...')
+                → A comparison or contrast (e.g. 'Switched from gas to this and...')
+              * Keep the opening line punchy, casual, and fresh
 
-            HINDI STYLE:
-            - Simple conversational Hindi
-            Examples:
-            - बहुत अच्छा प्रोडक्ट है, पसंद आया।
-            - अच्छा है, पैसे के हिसाब से ठीक है।
-            - ठीक-ठाक है, काम सही कर रहा है।
+            Review #2 — MEDIUM ENGLISH REVIEW (English, 5 or 4 stars):
+            - 2 to 3 sentences
+            - Casual and natural tone
+            - Mention delivery or packaging or pricing
 
-            STYLE VARIATION:
-            - 1 review → very short (1 line)
-            - 2-3 reviews → medium length
-            - 1 review → slightly detailed
+            Review #3 — HINDI REVIEW (Hindi Devanagari, 5 or 4 stars):
+            - Written entirely in Hindi Devanagari script
+            - Simple, conversational, emotional tone like an Indian housewife or family buyer
+            - 2 to 4 sentences
+            - PRODUCT NAME RULE: The product name must also be transliterated and written in Devanagari script within the review (e.g. 'सेलो ब्लेज़िंग', 'फिलिप्स मिक्सर'). Do NOT write the product name in English/Roman letters inside the Hindi review.
+            - Examples of tone:
+            - सेलो ब्लेज़िंग कुकटॉप बहुत अच्छा है, पसंद आया।
+            - यह प्रोडक्ट पैसे के हिसाब से एकदम सही है।
+            - घर के लिए बिल्कुल सही है, सबको पसंद आया।
 
-            REALISTIC TONE:
-            - Use casual expressions like:
-            - 'not bad'
-            - 'okay product'
-            - 'loved it'
-            - 'not worth the price'
-            - Hindi should be simple & conversational (not formal)
+            Review #4 — SHORT ENGLISH REVIEW (English, 4 or 5 stars):
+            - Very short, 1 to 2 sentences only
+            - Punchy and genuine
+            - Use casual expressions like 'loved it', 'happy with purchase', 'value for money', 'nice product'
+
+            CONTENT GUIDELINES (ALL REVIEWS):
+            - Each review must be completely unique
+            - Avoid repeating phrases across reviews
+            - Add realistic human elements: delivery experience, packaging, quality feel, daily usage
+            - Avoid robotic or overly promotional language
+            - Hindi should be simple & conversational (not formal Hindi)
 
             STRICT NAME RULES:
-            1. ALL 5 names MUST be UNIQUE
-            2. Only Indian names (English script)
-            3. No duplicates
-            4. No western names
+            1. ALL {$reviewCount} names MUST be UNIQUE and DIFFERENT from each other
+            2. Only Indian names (English script for all reviews including Hindi review)
+            3. No duplicate names
+            4. No western names (no John, David, etc.)
 
-            
             Return ONLY valid JSON array in this exact format:
             [
             {
                 \"title\": \"Short catchy title (2-10 words) in same language as review\",
-                \"rating\": 1-5,
+                \"rating\": 4 or 5 only,
                 \"review\": \"Authentic, Natural, human-like review\",
                 \"name\": \"Unique Indian customer name in English script\",
                 \"language\": \"hindi\" or \"english\"
             }]
-            
-            IMPORTANT: Generate a mix of ratings (some 1-3 stars and some 4-5 stars) for authentic reviews.";
+
+            IMPORTANT: Generate exactly {$reviewCount} reviews total. Only 4-star and 5-star ratings. No exceptions. Every reviewer name must be completely different — no two names can be same or similar.";
             
             $response = $client->post('https://api.openai.com/v1/chat/completions', [
                 'headers' => [
@@ -147,7 +160,7 @@ class ProductReviewAutoAiGenerateController extends Controller
                         ["role" => "user", "content" => $userPrompt]
                     ],
                     "temperature" => 0.85,
-                    "max_tokens" => 2000
+                    "max_tokens" => 3000
                 ]
             ]);
             
@@ -188,7 +201,7 @@ class ProductReviewAutoAiGenerateController extends Controller
                 ]);
             }
             
-            $reviews = array_slice(array_values($reviews), 0, 5);
+            $reviews = array_slice(array_values($reviews), 0, $reviewCount);
             $reviews = $this->ensureUniqueAndAuthenticReviews($reviews);
             
             foreach ($reviews as &$review) {
@@ -221,11 +234,189 @@ class ProductReviewAutoAiGenerateController extends Controller
         $usedNames = [];
         $usedTitles = [];        
         $authenticIndianNames = [
-            'Deepa Sharma', 'Amit Verma', 'Pooja Singh', 'Ravi Gupta', 'Neha Patel',
-            'Rajesh Kumar', 'Priya Singh', 'Babita Mukherjee', 'Jismi Verma', 
-            'Sanjay Mehta', 'Anita Kapoor', 'Vikram Singh', 'Kavita Reddy', 
-            'Manoj Joshi', 'Sunita Sharma', 'Rahul Khanna', 'Geeta Malhotra',
-            'Arun Nair', 'Jyoti Iyer', 'Suresh Menon', 'Meera Das', 'Ajay Thakur'
+            // A
+            'Aarti Sharma', 'Abhijit Dey', 'Abhilasha Tiwari', 'Abhinav Rao', 'Abhishek Joshi',
+            'Aditi Nair', 'Aditya Verma', 'Ajay Thakur', 'Ajit Patil', 'Akash Yadav',
+            'Akhil Menon', 'Akshay Kulkarni', 'Akshita Gupta', 'Amita Bose', 'Amit Verma',
+            'Amitabh Chatterjee', 'Amruta Desai', 'Amulya Reddy', 'Ananya Mishra', 'Anil Dubey',
+            'Anita Kapoor', 'Anjali Bhatt', 'Ankit Mishra', 'Ankita Pandey', 'Anoop Nambiar',
+            'Anuradha Sinha', 'Anurag Tiwari', 'Anushka Jain', 'Aparna Pillai', 'Archana Saxena',
+            'Arjun Singh', 'Arpit Agarwal', 'Aruna Devi', 'Arun Kumar', 'Arun Nair',
+            'Arvind Pandey', 'Asha Rani', 'Ashish Tripathi', 'Ashok Srivastava', 'Ashwini Patil',
+            'Avni Shah', 'Ayesha Khan', 'Ayush Sharma',
+            // B
+            'Babita Mukherjee', 'Balaji Venkatesh', 'Bharat Patel', 'Bharati Kulkarni', 'Bhavana Reddy',
+            'Bhavesh Joshi', 'Bhawna Gupta', 'Bindu Nair', 'Bipasha Sen', 'Brijesh Yadav',
+            // C
+            'Chandan Kumar', 'Chandni Mehta', 'Charu Srivastava', 'Chetan Sharma', 'Chhavi Gupta',
+            // D
+            'Deepa Sharma', 'Deepak Chauhan', 'Deepali Joshi', 'Deepika Reddy', 'Deepti Mishra',
+            'Devika Iyer', 'Dhanashree Patil', 'Dhruv Agarwal', 'Dimple Singh', 'Divya Menon',
+            'Divyanka Tripathi', 'Dolly Sharma',
+            // G
+            'Garima Srivastava', 'Gaurav Verma', 'Gayatri Pillai', 'Geeta Malhotra', 'Geetanjali Devi',
+            'Girish Nambiar', 'Gita Rani', 'Govind Sharma', 'Gulab Singh',
+            // H
+            'Harish Joshi', 'Harpreet Kaur', 'Harsh Vardhan', 'Harsha Reddy', 'Heena Patel',
+            'Hemant Soni', 'Hema Sharma', 'Himani Gupta', 'Hitesh Agarwal',
+            // I
+            'Indira Nair', 'Indrajit Roy', 'Ishaan Khanna', 'Isha Malhotra', 'Ishita Sinha',
+            // J
+            'Jagdish Prasad', 'Jai Prakash', 'Janhvi Kapoor', 'Janki Devi', 'Jayant Kulkarni',
+            'Jayashree Iyer', 'Jismi Verma', 'Jitendra Yadav', 'Juhi Chawla', 'Jyoti Choudhary',
+            'Jyoti Iyer', 'Jyotsna Patel',
+            // K
+            'Kajal Agarwal', 'Kalyani Menon', 'Kamlesh Sharma', 'Kamna Singh', 'Kanchan Devi',
+            'Karan Mehta', 'Karthik Rajan', 'Kavita Reddy', 'Kavitha Nair', 'Kirti Sharma',
+            'Komal Pandey', 'Kritika Jain', 'Kuldeep Singh', 'Kumar Saurabh',
+            // L
+            'Lakshmi Devi', 'Lakshmi Priya', 'Lalitha Rao', 'Lavanya Krishnan', 'Leela Nair',
+            'Lekha Pillai', 'Lovepreet Kaur',
+            // M
+            'Madhavi Rao', 'Madhu Bala', 'Madhuri Dixit', 'Mahesh Babu', 'Mahesh Kumar',
+            'Mamta Sharma', 'Manasi Joshi', 'Mandeep Kaur', 'Manik Rao', 'Manisha Patel',
+            'Manjeet Kaur', 'Manjula Devi', 'Manoj Joshi', 'Manorama Singh', 'Meena Kumari',
+            'Meenakshi Rao', 'Meera Das', 'Megha Sharma', 'Meghna Kulkarni', 'Mohan Lal',
+            'Mohini Singh', 'Mridula Srivastava', 'Mukesh Kumar', 'Muskaan Verma',
+            // N
+            'Nalini Krishnan', 'Namrata Joshi', 'Nandini Pillai', 'Nandita Sen', 'Naresh Gupta',
+            'Naveen Reddy', 'Neelam Yadav', 'Neeraj Sharma', 'Neeta Desai', 'Neha Patel',
+            'Neha Malhotra', 'Nidhi Agarwal', 'Nidhi Tiwari', 'Nikhil Mehta', 'Nikita Jain',
+            'Nilima Sinha', 'Nilufar Khan', 'Nisha Tripathi', 'Nishant Verma', 'Nitu Singh',
+            'Nivedita Menon',
+            // O
+            'Om Prakash', 'Omkar Patil',
+            // P
+            'Padmini Rao', 'Pallavi Joshi', 'Pankaj Tiwari', 'Parag Desai', 'Paramjit Kaur',
+            'Parvati Devi', 'Pawan Kumar', 'Pooja Singh', 'Poonam Yadav', 'Poornima Nair',
+            'Pradip Ghosh', 'Prajakta Kulkarni', 'Prakash Rajan', 'Pranav Sharma', 'Pranjali Patil',
+            'Prasad Iyer', 'Pratibha Singh', 'Pratiksha Joshi', 'Preeti Agarwal', 'Preeti Soni',
+            'Prerna Mishra', 'Priya Menon', 'Priya Singh', 'Priyanka Bhatt', 'Priyanka Chopra',
+            'Puja Biswas', 'Punit Sharma', 'Pushpa Devi', 'Pushpalatha Reddy',
+            // R
+            'Rachna Gupta', 'Radhika Pillai', 'Rahul Khanna', 'Raj Kumar', 'Rajani Devi',
+            'Rajesh Kumar', 'Rajesh Sharma', 'Rajeshwari Rao', 'Rajni Patel', 'Rajnish Verma',
+            'Raju Yadav', 'Rakesh Gupta', 'Rakhi Sharma', 'Ram Prasad', 'Rama Devi',
+            'Ramesh Babu', 'Rani Sharma', 'Ranjit Singh', 'Rashmi Desai', 'Ravi Gupta',
+            'Ravi Nair', 'Rekha Joshi', 'Rekha Sharma', 'Ritesh Agarwal', 'Ritu Chauhan',
+            'Rohit Srivastava', 'Roshan Kumar', 'Rupa Das', 'Rupali Mehta',
+            // S
+            'Sachin Yadav', 'Sakshi Sharma', 'Saloni Gupta', 'Sandhya Iyer', 'Sandip Patil',
+            'Sangeeta Rao', 'Sanjay Mehta', 'Sanjukta Dey', 'Santosh Kumar', 'Sapna Tiwari',
+            'Saraswati Devi', 'Sarla Singh', 'Satish Reddy', 'Savita Mishra', 'Seema Agarwal',
+            'Seema Joshi', 'Shalini Pillai', 'Shalini Sharma', 'Shanta Bai', 'Sheela Rani',
+            'Shekhar Mehta', 'Shilpa Kulkarni', 'Shilpa Shetty', 'Shivani Gupta', 'Shobha Nair',
+            'Shradha Kapoor', 'Shreya Ghoshal', 'Shubham Verma', 'Shweta Singh', 'Simran Kaur',
+            'Sneha Reddy', 'Sneha Yadav', 'Sonam Patel', 'Sonal Mehta', 'Sonia Gandhi',
+            'Sonia Sharma', 'Sourav Banerjee', 'Sreedevi Menon', 'Sridhar Rao', 'Sudhir Joshi',
+            'Suhas Kulkarni', 'Sujata Verma', 'Sujatha Nair', 'Sunanda Singh', 'Sunita Sharma',
+            'Sunita Devi', 'Supriya Pillai', 'Suraj Kumar', 'Surekha Patil', 'Suresh Menon',
+            'Surya Prakash', 'Sushma Swaraj', 'Swati Sharma',
+            // T
+            'Tabassum Khan', 'Tanuja Desai', 'Tanushree Dutta', 'Tara Singh', 'Tarun Sharma',
+            'Tejaswi Rao',
+            // U
+            'Uma Shankar', 'Umarani Pillai', 'Urmila Sharma', 'Usha Devi', 'Usha Rani',
+            // V
+            'Vandana Sharma', 'Varsha Gupta', 'Vasant Rao', 'Veena Iyer', 'Venkat Raman',
+            'Vibha Singh', 'Vidya Balan', 'Vijaya Lakshmi', 'Vijayalakshmi Menon', 'Vijaylaxmi Sharma',
+            'Vikram Malhotra', 'Vikram Singh', 'Vinay Kumar', 'Vinayak Joshi', 'Vineeta Singh',
+            'Vipul Shah', 'Vishal Agarwal', 'Vishnu Prasad', 'Vrinda Nair',
+            // Y
+            'Yamini Rao', 'Yashoda Devi', 'Yashpal Singh', 'Yogesh Sharma', 'Yogita Patil',
+            // Additional names for variety across regions
+            'Aabha Jain', 'Aakash Dubey', 'Aanchal Srivastava', 'Aarushi Gupta', 'Abhay Desai',
+            'Abha Singh', 'Abha Verma', 'Achyut Rao', 'Ajanta Biswas', 'Ajita Pillai',
+            'Alka Sharma', 'Alok Pandey', 'Ambar Singh', 'Ambika Devi', 'Amisha Patel',
+            'Amitesh Yadav', 'Amol Kulkarni', 'Amrish Puri', 'Amrita Singh', 'Anand Kumar',
+            'Anandhi Rajan', 'Anchal Mehta', 'Andaleeb Khan', 'Anil Sharma', 'Anila Nair',
+            'Anirudh Mishra', 'Anisa Khan', 'Anjana Devi', 'Anjalika Roy', 'Annapurna Devi',
+            'Anshul Verma', 'Anupama Sharma', 'Anupam Mishra', 'Anusha Iyer', 'Apoorva Joshi',
+            'Aradhana Singh', 'Arati Ghosh', 'Archit Agarwal', 'Aruna Verma', 'Arundathi Rao',
+            'Asha Kumari', 'Asha Devi', 'Ashima Sharma', 'Astha Srivastava', 'Atharv Kulkarni',
+            'Avantika Jain', 'Avdhesh Yadav', 'Ayaan Khan',
+            'Badri Prasad', 'Bajrang Singh', 'Bakul Sharma', 'Balvinder Kaur', 'Bandana Sinha',
+            'Basanti Devi', 'Bela Rani', 'Bhagwati Devi', 'Bhagyashree Patil', 'Bhavik Shah',
+            'Bhoomika Nair', 'Bhoomi Sharma', 'Bhuvan Mehta',
+            'Chaitali Dey', 'Chaitra Rao', 'Chanda Devi', 'Chandana Menon', 'Chandrakala Singh',
+            'Chandramukhi Pillai', 'Chandrashekhar Joshi', 'Charu Lata', 'Charusheela Patil',
+            'Chirag Patel', 'Chitra Iyer', 'Chitrakshi Verma',
+            'Daksha Mehta', 'Dakshita Rao', 'Damodar Sharma', 'Damini Singh', 'Darshana Patil',
+            'Darshini Menon', 'Dayanand Mishra', 'Devaki Nair', 'Devanshi Gupta', 'Devashree Joshi',
+            'Devyani Sharma', 'Dhananjay Kulkarni', 'Dhara Patel', 'Dharmendra Singh', 'Dhruva Rao',
+            'Disha Agarwal', 'Divija Menon', 'Draupadi Devi',
+            'Ekta Kapoor', 'Eshaan Sharma',
+            'Falak Khan', 'Farida Begum', 'Fatima Nair',
+            'Gajanan Patil', 'Gajra Rani', 'Ganesh Kumar', 'Geeta Iyer', 'Geetika Sharma',
+            'Girija Devi', 'Girish Kulkarni', 'Gomati Devi', 'Gunjan Verma', 'Gurmeet Singh',
+            'Hansika Motwani', 'Harini Pillai', 'Haritha Rao', 'Harsha Gupta', 'Harshali Sharma',
+            'Harshit Jain', 'Harshita Mishra', 'Hemalata Nair', 'Hetal Patel', 'Himanshi Singh',
+            'Hiranya Devi',
+            'Indumati Sharma', 'Induja Menon', 'Ishani Rao', 'Ishu Verma',
+            'Jagannath Mishra', 'Jalaja Nair', 'Jamuna Devi', 'Janardhan Rao', 'Jasleen Kaur',
+            'Jasmine Patel', 'Jasminder Kaur', 'Jaswant Singh', 'Jatin Sharma', 'Jaya Bachchan',
+            'Jayalakshmi Iyer', 'Jayaraj Menon', 'Jayashri Kulkarni', 'Jessy Thomas', 'Jigna Shah',
+            'Jinal Mehta', 'Jinisha Patel', 'Jitesh Verma',
+            'Kainaaz Patel', 'Kalawati Devi', 'Kalyani Pillai', 'Kamala Devi', 'Kamalini Rao',
+            'Kamalnath Singh', 'Kanika Sharma', 'Kannan Iyer', 'Kanta Bai', 'Kanti Devi',
+            'Karishma Kapoor', 'Karuna Nair', 'Kasturba Devi', 'Kaushalya Sharma', 'Keshav Mishra',
+            'Khyati Jain', 'Kirandeep Kaur', 'Kiruba Devi', 'Kokilaben Patel', 'Komala Rao',
+            'Kripa Sharma', 'Krishna Kumar', 'Krishnapriya Nair', 'Kriti Sanon', 'Kumari Nair',
+            'Kumud Sharma', 'Kunal Mehta', 'Kundan Singh',
+            'Lajwanti Devi', 'Lata Mangeshkar', 'Lata Sharma', 'Latika Mishra', 'Latika Singh',
+            'Leena Iyer', 'Lekshmi Menon', 'Lila Devi', 'Lilibai Singh', 'Lipi Sharma',
+            'Lisha Pillai', 'Lopa Mehta',
+            'Madhumita Roy', 'Madhusudan Rao', 'Mahima Chaudhary', 'Manavi Joshi', 'Mangal Devi',
+            'Mangala Rao', 'Mangi Lal', 'Manickam Iyer', 'Manini Sharma', 'Manjiri Kulkarni',
+            'Manohar Lal', 'Mansi Agarwal', 'Manya Singh', 'Mareechi Pillai', 'Matangi Devi',
+            'Maya Devi', 'Mayuri Patil', 'Mohana Krishnan', 'Monika Sharma', 'Mrinalini Sen',
+            'Mrunal Kulkarni', 'Mudra Joshi',
+            'Nagma Patel', 'Nagmani Singh', 'Naina Agarwal', 'Nalina Pillai', 'Namita Sharma',
+            'Namrta Jain', 'Nandita Pillai', 'Narayani Devi', 'Naresh Iyer', 'Nasreen Khan',
+            'Natasha Singh', 'Neeraja Rao', 'Neethu Menon', 'Nidhan Singh', 'Nidheesh Kumar',
+            'Niranjana Pillai', 'Nirmal Singh', 'Nirmala Devi', 'Nishtha Sharma',
+            'Ojaswi Rao', 'Ojus Patel',
+            'Padma Devi', 'Padmaja Nair', 'Palak Jain', 'Pallabi Roy', 'Palomi Ghosh',
+            'Parimala Rao', 'Parineeti Chopra', 'Parul Sharma', 'Parveen Babi', 'Pavithra Nair',
+            'Payel Ghosh', 'Phool Kumari', 'Pinki Sharma', 'Pinky Yadav', 'Piyush Gupta',
+            'Pragati Singh', 'Pragya Mishra', 'Prajakta Joshi', 'Pratima Rao', 'Priti Sharma',
+            'Priyadarshini Nair', 'Priyamvada Pillai', 'Priyanka Mishra', 'Priyanka Rao',
+            'Puja Kumari', 'Purnima Sharma', 'Pushpa Lata',
+            'Radheshyam Yadav', 'Ragini Sharma', 'Rajalakshmi Iyer', 'Rajani Pillai', 'Rajashri Kulkarni',
+            'Rajeswari Rao', 'Rajni Sharma', 'Rajshree Joshi', 'Ramadevi Nair', 'Ramakrishnan Iyer',
+            'Ramani Pillai', 'Ramdas Sharma', 'Ramlal Singh', 'Ramona D Cruz', 'Ramya Krishnan',
+            'Rani Mukherjee', 'Ranjana Devi', 'Rashida Khan', 'Rashmika Mandanna', 'Ratna Devi',
+            'Ratnabai Rao', 'Reena Kapoor', 'Rekha Nair', 'Renu Bala', 'Reshma Singh',
+            'Revathi Menon', 'Rinki Gupta', 'Risha Sharma', 'Rishita Jain', 'Roma Agarwal',
+            'Romila Rao', 'Roopa Iyer', 'Ruhi Verma', 'Rukmini Devi', 'Rupa Sharma',
+            'Rupinder Kaur',
+            'Sadhana Singh', 'Sahansha Rao', 'Saira Banu', 'Sairam Krishnan', 'Sakina Begum',
+            'Sakunthala Devi', 'Salma Khan', 'Saloni Verma', 'Samiksha Sharma', 'Sampada Kulkarni',
+            'Samridhi Jain', 'Samta Devi', 'Sanchita Saha', 'Sangeeta Iyer', 'Sangeetha Nair',
+            'Sangita Roy', 'Sanjana Sharma', 'Sarabjit Kaur', 'Saraswati Rao', 'Saroj Singh',
+            'Sarojini Nair', 'Satinder Kaur', 'Savitri Devi', 'Savitri Pillai', 'Shaila Nair',
+            'Shailaja Rao', 'Shakuntala Sharma', 'Sharada Devi', 'Sharanya Pillai', 'Sharmila Tagore',
+            'Shasikala Menon', 'Shefali Shah', 'Shikha Sharma', 'Shilpa Joshi', 'Shivali Gupta',
+            'Shivani Sharma', 'Shloka Mehta', 'Shobhana Menon', 'Shraddha Sharma', 'Shruti Haasan',
+            'Shruti Verma', 'Shubhangi Patil', 'Shyamala Devi', 'Simarjeet Kaur', 'Sireesha Rao',
+            'Smitha Pillai', 'Smriti Irani', 'Smriti Sharma', 'Sobha Iyer', 'Sonica Kapoor',
+            'Soniya Sharma', 'Soumya Pillai', 'Sridevi Menon', 'Subhadra Devi', 'Subhashini Rao',
+            'Subrata Sen', 'Sudha Murty', 'Sudha Rao', 'Suhasini Menon', 'Sujata Sharma',
+            'Sujitha Pillai', 'Sulochana Devi', 'Sumangali Rao', 'Sumathi Nair', 'Sumithra Pillai',
+            'Sunanda Rao', 'Suneha Sharma', 'Sunita Yadav', 'Suprabha Nair', 'Supriya Menon',
+            'Surabhi Pillai', 'Sushila Devi', 'Sushma Sharma', 'Swapna Pillai', 'Swarnalata Devi',
+            'Sweta Mishra',
+            'Tanvi Sharma', 'Tapasya Singh', 'Tarini Pillai', 'Taruna Mehta', 'Tasneem Khan',
+            'Tejal Patel', 'Tejaswini Rao', 'Thara Nair', 'Tina Sinha', 'Tripti Dimri',
+            'Triveni Devi', 'Tulasi Devi', 'Tulsi Sharma',
+            'Umarani Devi', 'Umashankari Rao', 'Urvashi Rautela', 'Usha Kumari', 'Utpala Sen',
+            'Uttara Pillai',
+            'Vaishnavi Pillai', 'Vaishnavi Sharma', 'Valarmathi Rao', 'Varalakshmi Nair', 'Vasantha Devi',
+            'Vasundhara Raje', 'Vedha Iyer', 'Vedika Sharma', 'Vega Singh', 'Venkateshwari Rao',
+            'Vibhuti Singh', 'Vidula Joshi', 'Vijaya Devi', 'Vijayashree Rao', 'Vimala Nair',
+            'Vinodha Menon', 'Vinutha Rao', 'Visakha Devi',
+            'Yamuna Devi', 'Yashaswi Sharma', 'Yashoda Nair', 'Yashodhara Pillai', 'Yasmin Patel',
+            'Yogamaya Devi', 'Yogeshwari Rao', 'Yugandhar Singh',
         ];        
         $englishTitles = [
             'Good product', 'Awesome!', 'Nice', 'Very good', 'Super product',
@@ -237,11 +428,31 @@ class ProductReviewAutoAiGenerateController extends Controller
             'उत्कृष्ट', 'सुपर', 'बढ़िया', 'लाजवाब', 'दमदार'
         ];        
         foreach ($reviews as $index => &$review) {
-            $name = $review['name'] ?? '';
-            if (empty($name) || in_array($name, $usedNames)) {
+            $name = trim($review['name'] ?? '');
+            // Only use fallback list if AI returned empty name
+            if (empty($name)) {
                 $newName = $authenticIndianNames[array_rand($authenticIndianNames)];
                 while (in_array($newName, $usedNames)) {
                     $newName = $authenticIndianNames[array_rand($authenticIndianNames)];
+                }
+                $review['name'] = $newName;
+                $usedNames[] = $newName;
+            } elseif (in_array($name, $usedNames)) {
+                // AI returned a duplicate — append a unique suffix to differentiate
+                $suffix = ['Kumar', 'Singh', 'Devi', 'Bai', 'Rao', 'Lal', 'Das', 'Nair', 'Iyer', 'Pillai'];
+                $parts = explode(' ', $name);
+                $newName = $parts[0] . ' ' . $suffix[array_rand($suffix)];
+                $attempts = 0;
+                while (in_array($newName, $usedNames) && $attempts < 20) {
+                    $newName = $parts[0] . ' ' . $suffix[array_rand($suffix)];
+                    $attempts++;
+                }
+                if (in_array($newName, $usedNames)) {
+                    // Ultimate fallback: use list
+                    $newName = $authenticIndianNames[array_rand($authenticIndianNames)];
+                    while (in_array($newName, $usedNames)) {
+                        $newName = $authenticIndianNames[array_rand($authenticIndianNames)];
+                    }
                 }
                 $review['name'] = $newName;
                 $usedNames[] = $newName;
@@ -258,7 +469,13 @@ class ProductReviewAutoAiGenerateController extends Controller
             }
             $usedTitles[] = $review['title'] ?? '';
             if (isset($review['review'])) {
-                $review['review'] = $this->makeReviewAuthentic($review['review'], $index, $isHindi);
+                $wordCount = str_word_count(strip_tags($review['review']));
+                // Protect review #1 (SEO review) and any review already 100+ words from being replaced
+                if ($index === 0 || $wordCount >= 100) {
+                    // Keep the AI-generated review as-is
+                } else {
+                    $review['review'] = $this->makeReviewAuthentic($review['review'], $index, $isHindi);
+                }
             }
         }
         
@@ -267,7 +484,8 @@ class ProductReviewAutoAiGenerateController extends Controller
     
     private function makeReviewAuthentic($reviewText, $index, $isHindi = false)
     {
-        if (strlen($reviewText) < 200 && (strpos($reviewText, '.') < 3 || strpos($reviewText, '।') < 3)) {
+        // If the review is already a decent length, keep it as-is — don't overwrite with fallback
+        if (strlen($reviewText) >= 150 || str_word_count($reviewText) >= 25) {
             return $reviewText;
         }
         if ($isHindi) {
@@ -311,9 +529,15 @@ class ProductReviewAutoAiGenerateController extends Controller
     {
         $authenticNames = [
             'Deepa Sharma', 'Amit Verma', 'Pooja Singh', 'Ravi Gupta', 'Neha Patel',
-            'Rajesh Kumar', 'Priya Singh', 'Babita Mukherjee', 'Jismi Verma', 
-            'Sanjay Mehta', 'Anita Kapoor', 'Vikram Singh', 'Kavita Reddy'
-        ];        
+            'Rajesh Kumar', 'Priya Singh', 'Babita Mukherjee', 'Jismi Verma',
+            'Sanjay Mehta', 'Anita Kapoor', 'Vikram Singh', 'Kavita Reddy',
+            'Manoj Joshi', 'Sunita Sharma', 'Rahul Khanna', 'Geeta Malhotra',
+            'Arun Nair', 'Jyoti Iyer', 'Suresh Menon', 'Meera Das', 'Ajay Thakur',
+            'Aditi Nair', 'Ananya Mishra', 'Abhishek Joshi', 'Akshay Kulkarni',
+            'Divya Menon', 'Harpreet Kaur', 'Karan Mehta', 'Lavanya Krishnan',
+            'Nidhi Agarwal', 'Pallavi Joshi', 'Rohit Srivastava', 'Sakshi Sharma',
+            'Tanvi Sharma', 'Varsha Gupta', 'Yogesh Sharma', 'Swati Sharma'
+        ];
         $newName = $authenticNames[array_rand($authenticNames)];
         while (in_array($newName, $usedNames)) {
             $newName = $authenticNames[array_rand($authenticNames)];
@@ -324,13 +548,44 @@ class ProductReviewAutoAiGenerateController extends Controller
     
     private function convertToEnglishName($hindiName)
     {
-        $authenticNames = [
-            'Rajesh Sharma', 'Priya Singh', 'Amit Patel', 'Sunita Verma', 
-            'Vikram Mehta', 'Anita Kapoor', 'Rahul Khanna', 'Deepika Reddy',
-            'Sanjay Gupta', 'Neha Malhotra', 'Arun Kumar', 'Jyoti Choudhary',
-            'Deepa Sharma', 'Amit Verma', 'Pooja Singh', 'Ravi Gupta', 'Neha Patel'
-        ];        
-        return $authenticNames[array_rand($authenticNames)];
+        // Build a random name from first+last pools for maximum variety
+        $firstNames = [
+            'Aarav', 'Aditi', 'Ajay', 'Akash', 'Amita', 'Amruta', 'Ananya', 'Anil',
+            'Anita', 'Anjali', 'Ankit', 'Ankita', 'Anurag', 'Archana', 'Arjun', 'Arpit',
+            'Arun', 'Asha', 'Ashish', 'Ashok', 'Avni', 'Chandan', 'Chandni', 'Chetan',
+            'Deepa', 'Deepak', 'Deepika', 'Devika', 'Dhruv', 'Dimple', 'Divya', 'Dolly',
+            'Garima', 'Gaurav', 'Gayatri', 'Geeta', 'Girish', 'Harish', 'Harpreet',
+            'Harsh', 'Heena', 'Hemant', 'Hema', 'Himani', 'Hitesh', 'Indira', 'Ishaan',
+            'Isha', 'Jagdish', 'Jai', 'Janki', 'Jayant', 'Jitendra', 'Jyoti', 'Kajal',
+            'Kamla', 'Karan', 'Karthik', 'Kavita', 'Kavitha', 'Kirti', 'Komal', 'Kritika',
+            'Kuldeep', 'Lakshmi', 'Lalitha', 'Lavanya', 'Leela', 'Madhavi', 'Madhu',
+            'Mahesh', 'Mamta', 'Mandeep', 'Manish', 'Manisha', 'Manoj', 'Meena',
+            'Meenakshi', 'Meera', 'Megha', 'Mohan', 'Mohini', 'Mukesh', 'Nalini',
+            'Namrata', 'Nandini', 'Naresh', 'Naveen', 'Neelam', 'Neeraj', 'Neeta',
+            'Neha', 'Nidhi', 'Nikhil', 'Nikita', 'Nisha', 'Nishant', 'Pankaj', 'Parag',
+            'Pawan', 'Pooja', 'Poonam', 'Pradip', 'Pranav', 'Preeti', 'Prerna', 'Priya',
+            'Priyanka', 'Rachna', 'Radhika', 'Rahul', 'Raj', 'Rajani', 'Rajesh', 'Rajni',
+            'Raju', 'Rakesh', 'Rakhi', 'Ram', 'Ramesh', 'Rani', 'Ranjit', 'Rashmi',
+            'Ravi', 'Rekha', 'Ritesh', 'Ritu', 'Rohit', 'Roshan', 'Rupali', 'Sachin',
+            'Sakshi', 'Saloni', 'Sandhya', 'Sandip', 'Sangeeta', 'Sanjay', 'Santosh',
+            'Sapna', 'Satish', 'Savita', 'Seema', 'Shalini', 'Shikha', 'Shilpa',
+            'Shivani', 'Shreya', 'Shubham', 'Shweta', 'Simran', 'Sneha', 'Sonam',
+            'Sonal', 'Sudhir', 'Sujata', 'Sunanda', 'Sunita', 'Suraj', 'Suresh',
+            'Swati', 'Tanvi', 'Tarun', 'Usha', 'Vandana', 'Varsha', 'Vikram',
+            'Vinay', 'Vishal', 'Yamini', 'Yogesh'
+        ];
+        $lastNames = [
+            'Agarwal', 'Banerjee', 'Bhat', 'Bhatt', 'Biswas', 'Chakraborty', 'Chatterjee',
+            'Chauhan', 'Chaudhary', 'Chopra', 'Das', 'Desai', 'Dey', 'Dubey', 'Dutta',
+            'Gandhi', 'Ghosh', 'Gupta', 'Iyer', 'Jain', 'Jha', 'Joshi', 'Kapur',
+            'Kapoor', 'Kaur', 'Khan', 'Khanna', 'Krishnan', 'Kulkarni', 'Kumar',
+            'Malhotra', 'Mehta', 'Menon', 'Mishra', 'Mukherjee', 'Nair', 'Nambiar',
+            'Pandey', 'Patel', 'Patil', 'Pillai', 'Prasad', 'Rajan', 'Rao', 'Reddy',
+            'Roy', 'Saha', 'Saxena', 'Sen', 'Shah', 'Sharma', 'Shukla', 'Singh',
+            'Sinha', 'Soni', 'Srivastava', 'Thakur', 'Thomas', 'Tiwari', 'Tripathi',
+            'Varma', 'Verma', 'Yadav'
+        ];
+        return $firstNames[array_rand($firstNames)] . ' ' . $lastNames[array_rand($lastNames)];
     }
     
     public function regenerateAIReview(Request $request)

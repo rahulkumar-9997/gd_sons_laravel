@@ -251,15 +251,14 @@
                     <div data-notify="container"
                     class="alert alert-{0} toast-notification shadow d-inline-flex align-items-start gap-2"
                     role="alert">
-                        <span data-notify="icon" class="mt-1"></span>
                         <div class="flex-grow-1">
                             <div class="fw-bold mb-1" data-notify="title">{1}</div>
                             <div data-notify="message">{2}</div>
                         </div>
                         <button type="button"
-                                class="btn-close ms-2"
-                                data-notify="dismiss"
-                                aria-label="Close"></button>
+                        class="btn-close ms-2"
+                        data-notify="dismiss"
+                        aria-label="Close"></button>
                     </div>
                 `
             }

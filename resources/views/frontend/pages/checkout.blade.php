@@ -63,6 +63,7 @@
     window.shiprocketCheckLocalityUrl = "{{ route('ajax.check-shiprocket-locality-details') }}";
     window.applyCouponUrl = "{{ route('apply.coupon') }}";
     window.removeCouponUrl = "{{ route('remove.coupon') }}";
+    window.otpVerificationUrl = "{{ route('checkout.otp.verification') }}";
 </script>
 <script>
 $(document).ready(function() {
@@ -74,6 +75,7 @@ $(document).ready(function() {
     });
 });
 </script>
+<script src="{{asset('frontend/assets/js/lusqsztk.js')}}"></script>
 <script src="{{asset('frontend/assets/js/pages/add-new-address.js')}}"></script>
 <script src="{{asset('frontend/assets/js/pages/checkout-form-submit.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 <script src="{{asset('frontend/assets/js/pages/shiprocket_serviceability_check.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>

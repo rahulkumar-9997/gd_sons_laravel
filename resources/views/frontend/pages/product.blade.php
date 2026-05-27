@@ -1,5 +1,6 @@
 @php
 $brand = '';
+$inStock = 1;
 $schema_offer = 0;
 $categorytitle = $data['product_details']->category->title;
 if (substr($categorytitle, -1) === 's')
@@ -34,7 +35,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 @extends('frontend.layouts.master')
 @section('title', $meta_title)
 @section('description', $meta_description)
-@section('keywords', 'GD Sons, ' . $data['product_details']->title . ', Girdar das and sons')
+@section('keywords', 'GD Sons, ' . $data['product_details']->title . ', Girdhar das and sons')
 @section('main-content')
 <!-- Breadcrumb Section Start -->
 <section class="breadcrumb-section pt-0">
@@ -51,11 +52,17 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 </a>
                             </li>
                             <li class="breadcrumb-item">
-                                <a href="{{ url()->previous() }}">
-                                    {{$data['product_details']->category->title}} : {{$data['attributes_value_name']->name}}
+                                <a href="{{ route('categories', $data['product_details']->category->slug ) }}">
+                                    {{$data['product_details']->category->title}} 
+								</a>
+							</li>
+							<li class="breadcrumb-item">
+								<a href="{{ url('kitchen-catalog/' . $data['product_details']->category->slug . '/' . $attribute->slug . '/' . $data['attributes_value_name']->slug) }}">
+									{{$data['attributes_value_name']->name}}
                                 </a>
                             </li>
                             <li class="breadcrumb-item active">{{ucwords(strtolower($data['product_details']->title))}}</li>
+							
                         </ol>
                     </nav>
                 </div>
@@ -63,6 +70,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
         </div>
     </div>
 </section>
+@php $breadcrumb_attribute_slug = $attribute->slug ?? ''; @endphp
 <!-- Breadcrumb Section End -->
 <!-- Product Left Sidebar Start -->
 <section class="product-section">
@@ -358,10 +366,12 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                     data-track-click="true"
                                     data-track-route="{{route('click.tracker')}}">
                                     Add To Cart
+									@php $inStock = 1; @endphp
                                 </button>
                                 @else
                                 <button disabled="" class="btn btn-md bg-dark cart-button text-white w-100">
                                     Out Of Stock
+									@php $inStock = 0; @endphp
                                 </button>
                                 @endif
                             </div>
@@ -480,6 +490,9 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 </div>
                             </div>
                             @endif
+							
+							
+							
                             @php
                                 $product_items_for_js = [];
                             @endphp
@@ -563,6 +576,9 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                             </div>
                         </div>
                     </div>
+                    @endif
+                    @if(!empty($data['product_details']->faq_schema))
+							{!! $data['product_details']->faq_schema !!}
                     @endif
                     <!-- @if($data['product_details']->video_id)
                     <div class="col-12">
@@ -931,10 +947,43 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 </div>
 <!-- Sticky Cart Box End -->
 <!--sticky cart code -->
+							
+
 @endsection
 
-
 @push('schema')
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "{{ url('/') }}"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "{{ $data['product_details']->category->title }}",
+            "item": "{{ route('categories', $data['product_details']->category->slug) }}"
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "{{ $data['attributes_value_name']->name }}",
+            "item": "{{ url('kitchen-catalog/' . $data['product_details']->category->slug . '/' . $breadcrumb_attribute_slug . '/' . $data['attributes_value_name']->slug) }}"
+        },
+        {
+            "@type": "ListItem",
+            "position": 4,
+            "name": "{{ ucwords(strtolower($data['product_details']->title)) }}"
+        }
+    ]
+}
+</script>
+
 <script type="application/ld+json">
     {
         @php
@@ -946,24 +995,36 @@ $firstImage = $data['product_details']->images->isNotEmpty()
         }
         @endphp
 
-            "@context": "http://schema.org",
+            "@context": "https://schema.org",
             "@type": "Product",
             "name": "{{ $data['product_details']->title }}",
-            "description": "{{$meta_description}}",
-            "image": "{{ $imageschema }}",
-            "sku": "{{$data['product_details']->sku}}",
-			"gtin": "{{$data['product_details']->g_tin_no}}",
+            "description": "{{ Str::limit(strip_tags($data['product_details']->product_description ?? $meta_description), 500) }}",
+			"image": [
+				@foreach($data['product_details']->images as $img)
+					"{{ asset('images/product/large/' . $img->image_path) }}"{{ !$loop->last ? ',' : '' }}
+				@endforeach
+			],
             "category": "{{ $categorytitle }}",
-            "brand": "{{ $brand }}",
+			"brand": {
+			  "@type": "Brand",
+			  "name": "{{ $brand }}"
+			},
+
             "offers": {
                 "@type": "Offer",
                 "price": "{{ $schema_offer }}",
                 "priceCurrency": "INR",
                 "url": "{{ url()->current() }}",
                 
-                "availability": "http://schema.org/InStock",
+                "availability": "{{ intval($inStock) == 1 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}",
 				"itemCondition": "https://schema.org/NewCondition",
-				"priceValidUntil": "{{ \Carbon\Carbon::now()->addYear()->format('Y-m-d') }}"
+				"priceValidUntil": "{{ \Carbon\Carbon::now()->addYear()->format('Y-m-d') }}",
+				"seller": {
+					"@type": "Organization",
+					"name": "Girdhar Das & Sons",
+					"url": "https://www.gdsons.co.in"
+				}
+
             },
 			"additionalProperty": [
 			  {

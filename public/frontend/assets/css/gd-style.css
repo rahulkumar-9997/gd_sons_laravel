@@ -891,7 +891,9 @@ section.banner-section {
   line-height: 26px;
 
 }
-
+#accordionFlushExample .collapse{
+  visibility: unset;
+} 
 .h1-heading {
   margin-bottom: 20px;
   text-align: center;

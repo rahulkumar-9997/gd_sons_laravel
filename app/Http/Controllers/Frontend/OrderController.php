@@ -134,36 +134,32 @@ class OrderController extends Controller
             'courierData' => $courierData,
         ]);
         session()->save();
-        if ($request->input('payment_type') == 'Cash on Delivery') {
+        if (in_array( $request->input('payment_type'), ['Cash on Delivery', 'Pick Up From Store'])) {
             try {
-                //$response = $this->storeOrderAfterPayment($request);               
+                $sendOtp = $this->generateAndSendOTP(
+                    $request->input('ship_phone_number'),
+                    $request->input('ship_full_name')
+                );
+                if (!$sendOtp) {
+                    return response()->json([
+                        'status' => 'error',
+                        'payment_type' => $request->input('payment_type'),
+                        'message' => 'Failed to send OTP. Please try again.'
+                    ], 500);
+                }
                 return response()->json([
                     'status' => 'success',
                     'payment_type' => $request->input('payment_type'),
-                    'message' => 'Verifying OTP and creating order...',
+                    'message' => 'OTP sent successfully.'
                 ]);
             } catch (\Exception $e) {
-                Log::error('COD Order creation failed: ' . $e->getMessage());
+                Log::error('OTP generation failed', [
+                    'error' => $e->getMessage()
+                ]);
                 return response()->json([
                     'status' => 'error',
                     'payment_type' => $request->input('payment_type'),
-                    'message' => 'Otp geteneration or Order creation failed',
-                ], 500);
-            }
-        } elseif ($request->input('payment_type') == 'Pick Up From Store') {
-            try {
-                //$response = $this->storeOrderAfterPayment($request);
-                return response()->json([
-                    'status' => 'success',
-                    'payment_type' => $request->input('payment_type'),
-                    'message' => 'Verifying OTP and creating order...',
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Store Pickup Order creation failed: ' . $e->getMessage());
-                return response()->json([
-                    'status' => 'error',
-                    'payment_type' => $request->input('payment_type'),
-                    'message' => 'Otp geteneration or Order creation failed',
+                    'message' => 'Failed to generate OTP.'
                 ], 500);
             }
         } elseif ($request->input('payment_type') == 'Razorpay') {
@@ -784,7 +780,7 @@ class OrderController extends Controller
         ]);
     }
 
-    protected function sendWhatsAppMessage(array $data)
+    protected function sendWhatsAppMessage_28_5_2026(array $data)
     {
         try {
             $client = new \GuzzleHttp\Client();
@@ -804,6 +800,65 @@ class OrderController extends Controller
                 'destination' => $data['destination'],
                 'error' => $e->getMessage()
             ]);
+        }
+    }
+
+    protected function sendWhatsAppMessage(array $data)
+    {
+        try {
+            $client = new \GuzzleHttp\Client();
+            $response = $client->post(
+                'https://backend.aisensy.com/campaign/t1/api/v2',
+                [
+                    'headers' => [
+                        'Content-Type' => 'application/json'
+                    ],
+                    'json' => $data
+                ]
+            );
+            $responseBody = json_decode(
+                $response->getBody()->getContents(),
+                true
+            );
+            Log::info('WhatsApp API Success', [
+                'campaign' => $data['campaignName'],
+                'destination' => $data['destination'],
+                'response' => $responseBody
+            ]);
+            return [
+                'success' => true,
+                'data' => $responseBody
+            ];
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            $errorResponse = null;
+            if ($e->hasResponse()) {
+                $errorResponse = json_decode(
+                    $e->getResponse()->getBody()->getContents(),
+                    true
+                );
+            }
+            Log::error('WhatsApp API Client Error', [
+                'campaign' => $data['campaignName'] ?? null,
+                'destination' => $data['destination'] ?? null,
+                'request_payload' => $data,
+                'response' => $errorResponse,
+                'error' => $e->getMessage()
+            ]);
+            return [
+                'success' => false,
+                'message' => $errorResponse['message']
+                    ?? 'WhatsApp API client error.'
+            ];
+        } catch (\Exception $e) {
+            Log::error('WhatsApp API Exception', [
+                'campaign' => $data['campaignName'] ?? null,
+                'destination' => $data['destination'] ?? null,
+                'error' => $e->getMessage()
+            ]);
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
         }
     }
 
@@ -965,10 +1020,10 @@ class OrderController extends Controller
         $form = '
         <div class="pt-2 pb-4">
             <form method="POST"
-                action="' . route('product-enquiry-modal-form.submit') . '"
+                action="' . route('checkout.otp.verification.submit') . '"
                 accept-charset="UTF-8"
                 enctype="multipart/form-data"
-                id="productEnquiryForm">
+                id="otpVerificationForm">
                 ' . csrf_field() . '
                 <div class="text-center"> 
                     <h2 class="text-2xl font-bold text-primary-navy">
@@ -1019,6 +1074,29 @@ class OrderController extends Controller
         ]);
     }
 
+    public function handleOTPVerificationModalSubmit(Request $request)
+    {
+        $request->validate([
+            'otp' => 'required|digits:6',
+            'mobile_number' => 'required',
+        ]);
+        $mobile = $request->input('mobile_number');
+        $enteredOtp = trim($request->input('otp'));
+        $cacheKey = 'otp_' . $mobile;
+        $cachedOtp = Cache::get($cacheKey);
+        if ($cachedOtp && (string)$cachedOtp === (string)$enteredOtp) {
+            Cache::forget($cacheKey);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'OTP verified successfully. You can now place your order.'
+            ]);
+        }
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Invalid OTP. Please try again.'
+        ], 400);
+    }
+
     public function handleOTPResend(Request $request)
     {
         $mobile = $request->input('mobile_number');
@@ -1038,5 +1116,65 @@ class OrderController extends Controller
             'message' => 'OTP resent successfully to ' . $mobile,
             'remaining_attempts' => 3 - ($attempts + 1)
         ]);
+    }
+
+    private function generateAndSendOTP($mobile, $customerName = 'User')
+    {
+        try {
+            $apiKey = env('AISENSY_API_KEY');
+            $otp = random_int(100000, 999999);
+            $cacheKey = 'otp_' . $mobile;
+            Cache::put($cacheKey, $otp, now()->addMinutes(10));
+            Log::info('Generated OTP for mobile number', [
+                'mobile' => $mobile,
+                'otp' => $otp
+            ]);
+            $destination = str_starts_with($mobile, '91')
+                ? $mobile
+                : '91' . $mobile;
+            $response = $this->sendWhatsAppMessage([
+                'apiKey' => $apiKey,
+                'campaignName' => 'COD_OTP',
+                'destination' => $destination,
+                'userName' => 'Girdhar Das and Sons',
+                'templateParams' => [
+                    (string) $otp
+                ],
+                'source' => 'new-landing-page form',
+                'media' => (object) [],
+                'location' => (object) [],
+                'attributes' => (object) [],
+                'paramsFallbackValue' => ['FirstName' => 'user']
+            ]);
+            if (isset($response['success']) && $response['success'] == true) {
+                Log::info('OTP sent successfully', [
+                    'mobile' => $mobile,
+                    'response' => $response
+                ]);
+                return [
+                    'status' => true,
+                    'otp' => $otp,
+                    'message' => 'OTP sent successfully.'
+                ];
+            }
+            Log::error('OTP sending failed', [
+                'mobile' => $mobile,
+                'response' => $response
+            ]);
+            return [
+                'status' => false,
+                'message' => $response['message']
+                    ?? 'Failed to send OTP.'
+            ];
+        } catch (\Exception $e) {
+            Log::error('Generate OTP Exception', [
+                'mobile' => $mobile,
+                'error' => $e->getMessage()
+            ]);
+            return [
+                'status' => false,
+                'message' => $e->getMessage()
+            ];
+        }
     }
 }

@@ -128,6 +128,7 @@ Route::middleware([TrackVisitor::class])->group(function () {
     Route::post('/payment-failed', [OrderController::class, 'handlePaymentFailed'])->name('payment.failed');
     Route::get('order/success', [OrderController::class, 'showOrderSuccess'])->name('order.success');
     Route::get('checkout/otp/verification', [OrderController::class, 'handleOTPVerificationModal'])->name('checkout.otp.verification');
+    Route::post('checkout/otp/verification/substr', [OrderController::class, 'handleOTPVerificationModalSubmit'])->name('checkout.otp.verification.submit');
     Route::post('checkout/otp/resend', [OrderController::class, 'handleOTPResend'])->name('checkout.otp.resend');
 
     Route::group(['middleware' => ['auth.customer']], function() {

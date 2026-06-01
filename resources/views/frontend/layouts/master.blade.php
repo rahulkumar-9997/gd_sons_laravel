@@ -33,14 +33,20 @@
     "priceRange": "₹₹",
     "currenciesAccepted": "INR",
     "paymentAccepted": "Cash, UPI, Credit Card, Debit Card, Net Banking",
-    "openingHoursSpecification": [
-        {
-            "@type": "OpeningHoursSpecification",
-            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-            "opens": "11:00",
-            "closes": "20:30"
-        }
-    ],
+"openingHoursSpecification": [
+    {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+        "opens": "11:00",
+        "closes": "20:30"
+    },
+    {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Sunday"],
+        "opens": "12:00",
+        "closes": "16:00"
+    }
+],
     "sameAs": [
         "https://www.facebook.com/gdandsons",
         "https://www.instagram.com/gdsons.vns/",
@@ -48,10 +54,21 @@
     ],
     "hasMap": "https://maps.google.com/?q=Girdhar+Das+and+Sons+Sigra+Varanasi",
     "servesCuisine": null,
-    "areaServed": {
+"areaServed": [
+    {
+        "@type": "City",
+        "name": "Varanasi",
+        "sameAs": "https://en.wikipedia.org/wiki/Varanasi"
+    },
+    {
+        "@type": "State",
+        "name": "Uttar Pradesh"
+    },
+    {
         "@type": "Country",
         "name": "India"
     }
+]
 }
 </script>
 <script type="application/ld+json">

@@ -4,9 +4,29 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="description" content="@yield('description')">
 	<meta name="keywords" content="@yield('keywords')">
-@if(!View::hasSection('meta'))
-<link rel="canonical" href="{{ url()->current() }}" />
+@if(View::hasSection('canonical'))
+    @yield('canonical')
+@else
+<link rel="canonical" href="{{ strtok(url()->current(), '?') }}" />
 @endif
+@if(View::hasSection('robots'))
+    @yield('robots')
+@else
+    @if(request()->has('filter') || request()->has('sort') || request()->has('page'))
+<meta name="robots" content="noindex, follow">
+    @else
+<meta name="robots" content="index, follow">
+    @endif
+@endif
+@if(View::hasSection('title'))
+<meta property="og:title" content="@yield('title')">
+@endif
+@if(View::hasSection('description'))
+<meta property="og:description" content="@yield('description')">
+@endif
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ strtok(url()->current(), '?') }}">
+<meta property="og:site_name" content="Girdhar Das & Sons">
 	<meta name="base-url" content="{{ url('/') }}">
 	<meta name="author" content="GD Sons">
 	<meta name="csrf-token" content="{{ csrf_token() }}">

@@ -1,9 +1,15 @@
 @extends('frontend.layouts.master')
-@if($primary_category)
-    @section('title', 'Complete Range of '. $primary_category->title.' in Varanasi.')
-@else
-    @section('title', 'Complete Range of '. $category->title.' in Varanasi.')
-@endif
+@php
+    $seo_title = null;
+    if($primary_category && !empty($primary_category->meta_title)) {
+        $seo_title = $primary_category->meta_title;
+    } elseif($primary_category) {
+        $seo_title = $primary_category->title . ' — Shop Online | Girdhar Das & Sons';
+    } else {
+        $seo_title = $category->title . ' — Buy Online | GD Sons Varanasi';
+    }
+@endphp
+@section('title', $seo_title)
 @section('keywords', 'GD Sons, ' . $category->title . ', Girdar das and sons')
 
 @section('main-content')
@@ -15,14 +21,19 @@
             <div class="breadcrumb-contain">
                <!-- <h2>{{ $category->title }}</h2> -->
                <nav>
-                  <ol class="breadcrumb mb-0">
-                     <li class="breadcrumb-item">
-                        <a href="{{ url('/') }}">
-                           Home
-                        </a>
-                     </li>
-                     <li class="breadcrumb-item active">{{ $category->title }} </li>
-                  </ol>
+<ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item">
+        <a href="{{ url('/') }}">Home</a>
+    </li>
+    @if($primary_category)
+    <li class="breadcrumb-item">
+        <a href="{{ url('categories/' . $category->slug) }}">{{ $category->title }}</a>
+    </li>
+    <li class="breadcrumb-item active">{{ $primary_category->title }}</li>
+    @else
+    <li class="breadcrumb-item active">{{ $category->title }}</li>
+    @endif
+</ol>
                </nav>
             </div>
          </div>
@@ -36,31 +47,15 @@
       <div class="row">
          <div class="col-lg-12">
             <div class="h1-heading">
-                <h1>
-                    @if($primary_category)
-                        {{ collect([
-                            "Explore the Complete {$primary_category->title} Collection",
-                            "Premium {$primary_category->title} Range",
-                            "Discover Every Type of {$primary_category->title}",
-                            "Wide Variety of {$primary_category->title} Available",
-                            "Largest Selection of {$primary_category->title}",
-                            "Exclusive {$primary_category->title} Collection",
-                            "Best {$primary_category->title} Store",
-                            "Stylish & Quality {$primary_category->title}"
-                        ])->random() }}
-                    @else
-                        {{ collect([
-                            "Explore the Complete {$category->title} Collection",
-                            "Premium {$category->title} Range",
-                            "Discover Every Type of {$category->title}",
-                            "Wide Variety of {$category->title} Available",
-                            "Largest Selection of {$category->title}",
-                            "Exclusive {$category->title} Collection",
-                            "Best {$category->title} Store",
-                            "Stylish & Quality {$category->title}"
-                        ])->random() }}
-                    @endif
-                </h1>
+				<h1>
+					@if($primary_category && !empty($primary_category->h1_text))
+						{{ $primary_category->h1_text }}
+					@elseif($primary_category)
+						{{ $primary_category->title }} in Varanasi
+					@else
+						{{ $category->title }} in Varanasi
+					@endif
+				</h1>
             </div>
          </div>
       </div>
@@ -93,7 +88,16 @@
         @endif
    </div>
 </section>
-@section('description', 'Explore a wide range of '. $category->title.' at Girdhar Das and Sons, featuring '.$transformedstr.'. Girdhar Das and Sons offers best selection in Varanasi. Shop now for unbeatable deals and quality!')
+@php
+    $seo_desc = null;
+    if($primary_category && !empty($primary_category->meta_description)) {
+        $seo_desc = $primary_category->meta_description;
+    } else {
+        $seo_desc = 'Shop ' . $category->title . ' at Girdhar Das & Sons, Varanasi — trusted since 1970. ' . $transformedstr . '. Home delivery across India.';
+        $seo_desc = \Illuminate\Support\Str::limit($seo_desc, 155, '');
+    }
+@endphp
+@section('description', $seo_desc)
 
 <!-- Shop Section End -->
 @endsection
@@ -102,26 +106,41 @@
 {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "name": "@if($primary_category) Complete Range of {{ $primary_category->title }} in Varanasi @else Complete Range of {{ $category->title }} in Varanasi @endif",
+"name": "{{ $seo_title }}",
     "description": "Explore a wide range of {{ $category->title }} at Girdhar Das and Sons, featuring {{ $transformedstr }}. Girdhar Das and Sons offers best selection in Varanasi. Shop now for unbeatable deals and quality!",
     "url": "{{ url()->current() }}",
-    "breadcrumb": {
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-            {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Home",
-                "item": "{{ url('/') }}"
-            },
-            {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "{{ $category->title }}",
-                "item": "{{ url()->current() }}"
-            }
-        ]
-    },
+"breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "{{ url('/') }}"
+        },
+        @if($primary_category)
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "{{ $category->title }}",
+            "item": "{{ url('categories/' . $category->slug) }}"
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "{{ $primary_category->title }}",
+            "item": "{{ url()->current() }}"
+        }
+        @else
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "{{ $category->title }}",
+            "item": "{{ url()->current() }}"
+        }
+        @endif
+    ]
+},
     "mainEntity": [
         @if($primary_category)
         {
@@ -214,18 +233,31 @@
                         "availability": "https://schema.org/{{ $product->stock_quantity > 0 ? 'InStock' : 'OutOfStock' }}"
                     },
 					"additionalProperty": [
-						  {
+						{
 							"@type": "PropertyValue",
 							"name": "MRP",
 							"value": "{{ $mrp }}"
-						  },
-						  {
+						},
+						{
 							"@type": "PropertyValue",
 							"name": "Discount",
 							"value": "{{ $mrp - $final_offer_rate }}"
-						  }
-						]
-                }@if(!$loop->last),@endif
+						}
+					]
+					@php
+						$rStat = $reviewStats[$product->id] ?? null;
+					@endphp
+					@if($rStat && $rStat->review_count > 0)
+					,"aggregateRating": {
+						"@type": "AggregateRating",
+						"ratingValue": "{{ $rStat->avg_rating }}",
+						"reviewCount": "{{ $rStat->review_count }}",
+						"bestRating": "5",
+						"worstRating": "1"
+					}
+					@endif
+					}@if(!$loop->last),@endif
+
                 @endforeach
             ]
         }
@@ -318,19 +350,31 @@
                         "itemCondition": "https://schema.org/NewCondition",
                         "availability": "https://schema.org/{{ $product->stock_quantity > 0 ? 'InStock' : 'OutOfStock' }}"
                     },
-					"additionalProperty": [
-						  {
-							"@type": "PropertyValue",
-							"name": "MRP",
-							"value": "{{ $mrp }}"
-						  },
-						  {
-							"@type": "PropertyValue",
-							"name": "Discount",
-							"value": "{{ $mrp - $final_offer_rate }}"
-						  }
-						]
-                }@if(!$loop->last),@endif
+"additionalProperty": [
+    {
+        "@type": "PropertyValue",
+        "name": "MRP",
+        "value": "{{ $mrp }}"
+    },
+    {
+        "@type": "PropertyValue",
+        "name": "Discount",
+        "value": "{{ $mrp - $final_offer_rate }}"
+    }
+]
+@php
+    $rStat = $reviewStats[$product->id] ?? null;
+@endphp
+@if($rStat && $rStat->review_count > 0)
+,"aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ $rStat->avg_rating }}",
+    "reviewCount": "{{ $rStat->review_count }}",
+    "bestRating": "5",
+    "worstRating": "1"
+}
+@endif
+}@if(!$loop->last),@endif
                 @endforeach
             ]
         }

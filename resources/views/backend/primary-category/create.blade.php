@@ -31,6 +31,61 @@
                                     <input type="text" id="path" name="path" class="form-control">
                                 </div>
                             </div>
+
+{{-- SEO Fields --}}
+<div class="col-md-12 mt-2 mb-1">
+    <div class="alert alert-info py-2 px-3 mb-2" style="font-size:13px;">
+        <strong>SEO Fields</strong> — Leave blank to use auto-generated values from Title.
+    </div>
+</div>
+<div class="col-md-6">
+    <div class="mb-2">
+        <label class="form-label">
+            Meta Title
+            <small class="text-muted">(max 65 characters)</small>
+        </label>
+        <input type="text"
+            name="meta_title"
+            id="meta_title"
+            class="form-control"
+            maxlength="65"
+            value="">
+        <small class="text-muted">
+            <span id="count_meta_title">0</span>/65
+        </small>
+    </div>
+</div>
+<div class="col-md-6">
+    <div class="mb-2">
+        <label class="form-label">
+            H1 Heading
+            <small class="text-muted">(main heading on the page)</small>
+        </label>
+        <input type="text"
+            name="h1_text"
+            id="h1_text"
+            class="form-control"
+            maxlength="120"
+            value="">
+    </div>
+</div>
+<div class="col-md-12">
+    <div class="mb-2">
+        <label class="form-label">
+            Meta Description
+            <small class="text-muted">(max 155 characters)</small>
+        </label>
+        <textarea name="meta_description"
+            id="meta_description"
+            class="form-control"
+            rows="2"
+            maxlength="155"></textarea>
+        <small class="text-muted">
+            <span id="count_meta_description">0</span>/155
+        </small>
+    </div>
+</div>
+
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label for="products" class="form-label">Select Products</label>

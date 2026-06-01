@@ -1,10 +1,23 @@
 @extends('frontend.layouts.master')
-@if($primary_category)
-    @section('title', 'Complete Range of ' . $primary_category->title . ' in Varanasi.')
-@else
-    @section('title', 'Complete Range of ' . $category->title . ' ' . $attributeValue->name . ' in Varanasi.')
-@endif
-@section('description', 'Complete Range of ' . $category->title . ' ' . $attributeValue->name . ' in Varanasi. '.$transformedstr)
+@php
+    $seo_title = null;
+    $seo_desc  = null;
+    if ($primary_category && !empty($primary_category->meta_title)) {
+        $seo_title = $primary_category->meta_title;
+    } elseif ($primary_category) {
+        $seo_title = $primary_category->title . ' — Shop Online | Girdhar Das & Sons';
+	} else {
+		$seo_title = $attributeValue->name . ' ' . $category->title . ' — Buy Online | GD Sons Varanasi';
+	}
+    if ($primary_category && !empty($primary_category->meta_description)) {
+        $seo_desc = $primary_category->meta_description;
+} else {
+    $seo_desc = 'Buy ' . $attributeValue->name . ' ' . $category->title . ' online from Girdhar Das & Sons — trusted kitchenware store since 1970. Genuine products, competitive prices, home delivery across India.';
+    $seo_desc = \Illuminate\Support\Str::limit($seo_desc, 155, '');
+}
+@endphp
+@section('title', $seo_title)
+@section('description', $seo_desc)
 @section('keywords', 'GD Sons - ' . $category->title . ' : ' . $attributeValue->name)
 @section('main-content')
 <!-- Breadcrumb Section Start -->
@@ -15,17 +28,22 @@
                 <div class="breadcrumb-contain">
                     <!-- <h2>{{ $category->title }} : {{ $attributeValue->name }}</h2> -->
                     <nav>
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item">
-                                <a href="{{ url('/') }}">
-                                    Home
-                                    <!-- {{ url()->current() }} -->
-                                </a>
-                            </li>
-                            <li class="breadcrumb-item active">
-                                {{ $category->title }} : {{ $attributeValue->name }}
-                            </li>
-                        </ol>
+<ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item">
+        <a href="{{ url('/') }}">Home</a>
+    </li>
+    @if($primary_category)
+    <li class="breadcrumb-item">
+        <a href="{{ url('categories/' . $category->slug) }}">{{ $category->title }}</a>
+    </li>
+    <li class="breadcrumb-item active">{{ $primary_category->title }}</li>
+    @else
+    <li class="breadcrumb-item">
+        <a href="{{ url('categories/' . $category->slug) }}">{{ $category->title }}</a>
+    </li>
+    <li class="breadcrumb-item active">{{ $attributeValue->name }}</li>
+    @endif
+</ol>
                     </nav>
                 </div>
             </div>
@@ -40,32 +58,15 @@
             
             <div class="col-lg-12">
                 <div class="h1-heading">
-                    @php
-                        $titleText = $primary_category
-                            ? collect([
-                                "Buy Premium {$primary_category->title} Online",
-                                "Best Quality {$primary_category->title} Collection",
-                                "Explore Stylish {$primary_category->title}",
-                                "Durable & Trendy {$primary_category->title}",
-                                "Shop Latest {$primary_category->title}",
-                                "Exclusive {$primary_category->title} Online Store",
-                                "Wide Range of {$primary_category->title}",
-                                "Premium {$primary_category->title} at Best Price"
-                            ])->random()
-
-                            : collect([
-                                "Buy Premium {$attributeValue->name} {$category->title} Online",
-                                "Best Quality {$attributeValue->name} {$category->title}",
-                                "Explore Stylish {$attributeValue->name} {$category->title}",
-                                "Durable & Trendy {$attributeValue->name} {$category->title}",
-                                "Shop Latest {$attributeValue->name} {$category->title}",
-                                "Exclusive {$attributeValue->name} {$category->title} Collection",
-                                "Wide Range of {$attributeValue->name} {$category->title}",
-                                "Premium {$attributeValue->name} {$category->title} at Best Price"
-                            ])->random();
-                    @endphp
-
-                    <h1>{{ $titleText }}</h1>
+<h1>
+    @if($primary_category && !empty($primary_category->h1_text))
+        {{ $primary_category->h1_text }}
+    @elseif($primary_category)
+        {{ $primary_category->title }} in Varanasi
+    @else
+        {{ $attributeValue->name }} {{ $category->title }} in Varanasi
+    @endif
+</h1>
                 </div>
             </div>
             <div class="col-xl-12 col-md-12 mobile-gap single-bn-mo-dblock" style="margin-top: 10px;">
@@ -106,27 +107,33 @@
 {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "name": "@if($primary_category) Complete Range of {{ $primary_category->title }} in Varanasi @else Complete Range of {{ $attributeValue->name }} {{ $category->title }} in Varanasi @endif",
-    "description": "Complete Range of {{ $category->title }} {{ $attributeValue->name }} in Varanasi. {{ $transformedstr }}",
 
+"name": "{{ $seo_title }}",
+"description": "{{ $seo_desc }}",
     "url": "{{ url()->current() }}",
-    "breadcrumb": {
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-            {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Home",
-                "item": "{{ url('/') }}"
-            },
-            {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "{{ $category->title }} : {{ $attributeValue->name }}",
-                "item": "{{ url()->current() }}"
-            }
-        ]
-    },
+"breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "{{ url('/') }}"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "{{ $category->title }}",
+            "item": "{{ url('categories/' . $category->slug) }}"
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "@if($primary_category){{ $primary_category->title }}@else{{ $attributeValue->name }}@endif",
+            "item": "{{ strtok(url()->current(), '?') }}"
+        }
+    ]
+},
     "mainEntity": {
         "@type": "ItemList",
         "itemListElement": [
@@ -197,21 +204,29 @@
                         }
                         @endif
                     },
-					"additionalProperty": [
-						  {
-							"@type": "PropertyValue",
-							"name": "MRP",
-							"value": "{{ $mrp }}"
-						  },
-						  {
-							"@type": "PropertyValue",
-							"name": "Discount",
-							"value": "{{ $mrp - $final_offer_rate }}"
-						  }
-						]
-
-                }
-            }@if(!$loop->last),@endif
+"additionalProperty": [
+    {
+        "@type": "PropertyValue",
+        "name": "MRP",
+        "value": "{{ $mrp }}"
+    },
+    {
+        "@type": "PropertyValue",
+        "name": "Discount",
+        "value": "{{ $mrp - $final_offer_rate }}"
+    }
+]
+@php $rStat = $reviewStats[$product->id] ?? null; @endphp
+@if($rStat && $rStat->review_count > 0)
+,"aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ $rStat->avg_rating }}",
+    "reviewCount": "{{ $rStat->review_count }}",
+    "bestRating": "5",
+    "worstRating": "1"
+}
+@endif
+}@if(!$loop->last),@endif
             @endforeach
         ]
     }

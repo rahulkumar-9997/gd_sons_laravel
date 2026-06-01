@@ -9,15 +9,17 @@ class PrimaryCategory extends Model
 {
     use HasFactory;
     protected $table = 'primary_categories';
-    protected $fillable = [
-        'title',
-        'image_path',
-        'link',
-        'primary_category_description',
-        'status',
-        'product_id'
-    ];
-
+	protected $fillable = [
+		'title',
+		'meta_title',
+		'meta_description',
+		'h1_text',
+		'image_path',
+		'link',
+		'primary_category_description',
+		'status',
+		'product_id'
+	];
     public function products()
     {
         return $this->belongsToMany(Product::class, 'primary_category_products');

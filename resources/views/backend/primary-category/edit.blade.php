@@ -43,6 +43,60 @@
                                         value="{{ $primary_category_row->link }}">
                                 </div>
                             </div>
+							
+{{-- SEO Fields --}}
+<div class="col-md-12 mt-2 mb-1">
+    <div class="alert alert-info py-2 px-3 mb-2" style="font-size:13px;">
+        <strong>SEO Fields</strong> — Leave blank to use auto-generated values from Title.
+    </div>
+</div>
+<div class="col-md-6">
+    <div class="mb-2">
+        <label class="form-label">
+            Meta Title
+            <small class="text-muted">(max 65 characters — shown in Google search results)</small>
+        </label>
+        <input type="text"
+            name="meta_title"
+            id="meta_title"
+            class="form-control"
+            maxlength="65"
+            value="{{ $primary_category_row->meta_title }}">
+        <small class="text-muted char-count-meta_title">
+            <span id="count_meta_title">{{ strlen($primary_category_row->meta_title ?? '') }}</span>/65
+        </small>
+    </div>
+</div>
+<div class="col-md-6">
+    <div class="mb-2">
+        <label class="form-label">
+            H1 Heading
+            <small class="text-muted">(shown as the main heading on the page)</small>
+        </label>
+        <input type="text"
+            name="h1_text"
+            id="h1_text"
+            class="form-control"
+            maxlength="120"
+            value="{{ $primary_category_row->h1_text }}">
+    </div>
+</div>
+<div class="col-md-12">
+    <div class="mb-2">
+        <label class="form-label">
+            Meta Description
+            <small class="text-muted">(max 155 characters — shown below title in Google)</small>
+        </label>
+        <textarea name="meta_description"
+            id="meta_description"
+            class="form-control"
+            rows="2"
+            maxlength="155">{{ $primary_category_row->meta_description }}</textarea>
+        <small class="text-muted">
+            <span id="count_meta_description">{{ strlen($primary_category_row->meta_description ?? '') }}</span>/155
+        </small>
+    </div>
+</div>							
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Select Products</label>
@@ -114,5 +168,19 @@
             }
         });
     });    
+</script>
+<script>
+// Live character counters for SEO fields
+['meta_title', 'meta_description'].forEach(function(id) {
+    var el = document.getElementById(id);
+    var counter = document.getElementById('count_' + id);
+    if (el && counter) {
+        el.addEventListener('input', function() {
+            counter.textContent = this.value.length;
+            counter.style.color = this.value.length > (id === 'meta_title' ? 60 : 145)
+                ? '#dc3545' : '#6c757d';
+        });
+    }
+});
 </script>
 @endpush

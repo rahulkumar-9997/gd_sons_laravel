@@ -43,11 +43,14 @@ class PrimaryCategoryController extends Controller
         }
         $validated = $validator->validated();
 
-        $primaryCategory = PrimaryCategory::create([
-            'title' => $validated['title'],
-            'link' => $validated['path'] ?? null,
-            'primary_category_description' => $validated['description'] ?? null,
-        ]);
+		$primaryCategory = PrimaryCategory::create([
+			'title'                        => $validated['title'],
+			'meta_title'                   => $request->input('meta_title') ?? null,
+			'meta_description'             => $request->input('meta_description') ?? null,
+			'h1_text'                      => $request->input('h1_text') ?? null,
+			'link'                         => $validated['path'] ?? null,
+			'primary_category_description' => $validated['description'] ?? null,
+		]);
         if (!empty($validated['products'])) {
             $primaryCategory->products()->sync($validated['products']);
         }
@@ -84,11 +87,14 @@ class PrimaryCategoryController extends Controller
         $validated = $validator->validated();
         $primaryCategory = PrimaryCategory::findOrFail($id);
 
-        $primaryCategory->update([
-            'title' => $validated['title'],
-            'link' => $validated['path'],
-            'primary_category_description' => $validated['description'] ?? null,
-        ]);
+		$primaryCategory->update([
+			'title'                        => $validated['title'],
+			'meta_title'                   => $request->input('meta_title') ?? null,
+			'meta_description'             => $request->input('meta_description') ?? null,
+			'h1_text'                      => $request->input('h1_text') ?? null,
+			'link'                         => $validated['path'],
+			'primary_category_description' => $validated['description'] ?? null,
+		]);
         $primaryCategory->products()->sync($validated['products'] ?? []);
         return response()->json([
             'status' => 'success',

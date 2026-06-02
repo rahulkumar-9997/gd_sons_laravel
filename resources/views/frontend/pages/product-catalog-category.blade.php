@@ -1,4 +1,3 @@
-@extends('frontend.layouts.master')
 @php
     $seo_title = null;
     if($primary_category && !empty($primary_category->meta_title)) {
@@ -8,10 +7,23 @@
     } else {
         $seo_title = $category->title . ' — Buy Online | GD Sons Varanasi';
     }
-@endphp
-@section('title', $seo_title)
-@section('keywords', 'GD Sons, ' . $category->title . ', Girdar das and sons')
+    $seo_desc = null;
+    if($primary_category && !empty($primary_category->meta_description)) {
+        $seo_desc = $primary_category->meta_description;
+    } else {
+        $seo_desc = 'Shop ' . $category->title . ' at Girdhar Das & Sons, Varanasi — trusted since 1970. ' . $transformedstr . '. Home delivery across India.';
+        $seo_desc = \Illuminate\Support\Str::limit($seo_desc, 155, '');
+    }
 
+@endphp
+@section('og_title', $seo_title)
+@section('og_description', $seo_desc)
+@section('og_type', 'product_catalog')
+
+@section('title', $seo_title)
+@section('description', $seo_desc)
+@section('keywords', 'GD Sons, ' . $category->title . ', Girdar das and sons')
+@extends('frontend.layouts.master')
 @section('main-content')
 <!-- Breadcrumb Section Start -->
 <section class="breadcrumb-section pt-0">
@@ -21,19 +33,19 @@
             <div class="breadcrumb-contain">
                <!-- <h2>{{ $category->title }}</h2> -->
                <nav>
-<ol class="breadcrumb mb-0">
-    <li class="breadcrumb-item">
-        <a href="{{ url('/') }}">Home</a>
-    </li>
-    @if($primary_category)
-    <li class="breadcrumb-item">
-        <a href="{{ url('categories/' . $category->slug) }}">{{ $category->title }}</a>
-    </li>
-    <li class="breadcrumb-item active">{{ $primary_category->title }}</li>
-    @else
-    <li class="breadcrumb-item active">{{ $category->title }}</li>
-    @endif
-</ol>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url('/') }}">Home</a>
+                    </li>
+                    @if($primary_category)
+                    <li class="breadcrumb-item">
+                        <a href="{{ url('categories/' . $category->slug) }}">{{ $category->title }}</a>
+                    </li>
+                    <li class="breadcrumb-item active">{{ $primary_category->title }}</li>
+                    @else
+                    <li class="breadcrumb-item active">{{ $category->title }}</li>
+                    @endif
+                </ol>
                </nav>
             </div>
          </div>
@@ -88,59 +100,47 @@
         @endif
    </div>
 </section>
-@php
-    $seo_desc = null;
-    if($primary_category && !empty($primary_category->meta_description)) {
-        $seo_desc = $primary_category->meta_description;
-    } else {
-        $seo_desc = 'Shop ' . $category->title . ' at Girdhar Das & Sons, Varanasi — trusted since 1970. ' . $transformedstr . '. Home delivery across India.';
-        $seo_desc = \Illuminate\Support\Str::limit($seo_desc, 155, '');
-    }
-@endphp
-@section('description', $seo_desc)
-
-<!-- Shop Section End -->
 @endsection
 @push('schema')
 <script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-"name": "{{ $seo_title }}",
-    "description": "Explore a wide range of {{ $category->title }} at Girdhar Das and Sons, featuring {{ $transformedstr }}. Girdhar Das and Sons offers best selection in Varanasi. Shop now for unbeatable deals and quality!",
-    "url": "{{ url()->current() }}",
-"breadcrumb": {
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-        {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "{{ url('/') }}"
-        },
-        @if($primary_category)
-        {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "{{ $category->title }}",
-            "item": "{{ url('categories/' . $category->slug) }}"
-        },
-        {
-            "@type": "ListItem",
-            "position": 3,
-            "name": "{{ $primary_category->title }}",
-            "item": "{{ url()->current() }}"
-        }
-        @else
-        {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "{{ $category->title }}",
-            "item": "{{ url()->current() }}"
-        }
-        @endif
-    ]
-},
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "{{ $seo_title }}",
+        "description": "Explore a wide range of {{ $category->title }} at Girdhar Das and Sons, featuring {{ $transformedstr }}. Girdhar Das and Sons offers best selection in Varanasi. Shop now for unbeatable deals and quality!",
+        "url": "{{ url()->current() }}",
+        "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "{{ url('/') }}"
+            },
+            @if($primary_category)
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "{{ $category->title }}",
+                "item": "{{ url('categories/' . $category->slug) }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "{{ $primary_category->title }}",
+                "item": "{{ url()->current() }}"
+            }
+            @else
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "{{ $category->title }}",
+                "item": "{{ url()->current() }}"
+            }
+            @endif
+        ]
+    },
     "mainEntity": [
         @if($primary_category)
         {

@@ -625,8 +625,93 @@
 
 .blog-paragraphs .recent-name {
   margin-bottom: 11px;
-  color: var(--theme-color);
+  /* color: var(--theme-color); */
+  font-size: 20px;
 }
+.blog-paragraphs ul{    
+    list-style: none;
+    padding: 10px 0 10px 10px;
+    position: relative;
+    display: block;
+}
+.blog-paragraphs ul li {
+  display: block;
+  position: relative;
+  font-weight: 500;
+  line-height: 24px;
+  margin-bottom: 10px;
+  padding-left: 25px;
+  font-size: 18px;
+  color: #000000bf;
+}
+
+
+.blog-paragraphs ul li:before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 16px;
+    display: block;
+    vertical-align: middle;
+    position: absolute;
+    content: "\f054";
+    left: 0;
+    top: -1px;
+    color: #390901;
+}
+.blog-paragraphs ul li h5 {
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: 0px;
+}
+.blog-paragraphs table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+.blog-paragraphs table th,
+.blog-paragraphs table td {
+  border: 1px solid #ddd;
+  padding: 4px;
+  text-align: left;
+}
+.blog-paragraphs table th {
+  background-color: #f2f2f2;
+  font-weight: 600;
+}
+.blog-paragraphs table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+.blog-paragraphs table tr:hover {
+  background-color: #f1f1f1;
+}
+.blog-paragraphs table th,
+.blog-paragraphs table td {
+  font-size: 16px;
+  color: #4a5568;
+}
+.paragraphs_description p strong {
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 18px;
+}
+@media screen and (max-width: 768px) {
+  .blog-paragraphs .recent-name {
+    font-size: 18px;
+  }
+
+  .blog-paragraphs ul li {
+    font-size: 16px;
+  }
+
+  .blog-paragraphs table th,
+  .blog-paragraphs table td {
+    font-size: 14px;
+  }
+  .paragraphs_description p strong {
+    font-size: 18px;
+  }
+}
+
 
 .blog-section .blog-detail-image .blog-image-contain h1 {
   margin: calc(10px + 4*(100vw - 320px) / 1600) 0;
@@ -1636,13 +1721,60 @@ a.cntshop {
   height: 100%;
   object-fit: contain; /* FULL IMAGE without crop */
 }
+.blog-image-contain h1 {
+    margin: calc(10px + 4 * (100vw - 320px) / 1600) 0;
+    font-weight: 600;
+    font-size: 25px;
+    text-transform: none;
+}
+.blog-detail-contain h2{
+  font-size: 22px;
+  margin-bottom: 10px;
+}
 .blog-detail-contain h3{
-  font-size: 18px;
+  font-size: 20px;
   line-height: 22px;
   margin-top: 10px;
+  margin-bottom: 10px;
   font-weight: 600;
   margin-bottom: 10px;
 }
+.blog-detail-contain ul{    
+    list-style: none;
+    padding: 10px 0 10px 10px;
+    position: relative;
+    display: block;
+}
+.blog-detail-contain ul li {
+  display: block;
+  position: relative;
+  font-weight: 500;
+  line-height: 24px;
+  margin-bottom: 10px;
+  padding-left: 25px;
+  font-size: 18px;
+  color: #000000bf;
+}
+
+
+.blog-detail-contain ul li:before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 16px;
+    display: block;
+    vertical-align: middle;
+    position: absolute;
+    content: "\f054";
+    left: 0;
+    top: -1px;
+    color: #390901;
+}
+.blog-detail-contain ul li h5 {
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: 0px;
+}
+
 .blog-detail-contain h4,
 .paragraphs_description h4{
   font-size: 18px;
@@ -2601,11 +2733,7 @@ a.cntshop {
     visibility: visible;
     opacity: 1;
 }
-.blog-image-contain h1 {
-    margin: calc(10px + 4 * (100vw - 320px) / 1600) 0;
-    font-weight: 700;
-    font-size: calc(22px + 12 * (100vw - 320px) / 1600);
-}
+
 #accordionExample .show{
 	display: block;
 	visibility: visible;

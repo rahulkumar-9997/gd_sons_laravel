@@ -1,3 +1,20 @@
+/* @font-face{
+  font-family:P22Mackinac-Medium;
+  src:url(../fonts/p22-mackinac/P22Mackinac-Medium.woff2)format("woff2"),
+  url(../fonts/p22-mackinac/P22Mackinac-Medium.woff2)format("woff"),
+  url(../fonts/p22-mackinac/P22Mackinac-Medium.otf)format("opentype");
+  font-weight:400;font-style:normal;
+  font-display:swap
+}
+:root {
+    --P22Mackinac-Medium-font: P22Mackinac-Medium, Georgia, serif;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--P22Mackinac-Medium-font);
+    font-weight: 400;
+    font-style: normal;
+} */
+
 .theme-color-1 {
     --theme-color: #d99f46;
     --theme-color-rgb: 217, 159, 70

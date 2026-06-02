@@ -16,6 +16,10 @@
     $seo_desc = \Illuminate\Support\Str::limit($seo_desc, 155, '');
 }
 @endphp
+@section('og_title', $seo_title)
+@section('og_description', $seo_desc)
+@section('og_type', 'product_catalog')
+
 @section('title', $seo_title)
 @section('description', $seo_desc)
 @section('keywords', 'GD Sons - ' . $category->title . ' : ' . $attributeValue->name)

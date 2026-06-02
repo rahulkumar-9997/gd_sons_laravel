@@ -26,16 +26,16 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 ? asset('images/product/thumb/' . $data['product_details']->images->first()->image_path)
 : asset('frontend/assets/gd-img/product/no-image.png');
 @endphp
-<meta property="og:title" content="{{ ucwords(strtolower($data['product_details']->title)) }}" />
-<meta property="og:description" content="{{ $meta_description }}" />
-<meta property="og:image" content="{{ $firstImage }}" />
-<meta property="og:url" content="{{ url()->current() }}" />
-<meta property="og:type" content="product" />
-@endsection
-@extends('frontend.layouts.master')
+
+@section('og_title', ucwords(strtolower($data['product_details']->title)))
+@section('og_description'){{ $meta_description }}@endsection
+@section('og_image', $firstImage)
+@section('og_type', 'product')
+
 @section('title', $meta_title)
 @section('description', $meta_description)
 @section('keywords', 'GD Sons, ' . $data['product_details']->title . ', Girdhar das and sons')
+@extends('frontend.layouts.master')
 @section('main-content')
 <!-- Breadcrumb Section Start -->
 <section class="breadcrumb-section pt-0">

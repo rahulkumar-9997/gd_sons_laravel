@@ -38,8 +38,15 @@
         <div class="row g-sm-4 g-3">
         <div class="col-xxl-9 col-xl-8 col-lg-7 ratio_50 order-md-1">
                 <div class="blog-detail-image rounded-3 mb-4">
-                    <div class="blog-deta-img">
-                        <img src="{{asset($blog->blog_image) }}" class="pc__img_blog bg-img-blog-details blur-up lazyload" alt="{{$blog->title}}">
+                    <div class="relative overflow-hidden rounded-3xl bg-white shadow-xl border border-gray-100 group">
+                        <div class="relative">
+                            <img
+                                src="{{ asset($blog->blog_image) }}"
+                                alt="{{ $blog->title }}"
+                                class="w-full h-auto object-cover transition duration-700 ease-in-out group-hover:scale-105"
+                            >
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>                            
+                        </div>
                     </div>                    
                 </div>
                 <div class="blog-image-contain">
@@ -107,54 +114,100 @@
                                                         $attributes_value_slug = $attributes_value->slug;
                                                     }
                                                 @endphp
+                                                @php
+                                                    $purchase_rate = $product->purchase_rate;
+                                                    $offer_rate = $product->offer_rate;
+                                                    $mrp = $product->mrp;
+                                                    $group_offer_rate = null;
+                                                    $special_offer_rate = null;
+
+                                                    /*Group price calculation*/
+                                                    if ($groupCategory && $offer_rate !== null) {
+                                                        $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                                                        if ($group_percentage > 0) {
+                                                            $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                                                            $group_offer_rate = floor($group_offer_rate);
+                                                        }
+                                                    }
+
+                                                    /* Special offer price from array/helper*/
+                                                    if (isset($specialOffers[$product->id])) {
+                                                        $special_offer_rate = (float) $specialOffers[$product->id];
+                                                    }
+
+                                                    /*Select the lowest price from all available options*/
+                                                    $final_offer_rate = collect([
+                                                    $offer_rate,
+                                                    $group_offer_rate,
+                                                    $special_offer_rate
+                                                    ])->filter()->min();
+
+                                                    /*Discount Percentage*/
+                                                    $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
+                                                    ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+                                                    : 0;
+
+                                                    $hasDimensions =
+                                                    !empty($product->length) &&
+                                                    !empty($product->breadth) &&
+                                                    !empty($product->height) &&
+                                                    !empty($product->weight);
+                                                    $isOutOfStock = ($product->mrp > 0 && $product->stock_quantity <= 0) || !$hasDimensions;
+                                                @endphp
                                                 <div>
                                                     <div class="product-white-bg wow fadeIn">
-                                                        <div class="product-box blog-product-box">
-                                                            <div class="product-image blog-product-img">
-                                                                <div class="product-img">
-                                                                    <a href="{{ url('products/'.$product->slug.'/'.$attributes_value_slug) }}">
-                                                                        @if ($firstImageBlog)
-                                                                        <img class="blog_pc__img_blog img-fluid blur-up lazyload"
-                                                                            data-src="{{ asset('images/product/large/'. $firstImageBlog->image_path) }}"
-                                                                            src="{{ asset('images/product/large/'. $firstImageBlog->image_path) }}"
-                                                                            alt="{{ $product->title }}" title="{{ $product->title }}">
-                                                                        @else
-                                                                        <img src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                                            class="img-fluid blur-up lazyload" alt="{{ $product->title }}">
-                                                                        @endif
-                                                                    </a>
+                                                        <div class="product-box blog-product-box h-100 ">
+                                                            <div class="blog-product-img">
+                                                                <div class="product-image">
+                                                                    @if ($discountPercentage>0)
+                                                                    <div class="label-flex">
+                                                                        <span class="group/badge relative inline-flex items-center gap-1 bg-green-700 text-white text-[10px] font-bold tracking-wide px-2 py-[3px] rounded-full cursor-default shadow-badge hover:shadow-badge-hover hover:scale-105 transition-all duration-200">
+                                                                            {{ $discountPercentage }}% OFF
+                                                                        </span>
+                                                                    </div>
+                                                                    @endif
+                                                                    <div class="product-img">
+                                                                        <a href="{{ url('products/'.$product->slug.'/'.$attributes_value_slug) }}">
+                                                                            @if ($firstImageBlog)
+                                                                            <picture>
+                                                                                <source
+                                                                                    media="(max-width: 767px)"
+                                                                                    srcset="{{ asset('images/product/icon/' . $firstImageBlog->image_path) }}">
+                                                                                <img
+                                                                                    class="img-fluid blur-up lazyload"
+                                                                                    data-src="{{ asset('images/product/thumb/' . $firstImageBlog->image_path) }}"
+                                                                                    src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                                                                    srcset="{{ asset('images/product/thumb/' . $firstImageBlog->image_path) }} 600w, 
+                                                                                {{ asset('images/product/thumb/' . $firstImageBlog->image_path) }} 1200w"
+                                                                                    sizes="(max-width: 600px) 600px, 1200px"
+                                                                                    alt="{{ $product->title }}"
+                                                                                    title="{{ $product->title }}"
+                                                                                    loading="lazy">
+                                                                            </picture>
+                                                                            @else
+                                                                            <img src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
+                                                                                class="img-fluid blur-up lazyload" alt="{{ $product->title }}">
+                                                                            @endif
+                                                                        </a>
+                                                                    </div>
                                                                 </div>
-                                                                
                                                             </div>
                                                             <div class="product-detail">
+                                                                <span class="span-name">{{ucwords(strtolower($product->category->title))}}</span>
                                                                 <a href="{{ url('products/'.$product->slug.'/'.$attributes_value_slug) }}">
-                                                                    <h6 class="name h-100">
+                                                                    <h5 class="name">
                                                                         {{ ucwords(strtolower($product->title)) }}
-                                                                    </h6>
+                                                                    </h5>
                                                                 </a>
-                                                                <h5 class="sold text-content">
-                                                                    @if ($product->offer_rate === null)
-                                                                        <span class="theme-color price">
-                                                                            Price not available
-                                                                        </span>
+                                                                <h5 class="price">
+                                                                    @if ($final_offer_rate === null)
+                                                                    <span class="theme-color">Price not available</span>
                                                                     @else
-                                                                    @php
-                                                                        $final_offer_rate = $product->offer_rate;
-                                                                        if($groupCategory){
-                                                                            $group_categoty_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                                                            if ($group_categoty_percentage > 0) {
-                                                                            $purchase_rate = $product->purchase_rate;
-                                                                            $offer_rate = $product->offer_rate;
-                                                                            $percent_discount = 100 / $group_categoty_percentage;
-                                                                            $final_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * $percent_discount / 100;
-                                                                            $final_offer_rate = floor($final_offer_rate);
-                                                                            }
-                                                                        }
-                                                                    @endphp
-                                                                    <span class="theme-color">Rs. {{$final_offer_rate}}</span>
+                                                                    <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
                                                                     @endif
-                                                                    @if ($product->mrp !== null)
-                                                                    <del>Rs. {{ $product->mrp }}</del>
+
+                                                                    @if ($mrp !== null)
+                                                                    <del>Rs. {{ $mrp }}</del>
                                                                     @endif
                                                                 </h5>
                                                             </div>

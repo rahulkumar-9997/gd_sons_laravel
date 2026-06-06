@@ -183,11 +183,15 @@ $search_value = !empty($query) ? $query : '';
                            @if(!empty($categoriesWithMappedAttributesAndValues))
                            @foreach($categoriesWithMappedAttributesAndValues as $category)
                            <li class="onhover-category-list">
-                              <a href="javascript:void(0)" class="category-name">
+                              <a href="javascript:void(0)" class="category-name flex items-center gap-3 transition">
                                  @if($category['category-image'] && file_exists(public_path('images/category/icon/' . $category['category-image'])))
-                                 <img src="{{ asset('images/category/icon/' . $category['category-image']) }}" alt="{{ $category['title'] }}" style="object-fit: cover;">
+                                 <img
+                                    src="{{ asset('images/category/icon/' . $category['category-image']) }}"
+                                    class="w-10 h-10 rounded-full object-cover border border-gray-200">
                                  @else
-                                 <img src="{{ asset('images/meats.svg') }}" alt="{{ $category['title'] }}">
+                                 <img
+                                    src="{{ asset('images/meats.svg') }}"
+                                    class="w-10 h-10 rounded-full border border-gray-200">
                                  @endif
                                  <h6>{{ $category['title'] }}</h6>
                                  <i class="fa-solid fa-angle-right"></i>

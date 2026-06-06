@@ -1681,6 +1681,223 @@ a.cntshop {
   width: 100%;
 }
 
+/* Blog card image — matches 800×300 image ratio */
+.blog-card .overflow-hidden {
+    height: auto;
+    aspect-ratio: 800 / 300;
+    position: relative;
+}
+
+.blog-card .overflow-hidden .blog-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+/* ============================================
+   Blog inline product cards — landscape layout
+   ============================================ */
+.blog-product-row {
+    gap: 16px !important;
+    justify-content: flex-start !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+}
+.blog-product-row > div {
+    flex: 0 0 auto !important;
+    width: calc(50% - 8px) !important;
+    min-width: 280px !important;
+    max-width: 480px !important;
+    padding: 0 !important;
+}
+
+.blog-product-box {
+    width: 100%;
+    height: 160px !important;
+    display: flex;
+    flex-direction: row !important;
+    border: 1px solid #ebebeb;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+}
+
+/* LEFT — image area */
+/* LEFT — image area */
+/* LEFT — image area */
+.blog-product-img {
+    width: 150px !important;
+    min-width: 150px !important;
+    max-width: 150px !important;
+    height: 160px !important;
+    min-height: 160px !important;
+    max-height: 160px !important;
+    overflow: visible;
+    background: #ffffff;
+    display: block;
+    padding: 0;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.blog-product-img .product-image {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.blog-product-img .product-img {
+    width: 130px;
+    height: 130px;
+    position: relative;
+}
+
+.blog-product-img .product-img img {
+    width: auto !important;
+    max-width: 100% !important;
+    max-height: 120px !important;
+    height: auto !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    margin: auto !important;
+    object-fit: contain !important;
+    display: block !important;
+}
+
+
+/* discount badge — top right of whole card */
+.blog-product-box .blog-product-img .label-flex,
+.blog-product-box .blog-product-img .label-flex * {
+    position: absolute !important;
+    top: 6px !important;
+    right: 6px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 3;
+    float: none !important;
+}
+
+
+/* RIGHT — details area */
+.blog-product-box .product-detail {
+    flex: 1;
+    padding: 14px 14px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    border-left: 1px solid #f0f0f0;
+}
+
+.blog-product-box .product-detail .span-name {
+    font-size: 12px;
+    color: #0F8B8D;
+    background: none;
+    border: none;
+    padding: 0;
+    white-space: nowrap;
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.blog-product-box .product-detail .name {
+    font-size: 16px !important;
+    line-height: 22px !important;
+    height: auto !important;
+    max-height: 66px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+    color: #062B45 !important;
+    font-weight: 600 !important;
+    margin-bottom: 0;
+}
+
+.blog-product-box .product-detail .price {
+    font-size: 17px !important;
+    margin-top: 10px;
+    margin-bottom: 0;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.blog-product-box .product-detail .price .theme-color {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    color: #0F8B8D !important;
+}
+
+.blog-product-box .product-detail .price del {
+    font-size: 12px !important;
+    color: #aaa;
+    margin-left: 0;
+    font-weight: 400;
+}
+
+/* Mobile — 1 card per row, full width */
+@media (max-width: 767px) {
+    .blog-product-row > div {
+        width: 100% !important;
+        min-width: unset !important;
+        max-width: 100% !important;
+    }
+
+    .blog-product-box {
+        height: 130px !important;
+    }
+
+    .blog-product-img {
+        width: 120px !important;
+        min-width: 120px !important;
+        max-width: 120px !important;
+        height: 130px !important;
+        min-height: 130px !important;
+        max-height: 130px !important;
+    }
+
+    .blog-product-img .product-img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .blog-product-img .product-img img {
+        max-height: 100px;
+    }
+
+    .blog-product-box .product-detail {
+        padding: 10px 12px;
+    }
+
+    .blog-product-box .product-detail .name {
+        font-size: 13px !important;
+        line-height: 18px !important;
+        max-height: 54px;
+    }
+
+    .blog-product-box .product-detail .price {
+        font-size: 13px !important;
+    }
+
+    .blog-product-box .product-detail .price .theme-color {
+        font-size: 13px !important;
+    }
+}
+
 .pc-img-wrapper {
   display: block;
   position: relative;

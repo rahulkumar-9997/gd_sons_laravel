@@ -9,7 +9,6 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use App\Mail\OrderDetailsMail;
 use App\Mail\PaymentFailedMail;
@@ -32,12 +31,145 @@ use App\Models\DiscountCode;
 class OrderController extends Controller
 {
 
+    public function checkOutFormSubmit_old(Request $request)
+    {
+        $addressExists = isset($request->customer_address_id) && $request->customer_address_id != '';        
+        if($request->pick_up_status == 'pick_up_online')
+        {
+            if ($addressExists)
+            {
+                $request->validate([
+                    'customer_address_id' => 'required|exists:addresses,id',
+                    'same_ship_bill_address' => 'nullable|boolean',
+                ] + $this->getBillingValidation());
+            }
+            else
+            {
+                $request->validate([
+                    'ship_full_name' => 'required|string|max:255',
+                    'ship_phone_number' => 'required|digits:10',
+                    'ship_email' => 'required|email',
+                    'ship_country' => 'required',
+                    'ship_full_address' => 'required',
+                    'ship_city_name' => 'required|string',
+                    'ship_state' => 'required',
+                    'ship_pin_code' => 'required|digits:6',
+                ]);
+            }
+            $request->validate([
+                'courier_name' => 'required|string|max:255',
+                'courier_id' => 'required|string|max:100',
+                'courier_company_id' => 'required|numeric',
+                'shipping_rate' => 'required|numeric|min:0',
+                'cod_charges' => 'nullable|numeric|min:0',
+                'delivery_expected_date' => 'required|string|max:50',
+            ]);
+        }
+
+        $cartItems = [];
+        $cartProductIds = $request->input('product_id', []);
+        $cartQuantities = $request->input('cart_quantity', []);
+        $cartPrices = $request->input('cart_offer_rate', []);
+        $cartTotalPrices = $request->input('total_price', []);
+
+        foreach ($cartProductIds as $index => $productId) {
+            $cartItems[] = [
+                'product_id' => $productId,
+                'quantity' => $cartQuantities[$index],
+                'price' => $cartPrices[$index],
+                'total_price' => $cartTotalPrices[$index],
+            ];            
+        }
+        /*Courier Servicebility check */
+        $courierName = $request->input('courier_name');
+        $courierId = $request->input('courier_id');
+        $courierCompanyId = $request->input('courier_company_id');
+        $courierShippingRate = $request->input('shipping_rate');
+        $courierCodCharges = $request->input('cod_charges');
+        $courierDeliveryExpectedDate = $request->input('delivery_expected_date');
+        $courierData = [
+            'courier_name' => $courierName,
+            'courier_id' => $courierId,
+            'courier_company_id' => $courierCompanyId,
+            'courier_shipping_rate' => $courierShippingRate,
+            'cod_charges' => $courierCodCharges,
+            'delivery_expected_date' => $courierDeliveryExpectedDate,
+        ];
+        //Log::info('Courier Data : ', ['courier_data' => $courierData]);
+        /*Courier Servicebility check */
+        //Log::info('Checkout form data collect : ', ['form_data_collect' => $request->all()]);
+        session([
+            'checkout_data' => $request->all(),
+            'cart_items' => $cartItems,
+            'courierData' => $courierData,
+        ]);
+        session()->save();
+        if ($request->input('payment_type') == 'Cash on Delivery')
+        {
+            $response = $this->storeOrderAfterPayment($request);
+            return response()->json([
+                'data' => $response,
+                'status' => 'cash_on_delivery',
+            ]);
+        }
+        elseif ($request->input('payment_type') == 'Razorpay')
+        {
+            $orderResponse = $this->storeOrderAfterPayment($request);
+            $responseData = is_string($orderResponse) ? json_decode($orderResponse, true) : (is_object($orderResponse) ? $orderResponse->getData(true) : (array) $orderResponse);
+            if (!isset($responseData['order_id'])) {
+                return response()->json(['status' => 'error', 'message' => 'Order creation failed - no order ID returned'], 500);
+            }
+
+            $order = Orders::find($responseData['order_id']);
+            if (!$order) {
+                throw new \Exception('Created order not found');
+            }
+            $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+            $grandTotal = $request->input('grand_total_amount') * 100;
+            $orderData = [
+                'receipt' => 'order_rcpt_' . $order->id,
+                'amount' => $grandTotal,
+                'currency' => 'INR',
+                'payment_capture' => 1
+            ];
+            try {
+                $razorpayOrder = $api->order->create($orderData);
+                return response()->json([
+                    'status' => 'razorpay',
+                    'order_id' => $razorpayOrder->id,
+                    'amount' => $grandTotal,
+                    'name' => auth('customer')->user()->name ?? $request->ship_full_name,
+                    'email' => auth('customer')->user()->email ?? $request->ship_email,
+                    'contact' => auth('customer')->user()->phone_number ?? $request->ship_phone_number,
+                    'callback_url' => route('razorpay.callback'),
+                    'payment_failed_url' => route('payment.failed'),
+                    'order_db_id' => $order->id
+                ]);
+            } catch (\Exception $e) {
+                $order->delete();
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Razorpay error: ' . $e->getMessage()
+                ], 500);
+            }
+        }
+        else
+        {
+            Log::warning('Unknown payment type selected: ' . $request->input('payment_type'));
+            Log::info('Checkout Data: ', ['checkout_data' => session('checkout_data')]);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Session created successfully!',
+                'payment_type' => $request->input('payment_type'),
+            ]);
+        }
+    }
 
     public function checkOutFormSubmit(Request $request)
     {
         $validatedData = $request->validate([
             'pick_up_status' => 'required|string|in:pick_up_online,pick_up_offline',
-            'payment_type' => 'required|string|in:Cash on Delivery,Razorpay,Pick Up From Store',
+            'payment_type' => 'required|string|in:Cash on Delivery,Razorpay',
             'product_id' => 'required|array',
             'product_id.*' => 'required|integer|exists:products,id',
             'cart_quantity' => 'required|array',
@@ -48,17 +180,21 @@ class OrderController extends Controller
             'total_price.*' => 'required|numeric|min:0',
             'grand_total_amount' => 'required|numeric|min:0',
         ]);
-        $addressExists = isset($request->customer_address_id) && $request->customer_address_id != '';
-        if ($request->pick_up_status == 'pick_up_online') {
-            if ($addressExists) {
+        $addressExists = isset($request->customer_address_id) && $request->customer_address_id != '';        
+        if($request->pick_up_status == 'pick_up_online')
+        {
+            if ($addressExists)
+            {
                 $request->validate([
                     'customer_address_id' => 'required|integer|exists:addresses,id',
                     'same_ship_bill_address' => 'nullable|boolean',
                 ] + $this->getBillingValidation());
-            } else {
+            }
+            else
+            {
                 $request->validate([
                     'ship_full_name' => 'required|string|max:255',
-                    'ship_phone_number' => ['required', 'numeric', 'digits:10', 'regex:/^[6-9]\d{9}$/'],
+                    'ship_phone_number' => 'required|digits:10',
                     'ship_email' => 'required|email|max:255',
                     'ship_country' => 'required|string',
                     'ship_full_address' => 'required|string',
@@ -66,7 +202,7 @@ class OrderController extends Controller
                     'ship_state' => 'required|string',
                     'ship_pin_code' => 'required|digits:6',
                 ]);
-            }
+            }            
             $request->validate([
                 'courier_name' => 'required|string|max:255',
                 'courier_id' => 'required|string|max:100',
@@ -75,7 +211,9 @@ class OrderController extends Controller
                 'cod_charges' => 'nullable|numeric|min:0',
                 'delivery_expected_date' => 'required|string|max:50',
             ]);
-        } else {
+        }
+        else
+        {
             $request->validate([
                 'store_location_id' => 'required|integer|exists:store_locations,id',
                 'pickup_date' => 'required|date',
@@ -85,12 +223,10 @@ class OrderController extends Controller
         $productIds = $request->input('product_id', []);
         $quantities = $request->input('cart_quantity', []);
         $prices = $request->input('cart_offer_rate', []);
-        $totalPrices = $request->input('total_price', []);
-        if (
-            count($productIds) !== count($quantities) ||
-            count($productIds) !== count($prices) ||
-            count($productIds) !== count($totalPrices)
-        ) {
+        $totalPrices = $request->input('total_price', []);        
+        if (count($productIds) !== count($quantities) || 
+            count($productIds) !== count($prices) || 
+            count($productIds) !== count($totalPrices)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Cart data arrays must have the same length'
@@ -100,15 +236,16 @@ class OrderController extends Controller
         $cartItems = [];
         foreach ($productIds as $index => $productId) {
             if (!isset($quantities[$index]) || !isset($prices[$index]) || !isset($totalPrices[$index])) {
-                continue;
+                continue; 
             }
+            
             $cartItems[] = [
                 'product_id' => $productId,
                 'quantity' => $quantities[$index],
                 'price' => $prices[$index],
                 'total_price' => $totalPrices[$index],
-            ];
-        }
+            ];            
+        }        
         if (empty($cartItems)) {
             return response()->json([
                 'status' => 'error',
@@ -118,7 +255,7 @@ class OrderController extends Controller
 
         /*Courier Serviceability check */
         $courierData = [];
-        if ($request->pick_up_status == 'pick_up_online') {
+        if($request->pick_up_status == 'pick_up_online') {
             $courierData = [
                 'courier_name' => $request->input('courier_name'),
                 'courier_id' => $request->input('courier_id'),
@@ -132,37 +269,26 @@ class OrderController extends Controller
             'checkout_data' => $request->all(),
             'cart_items' => $cartItems,
             'courierData' => $courierData,
-        ]);
+        ]);        
         session()->save();
-        if (in_array( $request->input('payment_type'), ['Cash on Delivery', 'Pick Up From Store'])) {
+        if ($request->input('payment_type') == 'Cash on Delivery')
+        {
             try {
-                $sendOtp = $this->generateAndSendOTP(
-                    $request->input('ship_phone_number'),
-                    $request->input('ship_full_name')
-                );
-                if (!$sendOtp) {
-                    return response()->json([
-                        'status' => 'error',
-                        'payment_type' => $request->input('payment_type'),
-                        'message' => 'Failed to send OTP. Please try again.'
-                    ], 500);
-                }
+                $response = $this->storeOrderAfterPayment($request);
                 return response()->json([
-                    'status' => 'success',
-                    'payment_type' => $request->input('payment_type'),
-                    'message' => 'OTP sent successfully.'
+                    'data' => $response,
+                    'status' => 'cash_on_delivery',
                 ]);
             } catch (\Exception $e) {
-                Log::error('OTP generation failed', [
-                    'error' => $e->getMessage()
-                ]);
+                Log::error('COD Order creation failed: ' . $e->getMessage());
                 return response()->json([
                     'status' => 'error',
-                    'payment_type' => $request->input('payment_type'),
-                    'message' => 'Failed to generate OTP.'
+                    'message' => 'Order creation failed'
                 ], 500);
             }
-        } elseif ($request->input('payment_type') == 'Razorpay') {
+        }
+        elseif ($request->input('payment_type') == 'Razorpay')
+        {
             Log::info('LOG 1: Starting Razorpay payment processing ===', [
                 'payment_type' => $request->input('payment_type'),
                 'grand_total_amount' => $request->input('grand_total_amount'),
@@ -189,11 +315,11 @@ class OrderController extends Controller
                     $responseData = (array) $orderResponse;
                 } else {
                     $responseData = $orderResponse;
-                }
+                }                
                 if (!isset($responseData['order_id'])) {
                     Log::error('Order creation failed - no order ID returned', ['response' => $responseData]);
                     return response()->json([
-                        'status' => 'error',
+                        'status' => 'error', 
                         'message' => 'Order creation failed'
                     ], 500);
                 }
@@ -202,7 +328,7 @@ class OrderController extends Controller
                     Log::error('Created order not found', ['order_id' => $responseData['order_id']]);
                     throw new \Exception('Created order not found');
                 }
-
+                
                 Log::info('LOG 4: Creating Razorpay order ===', [
                     'order_db_id' => $order->id,
                     'order_id' => $order->order_id,
@@ -219,7 +345,7 @@ class OrderController extends Controller
                         'status' => 'error',
                         'message' => 'Invalid order amount'
                     ], 422);
-                }
+                }       
                 //$razorpayAmount = 100;   
                 $razorpayAmount = $grandTotal * 100;
                 $actualAmount = $request->input('grand_total_amount');
@@ -231,7 +357,7 @@ class OrderController extends Controller
                     'notes' => [
                         'order_db_id' => $order->id,
                         'actual_amount' => $actualAmount,
-                        'is_test_payment' => false
+                        'is_test_payment' => false 
                     ]
                 ];
                 Log::info('LOG 5: Sending request to Razorpay API ===', [
@@ -242,7 +368,7 @@ class OrderController extends Controller
                     'actual_order_amount' => $actualAmount,
                     'timestamp' => now()
                 ]);
-                $razorpayOrder = $api->order->create($orderData);
+                $razorpayOrder = $api->order->create($orderData);      
                 Log::info('LOG 6: RAZORPAY ORDER CREATED SUCCESSFULLY ===', [
                     'razorpay_order_id' => $razorpayOrder->id,
                     'razorpay_amount' => $razorpayOrder->amount,
@@ -250,7 +376,7 @@ class OrderController extends Controller
                     'razorpay_status' => $razorpayOrder->status,
                     'order_db_id' => $order->id,
                     'timestamp' => now()
-                ]);
+                ]);          
                 return response()->json([
                     'status' => 'razorpay',
                     'order_id' => $razorpayOrder->id,
@@ -263,6 +389,7 @@ class OrderController extends Controller
                     'payment_failed_url' => route('payment.failed'),
                     'order_db_id' => $order->id
                 ]);
+                
             } catch (\Exception $e) {
                 Log::error('=== RAZORPAY PAYMENT INITIATION FAILED ===', [
                     'error_message' => $e->getMessage(),
@@ -282,7 +409,9 @@ class OrderController extends Controller
                     'message' => 'Payment initiation failed'
                 ], 500);
             }
-        } else {
+        }
+        else
+        {
             Log::warning('Unknown payment type selected: ' . $request->input('payment_type'));
             return response()->json([
                 'status' => 'error',
@@ -322,7 +451,7 @@ class OrderController extends Controller
                 'razorpay_order_id' => $input['razorpay_order_id'],
                 'razorpay_method' => 'Razorpay',
                 'order_status_comment' => 'complete_order',
-            ]);
+            ]);            
             foreach ($order->orderLines as $orderLine) {
                 $inventory = Inventory::where('product_id', $orderLine->product_id)
                     ->where('mrp', $orderLine->price)
@@ -344,15 +473,15 @@ class OrderController extends Controller
             $customerName  = $shipping->full_name ?? '';
             $customerPhone = $shipping->phone_number ?? '';
             $customerEmail = $shipping->email_id ?? '';
-            $courierData = session('courierData', []);
+            $courierData = session('courierData', []);            
             $waPayload = $checkoutData;
             $waPayload['ship_full_name']      = $customerName;
             $waPayload['ship_email']          = $customerEmail;
             $waPayload['ship_phone_number']   = $customerPhone;
             $waPayload['delivery_expected_date'] =
-                $courierData['delivery_expected_date']
-                ?? now()->setTimezone('Asia/Kolkata')->addDays(2)->format('d-m-Y');
-            // Mail::to($order->customer->email)->queue(new OrderDetailsMail($orderDetails));
+            $courierData['delivery_expected_date']
+            ?? now()->setTimezone('Asia/Kolkata')->addDays(2)->format('d-m-Y');
+           // Mail::to($order->customer->email)->queue(new OrderDetailsMail($orderDetails));
             Mail::to('akshat.gd@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
             //$this->sendWhatsAppNotifications($order->order_id, $payment_status, $waPayload);
             DB::commit();
@@ -388,7 +517,8 @@ class OrderController extends Controller
         DB::beginTransaction();
         Log::info('Razorpay payment failed callback:', ['data' => $request->all()]);
         try {
-            if (!$request->has(['order_db_id', 'razorpay_payment_id', 'razorpay_order_id'])) {
+            if (!$request->has(['order_db_id', 'razorpay_payment_id', 'razorpay_order_id']))
+            {
                 throw new \Exception('Missing required payment parameters');
             }
             $order = Orders::findOrFail($request->order_db_id);
@@ -455,6 +585,7 @@ class OrderController extends Controller
                 customerName: $customerName,
                 isAdmin: true
             ));
+           
         } catch (\Exception $e) {
             Log::error('Failed to send payment failed notification', [
                 'order_id' => $order->id ?? null,
@@ -476,6 +607,85 @@ class OrderController extends Controller
             'bill_state' => 'nullable|required_if:same_ship_bill_address,1',
             'bill_pin_code' => 'nullable|required_if:same_ship_bill_address,1|digits:6',
         ];
+    }
+
+    public function payModalForm(Request $request)
+    {
+        $response_data = $request->input('response_data');
+        Log::info('response_date: ', ['response_data' => $response_data]);
+        $gPayScannerPath = asset('frontend/assets/images/gpay-scanner.jpeg');
+        $payTmScannerPath = asset('frontend/assets/images/paytm-scanner.jpeg');
+        $form = '
+        <form method="POST" action="' . route('pay-modal-form.submit') . '" accept-charset="UTF-8" enctype="multipart/form-data" id="payModalFormSubmit">
+            ' . csrf_field() . '
+            <div class="row">
+                <div class="col-md-12">';
+                if ($response_data == 'Pay to GPay ID of Girdhar Das and Sons') {
+                    $form .= '
+                                <div class="text-center">
+                                    <!--<div class="mb-3">
+                                        <h4>Google id : girdhardas.sons@okhdfcbank</h4>
+                                    </div>
+                                    <div class="or-area">
+                                        <h6>
+                                            OR
+                                        </h6>
+                                    </div>-->
+                                    <div class="scanner-image mt-3 mb-3">
+                                        <img src="' . $gPayScannerPath . '" class="img-fluid blur-up lazyloaded pay-scanner">
+                                    </div>
+                                    <div class="mt-2 mb-3">
+                                        <span>Note: After payment successfull please click "Confirm Place Order" button.</span>
+                                    </div>
+                                </div>';
+                } elseif ($response_data == 'Pay to PayTM ID of Girdhar Das and Sons') {
+                    $form .= '
+                                <div class="text-center">
+                                    <!--<div class="mb-3">
+                                        <h4>Paytm id : girdhardas.sons@paytm</h4>
+                                    </div>
+                                    <div class="or-area">
+                                        <h6>
+                                            OR
+                                        </h6>
+                                    </div>-->
+                                    <div class="scanner-image mt-3 mb-3">
+                                        <img src="' . $payTmScannerPath . '" class="img-fluid blur-up lazyloaded pay-scanner">
+                                    </div>
+                                    <div class="mt-2 mb-3">
+                                        <span>Note: After payment successfull please click "Confirm Place Order" button.</span>
+                                    </div>
+                                </div>';
+                } else {
+                    $form .= '
+                    <div class="text-center">
+                        <div class="mb-3">
+                            <h4>Note: Please click "Confirm Place Order" button.</h4>
+                        </div>
+                    </div>';
+                }
+                $form .= '
+                        </div>
+                        <div class="modal-footer pb-0">
+                            
+                            <button style="color:#ffffff;" type="submit" class="btn btn-2-animation btn-md fw-bold">Confirm Place Order</button>
+                        </div>
+                    </div>
+                </form>
+                ';
+        return response()->json([
+            'message' => 'Category Form created successfully',
+            'form' => $form,
+            'status' => 'success',
+        ]);
+    }
+
+    public function payModalFormSubmit(Request $request)
+    {
+        $response = $this->storeOrderAfterPayment($request);
+        return response()->json([
+            'data' => $response,
+        ]);
     }
 
     public function storeOrderAfterPayment(Request $request)
@@ -626,7 +836,7 @@ class OrderController extends Controller
             }
             $paymentType = $checkoutData['payment_type'] ?? null;
             if ($paymentType && ($paymentType == 'Cash on Delivery' || $paymentType == 'Razorpay')) {
-                if ($paymentType == 'Cash on Delivery') {
+                if($paymentType == 'Cash on Delivery'){
                     $order->update(['order_status_comment' => 'complete_order']);
                 }
                 /* Shiprocket Courier Insert data */
@@ -731,9 +941,221 @@ class OrderController extends Controller
         }
     }
 
+    public function storeOrderAfterPaymentOld(Request $request)
+    {
+        $checkoutData = session('checkout_data');
+        Log::info('Checkout Data in: ', ['checkout_data' => $checkoutData]);
+        if (!$checkoutData) {
+            Log::info('Checkout Data in: ', ['checkout_data' => $checkoutData]);
+            return response()->json(['message' => 'No checkout data found in session.'], 400);
+        }
+        if (auth()->guard('customer')->check())
+        {
+            $customerId = auth('customer')->id();
+        }
+        else
+        {
+            $identifierEmail = $checkoutData['ship_email'] ?? null;
+            $identifierPhone = $checkoutData['ship_phone_number'] ?? null;
+            $customer = Customer::where('email', $identifierEmail)
+                ->orWhere('phone_number', $identifierPhone)
+                ->first();
+            if ($customer) 
+            {
+                //Auth::guard('customer')->login($customer);
+                $customerId = $customer->id;
+            }
+            else
+            {
+                $randomPassword = Str::random(8);
+                $hashedPassword = Hash::make($randomPassword);
+                $customer_create = Customer::create([
+                    'email' => $checkoutData['ship_email'],
+                    'name' => $checkoutData['ship_full_name'],
+                    'phone_number' => $checkoutData['ship_phone_number'],
+                    'password' => $hashedPassword,
+                ]);
+                //Auth::guard('customer')->login($customer_create);
+                $customerId = $customer_create->id;
+            }
+
+        }
+       
+        //Log::info('Calling storeOrderAfterPayment come order bahar');
+        DB::beginTransaction();
+        try {
+            /* Determine the shipping address ID */            
+            if ($checkoutData['pick_up_status'] == 'pick_up_online') {
+                if (isset($checkoutData['customer_address_id']) && $checkoutData['customer_address_id'] !== null)
+                {
+                    /* Add the new shipping address to the 'shipping_addresses' table */
+                    $customerAddressId = $checkoutData['customer_address_id'];
+                    $customer_address = Address::where('id', $customerAddressId)
+                        ->where('customer_id', $customerId)
+                        ->first();
+                    $shippingAddress = ShippingAddress::create([
+                        'customer_id' => $customerId,
+                        'full_name' => $customer_address->name,
+                        'phone_number' => $customer_address->phone_number,
+                        'email_id' => null,
+                        'country' => $customer_address->country,
+                        'full_address' => $customer_address->address,
+                        'apartment' => $customer_address->apartment ?? null,
+                        'city_name' => $customer_address->city,
+                        'state' => $customer_address->state,
+                        'pin_code' => $customer_address->zip_code,
+                    ]);
+                    $shippingAddressId = $shippingAddress->id;
+                } 
+                else 
+                {
+                    $address = Address::create([
+                        'customer_id' => $customerId,
+                        'name' => $checkoutData['ship_full_name'],
+                        'phone_number' => $checkoutData['ship_phone_number'],
+                        'country' => $checkoutData['ship_country'],
+                        'address' => $checkoutData['ship_full_address'],
+                        'apartment' => $checkoutData['ship_apartment'] ?? null,
+                        'city' => $checkoutData['ship_city_name'],
+                        'state' => $checkoutData['ship_state'],
+                        'zip_code' => $checkoutData['ship_pin_code'],
+                    ]);
+                    /* Add the new shipping address to the 'shipping_addresses' table */
+                    $shippingAddress = ShippingAddress::create([
+                        'customer_id' => $customerId,
+                        'full_name' => $checkoutData['ship_full_name'],
+                        'phone_number' => $checkoutData['ship_phone_number'],
+                        'email_id' => $checkoutData['ship_email'],
+                        'country' => $checkoutData['ship_country'],
+                        'full_address' => $checkoutData['ship_full_address'],
+                        'apartment' => $checkoutData['ship_apartment'] ?? null,
+                        'city_name' => $checkoutData['ship_city_name'],
+                        'state' => $checkoutData['ship_state'],
+                        'pin_code' => $checkoutData['ship_pin_code'],
+                    ]);
+                    $shippingAddressId = $shippingAddress->id;
+                }
+                /* Determine the billing address ID */
+                if (isset($checkoutData['same_ship_bill_address']) && $checkoutData['same_ship_bill_address'] == 1)
+                {
+                    $billingAddress = BillingAddress::create([
+                        'customer_id' => $customerId,
+                        'full_name' => $checkoutData['bill_full_name'],
+                        'phone_number' => $checkoutData['bill_phone_number'],
+                        'email_id' => $checkoutData['email_id'] ?? null,
+                        'country' => $checkoutData['bill_country'],
+                        'full_address' => $checkoutData['bill_full_address'],
+                        'apartment' => $checkoutData['bill_apartment'] ?? null,
+                        'city_name' => $checkoutData['bill_city_name'],
+                        'state' => $checkoutData['bill_state'],
+                        'pin_code' => $checkoutData['bill_pin_code'],
+                    ]);
+                    $billingAddressId = $billingAddress->id;
+                } else {
+                    $billingAddressId = null;
+                }
+            }
+            else
+            {
+                $shippingAddressId = null;
+                $billingAddressId = null;
+            }            
+            /* Generate unique 10-digit serial number for order_id */
+            $lastOrder = Orders::latest('id')->first();
+            $nextSerial = $lastOrder ? ((int) $lastOrder->order_id + 1) : 1;
+            $orderId = str_pad($nextSerial, 10, '0', STR_PAD_LEFT);
+            /**Find order status id */
+            $orderStatus = OrderStatus::where('status_name', 'New')->first();
+            /* Create the order */
+            $order = Orders::create([
+                'order_date' => now()->setTimezone('Asia/Kolkata'),
+                'order_id' => $orderId,
+                'grand_total_amount' =>  $checkoutData['grand_total_amount'],
+                'payment_mode' => $checkoutData['payment_type'],
+                'pick_up_status' => $checkoutData['pick_up_status'],
+                'customer_id' => $customerId,
+                'shipping_address_id' => $shippingAddressId,
+                'billing_address_id' => $billingAddressId,
+                'order_status_id' => $orderStatus->id ?? null,
+                'payment_status' => 'Pending',
+                'payment_received' => false,
+            ]);
+            Log::info('storeOrderAfterPayment in: ', ['create order' => $order]);
+            /* Add order lines */
+            $cartItems = session('cart_items', []);
+            foreach ($cartItems as $item) {
+                OrderLines::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'total_price' => $item['total_price'],
+                ]);                
+            }
+            if (isset($checkoutData['payment_type']) && $checkoutData['payment_type'] == 'Cash on Delivery' || $checkoutData['payment_type'] == 'Razorpay')
+            {
+                /*Shiprocket Courier Insert data */
+                $courierData = session('courierData', []);
+                if (!empty($courierData)) {
+                    ShiprocketCourier::create([
+                        'customer_id'=> $customerId,
+                        'order_id' => $order->id,
+                        'courier_name' => $courierData['courier_name'] ?? null,
+                        'courier_id' => $courierData['courier_id'] ?? null,
+                        'courier_company_id' => $courierData['courier_company_id'] ?? null,
+                        'courier_shipping_rate' => $courierData['courier_shipping_rate'] ?? null,
+                        'cod_charges' => $courierData['cod_charges'] ?? null,
+                    ]);
+                }
+                /*Shiprocket Courier Insert data */
+            }
+            if (isset($checkoutData['payment_type']) && $checkoutData['payment_type'] == 'Cash on Delivery')
+            {
+                $orderDetails = Orders::with([
+                    'orderStatus',
+                    'shippingAddress',
+                    'billingAddress',
+                    'orderLines.product',
+                    'orderLines.product.images'
+                ])->find($order->id);
+                $payment_status = "Unpaid";
+                $customerName =
+                    $checkoutData['ship_full_name'] 
+                    ?? ($customer_address->name ?? null)
+                    ?? ($orderDetails->shippingAddress->full_name ?? null)
+                    ?? 'Customer';
+                //Mail::to($checkoutData['ship_email'])->queue(new OrderDetailsMail($orderDetails));
+				Mail::to('akshat@gdsons.co.in')->queue(new OrderDetailsMail($orderDetails, $customerName));
+				//Mail::to('rahulkumarmaurya464@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
+				$this->sendWhatsAppNotifications($orderId, $payment_status, $checkoutData);
+                /* Clear session data */
+                session()->forget(['checkout_data', 'cart_items', 'cart', 'courierData']);
+                session()->save();
+            }
+            
+            DB::commit();
+            $token = Str::random(32);
+            $encodedOrderId = Crypt::encrypt($order->id);
+            session(['order_token' => $token]);
+            session()->save();
+            return response()->json([
+                'message' => 'Order stored successfully!',
+                'order_id' => $order->id,
+                'redirect_url' => route('order.success', [
+                    'order_id' => $encodedOrderId,
+                    'token' => $token,
+                ])
+            ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::info('Checkout Data in Exception: ', ['cache erro' => $e]);
+            return response()->json(['message' => 'Failed to store order.', 'error' => $e->getMessage()], 500);
+        }
+    }
+
     protected function sendWhatsAppNotifications($orderId, $payment_status, array $checkoutData)
     {
-        $apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY';
+        $apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NmYwNjVjNmE5ZjJlN2YyMTBlMjg1YSIsIm5hbWUiOiJHaXJkaGFyIERhcyBhbmQgU29ucyIsImFwcE5hbWUiOiJBaVNlbnN5IiwiY2xpZW50SWQiOiI2NDJiZmFhZWViMTg3NTA3MzhlN2ZkZjgiLCJhY3RpdmVQbGFuIjoiTk9ORSIsImlhdCI6MTcwMTc3NDk0MH0.x19Hzut7u4K9SkoJA1k1XIUq209JP6IUlv_1iwYuKMY';        
         Log::info('sendWhatsAppNotifications Function', [
             'order_id'        => $orderId,
             'payment_status'  => $payment_status,
@@ -780,7 +1202,7 @@ class OrderController extends Controller
         ]);
     }
 
-    protected function sendWhatsAppMessage_28_5_2026(array $data)
+    protected function sendWhatsAppMessage(array $data)
     {
         try {
             $client = new \GuzzleHttp\Client();
@@ -800,65 +1222,6 @@ class OrderController extends Controller
                 'destination' => $data['destination'],
                 'error' => $e->getMessage()
             ]);
-        }
-    }
-
-    protected function sendWhatsAppMessage(array $data)
-    {
-        try {
-            $client = new \GuzzleHttp\Client();
-            $response = $client->post(
-                'https://backend.aisensy.com/campaign/t1/api/v2',
-                [
-                    'headers' => [
-                        'Content-Type' => 'application/json'
-                    ],
-                    'json' => $data
-                ]
-            );
-            $responseBody = json_decode(
-                $response->getBody()->getContents(),
-                true
-            );
-            Log::info('WhatsApp API Success', [
-                'campaign' => $data['campaignName'],
-                'destination' => $data['destination'],
-                'response' => $responseBody
-            ]);
-            return [
-                'success' => true,
-                'data' => $responseBody
-            ];
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
-            $errorResponse = null;
-            if ($e->hasResponse()) {
-                $errorResponse = json_decode(
-                    $e->getResponse()->getBody()->getContents(),
-                    true
-                );
-            }
-            Log::error('WhatsApp API Client Error', [
-                'campaign' => $data['campaignName'] ?? null,
-                'destination' => $data['destination'] ?? null,
-                'request_payload' => $data,
-                'response' => $errorResponse,
-                'error' => $e->getMessage()
-            ]);
-            return [
-                'success' => false,
-                'message' => $errorResponse['message']
-                    ?? 'WhatsApp API client error.'
-            ];
-        } catch (\Exception $e) {
-            Log::error('WhatsApp API Exception', [
-                'campaign' => $data['campaignName'] ?? null,
-                'destination' => $data['destination'] ?? null,
-                'error' => $e->getMessage()
-            ]);
-            return [
-                'success' => false,
-                'message' => $e->getMessage()
-            ];
         }
     }
 
@@ -900,8 +1263,8 @@ class OrderController extends Controller
             'orderLines.product',
             'orderLines.product.images',
         ])
-            ->where('customer_id', $customerId)
-            ->orderBy('id', 'desc')->get();
+        ->where('customer_id', $customerId)
+        ->orderBy('id', 'desc')->get();
 
         //->paginate(10);
         //return response()->json($order);
@@ -1014,167 +1377,40 @@ class OrderController extends Controller
         return view('frontend.pages.pick-up-store-page', compact('carts', 'specialOffers'));
     }
 
-    public function handleOTPVerificationModal(Request $request)
+    public function createOrder(Request $request)
     {
-        $mobile = $request->input('mobile_number');
-        $form = '
-        <div class="pt-2 pb-4">
-            <form method="POST"
-                action="' . route('checkout.otp.verification.submit') . '"
-                accept-charset="UTF-8"
-                enctype="multipart/form-data"
-                id="otpVerificationForm">
-                ' . csrf_field() . '
-                <div class="text-center"> 
-                    <h2 class="text-2xl font-bold text-primary-navy">
-                        OTP Verification
-                    </h2>
-                    <p class="mt-2 text-sm leading-6 text-gray-500">
-                        Enter the 6-digit OTP we sent to Your Whatapp number
-                        <span class="font-semibold text-gray-700">
-                            ' . $mobile . '
-                        </span>
-                    </p>
-                </div>
-                <div class="mb-3">
-                    <label for="otp"
-                        class="mb-2 block text-sm font-semibold text-gray-700">
-                        Enter OTP <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text"
-                        id="otp"
-                        name="otp"
-                        maxlength="6"
-                        autocomplete="off"
-                        placeholder="••••••"
-                        class="w-full rounded border border-gray-200 bg-white-50 px-3 py-2 text-center text-2xl tracking-[10px] text-gray-800 outline-none transition duration-300 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100">
-
-                </div>
-                <div class="flex items-center justify-between text-sm mb-3">
-                    <span class="text-gray-500">
-                        Didn’t receive OTP?
-                    </span>
-                    <button type="button" class="font-semibold text-blue-600 transition hover:text-blue-700 resend-otp-btn" data-mobile="' . $mobile . '"
-                    data-route="' .route('checkout.otp.resend') .'">
-                        Resend OTP
-                    </button>
-
-                </div>
-                <div class="mb-3">
-                    <button type="submit"
-                        class="w-full rounded bg-primary-teal px-3 py-3 text-[16px] text-white shadow-lg transition duration-300 hover:scale-[1.01] hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-blue-200">
-                        Verify OTP & Place Order
-                    </button>
-                </div>
-            </form>
-        </div>';
-        return response()->json([
-            'message' => 'Form created successfully',
-            'form' => $form,
-        ]);
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+        $razorpayAmount = 100;
+        // $request->amount * 100
+        $orderData = [
+            'amount' => $razorpayAmount, /* Razorpay expects amount in paise */
+            'currency' => 'INR',
+            'receipt' => 'order_rcpt_' . uniqid(),
+            'payment_capture' => 1
+        ];
+        $order = $api->order->create($orderData);
+        return response()->json($order);
     }
 
-    public function handleOTPVerificationModalSubmit(Request $request)
+    public function handleSuccess(Request $request)
     {
-        $request->validate([
-            'otp' => 'required|digits:6',
-            'mobile_number' => 'required',
-        ]);
-        $mobile = $request->input('mobile_number');
-        $enteredOtp = trim($request->input('otp'));
-        $cacheKey = 'otp_' . $mobile;
-        $cachedOtp = Cache::get($cacheKey);
-        if ($cachedOtp && (string)$cachedOtp === (string)$enteredOtp) {
-            Cache::forget($cacheKey);
-            return response()->json([
-                'status' => 'success',
-                'message' => 'OTP verified successfully. You can now place your order.'
-            ]);
-        }
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Invalid OTP. Please try again.'
-        ], 400);
-    }
+        // Verify payment signature
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
 
-    public function handleOTPResend(Request $request)
-    {
-        $mobile = $request->input('mobile_number');
-        $cacheKey = 'otp_resend_' . $mobile;
-        $attempts = Cache::get($cacheKey, 0);
-        /* Max 3 attempts */
-        if ($attempts >= 3) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Maximum resend limit reached. Please try again after 1 hour.'
-            ], 429);
-        }
-        Cache::put($cacheKey, $attempts + 1, now()->addHour());
-        Log::info('Resending OTP to mobile number: ' . $mobile);
-        return response()->json([
-            'status' => 'success',
-            'message' => 'OTP resent successfully to ' . $mobile,
-            'remaining_attempts' => 3 - ($attempts + 1)
-        ]);
-    }
-
-    private function generateAndSendOTP($mobile, $customerName = 'User')
-    {
         try {
-            $apiKey = env('AISENSY_API_KEY');
-            $otp = random_int(100000, 999999);
-            $cacheKey = 'otp_' . $mobile;
-            Cache::put($cacheKey, $otp, now()->addMinutes(10));
-            Log::info('Generated OTP for mobile number', [
-                'mobile' => $mobile,
-                'otp' => $otp
-            ]);
-            $destination = str_starts_with($mobile, '91')
-                ? $mobile
-                : '91' . $mobile;
-            $response = $this->sendWhatsAppMessage([
-                'apiKey' => $apiKey,
-                'campaignName' => 'COD_OTP',
-                'destination' => $destination,
-                'userName' => 'Girdhar Das and Sons',
-                'templateParams' => [
-                    (string) $otp
-                ],
-                'source' => 'new-landing-page form',
-                'media' => (object) [],
-                'location' => (object) [],
-                'attributes' => (object) [],
-                'paramsFallbackValue' => ['FirstName' => 'user']
-            ]);
-            if (isset($response['success']) && $response['success'] == true) {
-                Log::info('OTP sent successfully', [
-                    'mobile' => $mobile,
-                    'response' => $response
-                ]);
-                return [
-                    'status' => true,
-                    'otp' => $otp,
-                    'message' => 'OTP sent successfully.'
-                ];
-            }
-            Log::error('OTP sending failed', [
-                'mobile' => $mobile,
-                'response' => $response
-            ]);
-            return [
-                'status' => false,
-                'message' => $response['message']
-                    ?? 'Failed to send OTP.'
+            $attributes = [
+                'razorpay_order_id' => $request->razorpay_order_id,
+                'razorpay_payment_id' => $request->razorpay_payment_id,
+                'razorpay_signature' => $request->razorpay_signature
             ];
+
+            $api->utility->verifyPaymentSignature($attributes);
+
+            // Payment successful - process order
+            return view('payment.success');
         } catch (\Exception $e) {
-            Log::error('Generate OTP Exception', [
-                'mobile' => $mobile,
-                'error' => $e->getMessage()
-            ]);
-            return [
-                'status' => false,
-                'message' => $e->getMessage()
-            ];
+            // Handle failed payment
+            return view('payment.failed');
         }
     }
 }

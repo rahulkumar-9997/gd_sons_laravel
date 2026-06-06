@@ -302,8 +302,8 @@
                            </svg>
                         </div>
                         <div class="pt-1">
-                           <p class="hover:text-primary-navy !text-primary-navy text-[15px] mb-0">Mon – Sat: 9:00 AM – 8:00 PM</p>
-                           <p class="hover:text-primary-navy !text-primary-navy text-[15px]">Sunday: 10:00 AM – 6:00 PM</p>
+                           <p class="hover:text-primary-navy !text-primary-navy text-[15px] mb-0">Mon – Sat: 11:00 AM – 8:30 PM</p>
+                           <p class="hover:text-primary-navy !text-primary-navy text-[15px]">Sunday: 12:00 PM – 4:00 PM</p>
                         </div>
                      </div>
                   </div>

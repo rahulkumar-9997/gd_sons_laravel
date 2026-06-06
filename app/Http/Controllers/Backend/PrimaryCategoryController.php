@@ -10,15 +10,28 @@ use App\Models\PrimaryCategory;
 
 class PrimaryCategoryController extends Controller
 {
-    public function index(){
-        $primaryCategory = PrimaryCategory::with([
+    public function index(Request $request){
+        $query = PrimaryCategory::with([
             'products:id,title',
             'products.firstSortedImage:id,product_id,image_path'
-        ])
-        ->orderBy('id', 'desc')
-        ->paginate(30);
-        //return response()->json($primaryCategory);
-        return view('backend.primary-category.index', compact('primaryCategory'));
+        ]);
+
+       if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                ->orWhere('primary_category_description', 'like', "%{$search}%");
+            });
+        }
+
+        $primaryCategory = $query
+            ->orderByDesc('id')
+            ->paginate(30);
+
+        if ($request->ajax()) {
+            return view('backend.primary-category.partials.primary-category-list',compact('primaryCategory'))->render();
+        }
+        return view('backend.primary-category.index',compact('primaryCategory'));
     }
 
     public function create(Request $request){

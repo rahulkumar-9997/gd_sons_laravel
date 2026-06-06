@@ -63,7 +63,6 @@
     window.shiprocketCheckLocalityUrl = "{{ route('ajax.check-shiprocket-locality-details') }}";
     window.applyCouponUrl = "{{ route('apply.coupon') }}";
     window.removeCouponUrl = "{{ route('remove.coupon') }}";
-    window.otpVerificationUrl = "{{ route('checkout.otp.verification') }}";
 </script>
 <script>
 $(document).ready(function() {

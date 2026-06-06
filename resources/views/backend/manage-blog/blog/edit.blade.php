@@ -91,20 +91,25 @@
                                     <tr class="paragraphstr">
                                         <td>
                                             @php
-                                                $product_name_first = '';
-                                                $product_id_first = '';
-                                                $product_name_second = '';
-                                                $product_id_second = '';
-                                                if ($paragraph->productLinks->isNotEmpty()) {
-                                                    $firstParagraph = $paragraph->productLinks->get(0);
-                                                    $product_name_first = $firstParagraph['links'];
-                                                    $product_id_first = $firstParagraph['product_id'];
-                                                    $secondParagraph = $paragraph->productLinks->get(1);
-                                                    $product_name_second = $secondParagraph['links'];
-                                                    $product_id_second = $secondParagraph['product_id'];
-                                                    
-                                                }
-                                            @endphp
+												$product_name_first = '';
+												$product_id_first = '';
+
+												$product_name_second = '';
+												$product_id_second = '';
+
+												$firstParagraph = $paragraph->productLinks->get(0);
+												$secondParagraph = $paragraph->productLinks->get(1);
+
+												if ($firstParagraph) {
+													$product_name_first = $firstParagraph->links;
+													$product_id_first = $firstParagraph->product_id;
+												}
+
+												if ($secondParagraph) {
+													$product_name_second = $secondParagraph->links;
+													$product_id_second = $secondParagraph->product_id;
+												}
+											@endphp
                                             <input type="text" id="paragraphs_title" name="paragraphs_title[{{ $index }}][title]" class="form-control" placeholder="Enter Paragraphs Title" value="{{ $paragraph->paragraphs_title }}">
                                             @if($errors->has('paragraphs_title'))
                                                 <div class="text-danger">{{ $errors->first('paragraphs_title') }}</div>

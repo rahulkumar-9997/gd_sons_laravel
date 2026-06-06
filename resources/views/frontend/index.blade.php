@@ -54,7 +54,7 @@
             <div class="col-xl-12 col-md-6 mobile-gap single-bn-mo-dblock">
                 <div class="row">
                     <div class="col-md-6 col-6 mb-2">
-                        <a href="https://maps.app.goo.gl/8hPKnwQUX2Z3cT7GA" target="_blank" rel="noopener noreferrer" class="btn theme-bg-color btn-md fw-bold text-white">
+                        <a href="https://maps.app.goo.gl/8hPKnwQUX2Z3cT7GA" target="_blank" class="btn theme-bg-color btn-md fw-bold text-white">
                             Visit our Store
                         </a>
                     </div>
@@ -625,7 +625,8 @@
             <div class="blog-card bg-white rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.07)]">
                 <a href="{{ route('blog.details', ['slug' => $blog_row->slug]) }}">
                     <div class="overflow-hidden h-56 relative">
-                        <img src="{{asset($blog_row->blog_image) }}" loading="lazy" width="400" height="250" alt="{{$blog_row->title}}" class="blog-img w-full h-full object-cover" />
+                        <img src="{{asset($blog_row->blog_image) }}" alt="{{$blog_row->title}}"
+                            class="blog-img w-full h-full object-cover" />
                         <span class="absolute top-4 left-4 bg-primary-teal text-white text-[10px] font-semibold px-3 py-1 rounded-full shadow">
                             {{$blog_row->category->title}}
                         </span>

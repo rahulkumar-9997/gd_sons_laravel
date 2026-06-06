@@ -115,9 +115,9 @@ class OrderControllerBackend extends Controller
     
             $existingRecord = OrderShipmentRecords::where('order_id', $orderId)
                 ->where('order_status_id', $request->order_status_id)
-                ->exists();			
+                ->exists();	
+			$order = Orders::findOrFail($orderId);
             if (!$existingRecord) {
-                $order = Orders::findOrFail($orderId);
                 $order->order_status_id = $request->order_status_id;
                 $order->save();    
                 OrderShipmentRecords::create([
@@ -133,6 +133,8 @@ class OrderControllerBackend extends Controller
     
                 $message = 'Order status updated successfully and a new shipment record was added!';
             } else {
+                $order->order_status_id = $request->order_status_id;
+                $order->save();  
                 $message = 'Order status updated, but a shipment record for this status already exists!';
             }
     

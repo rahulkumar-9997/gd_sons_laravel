@@ -273,7 +273,7 @@ if (auth('customer')->check()) {
                                             <div id="flush-collapseRazorpay" class="accordion-collapse collapse show" data-bs-parent="#accordionFlushExample">
                                                 <div class="accordion-body">
                                                     <div class="row">
-                                                       Secure payment via Razorpay. We accept all major credit and debit cards, as well as net banking options. Your payment information is encrypted and processed securely to ensure a safe transaction experience.
+                                                        Secure payment via Razorpay
                                                     </div>
                                                 </div>
                                             </div>
@@ -286,14 +286,14 @@ if (auth('customer')->check()) {
                                                         <div class="custom-form-check form-check mb-0">
                                                             <label class="form-check-label" for="payment_cod">
                                                                 <input class="form-check-input mt-0" type="radio" name="payment_type" id="payment_cod" value="Cash on Delivery">
-                                                                Cash On Delivery 
+                                                                Cash On Delivery
                                                             </label>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div id="flush-collapseCOD" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                                                     <div class="accordion-body">
-                                                        Pay with cash upon delivery. This option is available for orders under ₹5000. Please ensure that you have the exact amount ready, as our delivery personnel may not carry change. Enjoy the convenience of paying when you receive your order at your doorstep.
+                                                        Pay with cash upon delivery.
                                                     </div>
                                                 </div>
                                             </div>
@@ -313,7 +313,7 @@ if (auth('customer')->check()) {
                                             <div id="flush-collapseStore" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
                                                 <div class="accordion-body">
                                                     <div class="row">
-                                                        You can pick up your order from our store during business hours. Please select this option at checkout and we will notify you when your order is ready for pickup. Enjoy the convenience of collecting your purchase directly from our store and take advantage of any additional discounts available for in-store pickups.
+                                                        You can pick up your order from our store during business hours.
                                                     </div>
                                                 </div>
                                             </div>

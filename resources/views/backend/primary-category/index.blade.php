@@ -9,6 +9,18 @@
 <div class="container-fluid">
    <div class="row">
       <div class="col-xl-12">
+         <div id="example-2_wrapper" class="filter-box">
+            <div class="d-flex flex-wrap align-items-center bg-white p-2 gap-1">
+               <div class="d-flex align-items-center">
+                  <label class="mb-0 me-2 text-dark-grey f-14">Search:</label>
+                  <input type="search" class="form-control form-control-md w-100" id="primary-category-search" placeholder="Search Primary Category">
+               </div>
+               <button id="reset-button" class="btn btn-danger" style="display:none;">
+                  <svg class="svg-inline--fa fa-times-circle fa-w-16 mr-1" aria-hidden="true" focusable="false" data-prefix="fa" data-icon="times-circle" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm121.6 313.1c4.7 4.7 4.7 12.3 0 17L338 377.6c-4.7 4.7-12.3 4.7-17 0L256 312l-65.1 65.6c-4.7 4.7-12.3 4.7-17 0L134.4 338c-4.7-4.7-4.7-12.3 0-17l65.6-65-65.6-65.1c-4.7-4.7-4.7-12.3 0-17l39.6-39.6c4.7-4.7 12.3-4.7 17 0l65 65.7 65.1-65.6c4.7-4.7 12.3-4.7 17 0l39.6 39.6c4.7 4.7 4.7 12.3 0 17L312 256l65.6 65.1z"></path></svg>
+                  Reset Filters
+               </button>
+            </div>
+         </div>
          <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center gap-1">
                <h4 class="card-title flex-grow-1">Primary Category</h4>
@@ -17,91 +29,11 @@
                   Add Primary Category
                </a>
             </div>
-            <div class="card-body">
-               @if (isset($primaryCategory) && $primaryCategory->count() > 0)
-               <div class="table-responsive1">
-                  <table class="table align-middle mb-0 table-hover table-centered">
-                     <thead class="bg-light-subtle">
-                        <tr>
-                           <th>Sr. No.</th>
-                           <th>Name</th>
-                           <th>Status</th>
-                           <th>Url</th>
-                           <th>Description</th>
-                           <th>Action</th>
-                        </tr>
-                     </thead>
-                     <tbody>
-                        @php $sr_no = 1; @endphp
-                        @foreach($primaryCategory as $primaryCategoryRow)
-                        @php
-                           $firstProduct = $primaryCategoryRow->products->first();
-                           $totalProducts = $primaryCategoryRow->products->count();
-                        @endphp
-                        <tr>
-                           <td>{{ $sr_no }}</td>
-                           <td>
-                              {{ $primaryCategoryRow->title }}
-                              @if($firstProduct)
-                                    <br>
-                                    <span class="badge bg-primary">
-                                       {{ $firstProduct->title }}
-                                    </span>
-                                    @if($totalProducts > 1)
-                                       <span class="badge bg-secondary"
-                                             data-bs-toggle="tooltip"
-                                             title="{{ $primaryCategoryRow->products->pluck('title')->implode(', ') }}">
-                                          +{{ $totalProducts - 1 }}
-                                       </span>
-                                    @endif                                    
-                              @endif
-                           </td>
-                           <td>
-                              <div class="form-check form-switch">
-                                 <input class="form-check-input primaryCategoryStatus"
-                                    data-pid="{{ $primaryCategoryRow->id }}"
-                                    data-url="{{ route('manage-primary-category.status', $primaryCategoryRow->id) }}"
-                                    type="checkbox"
-                                    @if($primaryCategoryRow->status) checked @endif>
-                              </div>
-                           </td>
-                           <td>
-                              <div style="max-width: 250px; overflow:auto; white-space:nowrap;">
-                                    {{ $primaryCategoryRow->link }}
-                              </div>
-                           </td>
-                           <td>
-                              <div style="max-width: 250px;">
-                                    {!! \Illuminate\Support\Str::limit(strip_tags($primaryCategoryRow->primary_category_description), 60) !!}
-                              </div>
-                           </td>
-                           <td>
-                              <div class="d-flex gap-2">
-                                 <a href="{{ route('manage-primary-category.edit', $primaryCategoryRow->id) }}" 
-                                    class="btn btn-soft-primary btn-sm">
-                                    <i class="ti ti-pencil"></i>
-                                 </a>
-                                 <form method="POST" action="{{ route('manage-primary-category.destroy', $primaryCategoryRow->id) }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
-                                       data-name="{{ $primaryCategoryRow->title }}"
-                                       class="btn btn-soft-danger btn-sm show_confirm">
-                                       <i class="ti ti-trash"></i>
-                                    </button>
-                                 </form>
-                              </div>
-                           </td>
-                        </tr>
-                        @php $sr_no++; @endphp
-                        @endforeach
-                     </tbody>
-                  </table>
-               </div>
-               <div class="my-pagination mt-3">
-                  {{ $primaryCategory->links('vendor.pagination.bootstrap-4') }}
-               </div>
-               @endif
+            <div class="card-body" id="primary-category-list-container">
+                  @include(
+                     'backend.primary-category.partials.primary-category-list',
+                     ['primaryCategory' => !empty($primaryCategory) ? $primaryCategory : []]
+                  )
             </div>
          </div>
       </div>
@@ -115,25 +47,6 @@
 @push('scripts')
 <script src="{{asset('backend/assets/js/pages/primaryCategory.js')}}?v={{ env('ASSET_VERSION', '1.0') }}" type="text/javascript"></script>
 <script>
-   $(document).ready(function() {
-      $('.show_confirm').click(function(event) {
-         var form = $(this).closest("form");
-         var name = $(this).data("name");
-         event.preventDefault();
-         Swal.fire({
-            title: `Are you sure you want to delete this ${name}?`,
-            text: "If you delete this, it will be gone forever.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes, delete it!",
-            cancelButtonText: "Cancel",
-            dangerMode: true,
-         }).then((result) => {
-            if (result.isConfirmed) {
-               form.submit();
-            }
-         });
-      });
-   });
+    window.primaryCategoryUrl = "{{ route('manage-primary-category.index') }}";
 </script>
 @endpush

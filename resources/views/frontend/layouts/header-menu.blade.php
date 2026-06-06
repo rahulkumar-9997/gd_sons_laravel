@@ -153,20 +153,6 @@ $search_value = !empty($query) ? $query : '';
                               </a>
                               @endif
                            </div>
-                           <!--<div class="onhover-div onhover-div-login">
-                              <ul class="user-box-name">
-                                 <li class="product-box-contain">
-                                    <i></i>
-                                    <a href="login.html">Log In</a>
-                                 </li>
-                                 <li class="product-box-contain">
-                                    <a href="sign-up.html">Register</a>
-                                 </li>
-                                 <li class="product-box-contain">
-                                    <a href="forgot.html">Forgot Password</a>
-                                 </li>
-                              </ul>
-                           </div>-->
                         </li>
                      </ul>
                   </div>

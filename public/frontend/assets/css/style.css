@@ -44306,12 +44306,10 @@ body.rtl .question-answer li .question-box .link-dislike-box {
 
 .product-section .right-box-contain .price-rating .price del {
     font-weight: 400;
-    font-size: calc(14px + 2*(100vw - 320px)/1600);
-    margin: 0 calc(0px + 2*(100vw - 320px)/1600)
-}
+    font-size: 16px;
+}    
 
-.product-section .right-box-contain .price-rating .price span {
-    font-size: calc(14px + 2*(100vw - 320px)/1600);
+.product-section .right-box-contain .price-rating .price span {    
     font-weight: 500
 }
 

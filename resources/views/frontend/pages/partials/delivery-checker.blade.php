@@ -58,7 +58,7 @@
             </div>
             <div>
                 <span class="text-success fw-bold">
-                    {{ $cheapest['rate'] == 0 ? 'FREE' : '₹'.$cheapest['rate'] }}
+                    {{ round($cheapest['rate']) == 0 ? 'FREE' : '₹' . round($cheapest['rate']) }}
                 </span>
                 <div class="mt-2">                    
                     <form method="POST" action="{{ route('check.serviceability.edit') }}" id="check-delivery-form-edit">

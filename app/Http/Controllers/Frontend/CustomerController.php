@@ -1018,6 +1018,7 @@ class CustomerController extends Controller
             'banaras',
             'benares'
         ]);
+        Log::info('Customer Controller Locality: ' . json_encode($details['locality'], JSON_PRETTY_PRINT));
         return response()->json([
             'success' => true,
             'state'   => $details['state'] ?? '',

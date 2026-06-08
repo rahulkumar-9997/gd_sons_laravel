@@ -1,9 +1,7 @@
 <?php
 
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
-
 class ShippingRates extends Model
 {
     protected $table = 'pincode_data';

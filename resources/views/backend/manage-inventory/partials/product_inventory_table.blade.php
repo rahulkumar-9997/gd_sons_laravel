@@ -25,24 +25,13 @@
                     </td>
                     <td>
                         {{ $product->hsn_code??'Null' }}
-                    </td>
-                    <!-- <td>
-                        @if($product->images->isNotEmpty())
-                            <img src="{{ asset('images/product/thumb/' . $product->images[0]->image_path) }}" class="img-thumbnail" style="width: 70px; height: 70px;" alt="{{ $product->title }}">
-                        @else
-                            <span>No images.</span>
-                        @endif
-                        
-                    </td> -->
+                    </td>                    
                     <td>
                         <span class="badge {{ $product->product_status === 1 ? 'bg-success' : 'bg-danger' }}">
                             {{ $product->product_status === 1 ? 'Published' : 'Not Published' }}
                         </span>
                     </td>
-                    <td>{{ $product->category->title ?? 'No Category' }}</td>
-                    <!--<td><span class="text-success">{{ $product->created_at->toFormattedDateString() }}</span></td>-->
-
-                    <td>
+                    <td>{{ $product->category->title ?? 'No Category' }}</td>                    <td>
                         <div class="d-flex gap-1">
                             <a href="{{ route('product.show', $product->id) }}" data-bs-original-title="View Product" data-bs-toggle="tooltip" class="btn btn-soft-primary btn-sm"><i class="ti ti-eye"></i></a>
                             <a href="{{ route('product.edit', $product->id) }}" class="btn btn-soft-primary btn-sm" data-bs-original-title="Edit Product" data-bs-toggle="tooltip"><i class="ti ti-pencil"></i></a>

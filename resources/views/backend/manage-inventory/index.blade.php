@@ -86,6 +86,7 @@
 @endsection
 @push('scripts')
 <script type="text/javascript" src="{{asset('backend/assets/js/pages/upload-image-file.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
+<script type="text/javascript" src="{{asset('backend/assets/js/pages/inventory-shipping-rate.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 <script type="">
     /**Inventory Calculation */
     $(document).ready(function() {

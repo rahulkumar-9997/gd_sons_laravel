@@ -70,7 +70,7 @@
                         @endif
                         <div class="product-img">
                             <a href="{{ url('products/'.$product['slug'].'/'.$attributes_value) }}">
-                                @if ($firstImage)
+                                @if ($firstImage && file_exists(public_path('images/product/icon/' . $firstImage->image_path)))
                                 <picture>
                                     <source
                                         media="(max-width: 767px)"
@@ -84,7 +84,8 @@
                                         sizes="(max-width: 600px) 600px, 1200px"
                                         alt="{{ $product->title }}"
                                         title="{{ $product->title }}"
-                                        loading="lazy">
+                                        loading="lazy"
+                                        onerror="this.outerHTML='<span class=\'text-[16px] font-semibold text-red-600 px-2 py-1 bg-red-50 rounded-lg\'>{{ucwords(strtolower($product->category->title))}}</span>'">
                                 </picture>
                                 @else
                                 <img

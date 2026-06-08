@@ -2338,7 +2338,7 @@ class FrontendController extends Controller
             }
         }
         usort($couriers, fn($a, $b) => $a['rate'] <=> $b['rate']);
-        //Log::info('Available couriers: ' . json_encode($couriers, JSON_PRETTY_PRINT));
+        Log::info('Available couriers: ' . json_encode($couriers, JSON_PRETTY_PRINT));
         $key = 'courier_options_' . $product_id . '_' . $pincode;
         session()->put($key, [
             'data' => $couriers,
@@ -2397,8 +2397,10 @@ class FrontendController extends Controller
             $finalWeight = max($physicalWeight, $volWeight);
             $totalWeight += ($finalWeight * $qty);
         }
-        $totalWeight = ceil($totalWeight);
-        $totalWeight = max(0.5, $totalWeight);
+        $totalWeight = round($totalWeight, 2);
+        Log::info('Total Weight Calculated', [
+            'total_weight' => $totalWeight
+        ]);
         return $totalWeight;
     }
 }

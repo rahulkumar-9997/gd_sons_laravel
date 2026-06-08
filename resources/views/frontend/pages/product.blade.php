@@ -92,10 +92,17 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         @foreach($data['product_details']->images as $key => $image)
                                         <div>
                                             <div class="slider-image product-image-slider">
-                                                <img src="{{ asset('images/product/large/' . (!empty($image->image_path) ? $image->image_path : 'frontend/assets/gd-img/product/no-image.png')) }}"
-                                                    id="img-{{ $key }}"
-                                                    data-zoom-image="{{ asset('images/product/large/' . (!empty($image->image_path) ? $image->image_path : 'frontend/assets/gd-img/product/no-image.png')) }}"
-                                                    class="img-fluid image_zoom_cls-{{ $key }} blur-up lazyload" alt="img">
+                                                @php
+                                                $imageUrl = (!empty($image->image_path) &&
+                                                    file_exists(public_path('images/product/large/' . $image->image_path)))
+                                                    ? asset('images/product/large/' . $image->image_path)
+                                                    : asset('frontend/assets/gd-img/product/no-image.png');
+                                                @endphp
+                                                <img src="{{ $imageUrl }}"
+                                                id="img-{{ $key }}"
+                                                data-zoom-image="{{ $imageUrl }}"
+                                                class="img-fluid image_zoom_cls-{{ $key }} blur-up lazyload"
+                                                alt="{{ $product->title ?? 'Product Image' }}">
                                             </div>
                                         </div>
                                         @endforeach
@@ -117,7 +124,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         @foreach($data['product_details']->images as $key => $image)
                                         <div>
                                             <div class="sidebar-image">
-                                                @if(!empty($image->image_path))
+                                                @if($image->image_path && file_exists(public_path('images/product/icon/' . $image->image_path)))
                                                 <img src="{{ asset('images/product/icon/' . $image->image_path) }}"
                                                     class="img-fluid blur-up lazyload" alt="">
                                                 @else

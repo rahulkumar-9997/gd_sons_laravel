@@ -13,42 +13,16 @@ use Illuminate\Database\QueryException;
 use App\Exports\InventoryExport;
 use App\Imports\InventoryImport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Models\ShippingRates;
 class InventoryController extends Controller
 {
-    public function index(Request $request){
-        // DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        // DB::table('inventories')->truncate();
-        // DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-        // $data['categories'] = Category::all(); 
-        // $query = Product::with(['images', 'category', 'brand', 'inventories']);
-        // if ($request->has('category_id') && $request->category_id) {
-        //     $query->where('category_id', $request->category_id);
-        // }
-        // if ($request->has('search') && $request->search) {
-        //     $query->where('title', 'like', '%' . $request->search . '%'); 
-        // }
-        // if ($request->has('product_status') && is_numeric($request->product_status)) {
-        //     $query->where('product_status', $request->product_status);
-        // }
-
-        // $data['product_list'] = $query->orderBy('id', 'desc')->paginate(20);
-        // Log::info('Request Data:', $request->all());
-        // if ($request->ajax()) {
-        //     return view('backend.manage-inventory.partials.product_inventory_table', compact('data'))->render();
-        // } 
-        // //return response()->json($data['product_list']); 
-        // return view('backend.manage-inventory.index', compact('data'));  
+    public function index(Request $request){       
         $data['categories'] = Category::all(); 
         $query = Product::with(['images', 'category', 'brand', 'inventories']);
         if ($request->has('category_id') && $request->category_id) {
             $query->where('category_id', $request->category_id);
         }
-        // if ($request->has('search') && $request->search) {
-        //     $query->where('title', 'like', '%' . $request->search . '%'); 
-        // }
-        // if ($request->has('search') && $request->search) {
-        //     $query->whereRaw("MATCH(title) AGAINST(? IN BOOLEAN MODE)", [$request->search]);
-        // }
+       
         if ($request->has('search') && $request->search) {
             $searchTerms = explode(' ', $request->search); 
             $booleanQuery = '+' . implode(' +', $searchTerms);
@@ -85,6 +59,7 @@ class InventoryController extends Controller
         $url = $request->input('url');
         $product_id = $request->input('product_id');
         $product_row = Product::with('inventories')->findOrFail($product_id);
+        $shipping_rates = ShippingRates::first();
         $uniqueSku = 'SKU-' . strtoupper(uniqid());
         $form = '
         <div class="modal-body">
@@ -94,6 +69,112 @@ class InventoryController extends Controller
                     <div id="error-container"></div>
                 </div>
             </div>
+            <div class="shipping_rates">';
+            if ($shipping_rates) {
+                $updateUrl = route('shipment-rate.update', $shipping_rates->id);
+                $form .= '
+                <div class="card border-0 shadow-sm mb-3" id="shipping-card-'.$shipping_rates->id.'">
+                    <div class="card-body">
+                        <!-- View Mode -->
+                        <div class="view-mode-content">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h4 class="mb-0">'.$shipping_rates->post_office.' , '.$shipping_rates->pincode.'</h4>
+                                <button class="btn btn-sm btn-info edit-shipping-btn" data-id="'.$shipping_rates->id.'">
+                                    <i class="ti ti-edit"></i> Edit
+                                </button>
+                            </div>                            
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-semibold">Weight 450gm</span>
+                                <span class="weight-450gm-view">₹'.number_format($shipping_rates->weight_450gm, 2).'</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-semibold">Weight 750gm</span>
+                                <span class="weight-750gm-view">₹'.number_format($shipping_rates->weight_750gm, 2).'</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-semibold">Weight 1350gm</span>
+                                <span class="weight-1350gm-view">₹'.number_format($shipping_rates->weight_1350gm ?? 0, 2).'</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-semibold">Weight 3400gm</span>
+                                <span class="weight-3400gm-view">₹'.number_format($shipping_rates->weight_3400gm ?? 0, 2).'</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-semibold">Weight 7500gm</span>
+                                <span class="weight-7500gm-view">₹'.number_format($shipping_rates->weight_7500gm ?? 0, 2).'</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-semibold">Weight 14kg</span>
+                                <span class="weight-14kg-view">₹'.number_format($shipping_rates->weight_14kg ?? 0, 2).'</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-semibold">Weight 25kg</span>
+                                <span class="weight-25kg-view">₹'.number_format($shipping_rates->weight_25kg ?? 0, 2).'</span>
+                            </div>
+                        </div>                        
+                        <!-- Edit Mode (Hidden by default) -->
+                        <div class="edit-mode-content" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="flex-grow-1">
+                                    <input type="text" class="form-control mb-2 edit-post-office" value="'.$shipping_rates->post_office.'" placeholder="Post Office">
+                                    <input type="text" class="form-control edit-pincode" value="'.$shipping_rates->pincode.'" placeholder="Pin Code">
+                                </div>
+                                <div class="ms-2">
+                                    <button class="btn btn-sm btn-success save-shipping-btn" data-id="'.$shipping_rates->id.'" 
+                                    data-update-url="'.$updateUrl.'">
+                                        <i class="ti ti-check"></i> Save
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary cancel-shipping-btn" data-id="'.$shipping_rates->id.'">
+                                        <i class="ti ti-x"></i> Cancel
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-2 align-items-center">
+                                <span class="fw-semibold">Weight 450gm</span>
+                                <input type="number" class="form-control w-50 edit-weight-450gm" value="'.$shipping_rates->weight_450gm.'" step="0.01">
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-2 align-items-center">
+                                <span class="fw-semibold">Weight 750gm</span>
+                                <input type="number" class="form-control w-50 edit-weight-750gm" value="'.$shipping_rates->weight_750gm.'" step="0.01">
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-2 align-items-center">
+                                <span class="fw-semibold">Weight 1350gm</span>
+                                <input type="number" class="form-control w-50 edit-weight-1350gm" value="'.$shipping_rates->weight_1350gm.'" step="0.01">
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-2 align-items-center">
+                                <span class="fw-semibold">Weight 3400gm</span>
+                                <input type="number" class="form-control w-50 edit-weight-3400gm" value="'.$shipping_rates->weight_3400gm.'" step="0.01">
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-2 align-items-center">
+                                <span class="fw-semibold">Weight 7500gm</span>
+                                <input type="number" class="form-control w-50 edit-weight-7500gm" value="'.$shipping_rates->weight_7500gm.'" step="0.01">
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-2 align-items-center">
+                                <span class="fw-semibold">Weight 14kg</span>
+                                <input type="number" class="form-control w-50 edit-weight-14kg" value="'.$shipping_rates->weight_14kg.'" step="0.01">
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-2 align-items-center">
+                                <span class="fw-semibold">Weight 25kg</span>
+                                <input type="number" class="form-control w-50 edit-weight-25kg" value="'.$shipping_rates->weight_25kg.'" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                </div>';
+            }
+            $form .= '</div>
             <form method="POST" action="' . route('manage-inventory.store') . '" accept-charset="UTF-8" enctype="multipart/form-data" id="inventoryAddForm">
                 ' . csrf_field() . '
                 <input type="hidden" name="product_id" value="' . $product_id . '">
@@ -103,6 +184,24 @@ class InventoryController extends Controller
                             <label for="simpleinput" class="form-label">GST in %</label>
                             <input type="text" name="gst_in_per" class="form-control" value="'.$product_row->gst_in_per.'">
                         </div>
+                    </div>
+                    <div class="col-lg-6">';
+                        if($product_row->length && $product_row->breadth && $product_row->height && $product_row->weight){
+                            $form .= '
+                            <div class="product_volumetric">
+                                <h4>
+                                Volumetric Weight
+                                </H4>
+                            </div>
+                            <div class="mt-1">
+                                <span class="badge bg-light text-dark">L: '.number_format($product_row->length, 1).' cm</span>
+                                <span class="badge bg-light text-dark">B: '.number_format($product_row->breadth, 1).' cm</span>
+                                <span class="badge bg-light text-dark">H: '.number_format($product_row->height, 1).' cm</span>
+                                <span class="badge bg-light text-dark">W: '.number_format($product_row->weight, 1).' kg</span>
+                                <span class="badge bg-purple text-white">VW: '.number_format($product_row->volumetric_weight_kg, 1).' kg</span>
+                            </div>';
+                        }
+                    $form .= '
                     </div>
                 </div>
                 <div class="table-responsive" style="overflow-x: auto;">
@@ -254,54 +353,8 @@ class InventoryController extends Controller
                 'message' => 'An unexpected error occurred. Please try again later.',
             ], 500);
         }
-    }
+    }    
     
-    public function store_old(Request $request){
-        $product_id = $request->input('product_id');
-        //Inventory::where('product_id', $product_id)->delete();
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'mrp' => 'required|array|distinct',
-            'mrp.*' => 'required|numeric|min:0',
-            'purchase_rate' => 'required|array',
-            'purchase_rate.*' => 'required|numeric|min:0',
-            'offer_rate' => 'required|array',
-            'offer_rate.*' => 'required|numeric|min:0',
-            'stock_quantity' => 'required|array',
-            'stock_quantity.*' => 'required|integer|min:0',
-            'sku' => 'required|array',
-            'sku.*' => 'required|string|unique:inventories,sku',
-        ]);
-        
-        $data = [];
-        foreach ($request->input('mrp') as $key => $mrp) {
-            $data[] = [
-                'product_id' => $product_id,
-                'mrp' => $mrp,
-                'purchase_rate' => $request->input('purchase_rate')[$key],
-                'offer_rate' => $request->input('offer_rate')[$key],
-                'stock_quantity' => $request->input('stock_quantity')[$key],
-                'sku' => $request->input('sku')[$key],
-            ];
-        }
-        try {
-            Inventory::insert($data);
-            return response()->json([
-                'message' => 'Inventory records saved successfully!',
-            ]);
-        } catch (QueryException $e) {
-            /*Check if the error is due to duplicate entry*/
-            if ($e->getCode() === '23000') {
-                return response()->json([
-                    'message' => 'One or more MRP values already exist for this product. Please check your input.',
-                ], 422);
-            }
-            return response()->json([
-                'message' => 'An unexpected error occurred. Please try again later.',
-            ], 500);
-        }   
-    }
-
     public function update(Request $request, $id){
         $request->validate([
             'mrp' => 'required|numeric',

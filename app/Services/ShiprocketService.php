@@ -97,7 +97,6 @@ class ShiprocketService
                 'message' => 'Token not available'
             ];
         }
-
         $resp = Http::withToken($token)
             ->get("{$this->base}/courier/serviceability/", [
                 'pickup_postcode' => $from_pin,

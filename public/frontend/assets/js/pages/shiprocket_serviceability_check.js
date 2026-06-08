@@ -190,8 +190,7 @@
 
     /* MODIFIED UPDATE TOTALS FUNCTION */
     function updateTotals(shipping) {
-        let subtotal =
-            parseFloat($("#subtotal_amount").text().replace(/,/g, "")) || 0;
+        let subtotal = parseFloat($("#subtotal_amount").text().replace(/,/g, "")) || 0;
         let discount = parseFloat($("#coupon_discount_amount").val()) || 0;
         let total = subtotal + shipping - discount;
         $("#shipping_amount").text(shipping.toFixed(2));
@@ -362,8 +361,9 @@
             let finalWeight = Math.max(physicalWeight, volWeight);
             totalWeight += finalWeight * qty;
         });
-
+        /* alert(totalWeight); */
         return totalWeight;
+        
     }
 
     /* EVENT: Shipping Radio Change */

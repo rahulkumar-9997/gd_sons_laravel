@@ -3,12 +3,9 @@
 @section('main-content')
 @push('styles')
 @endpush
-<!-- Start Container Fluid -->
-
 <div class="container-fluid">
    <div class="row">
       <div class="col-xl-12">
-
          <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center gap-1">
                <h4 class="card-title flex-grow-1">
@@ -26,10 +23,7 @@
       </div>
    </div>
 </div>
-<!-- End Container Fluid -->
-<!-- Modal -->
 @include('backend.layouts.common-modal-form')
-<!-- modal--->
 @endsection
 @push('scripts')
 <script>

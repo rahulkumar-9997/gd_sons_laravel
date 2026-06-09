@@ -4,77 +4,80 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\ShippingRates;
+// use App\Models\ShippingRates;
+use App\Models\Pincode;
+use App\Models\WeightCategory;
+use App\Models\PincodeShippingRate;
 use Illuminate\Support\Facades\Log;
 
 class ShipmentRateController extends Controller
 {
     public function index(Request $request)
     {
-        $shipping_rates = ShippingRates::orderBy('id', 'desc')->paginate(30);
+        $shipping_rates = PincodeShippingRate::with([
+            'pincode',
+            'weightCategory'
+        ])->latest()->paginate(50);
+        // $shipping_rates = Pincode::with([
+        //     'shippingRates.weightCategory'
+        // ])->paginate(50);
+        $weight_categories = WeightCategory::orderBy('primary_weight')->get();
         if ($request->ajax()) {
-            return view('backend.shipment-rate.partials.shipment-rate-list', compact('shipping_rates'))->render();
+            return view('backend.shipment-rate.partials.shipment-rate-list', compact('shipping_rates', 'weight_categories'))->render();
         }
-        return view('backend.shipment-rate.index', compact('shipping_rates'));
+        return view('backend.shipment-rate.index', compact('shipping_rates', 'weight_categories'));
     }
 
     public function refreshSingle($id)
     {
-        $row = ShippingRates::where('id', $id)->first();
-        if (!$row) {
-            return response()->json(['status' => false, 'message' => 'Record not found']);
+        $pincode = Pincode::find($id);
+        if (!$pincode) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Pincode not found'
+            ]);
         }
-        $weights = [
-            'weight_450gm' => 0.45,
-            'weight_750gm' => 0.75,
-            'weight_1350gm' => 1.35,
-            'weight_3400gm' => 3.4,
-            'weight_7500gm' => 7.5,
-            'weight_14kg' => 14,
-            'weight_25kg' => 25,
-        ];
         $ship = app(\App\Services\ShiprocketService::class);
         $fromPin = config('services.shiprocket.shiprocket_pickup_pincode');
-        $update = [];
+        $weights = WeightCategory::all();
         $debug = [];
-        foreach ($weights as $column => $weight) {
+        foreach ($weights as $weightCategory) {
+            $weight = $weightCategory->primary_weight;
             $response = $ship->getServiceability(
                 $fromPin,
-                $row->pincode,
+                $pincode->pincode,
                 $weight,
                 0
             );
             $companies = $response['raw']['data']['available_courier_companies'] ?? [];
-           // Log::info('Available couriers: ' . json_encode($companies, JSON_PRETTY_PRINT));
             $filtered = collect($companies)
-                ->filter(fn($item) => $weight >= ($item['min_weight'] ?? 0))
+                ->filter(function ($item) use ($weight) {
+                    return $weight >= ($item['min_weight'] ?? 0);
+                })
                 ->sortBy('rate')
                 ->values();
-            $rate = $filtered->first()['rate'] ?? null;
-            $postcode = $filtered->first()['postcode'] ?? null;
-            $city = $filtered->first()['city'] ?? null;
-            $update['post_office'] = $city;
-            //Log::info('Available filtered: ' . json_encode($filtered, JSON_PRETTY_PRINT));
-            if ($rate) {
-                $update[$column] = $rate;                
+            if (!$filtered->isEmpty()) {
+                $rate = $filtered->first()['rate'];
+                PincodeShippingRate::updateOrCreate(
+                    [
+                        'pincode_id' => $pincode->id,
+                        'weight_category_id' => $weightCategory->id,
+                    ],
+                    [
+                        'shipping_rate' => $rate,
+                    ]
+                );
+                $debug[] = [
+                    'weight' => $weight,
+                    'rate' => $rate,
+                ];
             }
-            $debug[$column] = [
-                'weight' => $weight,
-                'rate' => $rate,
-                'total_companies' => count($companies),
-            ];
             usleep(300000);
         }
-        if (!empty($update)) {
-            $row->update($update);
-        }
-
         return response()->json([
             'status' => true,
-            'message' => 'Row updated successfully',
-            'data' => $update,
+            'message' => 'Shipping rates refreshed successfully',
             'debug' => $debug,
-            'id' => $id
         ]);
     }
 
@@ -128,18 +131,17 @@ class ShipmentRateController extends Controller
         }
     }
     
-
     public function destroy($id)
     {
-        $row = ShippingRates::find($id);
-        if (!$row) {
+        $pincode = Pincode::find($id);
+        if (!$pincode) {
             return response()->json([
                 'status' => false,
                 'message' => 'Record not found'
             ]);
         }
         try {
-            $row->delete();
+            $pincode->delete();
             return response()->json([
                 'status' => true,
                 'message' => 'Record deleted successfully'

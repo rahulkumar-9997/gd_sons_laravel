@@ -71,6 +71,14 @@
             @endif
          @endforeach
          <li class="nav-item">
+            <a class="nav-link" href="{{ route('shipment-rate.index') }}">
+               <span class="nav-icon">
+                 <iconify-icon icon="solar:cart-large-2-bold-duotone"></iconify-icon>
+               </span>
+               <span class="nav-text">  Shipment Rates </span>
+            </a>
+         </li>
+         <li class="nav-item">
             <a class="nav-link" href="{{ route('manage-coupon.index') }}">
                <span class="nav-icon">
                   <iconify-icon icon="solar:tag-bold-duotone"></iconify-icon>
@@ -111,10 +119,7 @@
                <ul class="nav sub-navbar-nav">
                      <li class="sub-nav-item">
                         <a class="sub-nav-link" href="{{ route('order-list') }}">Order</a>
-                     </li>
-                     <li class="sub-nav-item">
-                        <a class="sub-nav-link" href="{{ route('shipment-rate.index') }}">Shipment Rate</a>
-                     </li>
+                     </li>                     
                </ul>
             </div>
          </li>

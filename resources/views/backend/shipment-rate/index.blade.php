@@ -15,7 +15,7 @@
             <div class="card-body">
                @if (isset($shipping_rates) && $shipping_rates->count() > 0)
                <div class="table-responsive" id="shipping-rates-container">
-                  @include('backend.shipment-rate.partials.shipment-rate-list', ['shipping_rates' => $shipping_rates])
+                  @include('backend.shipment-rate.partials.shipment-rate-list-2', ['shipping_rates' => $shipping_rates])
                </div>
                @endif
             </div>

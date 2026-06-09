@@ -14,13 +14,13 @@ class ShipmentRateController extends Controller
 {
     public function index(Request $request)
     {
-        $shipping_rates = PincodeShippingRate::with([
-            'pincode',
-            'weightCategory'
-        ])->latest()->paginate(50);
-        // $shipping_rates = Pincode::with([
-        //     'shippingRates.weightCategory'
-        // ])->paginate(50);
+        // $shipping_rates = PincodeShippingRate::with([
+        //     'pincode',
+        //     'weightCategory'
+        // ])->latest()->paginate(50);
+        $shipping_rates = Pincode::with([
+            'shippingRates.weightCategory'
+        ])->paginate(50);
         $weight_categories = WeightCategory::orderBy('primary_weight')->get();
         if ($request->ajax()) {
             return view('backend.shipment-rate.partials.shipment-rate-list', compact('shipping_rates', 'weight_categories'))->render();

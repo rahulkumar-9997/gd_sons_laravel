@@ -5,9 +5,21 @@
             <th>Pincode</th>
             <th>District</th>
             <th>State</th>
-
             @foreach($weight_categories as $weight)
-            <th>{{ $weight->primary_weight }} KG</th>
+                <th class="text-center">
+                    <div>
+                        <strong>{{ $weight->primary_weight }} KG</strong>
+                    </div>
+                    <small class="text-muted">
+                        @if($weight->max_weight)
+                            {{ number_format($weight->min_weight,2) }}
+                            -
+                            {{ number_format($weight->max_weight,2) }} KG
+                        @else
+                            {{ number_format($weight->min_weight,2) }}+ KG
+                        @endif
+                    </small>
+                </th>
             @endforeach
             <th>Action</th>
         </tr>
@@ -20,14 +32,22 @@
             <td>{{ $shipping_rate->district }}</td>
             <td>{{ $shipping_rate->state }}</td>
             @foreach($weight_categories as $weight)
-            @php
-            $rate = $shipping_rate->shippingRates
-            ->where('weight_category_id', $weight->id)
-            ->first();
-            @endphp
-            <td>
-                ₹{{ number_format(optional($rate)->shipping_rate ?? 0, 2) }}
-            </td>
+                @php
+                    $rate = $shipping_rate->shippingRates
+                        ->where('weight_category_id', $weight->id)
+                        ->first();
+                @endphp
+                <td class="text-center">
+                    @if($rate)
+                        <span class="">
+                            ₹{{ number_format($rate->shipping_rate, 0) }}
+                        </span>
+                    @else
+                        <span class="badge bg-secondary">
+                            N/A
+                        </span>
+                    @endif
+                </td>
             @endforeach
             <td>
                 <div class="d-flex gap-1">             

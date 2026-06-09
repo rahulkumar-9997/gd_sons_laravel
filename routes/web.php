@@ -426,6 +426,8 @@ Route::group(['middleware' => ['admin']], function () {
     Route::resource('shipment-rate', ShipmentRateController::class);
     Route::post('shipment-rate/{id}/refresh-single', [ShipmentRateController::class, 'refreshSingle'])->name('shipment-rate.refresh.single');
 
+    Route::post('shipment-rate/export',[ShipmentRateController::class, 'ExcelExport'])->name('shipment-rate.export');
+
     Route::get('generate-ai-review/{id}',[ProductReviewAutoAiGenerateController::class,'generateAIReview'])
     ->name('generate.ai.review.single');
     Route::post('save-ai-review',[ProductReviewAutoAiGenerateController::class,'saveAIReview'])

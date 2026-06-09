@@ -9,6 +9,8 @@ use App\Models\Pincode;
 use App\Models\WeightCategory;
 use App\Models\PincodeShippingRate;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ShipmentRateExport;
 
 class ShipmentRateController extends Controller
 {
@@ -153,5 +155,36 @@ class ShipmentRateController extends Controller
                 'message' => 'Something went wrong'
             ]);
         }
+    }
+
+    public function ExcelExport(Request $request)
+    {
+        $request->validate([
+            'weight_category_ids' => ['required', 'array', 'min:1'],
+            'weight_category_ids.*' => ['exists:weight_categories,id'],
+        ], [
+            'weight_category_ids.required' => 'Please select at least one weight category.',
+            'weight_category_ids.min' => 'Please select at least one weight category.',
+        ]);        
+        $weightIds = $request->weight_category_ids;
+        $weights = WeightCategory::whereIn('id', $weightIds)
+            ->orderBy('primary_weight')
+            ->get();        
+        $names = $weights->map(function ($weight) {
+            return number_format($weight->primary_weight, 2)
+                . ' KG-('
+                . number_format($weight->min_weight, 2)
+                . ' - '
+                . ($weight->max_weight ? number_format($weight->max_weight, 2) : 'Above')
+                . 'KG)';
+        })->implode('_');
+        if (strlen($names) > 200) {
+            $names = substr($names, 0, 200);
+        }        
+        $fileName = $names . '_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+        return Excel::download(
+            new ShipmentRateExport($weightIds),
+            $fileName
+        );
     }
 }

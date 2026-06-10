@@ -70,7 +70,7 @@ class UpdateShipmentRatesJob implements ShouldQueue
                     );
                 }
 
-                sleep(2);
+                sleep(5);
 
             } catch (\Exception $e) {
                 Log::error('Shiprocket Error', [

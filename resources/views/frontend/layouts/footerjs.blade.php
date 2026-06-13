@@ -16,7 +16,6 @@
 <script src="{{asset('frontend/assets/js/cart-drawer.min.js')}}?v={{ env('ASSET_VERSION', '1.0') }}"></script>
 <!-- <script src="{{asset('frontend/assets/js/pages/notifications.js')}}"></script> -->
 <!-- <script src="https://checkout.razorpay.com/v1/magic-checkout.js"></script> -->
-
 @if (session('error'))
     <script>
         $(document).ready(function () {
@@ -145,3 +144,5 @@
     });
 </script>
 @endif
+
+

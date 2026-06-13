@@ -37,6 +37,7 @@ return [
     'razorpay' => [
         'key' => env('RAZORPAY_KEY'),
         'secret' => env('RAZORPAY_SECRET'),
+        'webhook_secret' => env('RAZORPAY_WEBHOOK_SECRET'),
     ],
     'shiprocket' => [
         'shiprocket_email' => env('SHIPROCKET_API_EMAIL'),

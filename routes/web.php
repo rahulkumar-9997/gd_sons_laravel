@@ -124,8 +124,13 @@ Route::middleware([TrackVisitor::class])->group(function () {
     Route::post('apply-coupon', [CustomerController::class, 'applyCoupon'])->name('apply.coupon');
     Route::post('remove-coupon', [CustomerController::class, 'removeCoupon'])->name('remove.coupon');
     Route::post('checkout/submit', [OrderController::class, 'checkOutFormSubmit'])->name('checkout.submit');
-    Route::post('/razorpay-callback', [OrderController::class, 'handleRazorpayCallback'])->name('razorpay.callback');
-    Route::post('/payment-failed', [OrderController::class, 'handlePaymentFailed'])->name('payment.failed');
+    
+    Route::post('razorpay-callback', [OrderController::class, 'handleRazorpayCallback'])->name('razorpay.callback');
+    Route::post('payment-failed', [OrderController::class, 'handlePaymentFailed'])->name('payment.failed');
+    Route::post('webhooks/razorpay', [OrderController::class, 'handleWebhook'])->name('razorpay.webhook')->withoutMiddleware(['web', 'csrf']);     
+    // Route::post('checkout/submit', [OrderController::class, 'checkOutFormSubmit'])->name('checkout.submit');
+    // Route::post('/webhooks/razorpay', [OrderController::class, 'handleWebhook'])->name('razorpay.webhook')->withoutMiddleware(['web', 'csrf']);
+    // Route::get('/check-payment-status', [OrderController::class, 'checkPaymentStatus'])->name('check.payment.status');
     Route::get('order/success', [OrderController::class, 'showOrderSuccess'])->name('order.success');
     Route::get('checkout/otp/verification', [OrderController::class, 'handleOTPVerificationModal'])->name('checkout.otp.verification');
     Route::post('checkout/otp/verification/substr', [OrderController::class, 'handleOTPVerificationModalSubmit'])->name('checkout.otp.verification.submit');

@@ -24,6 +24,65 @@ $(document).ready(function () {
             }
         });
     });
+
+
+    $(document).off("submit", "#weightCategoryUpdateShippingRate") .on("submit", "#weightCategoryUpdateShippingRate", function (event) {
+        event.preventDefault();
+        var form = $(this);
+        var submitButton = form.find('button[type="submit"]');
+        $(".form-control").removeClass("is-invalid");
+        $(".invalid-feedback").remove();
+        submitButton
+            .prop("disabled", true)
+            .html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...',
+            );
+        var formData = new FormData(this);
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                submitButton.prop("disabled", false);
+                submitButton.html("Update");
+                if (response.status === true){
+                    Toastify({
+                        text: response.message,
+                        duration: 10000,
+                        gravity: "top",
+                        position: "right",
+                        className: "bg-success",
+                        close: true,
+                        onClick: function () {},
+                    }).showToast();
+                    window.location.href = response.redirect_url;
+                }
+            },
+            error: function (xhr, status, error) {
+                submitButton.prop("disabled", false);
+                submitButton.html("Update");
+                var errors = xhr.responseJSON.errors;
+                if (errors) {
+                    $.each(errors, function (key, value) {
+                        var errorElement = $("#" + key + "_error");
+                        if (errorElement.length) {
+                            errorElement.text(value[0]);
+                        }
+                        var inputField = $("#" + key);
+                        inputField.addClass("is-invalid");
+                        inputField.after(
+                            '<div class="invalid-feedback">' +
+                                value[0] +
+                                "</div>",
+                        );
+                    });
+                }
+            },
+        });
+    });
+    
     let currentPage = 1;
     $(document).on("click", "#pagination-links-shipping-rates a", function (e) {
         e.preventDefault();

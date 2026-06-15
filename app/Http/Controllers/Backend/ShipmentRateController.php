@@ -11,23 +11,24 @@ use App\Models\PincodeShippingRate;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ShipmentRateExport;
+use App\Models\WeightCategoryShippingRate;
 
 class ShipmentRateController extends Controller
 {
     
     public function index(Request $request)
     {
-        // $shipping_rates = PincodeShippingRate::with([
-        //     'pincode',
-        //     'weightCategory'
-        // ])->latest()->paginate(50);
+        
         $shipping_rates = Pincode::with([
             'shippingRates.weightCategory'
         ])->paginate(50);
-        $weight_categories = WeightCategory::orderBy('primary_weight')->get();
+        $weight_categories = WeightCategory::with('weightCategoryShippingRate')
+        ->orderBy('primary_weight')
+        ->get();
         if ($request->ajax()) {
             return view('backend.shipment-rate.partials.shipment-rate-list', compact('shipping_rates', 'weight_categories'))->render();
         }
+        //return response()->json($shipping_rates);
         return view('backend.shipment-rate.index', compact('shipping_rates', 'weight_categories'));
     }
 
@@ -189,16 +190,20 @@ class ShipmentRateController extends Controller
         );
     }
 
-    public function updateShipmentRateForm(Request $request){
+    public function updateShipmentRateForm(Request $request, $weightCategoryId){
+        $rate = WeightCategoryShippingRate::where(
+            'weight_category_id',
+            $weightCategoryId
+        )->first();
         $form ='
         <div class="modal-body">
-            <form method="POST" action="'.route('label.store').'" accept-charset="UTF-8" enctype="multipart/form-data" id="uploadForm">
+            <form method="POST" action="'.route('shipment-rate.update-weight-category.store', $request->id).'" accept-charset="UTF-8" enctype="multipart/form-data" id="weightCategoryUpdateShippingRate">
                 '.csrf_field().'
                 <div class="row">
                     <div class="col-md-12">
                         <div class="mb-3">
                             <label for="name" class="form-label">Weight Category Shipping Rate</label>
-                            <input type="text" id="weight_category_shipping_rate" name="weight_category_shipping_rate" class="form-control">
+                            <input type="text" id="weight_category_shipping_rate" name="weight_category_shipping_rate" class="form-control" value="'.($rate->rate ?? '').'">
                         </div>
                     </div>
                     <div class="modal-footer pb-0">
@@ -212,6 +217,27 @@ class ShipmentRateController extends Controller
         return response()->json([
             'message' => 'Form created successfully',
             'form' => $form,
+        ]);
+    }
+
+    public function updateShipmentRate(Request $request, $id)
+    {   
+        $request->validate([
+            'weight_category_shipping_rate' => 'required|numeric|min:0',
+        ]);
+
+        WeightCategoryShippingRate::updateOrCreate(
+            [
+                'weight_category_id' => $id,
+            ],
+            [
+                'rate' => $request->weight_category_shipping_rate,
+            ]
+        );
+        return response()->json([
+            'status' => true,
+            'message' => 'Shipping rate updated successfully.',
+            'redirect_url' => route('shipment-rate.index'),
         ]);
     }
 }

@@ -17,4 +17,9 @@ class WeightCategory extends Model
         return $this->hasMany(PincodeShippingRate::class);
     }
 
+    public function weightCategoryShippingRate()
+    {
+        return $this->hasOne(WeightCategoryShippingRate::class);
+    }
+
 }

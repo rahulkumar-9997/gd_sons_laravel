@@ -105,7 +105,7 @@
       csrfToken: "{{ csrf_token() }}"
    };
 </script>
-<script src="{{ asset('backend/assets/js/pages/shipping-rate.js') }}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
+<script src="{{ asset('backend/assets/js/pages/shipping-rate.js') }}?v={{ env('ASSET_VERSION', '2.01') }}"></script>
 <script src="{{asset('backend/assets/js/rahul-jquery-ui.min.js')}}"></script><!--sortable jquery-->
 <script src="{{asset('backend/assets/plugins/select2/select2.min.js')}}" type="text/javascript"></script>
 <script src="{{asset('backend/assets/plugins/multi-select/js/jquery.multi-select.js')}}" type="text/javascript"></script>

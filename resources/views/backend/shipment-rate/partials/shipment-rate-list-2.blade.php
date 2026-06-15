@@ -8,7 +8,10 @@
             @foreach($weight_categories as $weight)
                 <th class="text-center">
                     <div>
-                        <strong>{{ $weight->primary_weight }} KG</strong>
+                        <strong>
+                            {{ $weight->primary_weight }} KG
+                            
+                        </strong>
                         <span
                             class="badge bg-success cursor-pointer update-weight-category-shipping-rate"
                             data-url="{{ route('shipment-rate.update-weight-category', 
@@ -16,6 +19,7 @@
                             data-title="{{ $weight->primary_weight }} KG"
                             data-size="md">
                             Shipping Update
+                            (₹{{ number_format($weight->weightCategoryShippingRate->rate ?? 0, 2) }})
                         </span>
                     </div>
                     <small class="text-muted">

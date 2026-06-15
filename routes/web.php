@@ -435,6 +435,10 @@ Route::group(['middleware' => ['admin']], function () {
 
     Route::post('shipment-rate/export',[ShipmentRateController::class, 'ExcelExport'])->name('shipment-rate.export');
     Route::get('shipment-rate-update-weight-category/{id}',[ShipmentRateController::class, 'updateShipmentRateForm'])->name('shipment-rate.update-weight-category');
+    Route::post(
+    'shipment-rate-update-weight-category/{id}',
+        [ShipmentRateController::class, 'updateShipmentRate']
+    )->name('shipment-rate.update-weight-category.store');
 
     Route::get('generate-ai-review/{id}',[ProductReviewAutoAiGenerateController::class,'generateAIReview'])
     ->name('generate.ai.review.single');

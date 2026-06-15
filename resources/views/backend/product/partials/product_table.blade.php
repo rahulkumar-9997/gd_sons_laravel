@@ -37,7 +37,9 @@
                                 <span class="badge bg-light text-dark">B: {{ number_format($product->breadth, 1) }}cm</span>
                                 <span class="badge bg-light text-dark">H: {{ number_format($product->height, 1) }}cm</span>
                                 <span class="badge bg-light text-dark">W: {{ number_format($product->weight, 1) }}kg</span>
-                                <span class="badge bg-purple text-white">VW: {{ number_format($product->volumetric_weight_kg, 1) }}kg</span>
+                                <span class="badge bg-purple text-white">
+                                    VW: {{ number_format($product->volumetric_weight_kg, 2) }}kg
+                                </span>
                             </div>
                         @endif
                     </td>

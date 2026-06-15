@@ -1781,7 +1781,7 @@ a.cntshop {
     right: 6px !important;
     left: auto !important;
     bottom: auto !important;
-    z-index: 3;
+    z-index: 1;
     float: none !important;
 }
 

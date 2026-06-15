@@ -14,6 +14,7 @@ use App\Exports\ShipmentRateExport;
 
 class ShipmentRateController extends Controller
 {
+    
     public function index(Request $request)
     {
         // $shipping_rates = PincodeShippingRate::with([

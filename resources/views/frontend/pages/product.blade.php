@@ -92,17 +92,10 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         @foreach($data['product_details']->images as $key => $image)
                                         <div>
                                             <div class="slider-image product-image-slider">
-                                                @php
-                                                $imageUrl = (!empty($image->image_path) &&
-                                                    file_exists(public_path('images/product/large/' . $image->image_path)))
-                                                    ? asset('images/product/large/' . $image->image_path)
-                                                    : asset('frontend/assets/gd-img/product/no-image.png');
-                                                @endphp
-                                                <img src="{{ $imageUrl }}"
-                                                id="img-{{ $key }}"
-                                                data-zoom-image="{{ $imageUrl }}"
-                                                class="img-fluid image_zoom_cls-{{ $key }} blur-up lazyload"
-                                                alt="{{ $product->title ?? 'Product Image' }}">
+                                                <img src="{{ asset('images/product/large/' . (!empty($image->image_path) ? $image->image_path : 'frontend/assets/gd-img/product/no-image.png')) }}"
+                                                    id="img-{{ $key }}"
+                                                    data-zoom-image="{{ asset('images/product/large/' . (!empty($image->image_path) ? $image->image_path : 'frontend/assets/gd-img/product/no-image.png')) }}"
+                                                    class="img-fluid image_zoom_cls-{{ $key }} blur-up lazyload" alt="img">
                                             </div>
                                         </div>
                                         @endforeach
@@ -124,7 +117,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         @foreach($data['product_details']->images as $key => $image)
                                         <div>
                                             <div class="sidebar-image">
-                                                @if($image->image_path && file_exists(public_path('images/product/icon/' . $image->image_path)))
+                                                @if(!empty($image->image_path))
                                                 <img src="{{ asset('images/product/icon/' . $image->image_path) }}"
                                                     class="img-fluid blur-up lazyload" alt="">
                                                 @else
@@ -229,7 +222,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                     </h3>
                                 </div>
                             </div>
-                            <div class="additional_discount_area">
+                            <!--div class="additional_discount_area">
                                 <div class="additional-tex">
                                     <h4>Get Additional Discount</h4>
                                 </div>
@@ -263,7 +256,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div-->
 
                             <div class="note-box product-package">
                                 <div class="cart_qty qty-box product-qty">
@@ -286,13 +279,16 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 @endphp
                                 @if(intval($p->mrp) > 0  && intval($p->stock_quantity) > 0 && $hasDimensions )
                                 <button class="add-to-cart btn btn-md bg-dark cart-button text-white w-100" data-url="{{route('add.to.cart')}}" data-pid="{{$data['product_details']->id}}"
-                                    data-mrp="{{$data['product_details']->mrp}}"
-                                    data-track-btn-type="Add to cart without login"
-                                    data-track-click="true"
-                                    data-track-route="{{route('click.tracker')}}">
-                                    Add To Cart
+									data-mrp="{{$data['product_details']->mrp}}"
+									data-price="{{ $final_offer_rate }}"
+									data-title="{{ str_replace('"', '', $data['product_details']->title) }}"
+									data-category="{{ $categorytitle }}"
+									data-track-btn-type="Add to cart without login"
+									data-track-click="true"
+									data-track-route="{{route('click.tracker')}}">
+									Add To Cart
 									@php $inStock = 1; @endphp
-                                </button>
+								</button>
                                 @else
                                 <button disabled="" class="btn btn-md bg-dark cart-button text-white w-100">
                                     Out Of Stock

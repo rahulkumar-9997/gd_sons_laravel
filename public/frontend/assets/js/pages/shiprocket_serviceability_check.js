@@ -190,7 +190,8 @@
 
     /* MODIFIED UPDATE TOTALS FUNCTION */
     function updateTotals(shipping) {
-        let subtotal = parseFloat($("#subtotal_amount").text().replace(/,/g, "")) || 0;
+        let subtotal =
+            parseFloat($("#subtotal_amount").text().replace(/,/g, "")) || 0;
         let discount = parseFloat($("#coupon_discount_amount").val()) || 0;
         let total = subtotal + shipping - discount;
         $("#shipping_amount").text(shipping.toFixed(2));
@@ -290,9 +291,19 @@
                         .removeClass("btn-loading");
 
                     let first = $(".shipping_radio:checked");
-                    if (first.length) {
-                        first.trigger("change");
-                    }
+					console.log("DEBUG: shipping_radio:checked count =", first.length, "rate =", first.data("rate"));
+
+					if (first.length) {
+						first.trigger("change");
+
+						// GA4: shipping cost shown to user
+						let shippingRate = parseFloat(first.data("rate")) || 0;
+						gtag('event', 'shipping_calculated', {
+							currency: "INR",
+							shipping_amount: shippingRate,
+							pincode: pincode
+						});
+					}
                 });
             },
             error: function () {
@@ -361,9 +372,8 @@
             let finalWeight = Math.max(physicalWeight, volWeight);
             totalWeight += finalWeight * qty;
         });
-        /* alert(totalWeight); */
+
         return totalWeight;
-        
     }
 
     /* EVENT: Shipping Radio Change */

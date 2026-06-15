@@ -22,18 +22,31 @@ $(document).ready(function () {
                 _token: $('meta[name="csrf-token"]').attr('content'),
             },
             success: function (response) {
-                if (response.success) {
-                    $('.drawer__body', '#drawer-cart-id').html(response.cart_html);
-                    $('.countCartDisplay, .minicart-header .cart-count').text(response.cart_count);
-                    feather.replace();
-                    $('#drawer-cart-id').addClass('drawer--is-visible');
-                    $('body').css('overflow', 'hidden');
-                    showNotificationAll("success", "", response.message);
-                }else{
-                    showNotificationAll("danger", "", response.message);
-                }
-                addToCartButton.prop('disabled', false).html(originalButtonText);
-            },
+				if (response.success) {
+					$('.drawer__body', '#drawer-cart-id').html(response.cart_html);
+					$('.countCartDisplay, .minicart-header .cart-count').text(response.cart_count);
+					feather.replace();
+					$('#drawer-cart-id').addClass('drawer--is-visible');
+					$('body').css('overflow', 'hidden');
+					showNotificationAll("success", "", response.message);
+
+					// GA4 add_to_cart event
+					gtag('event', 'add_to_cart', {
+						currency: "INR",
+						value: parseFloat($(addToCartButton).data('price')) * parseInt(quantity),
+						items: [{
+							item_id: String(productId),
+							item_name: $(addToCartButton).data('title'),
+							item_category: $(addToCartButton).data('category'),
+							price: parseFloat($(addToCartButton).data('price')),
+							quantity: parseInt(quantity)
+						}]
+					});
+				}else{
+					showNotificationAll("danger", "", response.message);
+				}
+				addToCartButton.prop('disabled', false).html(originalButtonText);
+			},
             error: function (xhr, status, error) {
                 console.error('Error:', error);
                 var response = xhr.responseJSON || {};

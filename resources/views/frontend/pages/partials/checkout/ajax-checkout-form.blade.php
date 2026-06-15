@@ -15,6 +15,7 @@ if (auth('customer')->check()) {
 @php
     $subtotal_amount = 0;
     $sessionCart = session('cart', []);
+    $ga4_checkout_items = [];
 @endphp
 @if($carts && $carts->count() > 0)
     @foreach ($carts as $cart)
@@ -47,6 +48,12 @@ if (auth('customer')->check()) {
 
             /* Discount percentage */
             $discountPercent = 0;
+			$ga4_checkout_items[] = [
+				'item_id' => $cart->product_id,
+				'item_name' => $cart->product->title ?? $cart->title ?? 'Unknown',
+				'price' => $final_offer_rate,
+				'quantity' => $quantity,
+			];
             if ($mrp && $final_offer_rate < $mrp) {
                 $discountPercent = (($mrp - $final_offer_rate)/$mrp) * 100;
                 $discountPercent = number_format($discountPercent, 2);
@@ -333,3 +340,10 @@ if (auth('customer')->check()) {
     </div>
 
 </form>
+<script>
+gtag('event', 'begin_checkout', {
+    currency: "INR",
+    value: {{ $subtotal_amount }},
+    items: @json($ga4_checkout_items)
+});
+</script>

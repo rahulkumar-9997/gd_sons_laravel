@@ -14,7 +14,16 @@
                <h4 class="card-title flex-grow-1"> Edit Blog</h4>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{route('manage-blog.update', $blog->id)}}" accept-charset="UTF-8" enctype="multipart/form-data" id="editBlog">
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                <form method="POST" action="{{route('manage-blog.update', $blog->id)}}" accept-charset="UTF-8" enctype="multipart/form-data" id="editNewBlog">
                     @csrf
                     <input type="hidden" name="_method" value="PUT">
                     <div class="row">
@@ -189,7 +198,7 @@
                         </div>-->
                         
                         <div class="pb-0 pt-3">
-                            <button type="submit" class="btn btn-primary">Update</button>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">Update</button>
                             <a href="{{ url()->previous() }}" class="btn btn-secondary">Cancel</a>
                         </div>
                     </div>
@@ -222,5 +231,12 @@
 <!--autocomplete-->
 <script src="{{asset('backend/assets/js/components/form-quilljs.js')}}"></script>
 <script src="{{asset('backend/assets/js/pages/create-blog.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}" type="text/javascript"></script> 
-
+<script>
+document.getElementById('editNewBlog').addEventListener('submit', function () {
+    let btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.querySelector('.btn-text').innerHTML = 'Please wait...';
+    btn.querySelector('.loading-spinner').classList.remove('d-none');
+});
+</script>
 @endpush

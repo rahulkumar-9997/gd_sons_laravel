@@ -264,5 +264,23 @@
 <!-- Cart Section End -->
 @endsection
 @push('scripts')
-<!-- <script src="{{asset('frontend/assets/js/pages/update-cart.js')}}"></script> -->
+<script>
+gtag('event', 'purchase', {
+    transaction_id: "{{ $order->order_id }}",
+    value: {{ $order->grand_total_amount }},
+    currency: "INR",
+    shipping: {{ $order->shiprocketCourier ? $order->shiprocketCourier->courier_shipping_rate : 0 }},
+    payment_type: "{{ $order->payment_mode }}",
+    items: [
+        @foreach($order->orderLines as $orderLine)
+        {
+            item_id: "{{ $orderLine->product->id }}",
+            item_name: "{{ str_replace('"', '', $orderLine->product->title) }}",
+            price: {{ $orderLine->price }},
+            quantity: {{ $orderLine->quantity }}
+        }@if(!$loop->last),@endif
+        @endforeach
+    ]
+});
+</script>
 @endpush

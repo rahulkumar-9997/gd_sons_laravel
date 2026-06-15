@@ -1530,10 +1530,11 @@ class FrontendController extends Controller
                     ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity');
             }
         ])
-            ->where('slug', $slug)
-            ->firstOrFail();
+        ->where('slug', $slug)
+        ->firstOrFail();
+        $blog->increment('view');
 
-        $blog_category_id = $blog->blog_category_id;
+        $blog_category_id = $blog->blog_category_id;        
         $blog_recent_post = Blog::where('blog_category_id', $blog_category_id)
             ->where('slug', '!=', $slug)
             ->where('created_at', '>=', Carbon::now()->subMonth())

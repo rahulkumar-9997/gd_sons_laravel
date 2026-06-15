@@ -320,6 +320,8 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('export-inventory', [InventoryController::class, 'exportInventory'])->name('export.inventory');
     Route::get('import-inventory', [InventoryController::class, 'importInventory'])->name('import.inventory');
     Route::post('inventory-import-form', [InventoryController::class, 'inventoryImportForm'])->name('inventory.import.form');
+
+    Route::post('inventory-shipment-rate/{id}', [InventoryController::class, 'updateInventoryShipmentRate'])->name('inventory.shipment.rate');
     /**inventory route */
     /*Vendor Route */
     Route::get('/manage-vendor', [VendorController::class, 'index'])->name('manage-vendor.index');

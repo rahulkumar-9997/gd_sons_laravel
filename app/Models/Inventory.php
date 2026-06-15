@@ -15,6 +15,7 @@ class Inventory extends Model
         'mrp',
         'purchase_rate',
         'offer_rate',
+        'shipment_rate',
         'stock_quantity',
         'sku'
     ];

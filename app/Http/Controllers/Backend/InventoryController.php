@@ -92,7 +92,9 @@ class InventoryController extends Controller
                                 <span class="badge bg-light text-dark">B: '.number_format($product_row->breadth, 1).' cm</span>
                                 <span class="badge bg-light text-dark">H: '.number_format($product_row->height, 1).' cm</span>
                                 <span class="badge bg-light text-dark">W: '.number_format($product_row->weight, 1).' kg</span>
-                                <span class="badge bg-purple text-white">VW: '.number_format($product_row->volumetric_weight_kg, 1).' kg</span>
+                                <span class="badge bg-purple text-white">
+                                    VW: '.number_format($product_row->volumetric_weight_kg, 2) .' kg
+                                </span>
                             </div>';
                         }
                     $form .= '
@@ -110,6 +112,7 @@ class InventoryController extends Controller
                                     <th style="min-width: 150px;">MRP</th>
                                     <th style="min-width: 150px;">Purchase Rate</th>
                                     <th style="min-width: 150px;">Offer Rate</th>
+                                    <th style="min-width: 150px;">Shipping Charge</th>
                                     <th style="min-width: 150px;">Stock Quantity</th>
                                     <th style="min-width: 120px;">Actions</th>
                                 </tr>
@@ -129,6 +132,9 @@ class InventoryController extends Controller
                                             </td>
                                             <td>
                                                 <input type="number" name="offer_rate[]" class="form-control" value="' . $inventory->offer_rate . '">
+                                            </td>
+                                            <td>
+                                                <input type="number" name="shipment_rate[]" class="form-control" value="' . $inventory->shipment_rate . '">
                                             </td>
                                             <td>
                                                 <input type="number" name="stock_quantity[]" class="form-control" value="' . $inventory->stock_quantity . '" >
@@ -357,6 +363,199 @@ class InventoryController extends Controller
 
             return back()->with('error', 'An error occurred while importing: ' . $e->getMessage());
         }
+    }
+
+    public function updateInventoryShipmentRate(Request $request, $id)
+    {
+        try {
+            $product = Product::find($id);    
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product not found.',
+                ], 404);
+            }
+            
+            if (!$product->length || !$product->breadth || !$product->height) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product dimensions (length, breadth, height) missing.',
+                ], 422);
+            }
+            
+            if ($product->length <= 0 || $product->breadth <= 0 || $product->height <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product dimensions must be greater than 0.',
+                ], 422);
+            }            
+            
+            $inventory = Inventory::where('product_id', $product->id)->first();
+            
+            if (!$inventory) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No inventory found for this product.',
+                ], 404);
+            }
+            
+            /* Calculate volumetric weight */
+            $volumetricWeight = round(
+                ($product->length * $product->breadth * $product->height) / 5000,
+                2
+            );
+            Log::info('Updated volumetric weight', [
+                'volumetric_weight' => $volumetricWeight
+            ]);
+            /* Update product with volumetric weight */
+            $product->volumetric_weight_kg = $volumetricWeight;
+            $product->save();
+            
+            /* Find weight category*/
+            $weightCategory = $this->findWeightCategory($volumetricWeight);            
+            
+            if (!$weightCategory) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No weight category found for this product weight.',
+                ], 422);
+            }
+            
+            /* Calculate uniform shipping rate */
+            $uniformRate = $this->calculateUniformShippingRate($weightCategory->id);
+            
+            if ($uniformRate <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unable to calculate shipping rate. No pincode rates found.',
+                ], 422);
+            }
+            
+            /* Update inventory with uniform rate */
+            $inventory->shipment_rate = $uniformRate;
+            $inventory->save();            
+            
+            return response()->json([
+                'success'              => true,
+                'message'              => 'Uniform shipping rate calculated successfully!',
+                'volumetric_weight_kg' => $volumetricWeight,  // ← ADD THIS for AJAX compatibility
+                'shipment_rate'        => $uniformRate,       // ← ADD THIS for AJAX compatibility
+                'data' => [
+                    'product_id' => $product->id,
+                    'inventory_id' => $inventory->id,
+                    'dimensions' => [
+                        'length' => $product->length,
+                        'breadth' => $product->breadth,
+                        'height' => $product->height,
+                    ],
+                    'volumetric_weight_kg' => $volumetricWeight,
+                    'weight_category' => [
+                        'id' => $weightCategory->id,
+                        'min_weight' => $weightCategory->min_weight,
+                        'max_weight' => $weightCategory->max_weight,
+                    ],
+                    'uniform_shipment_rate' => $uniformRate,
+                    'note' => 'This rate is same for all customers (local & distant)'
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('updateInventoryShipmentRate error: ' . $e->getMessage(), [
+                'product_id' => $id,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Find weight category based on weight
+     */
+    private function findWeightCategory(float $weight)
+    {
+        return \App\Models\WeightCategory::where('min_weight', '<=', $weight)
+            ->where(function($query) use ($weight) {
+                $query->where('max_weight', '>=', $weight)
+                    ->orWhereNull('max_weight');
+            })
+            ->first();
+    }
+
+    /**
+     * Calculate uniform shipping rate (same for all customers)
+     * Formula: Weighted average of all pincode rates + 15% margin
+     */
+    private function calculateUniformShippingRate(int $weightCategoryId): float
+    {
+        /* Get all shipping rates for this weight category */
+        $allRates = \App\Models\PincodeShippingRate::where('weight_category_id', $weightCategoryId)
+            ->pluck('shipping_rate')
+            ->toArray();
+        
+        if (empty($allRates)) {
+            return 0;
+        }
+        
+        /* Simple Average (easy and works well) */
+        $averageRate = array_sum($allRates) / count($allRates);
+        
+        // Method 2: Weighted by distance (more accurate)
+        // $weightedAverage = $this->calculateWeightedAverageByDistance($weightCategoryId);
+        
+        /* Add 15% profit margin */
+        $rateWithMargin = $averageRate * 1.15;
+        
+        /* Round up to nearest 10 or 50 for nice pricing */
+        if ($rateWithMargin <= 100) {
+            $finalRate = ceil($rateWithMargin / 10) * 10; 
+        } else {
+            $finalRate = ceil($rateWithMargin / 50) * 50;
+        }
+        
+        return $finalRate;
+    }
+
+    /**
+     * Advanced: Weighted average based on distance zones (optional)
+     */
+    private function calculateWeightedAverageByDistance(int $weightCategoryId): float
+    {
+        $zoneRates = \Illuminate\Support\Facades\DB::table('pincode_shipping_rates as psr')
+            ->join('pincodes as p', 'psr.pincode_id', '=', 'p.id')
+            ->join('cities as c', 'p.city_id', '=', 'c.id')
+            ->select(
+                \Illuminate\Support\Facades\DB::raw('
+                    CASE 
+                        WHEN c.distance_from_warehouse <= 50 THEN "local"
+                        WHEN c.distance_from_warehouse <= 200 THEN "regional"
+                        WHEN c.distance_from_warehouse <= 1000 THEN "national"
+                        ELSE "far"
+                    END as zone
+                '),
+                \Illuminate\Support\Facades\DB::raw('AVG(psr.shipping_rate) as avg_rate')
+            )
+            ->where('psr.weight_category_id', $weightCategoryId)
+            ->groupBy('zone')
+            ->get();
+        
+        $weights = [
+            'local' => 0.20,     // 20% weight - lowest rates
+            'regional' => 0.30,  // 30% weight - medium rates
+            'national' => 0.35,  // 35% weight - high rates
+            'far' => 0.15        // 15% weight - highest rates
+        ];
+        
+        $weightedSum = 0;
+        foreach ($zoneRates as $zone) {
+            $weight = $weights[$zone->zone] ?? 0.25;
+            $weightedSum += $zone->avg_rate * $weight;
+        }
+        
+        return $weightedSum;
     }
 
 

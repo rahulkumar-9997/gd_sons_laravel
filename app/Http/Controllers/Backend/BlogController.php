@@ -43,25 +43,38 @@ class BlogController extends Controller
      */
     public function store(Request $request){
         //dd(request()->all());
-        try {
-            $validatedData = $request->validate([
+        $validatedData = $request->validate(
+            [
                 'blog_category' => 'required|exists:blog_categories,id',
                 'blog_name' => 'required|string|max:255',
                 'blog_img' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
                 'blog_description' => 'required|string',
+
                 'paragraphs_title' => 'nullable|array',
                 'paragraphs_title.*' => 'nullable|string|max:255',
+
                 'paragraphs_description' => 'nullable|array',
                 'paragraphs_description.*' => 'nullable|string',
+
                 'paragraphs_img' => 'nullable|array',
                 'paragraphs_img.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
+
                 'product_name' => 'nullable|array',
                 'product_name.*' => 'nullable|string|max:255',
+
                 'product_id' => 'nullable|array',
                 'product_id.*' => 'nullable|exists:products,id',
-            ]);
+            ],
+            [
+                'blog_category.required' => 'Please select blog category.',
+                'blog_name.required' => 'Please enter blog title.',
+                'blog_img.required' => 'Please upload blog image.',
+                'blog_img.image' => 'Only image files are allowed.',
+                'blog_description.required' => 'Please enter blog description.',
+            ]
+        );
+        try {            
             DB::beginTransaction();
-
             $blogImage = $request->file('blog_img');
             $blogImagePath = null;
             if ($blogImage) {
@@ -166,22 +179,22 @@ class BlogController extends Controller
      */
     public function update(Request $request, $id)
     {
-        try {
-            $validatedData = $request->validate([
-                'blog_category' => 'required|exists:blog_categories,id',
-                'blog_name' => 'required|string|max:255',
-                'blog_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
-                'blog_description' => 'required|string',
-                'paragraphs_title' => 'nullable|array',
-                'paragraphs_title.*.title' => 'nullable|string|max:255',
-                'paragraphs_description' => 'nullable|array',
-                'paragraphs_description.*' => 'nullable|string',
-                'product_name' => 'nullable|array',
-                'product_name.*.products.*.name' => 'nullable|string|max:255',
-                'product_id' => 'nullable|array',
-                'product_id.*.products.*.id' => 'nullable|exists:products,id',
-            ]);
+        $validatedData = $request->validate([
+            'blog_category' => 'required|exists:blog_categories,id',
+            'blog_name' => 'required|string|max:255',
+            'blog_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
+            'blog_description' => 'required|string',
+            'paragraphs_title' => 'nullable|array',
+            'paragraphs_title.*.title' => 'nullable|string|max:255',
+            'paragraphs_description' => 'nullable|array',
+            'paragraphs_description.*' => 'nullable|string',
+            'product_name' => 'nullable|array',
+            'product_name.*.products.*.name' => 'nullable|string|max:255',
+            'product_id' => 'nullable|array',
+            'product_id.*.products.*.id' => 'nullable|exists:products,id',
+        ]);
 
+        try {            
             DB::beginTransaction();
             $blog = Blog::findOrFail($id);
             $blog->title = $validatedData['blog_name'];

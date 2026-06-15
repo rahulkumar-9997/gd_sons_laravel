@@ -2,10 +2,6 @@
 @section('title','Create new Blog')
 @section('main-content')
 @push('styles')
-<link href="{{asset('backend/assets/vendor/datatables/css/jquery.dataTables.css')}}" rel="stylesheet" type="text/css" media="screen" />
-<link href="{{asset('backend/assets/vendor/datatables/extensions/TableTools/css/dataTables.tableTools.min.css')}}" rel="stylesheet" type="text/css" media="screen" />
-<link href="{{asset('backend/assets/vendor/datatables/extensions/Responsive/css/dataTables.responsive.css')}}" rel="stylesheet" type="text/css" media="screen" />
-<link href="{{asset('backend/assets/vendor/datatables/extensions/Responsive/bootstrap/3/dataTables.bootstrap.css')}}" rel="stylesheet" type="text/css" media="screen" />
 <link href="{{asset('backend/assets/plugins/select2/select2.css')}}" rel="stylesheet" type="text/css" media="screen" />
 <link href="{{asset('backend/assets/plugins/multi-select/css/multi-select.css')}}" rel="stylesheet" type="text/css" media="screen" />
 @endpush
@@ -18,6 +14,15 @@
                     <h4 class="card-title flex-grow-1"> Create new Blog</h4>
                 </div>
                 <div class="card-body">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <form method="POST" action="{{route('manage-blog.store')}}" accept-charset="UTF-8" enctype="multipart/form-data" id="addNewBlog">
                         @csrf
                         <div class="row">
@@ -154,7 +159,7 @@
 
                             <div class="pb-0 pt-3">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary">Save changes</button>
+                                <button type="submit" class="btn btn-primary" id="submitBtn">Save changes</button>
                             </div>
                         </div>
                     </form>
@@ -185,5 +190,12 @@
 <script src="{{asset('backend/assets/js/autocomplete/jquery-ui.min.js')}}"></script>
 <!--autocomplete-->
 <script src="{{asset('backend/assets/js/pages/create-blog.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}" type="text/javascript"></script>
-
+<script>
+document.getElementById('addNewBlog').addEventListener('submit', function () {
+    let btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.querySelector('.btn-text').innerHTML = 'Please wait...';
+    btn.querySelector('.loading-spinner').classList.remove('d-none');
+});
+</script>
 @endpush

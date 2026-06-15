@@ -3,7 +3,9 @@
         <thead class="bg-light-subtle">
             <tr>
                 <th>No.</th>
-                <th style="width: 20%;">Name</th>
+                <th style="width: 20%;">
+                    Name
+                </th>
                 <th>HSN Code</th>
                 <!-- <th>Image</th> -->
                 <th>Status</th>
@@ -21,7 +23,20 @@
                 <tr class="product-row">
                     <td>{{ $sr_no++ }}</td>
                     <td>
-                        {{ ucwords(strtolower($product->title)) }}
+                        <a href="https://www.google.com/search?q={{ urlencode($product->title) }}&udm=2" target="_blank" class="text-primary font-normal">
+                            {{ ucwords(strtolower($product->title)) }}
+                        </a>
+                        @if($product->length && $product->breadth && $product->height && $product->weight)
+                            <div class="mt-1 d-flex flex-wrap gap-1">
+                                <span class="badge bg-light text-dark">L: {{ number_format($product->length, 1) }}cm</span>
+                                <span class="badge bg-light text-dark">B: {{ number_format($product->breadth, 1) }}cm</span>
+                                <span class="badge bg-light text-dark">H: {{ number_format($product->height, 1) }}cm</span>
+                                <span class="badge bg-light text-dark">W: {{ number_format($product->weight, 1) }}kg</span>
+                                <span class="badge bg-purple text-white">
+                                    VW: {{ number_format($product->volumetric_weight_kg, 2) }}kg
+                                </span>
+                            </div>
+                        @endif
                     </td>
                     <td>
                         {{ $product->hsn_code??'Null' }}
@@ -37,8 +52,7 @@
                             <a href="{{ route('product.edit', $product->id) }}" class="btn btn-soft-primary btn-sm" data-bs-original-title="Edit Product" data-bs-toggle="tooltip"><i class="ti ti-pencil"></i></a>
                             <a href="javascript:void(0)" data-ajax-popup-modal="true" data-size="lg" data-title=" Add Inventory" data-pid="{{$product->id}}" data-url="{{route('manage-inventory.create')}}" data-bs-toggle="tooltip" class="btn btn-sm btn-primary" data-bs-original-title=" Add Inventory">
                                 Add Inventory
-                            </a>
-                            
+                            </a>  
                             <!-- Only show the "View Inventory" button if there are inventories -->
                             @if($product->inventories->isNotEmpty())
                             @php
@@ -58,6 +72,11 @@
                             </button>
                                 
                             @endif
+                            <!--@if($product->length && $product->breadth && $product->height && $product->weight)
+                                <button class="btn btn-pink btn-sm update-shipment-rate" type="button" 
+                                data-route="{{ route('inventory.shipment.rate', $product->id)}}"
+                                >Update Shipment Rate</button>
+                            @endif-->
                         </div>
                     </td>
                 </tr>
@@ -71,6 +90,7 @@
                                         <th>MRP</th>
                                         <th>Purchase Rate</th>
                                         <th>Offer Rate</th>
+                                        <th>Shipping Charge</th>
                                         <th>Stock Quantity</th>
                                         <th>Action</th>
                                     </tr>
@@ -94,6 +114,10 @@
                                             <td class="editable-field" data-field="offer_rate" data-id="{{ $inventory->id }}">
                                                 <span class="current-value"><strong>Rs. </strong> {{ $inventory->offer_rate }}</span>
                                                 <input type="number" class="edit-input form-control" data-field="offer_rate" value="{{ $inventory->offer_rate }}" style="display:none;">
+                                            </td>
+                                            <td class="editable-field" data-field="shipment_rate" data-id="{{ $inventory->id }}">
+                                                <span class="current-value"><strong>Rs. </strong> {{ $inventory->shipment_rate }}</span>
+                                                <input type="number" class="edit-input form-control" data-field="shipment_rate" value="{{ $inventory->shipment_rate }}" style="display:none;">
                                             </td>
                                             <td class="editable-field" data-field="stock_quantity" data-id="{{ $inventory->id }}">
                                                 @if($inventory->purchase_line_count > 0)

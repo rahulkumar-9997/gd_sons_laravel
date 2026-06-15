@@ -21,7 +21,7 @@ $(document).ready(function () {
                     console.log(response);
                     if (response && response.status === true) {
                         showNotificationAll("success", "", response.message);
-                        if (response.payment_type === 'Cash on Delivery' || response.payment_type === 'Pick Up From Store') {
+                        if (response.payment_type === 'Cash on Delivery' || response.payment_type === 'Pick Up From Storey') {
                             if (response.redirect_url) {
                                 window.location.href = response.redirect_url;
                             } else {
@@ -49,7 +49,7 @@ $(document).ready(function () {
                             });
                             */
                         }
-                        else if (response.payment_type === "razorpay") {
+                        else if (response.payment_type === "Razorpay") {
                             submitButton.prop("disabled", false).html(originalBtnHtml);
                             initializeRazorpayPayment(response);
                         } 

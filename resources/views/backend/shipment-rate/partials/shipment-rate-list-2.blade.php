@@ -9,6 +9,14 @@
                 <th class="text-center">
                     <div>
                         <strong>{{ $weight->primary_weight }} KG</strong>
+                        <span
+                            class="badge bg-success cursor-pointer update-weight-category-shipping-rate"
+                            data-url="{{ route('shipment-rate.update-weight-category', 
+                            $weight->id) }}"
+                            data-title="{{ $weight->primary_weight }} KG"
+                            data-size="md">
+                            Shipping Update
+                        </span>
                     </div>
                     <small class="text-muted">
                         @if($weight->max_weight)

@@ -13,6 +13,7 @@
                <h4 class="card-title flex-grow-1">
                   All Shipping Rates List
                </h4>
+               
             </div>
             <div class="card-body">
                @if (isset($shipping_rates) && $shipping_rates->count() > 0)
@@ -57,6 +58,7 @@
 @include('backend.layouts.common-modal-form')
 @endsection
 @push('scripts')
+<script type="text/javascript" src="{{asset('backend/assets/js/pages/inventory-shipping-rate.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 <script>
    $(document).ready(function() {
       $('.select-multiple').select2();

@@ -1,5 +1,29 @@
 $(document).ready(function () {
-
+    $(document).on('click', '.update-weight-category-shipping-rate', function () {
+        var title = $(this).data('title');
+        var size = ($(this).data('size') == '') ? 'md' : $(this).data('size');
+        var url = $(this).data('url');
+        var data = {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+            size: size,
+            url: url
+        };
+        $("#commanModel .modal-title").html(title);
+        $("#commanModel .modal-dialog").addClass('modal-' + size);
+        
+        $.ajax({
+            url: url,
+            type: 'get',
+            data: data,
+            success: function (data) {
+                $('#commanModel .render-data').html(data.form);
+                $("#commanModel").modal('show');
+            },
+            error: function (data) {
+                data = data.responseJSON;
+            }
+        });
+    });
     let currentPage = 1;
     $(document).on("click", "#pagination-links-shipping-rates a", function (e) {
         e.preventDefault();

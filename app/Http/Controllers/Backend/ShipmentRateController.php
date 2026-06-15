@@ -188,4 +188,30 @@ class ShipmentRateController extends Controller
             $fileName
         );
     }
+
+    public function updateShipmentRateForm(Request $request){
+        $form ='
+        <div class="modal-body">
+            <form method="POST" action="'.route('label.store').'" accept-charset="UTF-8" enctype="multipart/form-data" id="uploadForm">
+                '.csrf_field().'
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Weight Category Shipping Rate</label>
+                            <input type="text" id="weight_category_shipping_rate" name="weight_category_shipping_rate" class="form-control">
+                        </div>
+                    </div>
+                    <div class="modal-footer pb-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        ';
+        return response()->json([
+            'message' => 'Form created successfully',
+            'form' => $form,
+        ]);
+    }
 }

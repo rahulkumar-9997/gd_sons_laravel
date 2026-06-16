@@ -41,12 +41,12 @@ class UpdateShipmentRatesJob implements ShouldQueue
             return;
         }
         $rateLimitKey = 'shiprocket_rate_limit_' . date('Y-m-d-H-i');
-        $newRate = Cache::increment($rateLimitKey);
-        if ($newRate === 1) {
-            Cache::expire($rateLimitKey, 60);
-        }
+        $newRate = Cache::get($rateLimitKey, 0) + 1;
+        Cache::put($rateLimitKey, $newRate, 60);
+        
         if ($newRate > $this->rateLimitPerMinute) {
-            Cache::decrement($rateLimitKey);
+            $current = Cache::get($rateLimitKey, 0);
+            Cache::put($rateLimitKey, $current - 1, 60);
             
             Log::warning('Rate limit exceeded, retrying later', [
                 'pincode' => $pincode->pincode,
@@ -54,11 +54,13 @@ class UpdateShipmentRatesJob implements ShouldQueue
                 'limit' => $this->rateLimitPerMinute,
                 'retry_after' => 60
             ]);
+            
             $this->release(60);
             return;
         }
 
         $fromPin = config('services.shiprocket.shiprocket_pickup_pincode');
+        
         if ($this->specificWeightId) {
             $weightCategory = WeightCategory::find($this->specificWeightId);
             if (!$weightCategory) {
@@ -96,6 +98,7 @@ class UpdateShipmentRatesJob implements ShouldQueue
                 'api_calls_used' => $newRate
             ]);
         }
+
         foreach ($weightsToProcess as $weightCategory) {
             $currentRate = Cache::get($rateLimitKey, 0);
             
@@ -110,7 +113,9 @@ class UpdateShipmentRatesJob implements ShouldQueue
             }
 
             try {
-                $newRate = Cache::increment($rateLimitKey);                
+                $newRate = Cache::get($rateLimitKey, 0) + 1;
+                Cache::put($rateLimitKey, $newRate, 60);
+                
                 $response = $ship->getServiceability(
                     $fromPin,
                     $pincode->pincode,
@@ -145,9 +150,10 @@ class UpdateShipmentRatesJob implements ShouldQueue
                     'rate' => $filtered->first()['rate'] ?? null,
                     'api_calls_used' => $newRate
                 ]);
+
                 $currentRate = Cache::get($rateLimitKey, 0);
                 if ($currentRate > $this->rateLimitPerMinute - 10) {
-                    sleep(5); 
+                    sleep(5);
                 } elseif ($currentRate > $this->rateLimitPerMinute - 5) {
                     sleep(3);
                 } else {
@@ -163,7 +169,11 @@ class UpdateShipmentRatesJob implements ShouldQueue
                         'weight' => $weightCategory->primary_weight,
                         'message' => $errorMessage
                     ]);
-                    Cache::decrement($rateLimitKey);
+                    $current = Cache::get($rateLimitKey, 0);
+                    if ($current > 0) {
+                        Cache::put($rateLimitKey, $current - 1, 60);
+                    }
+                    
                     $this->release(120);
                     return;
                 }
@@ -178,6 +188,7 @@ class UpdateShipmentRatesJob implements ShouldQueue
                 continue;
             }
         }
+
         Log::info('All weights processed successfully', [
             'pincode' => $pincode->pincode,
             'total_weights' => $weightsToProcess->count()

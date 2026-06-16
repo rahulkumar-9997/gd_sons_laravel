@@ -20,197 +20,167 @@ class UpdateShipmentRatesJob implements ShouldQueue
 
     public $tries = 10;
     public $timeout = 900;
-    public $backoff = [30, 60, 120, 300, 600];
+    public $backoff = [60, 120, 300, 600, 1200];
 
     protected $pincodeId;
-    protected $batchSize = 10;
-    protected $rateLimitPerMinute = 30;
+    protected $specificWeightId;
+    protected $batchSize = 5;
+    protected $rateLimitPerMinute = 25;
 
-    public function __construct($pincodeId)
+    public function __construct($pincodeId, $specificWeightId = null)
     {
         $this->pincodeId = $pincodeId;
+        $this->specificWeightId = $specificWeightId;
     }
 
     public function handle(ShiprocketService $ship)
     {
         $pincode = Pincode::find($this->pincodeId);
-
         if (!$pincode) {
             Log::warning('Pincode not found', ['pincode_id' => $this->pincodeId]);
             return;
         }
-
-        // Check if we're rate limited
         $rateLimitKey = 'shiprocket_rate_limit_' . date('Y-m-d-H-i');
-        $currentRate = Cache::get($rateLimitKey, 0);
-
-        if ($currentRate >= $this->rateLimitPerMinute) {
-            Log::warning('Rate limit reached, retrying later', [
+        $newRate = Cache::increment($rateLimitKey);
+        if ($newRate === 1) {
+            Cache::expire($rateLimitKey, 60);
+        }
+        if ($newRate > $this->rateLimitPerMinute) {
+            Cache::decrement($rateLimitKey);
+            
+            Log::warning('Rate limit exceeded, retrying later', [
                 'pincode' => $pincode->pincode,
-                'current_rate' => $currentRate,
-                'limit' => $this->rateLimitPerMinute
+                'current_rate' => $newRate - 1,
+                'limit' => $this->rateLimitPerMinute,
+                'retry_after' => 60
             ]);
-            self::dispatch($this->pincodeId)->delay(now()->addMinutes(1));
+            $this->release(60);
             return;
         }
 
-        $weights = WeightCategory::all();
         $fromPin = config('services.shiprocket.shiprocket_pickup_pincode');
+        if ($this->specificWeightId) {
+            $weightCategory = WeightCategory::find($this->specificWeightId);
+            if (!$weightCategory) {
+                Log::warning('Weight category not found', ['weight_id' => $this->specificWeightId]);
+                return;
+            }
+            $weightsToProcess = collect([$weightCategory]);
+            
+            Log::info('Processing specific weight', [
+                'pincode' => $pincode->pincode,
+                'weight' => $weightCategory->primary_weight . ' kg',
+                'weight_id' => $weightCategory->id,
+                'api_calls_used' => $newRate
+            ]);
+        } else {
+            $weights = WeightCategory::all();
+            $processedWeights = PincodeShippingRate::where('pincode_id', $pincode->id)
+                ->whereNotNull('shipping_rate')
+                ->pluck('weight_category_id')
+                ->toArray();
 
-        // Check which weights are already processed for this pincode
-        $processedWeights = PincodeShippingRate::where('pincode_id', $pincode->id)
-            ->whereNotNull('shipping_rate')
-            ->pluck('weight_category_id')
-            ->toArray();
+            $weightsToProcess = $weights->filter(function ($weight) use ($processedWeights) {
+                return !in_array($weight->id, $processedWeights);
+            });
 
-        // Only process unprocessed weights
-        $weightsToProcess = $weights->filter(function ($weight) use ($processedWeights) {
-            return !in_array($weight->id, $processedWeights);
-        });
+            if ($weightsToProcess->isEmpty()) {
+                Log::info('All weights already processed', ['pincode' => $pincode->pincode]);
+                return;
+            }
 
-        if ($weightsToProcess->isEmpty()) {
-            Log::info('All weights already processed', ['pincode' => $pincode->pincode]);
-            return;
+            Log::info('Processing all weights', [
+                'pincode' => $pincode->pincode,
+                'total' => $weightsToProcess->count(),
+                'processed' => count($processedWeights),
+                'api_calls_used' => $newRate
+            ]);
         }
-
-        Log::info('Processing weights', [
-            'pincode' => $pincode->pincode,
-            'total' => $weightsToProcess->count(),
-            'processed' => count($processedWeights)
-        ]);
-
-        // Process in smaller batches to manage rate limits
-        $batches = $weightsToProcess->chunk($this->batchSize);
-
-        foreach ($batches as $batchIndex => $batch) {
-            // Check rate limit before each batch
+        foreach ($weightsToProcess as $weightCategory) {
             $currentRate = Cache::get($rateLimitKey, 0);
+            
             if ($currentRate >= $this->rateLimitPerMinute) {
-                Log::warning('Rate limit during processing, pausing', [
+                Log::warning('Rate limit reached during processing', [
                     'pincode' => $pincode->pincode,
-                    'batch' => $batchIndex + 1,
+                    'weight' => $weightCategory->primary_weight,
                     'current_rate' => $currentRate
                 ]);
+                $this->release(60);
+                return;
+            }
 
-                sleep(30);
+            try {
+                $newRate = Cache::increment($rateLimitKey);                
+                $response = $ship->getServiceability(
+                    $fromPin,
+                    $pincode->pincode,
+                    $weightCategory->primary_weight,
+                    0
+                );
+                
+                $companies = $response['raw']['data']['available_courier_companies'] ?? [];
+                $filtered = collect($companies)
+                    ->filter(function ($item) use ($weightCategory) {
+                        $minWeight = $item['min_weight'] ?? 0;
+                        $maxWeight = $item['max_weight'] ?? PHP_FLOAT_MAX;
+                        return $weightCategory->primary_weight >= $minWeight &&
+                            $weightCategory->primary_weight <= $maxWeight;
+                    })
+                    ->sortBy('rate')
+                    ->values();
+                    
+                PincodeShippingRate::updateOrCreate(
+                    [
+                        'pincode_id' => $pincode->id,
+                        'weight_category_id' => $weightCategory->id,
+                    ],
+                    [
+                        'shipping_rate' => $filtered->isNotEmpty() ? $filtered->first()['rate'] : null,
+                    ]
+                );
+
+                Log::info('Weight processed', [
+                    'pincode' => $pincode->pincode,
+                    'weight' => $weightCategory->primary_weight,
+                    'rate' => $filtered->first()['rate'] ?? null,
+                    'api_calls_used' => $newRate
+                ]);
                 $currentRate = Cache::get($rateLimitKey, 0);
+                if ($currentRate > $this->rateLimitPerMinute - 10) {
+                    sleep(5); 
+                } elseif ($currentRate > $this->rateLimitPerMinute - 5) {
+                    sleep(3);
+                } else {
+                    sleep(2);
+                }
 
-                if ($currentRate >= $this->rateLimitPerMinute) {
-                    self::dispatch($this->pincodeId)->delay(now()->addMinutes(2));
+            } catch (\Exception $e) {
+                $errorMessage = $e->getMessage();                
+                if (str_contains(strtolower($errorMessage), 'rate limit') ||
+                    str_contains(strtolower($errorMessage), '429')) {
+                    Log::warning('Rate limit error', [
+                        'pincode' => $pincode->pincode,
+                        'weight' => $weightCategory->primary_weight,
+                        'message' => $errorMessage
+                    ]);
+                    Cache::decrement($rateLimitKey);
+                    $this->release(120);
                     return;
                 }
-            }
 
-            Log::info('Processing batch', [
-                'pincode' => $pincode->pincode,
-                'batch' => $batchIndex + 1,
-                'total_batches' => $batches->count(),
-                'weights_in_batch' => $batch->count()
-            ]);
+                Log::error('Shiprocket API Error', [
+                    'pincode' => $pincode->pincode,
+                    'weight' => $weightCategory->primary_weight,
+                    'message' => $errorMessage,
+                ]);
 
-            foreach ($batch as $weightCategory) {
-                try {
-                    // Increment rate limit counter with expiration
-                    $newRate = Cache::get($rateLimitKey, 0) + 1;
-                    Cache::put($rateLimitKey, $newRate, 60);
-
-                    $response = $ship->getServiceability(
-                        $fromPin,
-                        $pincode->pincode,
-                        $weightCategory->primary_weight,
-                        0
-                    );
-
-                    $companies = $response['raw']['data']['available_courier_companies'] ?? [];
-
-                    // Filter couriers that can handle this weight
-                    $filtered = collect($companies)
-                        ->filter(function ($item) use ($weightCategory) {
-                            $minWeight = $item['min_weight'] ?? 0;
-                            $maxWeight = $item['max_weight'] ?? PHP_FLOAT_MAX;
-
-                            return $weightCategory->primary_weight >= $minWeight &&
-                                $weightCategory->primary_weight <= $maxWeight;
-                        })
-                        ->sortBy('rate')
-                        ->values();
-
-                    // ✅ Only update shipping_rate (existing column)
-                    PincodeShippingRate::updateOrCreate(
-                        [
-                            'pincode_id' => $pincode->id,
-                            'weight_category_id' => $weightCategory->id,
-                        ],
-                        [
-                            'shipping_rate' => $filtered->isNotEmpty() ? $filtered->first()['rate'] : null,
-                        ]
-                    );
-
-                    Log::info('Weight processed successfully', [
-                        'pincode' => $pincode->pincode,
-                        'weight' => $weightCategory->primary_weight,
-                        'rate' => $filtered->first()['rate'] ?? null,
-                        'rate_count' => $newRate
-                    ]);
-
-                    // Dynamic sleep based on rate limit
-                    $currentRate = Cache::get($rateLimitKey, 0);
-                    if ($currentRate > $this->rateLimitPerMinute - 5) {
-                        sleep(3);
-                    } else {
-                        sleep(1);
-                    }
-
-                } catch (\Exception $e) {
-                    $errorMessage = $e->getMessage();
-                    
-                    if (str_contains(strtolower($errorMessage), 'rate limit') ||
-                        str_contains(strtolower($errorMessage), '429')) {
-                        Log::warning('Rate limit error, will retry later', [
-                            'pincode' => $pincode->pincode,
-                            'weight' => $weightCategory->primary_weight,
-                            'message' => $errorMessage
-                        ]);
-
-                        self::dispatch($this->pincodeId)->delay(now()->addMinutes(5));
-                        return;
-                    }
-
-                    Log::error('Shiprocket API Error', [
-                        'pincode' => $pincode->pincode,
-                        'pincode_id' => $pincode->id,
-                        'weight' => $weightCategory->primary_weight,
-                        'weight_category_id' => $weightCategory->id,
-                        'message' => $errorMessage,
-                    ]);
-
-                    // ❌ REMOVED: Don't store error in database (columns don't exist)
-                    // Just log and continue
-
-                    sleep(2);
-                    continue;
-                }
-            }
-
-            // Cooldown between batches
-            if ($batchIndex < $batches->count() - 1) {
-                $currentRate = Cache::get($rateLimitKey, 0);
-                if ($currentRate > $this->rateLimitPerMinute - 5) {
-                    Log::info('Batch completed, cooling down', [
-                        'pincode' => $pincode->pincode,
-                        'current_rate' => $currentRate,
-                        'cooldown' => 30
-                    ]);
-                    sleep(30);
-                } else {
-                    sleep(5);
-                }
+                sleep(2);
+                continue;
             }
         }
-
         Log::info('All weights processed successfully', [
             'pincode' => $pincode->pincode,
-            'total_weights' => $weights->count()
+            'total_weights' => $weightsToProcess->count()
         ]);
     }
 }

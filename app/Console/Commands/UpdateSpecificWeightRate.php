@@ -9,33 +9,33 @@ use App\Models\PincodeShippingRate;
 use App\Jobs\UpdateShipmentRatesJob;
 use Illuminate\Support\Facades\Log;
 
-class CalculateShippingRates extends Command
+class UpdateSpecificWeightRate extends Command
 {
-    protected $signature = 'shiprocket:update-rates
+    protected $signature = 'shiprocket:update-1.5kg
             {--chunk=50 : Number of pincodes per chunk}
             {--delay=5 : Delay in seconds between each job}
-            {--force : Force update even if all weights are processed}';
+            {--force : Force update even if already processed}';
     
-    protected $description = 'Update shipping rates from Shiprocket with rate limiting';
+    protected $description = 'Update shipping rates for 1.5 kg weight only';
 
     public function handle()
     {
-        $this->info('Starting Shiprocket rates update...');
+        $this->info('Starting 1.5 kg rate update...');
         $this->line(now()->format('Y-m-d H:i:s'));
         $this->line('---');
+        $weight = WeightCategory::where('primary_weight', 1.50)->first();
         
-        $totalWeights = WeightCategory::count();
-        
-        if ($totalWeights === 0) {
-            $this->error('No weight categories found!');
+        if (!$weight) {
+            $this->error('1.5 kg weight category not found!');
             return 1;
         }
+        
+        $this->info("Weight category: {$weight->primary_weight} kg (ID: {$weight->id})");
         
         $chunkSize = (int)$this->option('chunk');
         $delaySeconds = (int)$this->option('delay');
         $force = $this->option('force');
         
-        $this->info("Total weight categories: {$totalWeights}");
         $this->info("Chunk size: {$chunkSize}");
         $this->info("Job delay: {$delaySeconds} seconds");
         $this->info("Force update: " . ($force ? 'Yes' : 'No'));
@@ -43,20 +43,15 @@ class CalculateShippingRates extends Command
         $query = Pincode::query();
         
         if (!$force) {
-            $processedPincodes = PincodeShippingRate::select('pincode_id')
+            $processedPincodes = PincodeShippingRate::where('weight_category_id', $weight->id)
                 ->whereNotNull('shipping_rate')
-                ->groupBy('pincode_id')
-                ->havingRaw('COUNT(DISTINCT weight_category_id) >= ?', [$totalWeights])
                 ->pluck('pincode_id')
-                ->toArray();
-            
+                ->toArray();            
             $query->whereNotIn('id', $processedPincodes);
-        }
-        
-        $totalPincodes = $query->count();
-        
+        }        
+        $totalPincodes = $query->count();        
         if ($totalPincodes === 0) {
-            $this->info('All pincodes are already up to date!');
+            $this->info('All pincodes already have 1.5 kg rates!');
             return 0;
         }
         
@@ -72,25 +67,25 @@ class CalculateShippingRates extends Command
         $bar = $this->output->createProgressBar($totalPincodes);
         $bar->start();
         
-        $query->chunkById($chunkSize, function ($pincodes) use ($delaySeconds, &$processedCount, &$chunkCount, $bar) {
+        $query->chunkById($chunkSize, function ($pincodes) use ($weight, $delaySeconds, &$processedCount, &$chunkCount, $bar) {
             $chunkCount++;
             $this->newLine();
-            $this->info("Processing chunk #{$chunkCount} with {$pincodes->count()} pincodes");
+            $this->info("📦 Processing chunk #{$chunkCount} with {$pincodes->count()} pincodes");
             
             foreach ($pincodes as $index => $pincode) {
                 $jobDelay = $delaySeconds + ($index * 2);
-                
-                UpdateShipmentRatesJob::dispatch($pincode->id)
-                    ->delay(now()->addSeconds($jobDelay));
-                
+                UpdateShipmentRatesJob::dispatch($pincode->id, $weight->id)
+                    ->delay(now()->addSeconds($jobDelay));                
                 $processedCount++;
                 $bar->advance();
+                
                 if ($processedCount % 100 === 0) {
-                    $this->line("\nProgress: {$processedCount} pincodes dispatched");
+                    $this->line("\n Progress: {$processedCount} pincodes dispatched");
                 }
             }
+            
             if ($chunkCount % 5 === 0) {
-                $this->line("\nCooling down for 30 seconds...");
+                $this->line("\n⏳ Cooling down for 30 seconds...");
                 sleep(30);
             }
         });
@@ -101,10 +96,10 @@ class CalculateShippingRates extends Command
         $this->info('Jobs dispatched successfully!');
         $this->info("Total jobs dispatched: {$processedCount}");
         $this->info('Check logs for processing details:');
-        $this->line('tail -f storage/logs/laravel.log');
+        $this->line('   tail -f storage/logs/laravel.log');
         $this->line('---');
         
-        Log::info('Shiprocket rate update completed', [
+        Log::info('1.5 kg rate update completed', [
             'total_pincodes' => $processedCount,
             'chunk_size' => $chunkSize,
             'job_delay' => $delaySeconds,

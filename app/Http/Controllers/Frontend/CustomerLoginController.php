@@ -118,7 +118,7 @@ class CustomerLoginController extends Controller
                 'success' => true,
                 'message' => $message,
                 'contact' => $input,
-                //'otp' => $otp,
+                'otp' => $otp,
             ]);
         }
     }

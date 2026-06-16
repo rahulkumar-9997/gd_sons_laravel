@@ -39578,14 +39578,10 @@ body.rtl .menu-label {
     color: #4a5568
 }
 
-.user-dashboard-section .dashboard-left-sidebar .profile-box .profile-contain {
-    padding: 0 15px
-}
 
 .user-dashboard-section .dashboard-left-sidebar .profile-box .profile-contain .profile-image {
     margin: 0 auto;
     text-align: center;
-    margin-top: -50px;
     z-index: 1;
     position: relative
 }
@@ -39663,7 +39659,6 @@ body.rtl .menu-label {
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
     gap: calc(2px + 5*(100vw - 320px)/1600);
-    margin: calc(10px + 10*(100vw - 320px)/1600) 0 6px
 }
 
 .user-dashboard-section .dashboard-left-sidebar .user-nav-pills .nav-item {

@@ -5,7 +5,7 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <div class="profile-box px-3 pt-5 pb-4">
+        <div class="profile-box p-2">
             <div class="profile-contain">
                 <div class="profile-image flex justify-center">
                     <div class="relative inline-block">
@@ -41,80 +41,81 @@
                 </div>
             </div>
         </div>
-        <ul class="nav nav-pills user-nav-pills flex flex-col space-y-1 p-4" id="pills-tab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <a href="{{ route('myaccount') }}" 
-                   class="flex items-center gap-3 px-2 py-2 rounded-xl text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 group {{ Request::routeIs('myaccount') ? 'bg-indigo-50 text-indigo-700 font-semibold shadow-sm' : '' }}">
-                    <span class="w-8 h-8 flex items-center justify-center rounded-lg {{ Request::routeIs('myaccount') ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500 group-hover:bg-indigo-100 group-hover:text-indigo-700' }} transition">
+        <ul class="nav nav-pills user-nav-pills flex flex-col space-y-1 p-4">
+            <li>
+                <a href="{{ route('myaccount') }}"
+                    class="flex items-center gap-3 lg:px-4 lg:py-3 sm:px-4 sm:py-3 rounded-xl transition-all duration-200 group
+                    {{ Request::routeIs('myaccount')
+                        ? 'bg-primary-mint text-primary-navy font-semibold border-l-4 border-primary-cyan shadow-sm'
+                        : 'text-textcolor-secondary hover:bg-primary-mint hover:text-primary-navy' }}">
+
+                    <span class="w-9 h-9 flex items-center justify-center rounded-lg transition
+                    {{ Request::routeIs('myaccount')
+                        ? 'bg-white text-primary-cyan'
+                        : 'bg-gray-100 text-gray-500 group-hover:bg-white group-hover:text-primary-cyan' }}">
                         <i data-feather="home" class="w-4 h-4"></i>
                     </span>
                     <span>Dashboard</span>
-                    @if(Request::routeIs('myaccount'))
-                        <span class="ml-auto w-1.5 h-6 bg-indigo-600 rounded-full"></span>
-                    @endif
                 </a>
             </li>
-            
-            <li class="nav-item" role="presentation">
-                <a href="{{ route('order') }}" 
-                   class="flex items-center gap-3 px-2 py-2 rounded-xl text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 group {{ Request::routeIs('order') ? 'bg-primary-teal-50 text-indigo-700 font-semibold shadow-sm' : '' }}">
-                    <span class="w-8 h-8 flex items-center justify-center rounded-lg {{ Request::routeIs('order') ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500 group-hover:bg-indigo-100 group-hover:text-indigo-700' }} transition">
+            <li>
+                <a href="{{ route('order') }}"
+                    class="flex items-center gap-3 lg:px-4 lg:py-3 sm:px-4 sm:py-3 rounded-xl transition-all duration-200 group
+                    {{ Request::routeIs('order')
+                        ? 'bg-primary-mint text-primary-navy font-semibold border-l-4 border-primary-cyan shadow-sm'
+                        : 'text-textcolor-secondary hover:bg-primary-mint hover:text-primary-navy' }}">
+
+                    <span class="w-9 h-9 flex items-center justify-center rounded-lg transition
+                    {{ Request::routeIs('order')
+                        ? 'bg-white text-primary-cyan'
+                        : 'bg-gray-100 text-gray-500 group-hover:bg-white group-hover:text-primary-cyan' }}">
                         <i data-feather="shopping-bag" class="w-4 h-4"></i>
                     </span>
                     <span>Orders</span>
-                    @if(Request::routeIs('order'))
-                        <span class="ml-auto w-1.5 h-6 bg-indigo-600 rounded-full"></span>
-                    @endif
                 </a>
             </li>
-            
-            <li class="nav-item" role="presentation">
-                <a href="{{ route('wishlist') }}" 
-                   class="flex items-center gap-3 px-2 py-2 rounded-xl text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 group {{ Request::routeIs('wishlist') ? 'bg-indigo-50 text-indigo-700 font-semibold shadow-sm' : '' }}">
-                    <span class="w-8 h-8 flex items-center justify-center rounded-lg {{ Request::routeIs('wishlist') ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500 group-hover:bg-indigo-100 group-hover:text-indigo-700' }} transition">
+            <li>
+                <a href="{{ route('wishlist') }}"
+                    class="flex items-center gap-3 lg:px-4 lg:py-3 sm:px-4 sm:py-3 rounded-xl transition-all duration-200 group
+                    {{ Request::routeIs('wishlist')
+                        ? 'bg-primary-mint text-primary-navy font-semibold border-l-4 border-primary-cyan shadow-sm'
+                        : 'text-textcolor-secondary hover:bg-primary-mint hover:text-primary-navy' }}">
+
+                    <span class="w-9 h-9 flex items-center justify-center rounded-lg transition
+                    {{ Request::routeIs('wishlist')
+                        ? 'bg-white text-primary-cyan'
+                        : 'bg-gray-100 text-gray-500 group-hover:bg-white group-hover:text-primary-cyan' }}">
                         <i data-feather="heart" class="w-4 h-4"></i>
                     </span>
                     <span>Wishlist</span>
-                    @if(Request::routeIs('wishlist'))
-                        <span class="ml-auto w-1.5 h-6 bg-indigo-600 rounded-full"></span>
-                    @endif
                 </a>
             </li>
-            
-            <li class="nav-item" role="presentation">
-                <a href="{{ route('address') }}" 
-                   class="flex items-center gap-3 px-2 py-2 rounded-xl text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 group {{ Request::routeIs('address') ? 'bg-indigo-50 text-indigo-700 font-semibold shadow-sm' : '' }}">
-                    <span class="w-8 h-8 flex items-center justify-center rounded-lg {{ Request::routeIs('address') ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500 group-hover:bg-indigo-100 group-hover:text-indigo-700' }} transition">
+            <li>
+                <a href="{{ route('address') }}"
+                    class="flex items-center gap-3 lg:px-4 lg:py-3 sm:px-4 sm:py-3 rounded-xl transition-all duration-200 group
+                    {{ Request::routeIs('address')
+                        ? 'bg-primary-mint text-primary-navy font-semibold border-l-4 border-primary-cyan shadow-sm'
+                        : 'text-textcolor-secondary hover:bg-primary-mint hover:text-primary-navy' }}">
+
+                    <span class="w-9 h-9 flex items-center justify-center rounded-lg transition
+                    {{ Request::routeIs('address')
+                        ? 'bg-white text-primary-cyan'
+                        : 'bg-gray-100 text-gray-500 group-hover:bg-white group-hover:text-primary-cyan' }}">
                         <i data-feather="map-pin" class="w-4 h-4"></i>
                     </span>
                     <span>Manage Addresses</span>
-                    @if(Request::routeIs('address'))
-                        <span class="ml-auto w-1.5 h-6 bg-indigo-600 rounded-full"></span>
-                    @endif
                 </a>
             </li>
-            
-            <!--<li class="nav-item" role="presentation">
-                <a href="#" 
-                   class="flex items-center gap-3 px-2 py-2 rounded-xl text-gray-600 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 group {{ Request::routeIs('customer-profile') ? 'bg-indigo-50 text-indigo-700 font-semibold shadow-sm' : '' }}">
-                    <span class="w-8 h-8 flex items-center justify-center rounded-lg {{ Request::routeIs('customer-profile') ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500 group-hover:bg-indigo-100 group-hover:text-indigo-700' }} transition">
-                        <i data-feather="user" class="w-4 h-4"></i>
-                    </span>
-                    <span>Manage Profile</span>
-                    @if(Request::routeIs('customer-profile'))
-                        <span class="ml-auto w-1.5 h-6 bg-indigo-600 rounded-full"></span>
-                    @endif
-                </a>
-            </li>-->
-            <li class="nav-item relative my-2">
-                <div class="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
-            </li>            
-            <li class="nav-item" role="presentation">
-                <form action="{{ route('customer.logout') }}" method="POST" id="logout-form">
+            <li class="my-2">
+                <div class="h-px bg-gray-200"></div>
+            </li>
+            <li>
+                <form action="{{ route('customer.logout') }}" method="POST">
                     @csrf
-                    <button type="submit" 
-                            class="flex items-center gap-3 w-full text-left px-4 py-3 rounded-xl text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200 group">
-                        <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 group-hover:bg-red-100 group-hover:text-red-600 transition">
+                    <button type="submit"
+                        class="flex items-center gap-3 w-full lg:px-4 lg:py-3 sm:px-4 sm:py-3 rounded-xl text-textcolor-secondary hover:bg-red-50 hover:text-red-600 transition-all duration-200 group">
+
+                        <span class="w-9 h-9 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 group-hover:bg-red-100 group-hover:text-red-600 transition">
                             <i data-feather="log-out" class="w-4 h-4"></i>
                         </span>
                         <span>Logout</span>

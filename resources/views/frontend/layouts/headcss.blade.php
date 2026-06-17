@@ -61,10 +61,8 @@
 		onload="this.onload=null;this.rel='stylesheet'">
 	<link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/bulk-style.css')}}">
 	<link rel="stylesheet" href="{{asset('frontend/assets/css/style.css')}}?v={{ env('ASSET_VERSION', '1.0.0') }}">
-	<link rel="stylesheet" type="text/css"
-		href="{{asset('frontend/assets/css/gd-style.css')}}?v={{ env('ASSET_VERSION', '1.0.0') }}">
-	<link rel="stylesheet" type="text/css"
-		href="{{asset('frontend/assets/css/cart-drawer.css')}}?v={{ env('ASSET_VERSION', '1.0.0') }}">
+	<link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/gd-style.css')}}?v={{ env('ASSET_VERSION', '1.0.0') }}">
+	<link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/cart-drawer.css')}}?v={{ env('ASSET_VERSION', '1.0.0') }}">
 
 	@if (!isset($_SERVER['HTTP_USER_AGENT']) || !preg_match('/(android|iphone|ipod|mobile)/i',
 	strtolower($_SERVER['HTTP_USER_AGENT'])))

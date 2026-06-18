@@ -18,7 +18,7 @@ class UpdateSpecificWeightRate extends Command
 
     public function handle()
     {
-        $weight = WeightCategory::where('primary_weight', 1.50)->first();
+        $weight = WeightCategory::where('primary_weight', 1.00)->first();
 
         if (!$weight) {
             $this->error('Weight not found.');

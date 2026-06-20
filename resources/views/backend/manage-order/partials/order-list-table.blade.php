@@ -1,4 +1,4 @@
-<table class="table table-hover">
+<table class="table table-hover order-list-table">
     <thead class="bg-light-subtle">
         <tr>
             <th>Order ID</th>
@@ -58,7 +58,6 @@
             </td>
             <td>
                 <span class="badge border border-success text-success">{{ $order->payment_mode }}</span>
-                
             </td>
             <td>
                 @if($order->payment_received == 1)
@@ -109,17 +108,10 @@
                 $sr = $order->shiprocketOrderResponse;
             @endphp
             <td>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-1 align-items-center">
                     @if($order->shiprocketCourier)
                         @if($order->payment_mode !== 'Pick Up From Store')
-
-                        <style>
-                            .disabled-dropdown {
-                                pointer-events: none !important;
-                                opacity: 0.6;
-                            }
-                        </style>
-
+                        
                         <div class="dropdown">
                             <a href="#" class="dropdown-toggle btn btn-sm btn-outline-primary" data-bs-toggle="dropdown">
                                 Shiprocket Actions
@@ -221,6 +213,18 @@
                         </div>
                         @endif
                     @endif
+                    @if($order->order_status_id=='5')
+                        <a href="javascript:void(0)" 
+                        data-route="{{ route('update-deduction', ['orderId' => $order->id]) }}"
+                        data-size="md"
+                        data-title="Update Deduction Amt."
+                        class="btn btn-warning btn-sm update-deduction"
+                        style="white-space: nowrap; font-size: 11px; padding: 3px 8px;"
+                         data-bs-toggle="tooltip" data-bs-original-title="Update Deduction Amt.">
+                            Upd. Deduction
+                        </a>
+                    @endif
+                    
                     <a href="{{ route('download-invoice', ['orderId' => $order->id]) }}" class="btn btn-light btn-sm"
                         data-bs-toggle="tooltip" data-bs-original-title="Print Invoice">
                         <i class="ti ti-file-invoice"></i>
@@ -229,10 +233,10 @@
                         data-bs-toggle="tooltip" data-bs-original-title="View Order Details">
                         <i class="ti ti-eye"></i>
                     </a>
-                    <a href="{{ route('edit-order', ['id' => $order->id]) }}" class="btn btn-light btn-sm"
+                    <!-- <a href="{{ route('edit-order', ['id' => $order->id]) }}" class="btn btn-light btn-sm"
                         data-bs-toggle="tooltip" data-bs-original-title="Edit Order">
                         <i class="ti ti-edit"></i>
-                    </a>
+                    </a> -->
 
                     <form method="POST" action="{{ route('order-list.destroy', $order->id) }}">
                         @csrf
@@ -251,3 +255,15 @@
         @endif
     </tbody>
 </table>
+@if($orders->count())
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            Showing {{ $orders->firstItem() }} to {{ $orders->lastItem() }}
+            of {{ $orders->total() }} orders
+        </div>
+
+        <div class="my-pagination" id="pagination-link-order-list">
+            {{ $orders->appends(request()->query())->links('vendor.pagination.bootstrap-4') }}
+        </div>
+    </div>
+@endif

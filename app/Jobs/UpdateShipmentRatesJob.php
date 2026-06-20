@@ -78,6 +78,16 @@ class UpdateShipmentRatesJob implements ShouldQueue
                 })
                 ->sortBy('rate')
                 ->values();
+            $selectedCourier = $filtered->first();
+            Log::info('Selected Courier', [
+                'pincode' => $pincode->pincode,
+                'weight' => $weight->primary_weight,
+                'courier' => $selectedCourier['courier_name'] ?? '',
+                'rate' => $selectedCourier['rate'] ?? '',
+                'min_weight' => $selectedCourier['min_weight'] ?? '',
+                'max_weight' => $selectedCourier['max_weight'] ?? '',
+            ]);
+
             $rate = $filtered->first()['rate'] ?? null;
             if ($rate === null) {
                 Log::warning('No shipping rate found', [
@@ -86,6 +96,7 @@ class UpdateShipmentRatesJob implements ShouldQueue
                 ]);
                 return;
             }
+            
             PincodeShippingRate::updateOrCreate(
                 [
                     'pincode_id' => $pincode->id,
@@ -95,7 +106,6 @@ class UpdateShipmentRatesJob implements ShouldQueue
                     'shipping_rate' => $rate,
                 ]
             );
-
             Log::info('Updated', [
                 'pincode' => $pincode->pincode,
                 'weight' => $weight->primary_weight,

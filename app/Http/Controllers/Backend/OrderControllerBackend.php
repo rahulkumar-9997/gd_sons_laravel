@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers\Backend;
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
@@ -25,26 +27,27 @@ class OrderControllerBackend extends Controller
         $this->shiprocket = $shiprocket;
     }
 
-    public function showAllOrderList(Request $request){
+    public function showAllOrderList(Request $request)
+    {
         $orderStatusId = $request->query('order-status');
         if ($orderStatusId) {
             $orders = Orders::with([
-                'orderStatus', 
+                'orderStatus',
                 'customer',
                 'orderLines.product',
                 'shiprocketOrderResponse',
                 'shiprocketCourier'
             ])
-            ->where('order_status_id', $orderStatusId)
-            ->orderBy('id', 'desc')
-            ->get();
+                ->where('order_status_id', $orderStatusId)
+                ->orderBy('id', 'desc')
+                ->paginate(20)
+                ->appends($request->query());
         } else {
             $orders = collect();
         }
         //return response()->json($orders);
         $orders_status = OrderStatus::all();
         return view('backend.manage-order.order-list', compact('orders', 'orders_status'));
-       
     }
 
     public function orderDelete($orderId)
@@ -82,44 +85,46 @@ class OrderControllerBackend extends Controller
         ])->findOrFail($id);
 
         $orders_status = OrderStatus::orderBy('status_name')->get();
-        return view('backend.manage-order.edit-order', compact('order','orders_status'));
+        return view('backend.manage-order.edit-order', compact('order', 'orders_status'));
     }
 
 
-    public function showOrderDetails(Request $request, $id){
+    public function showOrderDetails(Request $request, $id)
+    {
         $order = Orders::with([
             'customer',
-            'orderStatus', 
-            'shippingAddress', 
-            'billingAddress', 
-            'orderLines.product', 
+            'orderStatus',
+            'shippingAddress',
+            'billingAddress',
+            'orderLines.product',
             'orderLines.product.images',
             'shiprocketCourier'
         ])
-        ->where('id', $id)
-        ->first();
+            ->where('id', $id)
+            ->first();
         //return response()->json($orders);
         return view('backend.manage-order.order-details', compact('order'));
     }
 
-    public function updateOrderStatus(Request $request, $orderId){
+    public function updateOrderStatus(Request $request, $orderId)
+    {
         $request->validate([
             'order_status_id' => 'required|exists:order_status,id',
             'customer_id' => 'required|exists:customers,id',
         ]);
-    
+
         DB::beginTransaction();
         try {
             $orderStatus = OrderStatus::findOrFail($request->order_status_id);
             $receiving_date = ($orderStatus->status_name == 'Delivered') ? now() : null;
-    
+
             $existingRecord = OrderShipmentRecords::where('order_id', $orderId)
                 ->where('order_status_id', $request->order_status_id)
-                ->exists();	
-			$order = Orders::findOrFail($orderId);
+                ->exists();
+            $order = Orders::findOrFail($orderId);
             if (!$existingRecord) {
                 $order->order_status_id = $request->order_status_id;
-                $order->save();    
+                $order->save();
                 OrderShipmentRecords::create([
                     'order_id' => $order->id,
                     'order_status_id' => $request->order_status_id,
@@ -130,14 +135,14 @@ class OrderControllerBackend extends Controller
                     'shipment_date' => now(),
                     'receiving_date' => $receiving_date,
                 ]);
-    
+
                 $message = 'Order status updated successfully and a new shipment record was added!';
             } else {
                 $order->order_status_id = $request->order_status_id;
-                $order->save();  
+                $order->save();
                 $message = 'Order status updated, but a shipment record for this status already exists!';
             }
-    
+
             DB::commit();
             return response()->json([
                 'success' => true,
@@ -151,16 +156,16 @@ class OrderControllerBackend extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
-        
     }
 
-    public function downloadInvoice(Request $request, $orderId){
+    public function downloadInvoice(Request $request, $orderId)
+    {
         $order = Orders::with([
             'customer',
-            'orderStatus', 
-            'shippingAddress', 
-            'billingAddress', 
-            'orderLines.product', 
+            'orderStatus',
+            'shippingAddress',
+            'billingAddress',
+            'orderLines.product',
             'orderLines.product.images',
             'shiprocketCourier'
         ])->where('id', $orderId)->first();
@@ -170,9 +175,9 @@ class OrderControllerBackend extends Controller
         return view('backend.manage-order.download-invoice', compact('order'));
         // $pdf = app('dompdf.wrapper');
         // $pdf->loadView('backend.manage-order.download-invoice', compact('order'));
-    
+
         //return $pdf->download('invoice_'.$order->id.'.pdf');
-       // return $pdf->stream('invoice.pdf');
+        // return $pdf->stream('invoice.pdf');
     }
 
     /*---------------------------------------------------------
@@ -191,22 +196,22 @@ class OrderControllerBackend extends Controller
                 'shippingAddress',
                 'orderLines.product',
                 'shiprocketCourier'
-            ])->findOrFail($id);            
+            ])->findOrFail($id);
             if (!$order->shippingAddress) {
                 throw new \Exception("Please add billing/shipping address first");
-            }            
-            
+            }
+
             $token = $this->shiprocket->getToken();
             if (!$token) {
                 throw new \Exception("Unable to generate Shiprocket token");
             }
-            
+
             $payment_method = ($order->payment_mode == 'Razorpay' || $order->payment_received == 1)
                 ? "Prepaid"
                 : "COD";
-            
+
             $items = [];
-            $actualWeightKg = 0;            
+            $actualWeightKg = 0;
             foreach ($order->orderLines as $line) {
                 $product = $line->product;
                 $items[] = [
@@ -217,13 +222,13 @@ class OrderControllerBackend extends Controller
                 ];
                 $actualWeightKg += ((float)$product->weight * (int)$line->quantity);
             }
-            
+
             $parcel = $this->calculateVolumetricWeight($items, $actualWeightKg);
-            $ship_rocket_courier_charges = optional($order->shiprocketCourier)->courier_shipping_rate ?? 0;            
+            $ship_rocket_courier_charges = optional($order->shiprocketCourier)->courier_shipping_rate ?? 0;
             $sa = $order->shippingAddress;
-            $customerEmail = $order->customer->email ?? 
-                        $sa->email_id ?? 
-                        'customer' . $order->id . '@gdsons.co.in';
+            $customerEmail = $order->customer->email ??
+                $sa->email_id ??
+                'customer' . $order->id . '@gdsons.co.in';
             $payload = [
                 "order_id" => $order->order_id,
                 "order_date" => now()->format("Y-m-d H:i"),
@@ -239,7 +244,7 @@ class OrderControllerBackend extends Controller
                 "billing_country" => $sa->country ?? "India",
                 "billing_email" => $customerEmail,
                 "billing_phone" => $sa->phone_number,
-                
+
                 "shipping_is_billing" => false,
                 "shipping_customer_name" => $sa->full_name,
                 "shipping_last_name" => "",
@@ -250,8 +255,8 @@ class OrderControllerBackend extends Controller
                 "shipping_country" => $sa->country ?? "India",
                 "shipping_state" => $sa->state,
                 "shipping_email" => $customerEmail,
-                "shipping_phone" => $sa->phone_number ??"",
-                
+                "shipping_phone" => $sa->phone_number ?? "",
+
                 "order_items" => [],
                 "payment_method" => $payment_method,
                 "shipping_charges" => 0,
@@ -276,20 +281,20 @@ class OrderControllerBackend extends Controller
                     "hsn" => $item->product->hsn_code ?? 441122,
                 ];
             }
-            
-            Log::info("Shiprocket Payload", $payload);            
-            
+
+            Log::info("Shiprocket Payload", $payload);
+
             /*shiprocket create order api integrate */
             $response = Http::withToken($token)
                 ->post("https://apiv2.shiprocket.in/v1/external/orders/create/adhoc", $payload)
-                ->json();                
-            
-            Log::info("Shiprocket API Response", $response);            
-            
+                ->json();
+
+            Log::info("Shiprocket API Response", $response);
+
             if (!isset($response['order_id'])) {
                 throw new \Exception($response['message'] ?? "Shiprocket API Error");
-            }        
-            
+            }
+
             $shiprocketOrder = ShiprocketOrderResponse::updateOrCreate(
                 ['order_id' => $order->id],
                 [
@@ -304,10 +309,10 @@ class OrderControllerBackend extends Controller
                     'is_awb_generated' => isset($response['awb_code']) ? 1 : 0,
                     'is_pickup_requested' => 0,
                 ]
-            );  
-            
-            DB::commit();            
-            $message = 'Shiprocket Order Created Successfully';            
+            );
+
+            DB::commit();
+            $message = 'Shiprocket Order Created Successfully';
             /* ----------------------- AUTO AWB ----------------------- */
             try {
                 $awbResult = $this->generateShipRocketAWB($request, $id, true);
@@ -320,16 +325,15 @@ class OrderControllerBackend extends Controller
                     'error' => $e->getMessage()
                 ]);
                 $message .= ' (AWB Generation Failed: ' . $e->getMessage() . ')';
-            }            
+            }
             return $this->successResponse($message, $request);
-            
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Shiprocket Order Creation Error", [
                 'error' => $e->getMessage(),
                 'line'  => $e->getLine(),
                 'order_id' => $id
-            ]);            
+            ]);
             return response()->json([
                 'status' => 'error',
                 'msg' => $e->getMessage()
@@ -350,13 +354,13 @@ class OrderControllerBackend extends Controller
             if (!$sr) {
                 throw new \Exception("Shiprocket order not created!");
             }
-            
+
             if (!$order->shiprocketCourier) {
                 throw new \Exception("Courier not assigned in admin.");
             }
-            
+
             $token = $this->shiprocket->getToken();
-            
+
             if (empty($sr->shiprocket_shipment_id)) {
                 throw new \Exception("Shipment ID is empty. Please check order creation.");
             }
@@ -365,13 +369,13 @@ class OrderControllerBackend extends Controller
                 "shipment_id" => (string)$sr->shiprocket_shipment_id,
                 "courier_id"  => $order->shiprocketCourier->courier_company_id
             ];
-            
+
             Log::info("AWB Generation Payload", $payload);
-            
+
             $response = Http::withToken($token)
                 ->timeout(30)
                 ->post("https://apiv2.shiprocket.in/v1/external/courier/assign/awb", $payload);
-                
+
             $res = $response->json();
             Log::info("AWB API Response Status", ['http_status' => $response->status()]);
             Log::info("AWB Full Response", $res);
@@ -395,20 +399,20 @@ class OrderControllerBackend extends Controller
                     $sr->shiprocket_shipment_id,
                     $order->shiprocketCourier->courier_company_id
                 );
-                
+
                 if (isset($res['message'])) {
                     $msg = strtolower($res['message']);
                     if (str_contains($msg, 'serviceable')) {
                         throw new \Exception(
-                            "Courier ID {$order->shiprocketCourier->courier_company_id} ".
-                            "is not serviceable for pincode {$order->shippingAddress->pin_code}. ".
-                            "Please assign a different courier."
+                            "Courier ID {$order->shiprocketCourier->courier_company_id} " .
+                                "is not serviceable for pincode {$order->shippingAddress->pin_code}. " .
+                                "Please assign a different courier."
                         );
                     }
                     if (str_contains($msg, 'invalid')) {
                         throw new \Exception(
-                            "Invalid courier ID {$order->shiprocketCourier->courier_company_id} ".
-                            "or shipment not ready for AWB assignment."
+                            "Invalid courier ID {$order->shiprocketCourier->courier_company_id} " .
+                                "or shipment not ready for AWB assignment."
                         );
                     }
                 }
@@ -436,11 +440,11 @@ class OrderControllerBackend extends Controller
             if (empty($data['awb_code'])) {
                 throw new \Exception("AWB code missing from response");
             }
-            
+
             if (empty($data['shipment_id'])) {
                 throw new \Exception("Shipment ID missing from response");
             }
-            
+
             $awbData = [
                 'order_id' => $id,
                 'shipment_id' => $data['shipment_id'],
@@ -457,12 +461,12 @@ class OrderControllerBackend extends Controller
                 'transporter_id' => $data['transporter_id'] ?? null,
                 'transporter_name' => $data['transporter_name'] ?? null,
                 'shipped_by' => isset($data['shipped_by']) ? json_encode($data['shipped_by']) : null,
-                'assigned_date_time' => isset($data['assigned_date_time']['date']) ? 
+                'assigned_date_time' => isset($data['assigned_date_time']['date']) ?
                     $data['assigned_date_time']['date'] : null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
-            $awbData = array_filter($awbData, function($value) {
+            $awbData = array_filter($awbData, function ($value) {
                 return $value !== null;
             });
             $awb_response = ShiprocketShipmentAwbResponse::updateOrCreate(
@@ -478,18 +482,18 @@ class OrderControllerBackend extends Controller
                 'shiprocket_awb_code' => $data['awb_code'],
                 'is_awb_generated' => 1,
             ];
-            
-            $sr->update($updateData);            
+
+            $sr->update($updateData);
             // Also update the order status if needed
             // $order->update(['status' => 'awb_generated']);            
-            DB::commit();            
+            DB::commit();
             Log::info("AWB Generated Successfully", [
                 'order_id' => $id,
                 'awb_code' => $data['awb_code']
             ]);
-            
+
             $message = 'AWB Generated Successfully';
-            
+
             /* ----------------------- AUTO Pickup ----------------------- */
             // Uncomment and modify as needed
             /*
@@ -506,10 +510,9 @@ class OrderControllerBackend extends Controller
                 $message .= ' (Pickup Scheduling Failed: ' . $e->getMessage() . ')';
             }
             */
-            
-            if ($auto) return true;            
+
+            if ($auto) return true;
             return $this->successResponse($message, $request);
-            
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("AWB Generation Error", [
@@ -517,11 +520,11 @@ class OrderControllerBackend extends Controller
                 'order_id' => $id,
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             if ($auto) {
                 throw $e;
             }
-            
+
             return $this->errorResponse($e->getMessage());
         }
     }
@@ -549,29 +552,29 @@ class OrderControllerBackend extends Controller
                 ->post("https://apiv2.shiprocket.in/v1/external/courier/generate/pickup", [
                     "shipment_id" => [$sr->shiprocket_shipment_id]
                 ])
-                ->json();            
-            
-            Log::info("Pickup Response", $res);  
+                ->json();
+
+            Log::info("Pickup Response", $res);
             if (isset($res['message']) && str_contains(strtolower($res['message']), 'order is already canceled')) {
                 $sr->update([
                     'is_order_cancelled' => 1,
-                    'is_pickup_requested' => 0 
+                    'is_pickup_requested' => 0
                 ]);
-                $order->update(['order_status_id' => 6]); 
+                $order->update(['order_status_id' => 6]);
                 DB::commit();
                 throw new \Exception("Order is already canceled in Shiprocket");
             }
 
-            if (isset($res['status_code']) && $res['status_code'] != 200) {           
+            if (isset($res['status_code']) && $res['status_code'] != 200) {
                 throw new \Exception($res['message'] ?? "Pickup request failed.");
             }
-            
+
             if (!isset($res['pickup_status']) || $res['pickup_status'] != 1) {
                 throw new \Exception($res['message'] ?? "Pickup request failed.");
             }
             $responseData = $res['response'];
             $othersData = null;
-            
+
             if (isset($responseData['others']) && is_string($responseData['others'])) {
                 try {
                     $othersData = json_decode($responseData['others'], true);
@@ -596,7 +599,7 @@ class OrderControllerBackend extends Controller
                 ]
             );
             $sr->update(['is_pickup_requested' => 1]);
-            $order->update(['order_status_id' => 4]); 
+            $order->update(['order_status_id' => 4]);
             Log::info("After Order Status Update", [
                 'order_id' => $id,
                 'sr_updated' => $sr->wasChanged(),
@@ -605,24 +608,23 @@ class OrderControllerBackend extends Controller
                 'is_pickup_requested' => $sr->fresh()->is_pickup_requested
             ]);
 
-            DB::commit(); 
-            
-            if ($auto) return true;    
-            return $this->successResponse("Pickup Scheduled Successfully", $request);
+            DB::commit();
 
+            if ($auto) return true;
+            return $this->successResponse("Pickup Scheduled Successfully", $request);
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error("Pickup Scheduling Error", [
                 'error' => $e->getMessage(),
                 'order_id' => $id,
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             if ($auto) {
                 throw $e;
-            } 
-            
+            }
+
             return $this->errorResponse($e->getMessage());
         }
     }
@@ -634,19 +636,19 @@ class OrderControllerBackend extends Controller
     private function successResponse($msg, Request $req)
     {
         $order_status_id = $req->query('order-status') ?? $req->input('order_status_id');
-        
+
         $orders = Orders::with([
-            'orderStatus', 
-            'customer', 
-            'orderLines.product', 
+            'orderStatus',
+            'customer',
+            'orderLines.product',
             'shiprocketOrderResponse',
             'shiprocketCourier'
         ])
-        ->when($order_status_id, function($query) use ($order_status_id) {
-            return $query->where('order_status_id', $order_status_id);
-        })
-        ->orderBy('id', 'desc')
-        ->get();
+            ->when($order_status_id, function ($query) use ($order_status_id) {
+                return $query->where('order_status_id', $order_status_id);
+            })
+            ->orderBy('id', 'desc')
+            ->get();
 
         $orders_status = OrderStatus::all();
 
@@ -674,8 +676,8 @@ class OrderControllerBackend extends Controller
             $shipmentResponse = Http::withToken($token)
                 ->get("https://apiv2.shiprocket.in/v1/external/orders/show/{$shipmentId}")
                 ->json();
-                
-            Log::info("Shipment Details", $shipmentResponse);            
+
+            Log::info("Shipment Details", $shipmentResponse);
             return $shipmentResponse;
         } catch (\Exception $e) {
             Log::error("Error getting shipment details", ['error' => $e->getMessage()]);
@@ -687,7 +689,7 @@ class OrderControllerBackend extends Controller
     {
         try {
             $order = Orders::with(['shippingAddress', 'shiprocketOrderResponse'])->findOrFail($id);
-            $sr = $order->shiprocketOrderResponse;            
+            $sr = $order->shiprocketOrderResponse;
             if (!$sr) {
                 throw new \Exception("Shiprocket order not created!");
             }
@@ -697,12 +699,11 @@ class OrderControllerBackend extends Controller
                     "shipment_id" => $sr->shiprocket_shipment_id
                 ])
                 ->json();
-                Log::info("Available Couriers for Shipment", [
-                    'shipment_id' => $sr->shiprocket_shipment_id,
-                    'available_couriers' => $response
-                ]);
+            Log::info("Available Couriers for Shipment", [
+                'shipment_id' => $sr->shiprocket_shipment_id,
+                'available_couriers' => $response
+            ]);
             return $response;
-            
         } catch (\Exception $e) {
             Log::error("Available Couriers Check Failed", [
                 'error' => $e->getMessage(),
@@ -725,18 +726,18 @@ class OrderControllerBackend extends Controller
         }
         $maxLength = max($lengths);
         $maxWidth = max($widths);
-        $totalHeight = 0;        
+        $totalHeight = 0;
         foreach ($items as $item) {
             $totalHeight += ($item['height'] * $item['qty']);
         }
-        
+
         $bufferMultiplier = 1 + ($bufferPercent / 100);
         $finalLength = $maxLength * $bufferMultiplier;
         $finalWidth = $maxWidth * $bufferMultiplier;
         $finalHeight = $totalHeight * $bufferMultiplier;
-        
+
         $volumetricWeight = ($finalLength * $finalWidth * $finalHeight) / $divisor;
-        $billableWeight = max($actualWeightKg, $volumetricWeight);        
+        $billableWeight = max($actualWeightKg, $volumetricWeight);
         return [
             'total_volume_cm3' => round($totalVolume, 2),
             'final_length_cm' => round($finalLength, 2),
@@ -747,5 +748,75 @@ class OrderControllerBackend extends Controller
             'billable_weight_kg' => round($billableWeight, 2)
         ];
     }
-}
 
+    public function updateDeductionForm(Request $request, $id)
+    {
+        $order = Orders::findOrFail($id);
+        $form = '
+        <div class="modal-body">
+            <form method="POST"
+                action="' . route('update-deduction.store', $order->id) . '"
+                id="updateDeductionForm">
+                ' . csrf_field() . '
+                <div class="mb-3">
+                    <label class="form-label">Actual Shipping Amount</label>
+                    <input type="number"
+                        step="0.01"
+                        name="actual_shipping_amount"
+                        class="form-control"
+                        id="actual_shipping_amount"
+                        value="' . ($order->actual_shipping_amount > 0 ? (float)$order->actual_shipping_amount : '') . '">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Payment Gateway Charges</label>
+                    <input type="number"
+                        step="0.01"
+                        name="payment_gateway_charges"
+                        id="payment_gateway_charges"
+                        class="form-control"
+                       value="' . ($order->payment_gateway_charges > 0 ? (float)$order->payment_gateway_charges : '') . '">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">SMS Charges</label>
+                    <input type="number"
+                        step="0.01"
+                        name="sms_charges"
+                        id="sms_charges"
+                        class="form-control"
+                       value="' . ($order->sms_charges > 0 ? (float)$order->sms_charges : '') . '">
+                </div>
+                <div class="modal-footer pb-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>';
+        return response()->json([
+            'message' => 'Form loaded successfully',
+            'form' => $form,
+        ]);
+    }
+
+    public function storeUpdateDeduction(Request $request, $id)
+    {
+        $request->validate([
+            'actual_shipping_amount'   => 'nullable|numeric|min:0',
+            'payment_gateway_charges'  => 'nullable|numeric|min:0',
+            'sms_charges'  => 'nullable|numeric|min:0',
+        ]);
+        $order = Orders::findOrFail($id);
+        $order->update([
+            'actual_shipping_amount'  => $request->actual_shipping_amount ?: 0,
+            'payment_gateway_charges' => $request->payment_gateway_charges ?: 0,
+            'sms_charges' => $request->sms_charges ?: 0,
+        ]);
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Deduction details updated successfully.'
+        ]);
+    }
+}

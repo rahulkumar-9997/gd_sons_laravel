@@ -31,7 +31,10 @@ class Orders extends Model
         'payment_status',
         'failure_reason',
         'coupon_code',
-        'coupon_discount_amount'
+        'coupon_discount_amount',
+        'actual_shipping_amount',
+        'payment_gateway_charges',
+        'sms_charges'
     ];
     protected $casts = [
         'coupon_discount_amount' => 'decimal:2',

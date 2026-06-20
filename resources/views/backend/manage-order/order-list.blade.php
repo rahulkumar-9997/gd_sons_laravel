@@ -7,6 +7,11 @@
         pointer-events: none !important;
         opacity: 0.6;
     }
+    .order-list-table th,
+    .order-list-table td
+    {
+        font-size: 14px;
+    }
 </style>
 @endpush
 @php

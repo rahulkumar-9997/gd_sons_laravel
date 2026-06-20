@@ -52,18 +52,7 @@ use App\Http\Controllers\Backend\ShipmentRateController;
 use App\Http\Controllers\Backend\ProductReviewAutoAiGenerateController;
 use App\Http\Controllers\Backend\CkeditorController;
 use App\Http\Controllers\Backend\AdditionalFilterController;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
-
+use App\Http\Controllers\Backend\SalesReportController;
 
 
 Route::group(['prefix' => 'account'], function() {
@@ -378,6 +367,9 @@ Route::group(['middleware' => ['admin']], function () {
     Route::delete('order-list/destroy/{id}', [OrderControllerBackend::class, 'orderDelete'])->name('order-list.destroy');
     Route::post('update-order-status/{orderId}', [OrderControllerBackend::class, 'updateOrderStatus'])->name('update-order-status');
     Route::get('download-invoice/{orderId}', [OrderControllerBackend::class, 'downloadInvoice'])->name('download-invoice');
+    Route::get('update-deduction/{orderId}', [OrderControllerBackend::class, 'updateDeductionForm'])->name('update-deduction');
+    Route::post('update-deduction/store/{id}', [OrderControllerBackend::class, 'storeUpdateDeduction']
+    )->name('update-deduction.store');
     /**Order Route */
     /**Blog Route */    
     Route::resource('manage-blog-category', BlogCategoryController::class);
@@ -455,4 +447,7 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('additional-filter/{id}/edit', [AdditionalFilterController::class, 'additionalFilterEdit'])->name('additional-filter.edit');
     Route::put('additional-filter/{id}/update', [AdditionalFilterController::class, 'additionalFilterUpdate'])->name('additional-filter.update');
     Route::delete('additional-filter/{id}/delete', [AdditionalFilterController::class, 'additionalFilterDelete'])->name('additional-filter.delete');
+
+    Route::get('sale-report', [SalesReportController::class, 'saleReportIndex'])->name('sale-report');
+
 });

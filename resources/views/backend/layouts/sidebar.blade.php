@@ -120,6 +120,9 @@
                      <li class="sub-nav-item">
                         <a class="sub-nav-link" href="{{ route('order-list') }}">Order</a>
                      </li>                     
+                     <li class="sub-nav-item">
+                        <a class="sub-nav-link" href="{{ route('sale-report') }}">Sales Report</a>
+                     </li>                     
                </ul>
             </div>
          </li>

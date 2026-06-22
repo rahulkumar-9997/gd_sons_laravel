@@ -94,8 +94,15 @@ $(function () {
     });
 
     $('#category-filter, #product-status').on('change', updateFilters);
-    $('#product-search').on('keyup', updateFilters);
 
+    let searchDebounceTimer;
+    $('#product-search').on('keyup', function () {
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(function () {
+            updateFilters();
+        }, 400);
+    });
+	
     $('#reset-button').on('click', function () {
         $('#category-filter, #product-search, #daterange, #product-status').val('');
         $('#daterange').data('daterangepicker').setStartDate(moment());
@@ -198,9 +205,14 @@ $(function () {
         fetchProducts(categoryId, search, 1, dateRange, productStatus);
     }
 
+    let activeProductRequest = null;
+
     function fetchProducts(categoryId = '', search = '', page = 1, dateRange = '', productStatus = '') {
+        if (activeProductRequest) {
+            activeProductRequest.abort();
+        }
         $('#loader').show();
-        $.ajax({
+        activeProductRequest = $.ajax({
             url: routes.productIndex,
             type: "GET",
             data: {
@@ -216,9 +228,15 @@ $(function () {
                 bindCheckboxEventHandlers();
                 singleDeleteProduct();
             },
-            error: function () {
+            error: function (xhr, status) {
+                if (status === 'abort') {
+                    return;
+                }
                 alert("An error occurred while filtering products.");
                 $('#loader').hide();
+            },
+            complete: function () {
+                activeProductRequest = null;
             }
         });
     }

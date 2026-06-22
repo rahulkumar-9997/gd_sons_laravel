@@ -974,6 +974,7 @@ class FrontendController extends Controller
             ->whereHas('productAttributesValues', function ($query) use ($attributeValue) {
                 $query->where('attributes_value_id', $attributeValue->id);
             })
+			->whereHas('images')
             ->inRandomOrder()
             ->limit(10)
             ->get();
@@ -1210,6 +1211,7 @@ class FrontendController extends Controller
             } else {
                 $productsQuery->orderBy('created_at', 'desc');
             }
+			$perPage = $request->has('load_more') ? 10 : 40;
             $products = $productsQuery->with([
                 'category',
                 'images' => function ($query) {
@@ -1231,7 +1233,7 @@ class FrontendController extends Controller
                 })
                 ->whereHas('images')/*only select which product whose images have (if all product selected than remove this line)*/
                 ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
-                ->paginate(20);
+                ->paginate($perPage);
             $specialOffers = getCustomerSpecialOffers();
             /*Additional Filters */
             $additionalFilters = AdditionalFilter::with([

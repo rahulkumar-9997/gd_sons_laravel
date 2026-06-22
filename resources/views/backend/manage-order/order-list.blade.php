@@ -61,6 +61,16 @@
 <script src="{{asset('backend/assets/js/pages/order-list.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}" type="text/javascript"></script>
 <script>
     $(document).ready(function() {
+				$(document).on('click', '.copy-phone-icon', function() {
+			var phone = $(this).data('phone');
+			var icon = $(this);
+			navigator.clipboard.writeText(phone).then(function() {
+				icon.removeClass('ti-copy').addClass('ti-check text-success');
+				setTimeout(function() {
+					icon.removeClass('ti-check text-success').addClass('ti-copy');
+				}, 5000);
+			});
+		});
         $('.show_confirm').click(function (event) {
             var form = $(this).closest("form");
             var name = $(this).data("name");

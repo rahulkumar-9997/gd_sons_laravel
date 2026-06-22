@@ -6,10 +6,10 @@
                 <th>No.</th>
                 <th style="width: 20%;">Name</th>
                 <th style="width: 10%;">Image</th>
-                <th>HSN</th>
-                <th>GST%</th>
+                <!--th>HSN</th>
+                <th>GST%</th-->
                 <th>Reviews</th>
-                <th>Status</th>
+                <!--th>Status</th-->
                 <th>Category</th>
                 <th>Created Date</th>
                 <th>Attributes</th>
@@ -37,9 +37,7 @@
                                 <span class="badge bg-light text-dark">B: {{ number_format($product->breadth, 1) }}cm</span>
                                 <span class="badge bg-light text-dark">H: {{ number_format($product->height, 1) }}cm</span>
                                 <span class="badge bg-light text-dark">W: {{ number_format($product->weight, 1) }}kg</span>
-                                <span class="badge bg-purple text-white">
-                                    VW: {{ number_format($product->volumetric_weight_kg, 2) }}kg
-                                </span>
+                                <span class="badge bg-purple text-white">VW: {{ number_format($product->volumetric_weight_kg, 1) }}kg</span>
                             </div>
                         @endif
                     </td>
@@ -54,7 +52,7 @@
                             }
                         @endphp
                         @if($imagePath)
-                            <img src="{{ $imagePath }}" class="img-thumbnail" style="width: 70px; height: 70px;" alt="{{ $product->title }}">
+                            <img src="{{ $imagePath }}" class="img-thumbnail bg-white" style="width: 70px; height: 70px; object-fit: contain;" alt="{{ $product->title }}">
                         @else
                             <span>No image found.</span>
                         @endif
@@ -65,8 +63,8 @@
                             </span>
                         </a>
                     </td>
-                    <td>{{ $product->hsn_code }}</td>
-                    <td>{{ $product->gst_in_per }}</td>
+                    <!--td>{{ $product->hsn_code }}</td>
+                    <td>{{ $product->gst_in_per }}</td-->
                     <td>                        
                         @php
                             $reviewCount = $product->reviews->count();
@@ -90,15 +88,15 @@
                         </small>
                     @endif
                     </td>
-                    <td>
+                    <!--td>
                         <span class="badge {{ $product->product_status == 1 ? 'bg-success' : 'bg-danger' }}">
                             {{ $product->product_status == 1 ? 'Published' : 'Not Published' }}
                         </span>
-                    </td>
+                    </td-->
                     <td>{{ $product->category->title ?? 'No Category' }}</td>
                     <td><span class="text-success">{{ $product->created_at->toFormattedDateString() }}</span></td>
                     <td>
-                        <div class="overflow-auto" style="max-width: 200px; max-height: 80px; overflow: auto; white-space: nowrap;">
+                        <div style="max-width: 200px;">
                             <table class="table table-striped table-centered">
                                 @foreach($product->attributes as $attribute)
                                     <tr>

@@ -34,7 +34,7 @@ class OrderControllerBackend extends Controller
             $orders = Orders::with([
                 'orderStatus',
                 'customer',
-                'orderLines.product',
+                'orderLines.product.images',
                 'shiprocketOrderResponse',
                 'shiprocketCourier'
             ])
@@ -640,7 +640,7 @@ class OrderControllerBackend extends Controller
         $orders = Orders::with([
             'orderStatus',
             'customer',
-            'orderLines.product',
+            'orderLines.product.images',
             'shiprocketOrderResponse',
             'shiprocketCourier'
         ])

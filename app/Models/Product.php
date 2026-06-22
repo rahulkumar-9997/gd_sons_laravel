@@ -48,7 +48,7 @@ class Product extends Model
 
     public function images()
     {
-        return $this->hasMany(ProductImages::class);
+        return $this->hasMany(ProductImages::class)->orderBy('sort_order', 'asc');
     }
 
     public function attributes()
@@ -115,9 +115,9 @@ class Product extends Model
     }
 
     public function firstImage()
-    {
-        return $this->hasOne(ProductImages::class, 'product_id')->orderBy('id', 'asc');
-    }
+	{
+		return $this->hasOne(ProductImages::class, 'product_id')->orderBy('sort_order', 'asc');
+	}
 
     public function firstSortedImage()
     {

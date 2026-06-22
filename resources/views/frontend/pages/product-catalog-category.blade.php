@@ -15,10 +15,16 @@
         $seo_desc = \Illuminate\Support\Str::limit($seo_desc, 155, '');
     }
 
+	$catalog_og_image = null;
+    $firstCatalogProduct = $products->first();
+    if ($firstCatalogProduct && $firstCatalogProduct->images->isNotEmpty()) {
+        $catalog_og_image = asset('images/product/thumb/' . $firstCatalogProduct->images->first()->image_path);
+    }
 @endphp
 @section('og_title', $seo_title)
 @section('og_description', $seo_desc)
 @section('og_type', 'product_catalog')
+@section('og_image', $catalog_og_image ?? asset('frontend/assets/gd-img/fav-icon.png'))
 
 @section('title', $seo_title)
 @section('description', $seo_desc)
@@ -501,17 +507,20 @@
         });
         /**Auto load  products */
         let isLoading = false;
-        $(window).on('scroll', function () {
-            if (isLoading) return;
-            let trigger = $('#load-more-trigger');
-            if (!trigger.length) return;
-            let scrollTop = $(window).scrollTop();
-            let windowHeight = $(window).height();
-            let documentHeight = $(document).height();
-            //let footerHeight = $('footer').outerHeight() || 0;
-            let scrollPercent = (scrollTop / (documentHeight - windowHeight)) * 100;
-            if (scrollPercent >= 60) {
-                let currentPage = parseInt(trigger.data('current-page'));
+		let scrollTicking = false;
+		$(window).on('scroll', function () {
+			if (isLoading || scrollTicking) return;
+			scrollTicking = true;
+			requestAnimationFrame(function () {
+				scrollTicking = false;
+				let trigger = $('#load-more-trigger');
+				if (!trigger.length) return;
+				let scrollTop = $(window).scrollTop();
+				let windowHeight = $(window).height();
+				let documentHeight = $(document).height();
+				let scrollPercent = (scrollTop / (documentHeight - windowHeight)) * 100;
+				if (scrollPercent >= 60) {
+				let currentPage = parseInt(trigger.data('current-page'));
                 let lastPage = parseInt(trigger.data('last-page'));
                 if (currentPage >= lastPage) {
                     trigger.remove();
@@ -540,6 +549,7 @@
                     $('#loading').hide();
                 });
             }
+			});
         });
         /*Fetch product without loader */
         function fetchProductsWithoutLoader(url, append = false) {

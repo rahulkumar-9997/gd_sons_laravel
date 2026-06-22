@@ -143,6 +143,7 @@ class SearchController extends Controller
                     $query->where('title', 'like', '%' . $term . '%');
                 }
             })
+			->whereHas('images')
             ->with([
                 'firstImage',
                 'category',
@@ -282,7 +283,8 @@ public function searchListProduct(Request $request)
 				$q->where('title', 'like', '%' . $term . '%');
 			}
 		})
-        ->whereNotIn('products.id', $seenProductIds);
+        ->whereNotIn('products.id', $seenProductIds)
+		->whereHas('images');
 
         if ($category) {
             $categoryIds = explode(',', $category);

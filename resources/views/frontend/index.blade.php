@@ -103,15 +103,13 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-15">
                 @foreach ($data['primary_category'] as $index =>$primary_category_row)
 
-                <div class="p-1 group relative rounded-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300 border-[1px] border-[#d0d3d3]">
+                <div class="p-3 group relative rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-300 border border-slate-200 bg-white flex flex-col h-full">
                     <a href="{{ $primary_category_row['link'] ?? '#' }}">
-                        <h3 class="text-[20px] sm:text-[16px] md:text-[20px] lg:text-[20px] mb-2 font-bold text-slate-800 group-hover/category:text-primary-600 transition-colors duration-300 text-center mt-1">
+                        <h3 class="text-[16px] mb-3 pb-2 font-semibold text-slate-800 group-hover/category:text-primary-600 transition-colors duration-300 text-center line-clamp-1 border-b border-slate-100">
                             {{ $primary_category_row['title'] }}
-                            <span class="block h-0.5 bg-primary-600 scale-x-0 group-hover/category:scale-x-100 transition-transform duration-300 origin-center"></span>
                         </h3>
-
                     </a>
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-2 gap-2 flex-1">
                         @foreach ($primary_category_row['products'] as $productIndex => $product)
                         @php
                         $offer_rate = $product['offer_rate'];
@@ -215,25 +213,24 @@
                     </div>
                     @endforeach
                 </div>
-                <div class="p-2 mt-2 text-center">
-                    <a href="{{ $primary_category_row['link'] ?? '#' }}" class="inline-block group/category">
-
-                        @if(isset($primary_category_row['description']))
-                        <div class="mt-2 text-slate-600 line-clamp-2 text-[16px]">
-                            {!! strip_tags($primary_category_row['description']) !!}
-                        </div>
-                        @endif
+				<div class="px-2 pb-1 pt-3 text-center mt-auto">
+                    <a href="{{ $primary_category_row['link'] ?? '#' }}" class="inline-flex items-center gap-1 text-[13px] text-primary-600 hover:text-primary-700 font-medium transition-colors">
+                        View Details & More Products
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
                     </a>
                 </div>
-            </div>
+				</div>
             @endforeach
         </div>
         @endif
         <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12">
             @if ($data['popular_products'] && $data['popular_products']->isNotEmpty())
-            <div class="title d-block text-center">
+            <div class="title d-block text-center pt-5 pb-2">
                 <div>
                     <h2>Popular Products</h2>
+                    <p class="text-sm text-slate-500 mt-2 mb-0">Customer favourites from across our store — trusted picks, genuine brands.</p>
                     <span class="title-leaf"></span>
                 </div>
             </div>
@@ -294,7 +291,7 @@
                                 : 0;
                                 @endphp
                                 <div>
-                                    <div class="p-1 group relative rounded overflow-hidden shadow-2xl hover:shadow-2xl transition-shadow duration-300 product-box mb-1 h-100">
+                                    <div class="p-1 group relative rounded overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 product-box mb-1 h-100 !bg-white border border-slate-200">
                                         <div class="product-image">
                                             @if ($discountPercentage>0)
                                             <div class="label-flex">
@@ -346,9 +343,10 @@
                                             !empty($popular_product_row->weight);
                                             @endphp                                            
                                         </div>
-                                        <div class="product-detail">
+                                        <div class="product-detail !bg-white px-2 pb-2 pt-2">
                                             <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
-                                                <h5 class="name line-clamp-2 text-sm font-medium text-gray-800 group-hover/product:text-primary-600 transition-colors">{{ ucwords(strtolower($popular_product_row->title)) }}</h5>
+													<h5 class="name text-[13px] leading-[1.4] font-medium text-slate-700 group-hover/product:text-primary-600 transition-colors min-h-[36px]">{{ ucwords(strtolower($popular_product_row->title)) }}</h5>
+
                                             </a>
                                             <div class="mt-2 flex justify-between items-center">
                                                 @if ($final_offer_rate === null || $final_offer_rate == 0)
@@ -627,11 +625,11 @@
                     <div class="overflow-hidden h-56 relative">
                         <img src="{{asset($blog_row->blog_image) }}" alt="{{$blog_row->title}}"
                             class="blog-img w-full h-full object-cover" />
-                        <span class="absolute top-4 left-4 bg-primary-teal text-white text-[10px] font-semibold px-3 py-1 rounded-full shadow">
-                            {{$blog_row->category->title}}
-                        </span>
                     </div>
                     <div class="p-3 pb-2">
+                        <span class="inline-block bg-primary-teal text-white text-[10px] font-semibold px-3 py-1 rounded-full mb-3">
+                            {{$blog_row->category->title}}
+                        </span>
                         <h6 class="font-display text-slate-800 text-[20px] mb-3 line-clamp-2">
                             {{$blog_row->title}}
                         </h6>

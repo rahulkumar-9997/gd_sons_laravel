@@ -15,10 +15,16 @@
     $seo_desc = 'Buy ' . $attributeValue->name . ' ' . $category->title . ' online from Girdhar Das & Sons — trusted kitchenware store since 1970. Genuine products, competitive prices, home delivery across India.';
     $seo_desc = \Illuminate\Support\Str::limit($seo_desc, 155, '');
 }
+$catalog_og_image = null;
+$firstCatalogProduct = $products->first();
+if ($firstCatalogProduct && $firstCatalogProduct->images->isNotEmpty()) {
+    $catalog_og_image = asset('images/product/thumb/' . $firstCatalogProduct->images->first()->image_path);
+}
 @endphp
 @section('og_title', $seo_title)
 @section('og_description', $seo_desc)
 @section('og_type', 'product_catalog')
+@section('og_image', $catalog_og_image ?? asset('frontend/assets/gd-img/fav-icon.png'))
 
 @section('title', $seo_title)
 @section('description', $seo_desc)
@@ -66,9 +72,9 @@
     @if($primary_category && !empty($primary_category->h1_text))
         {{ $primary_category->h1_text }}
     @elseif($primary_category)
-        {{ $primary_category->title }} in Varanasi
+        {{ $primary_category->title }} - Buy Online
     @else
-        {{ $attributeValue->name }} {{ $category->title }} in Varanasi
+        {{ $attributeValue->name }} {{ $category->title }} - Buy Online
     @endif
 </h1>
                 </div>

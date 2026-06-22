@@ -28,9 +28,15 @@
             </td>
             <td>
                 <a href="#!" class="link-primary fw-medium">{{ $order->customer->name }}</a>
-                <!-- <br><span class="badge border border-success text-success  px-2 py-1 fs-13">
-                    {{ ucfirst(str_replace('_', ' ', $order->pick_up_status)) }}
-                </span> -->
+                @if($order->customer->phone_number)
+                <br>
+                <span class="text-muted fs-13">
+                    {{ $order->customer->phone_number }}
+                    <i class="ti ti-copy copy-phone-icon cursor-pointer ms-1"
+                        data-phone="{{ $order->customer->phone_number }}"
+                        title="Copy phone number"></i>
+                </span>
+                @endif
             </td>
             <td>
                 Rs. {{ number_format($order->grand_total_amount, 2) }}
@@ -58,6 +64,7 @@
             </td>
             <td>
                 <span class="badge border border-success text-success">{{ $order->payment_mode }}</span>
+                
             </td>
             <td>
                 @if($order->payment_received == 1)
@@ -84,7 +91,27 @@
                 @endif
 
             </td>
-            <td>{{ $order->orderLines->count() }}</td>
+            <td>
+                <div style="max-width: 80px;">
+                    <div class="d-flex flex-wrap gap-1">
+                        @foreach($order->orderLines as $line)
+                            @php
+                                $lineImage = $line->product ? $line->product->images->first() : null;
+                            @endphp
+                            @if($lineImage)
+                                <img src="{{ asset('images/product/thumb/' . $lineImage->image_path) }}"
+                                    alt="{{ $line->product->title ?? 'product' }}"
+                                    class="border bg-white"
+                                    style="width: 32px; height: 32px; object-fit: contain; flex-shrink: 0;"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="{{ $line->product->title ?? '' }}">
+                            @endif
+                        @endforeach
+                    </div>
+                    <span class="text-muted fs-13">{{ $order->orderLines->count() }} item{{ $order->orderLines->count() > 1 ? 's' : '' }}</span>
+                </div>
+            </td>
             <td>
                 @if (isset($orders_status) && $orders_status->count() > 0)
                     <select class="form-control"
@@ -109,6 +136,7 @@
             @endphp
             <td>
                 <div class="d-flex gap-1 align-items-center">
+				@if(false)
                     @if($order->shiprocketCourier)
                         @if($order->payment_mode !== 'Pick Up From Store')
                         
@@ -212,6 +240,7 @@
                             </div>
                         </div>
                         @endif
+                    @endif
                     @endif
                     @if($order->order_status_id=='5')
                         <a href="javascript:void(0)" 

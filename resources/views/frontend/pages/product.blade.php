@@ -401,9 +401,9 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                             }
                                             @endphp
                                             {{ $attribute->attribute->title }} :
-                                            @foreach($attribute->values as $value)
-                                            <a href="javascript:void(0)">{{ $value->attributeValue->name }}</a>@if(!$loop->last),@endif
-                                            @endforeach
+												@foreach($attribute->values as $value)
+												<a href="{{ url('kitchen-catalog/' . $data['product_details']->category->slug . '/' . $attribute->attribute->slug . '/' . $value->attributeValue->slug) }}">{{ $value->attributeValue->name }}</a>@if(!$loop->last),@endif
+												@endforeach
                                         </li>
                                         @endif
                                         @endforeach

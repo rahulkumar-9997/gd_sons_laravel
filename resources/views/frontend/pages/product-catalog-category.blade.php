@@ -507,37 +507,29 @@
         });
         /**Auto load  products */
         let isLoading = false;
-		let scrollTicking = false;
-		$(window).on('scroll', function () {
-			if (isLoading || scrollTicking) return;
-			scrollTicking = true;
-			requestAnimationFrame(function () {
-				scrollTicking = false;
-				let trigger = $('#load-more-trigger');
-				if (!trigger.length) return;
-				let scrollTop = $(window).scrollTop();
-				let windowHeight = $(window).height();
-				let documentHeight = $(document).height();
-				let scrollPercent = (scrollTop / (documentHeight - windowHeight)) * 100;
-				if (scrollPercent >= 60) {
-				let currentPage = parseInt(trigger.data('current-page'));
-                let lastPage = parseInt(trigger.data('last-page'));
-                if (currentPage >= lastPage) {
-                    trigger.remove();
-                    return;
-                }
-                isLoading = true;
-                $('#loading').show();
-                currentPage++;
-                let baseUrl = window.location.href.split('?')[0];
-                let queryParams = new URLSearchParams(window.location.search);
-                queryParams.set('page', currentPage);
-                queryParams.set('load_more', true);
-                let url = `${baseUrl}?${queryParams.toString()}`;
-                fetchProductsWithoutLoader(url, true)
+        function loadNextPage() {
+            let trigger = $('#load-more-trigger');
+            if (!trigger.length || isLoading) return;
+            let currentPage = parseInt(trigger.data('current-page'));
+            let lastPage = parseInt(trigger.data('last-page'));
+            if (currentPage >= lastPage) {
+                trigger.remove();
+                return;
+            }
+            isLoading = true;
+            currentPage++;
+            let baseUrl = window.location.href.split('?')[0];
+            let queryParams = new URLSearchParams(window.location.search);
+            queryParams.set('page', currentPage);
+            queryParams.set('load_more', true);
+            let url = `${baseUrl}?${queryParams.toString()}`;
+            fetchProductsWithoutLoader(url, true)
                 .done(function () {
                     trigger.data('current-page', currentPage);
-                    if (currentPage >= lastPage) {
+                    /* Agar aur pages bache hain to 200ms baad automatically next page load karo */
+                    if (currentPage < lastPage) {
+                        setTimeout(loadNextPage, 200);
+                    } else {
                         trigger.remove();
                     }
                 })
@@ -546,10 +538,10 @@
                 })
                 .always(function () {
                     isLoading = false;
-                    $('#loading').hide();
                 });
-            }
-			});
+        }
+        $(document).ready(function () {
+            loadNextPage();
         });
         /*Fetch product without loader */
         function fetchProductsWithoutLoader(url, append = false) {

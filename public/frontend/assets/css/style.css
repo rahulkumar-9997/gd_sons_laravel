@@ -43764,9 +43764,9 @@ body.rtl .question-answer li .question-box .link-dislike-box {
 }
 
 @media(max-width: 360px) {
-    .shop-section .show-button .top-filter-menu .category-dropdown h5 {
+    /* .shop-section .show-button .top-filter-menu .category-dropdown h5 {
         display: none
-    }
+    } */
 }
 
 .shop-section .show-button .top-filter-menu .category-dropdown .dropdown {
@@ -44191,9 +44191,9 @@ body.rtl .question-answer li .question-box .link-dislike-box {
 }
 
 @media(max-width: 767px) {
-    .shop-section .show-button .top-filter-menu .category-dropdown h5 {
+    /* .shop-section .show-button .top-filter-menu .category-dropdown h5 {
         display: none
-    }
+    } */
     .product-section .right-box-contain {
         text-align: left;
         position: unset;

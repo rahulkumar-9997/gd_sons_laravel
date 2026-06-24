@@ -342,7 +342,7 @@ $search_value = !empty($query) ? $query : '';
                         <div class="offcanvas-body canvasbody-mobile">
                            <ul class="navbar-nav">
                               
-                              <li class="nav-item for-mobile-display mobile-category" style="margin-bottom: 20px;">
+                              <li class="nav-item for-mobile-display mobile-category" data-open-categories style="margin-bottom: 20px;">
                                  <a class="nav-link mobile-link all-product-mobile" href="javascript:void(0)">
                                     All Products
                                  </a>

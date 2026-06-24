@@ -38,22 +38,22 @@ if ($firstCatalogProduct && $firstCatalogProduct->images->isNotEmpty()) {
                 <div class="breadcrumb-contain">
                     <!-- <h2>{{ $category->title }} : {{ $attributeValue->name }}</h2> -->
                     <nav>
-<ol class="breadcrumb mb-0">
-    <li class="breadcrumb-item">
-        <a href="{{ url('/') }}">Home</a>
-    </li>
-    @if($primary_category)
-    <li class="breadcrumb-item">
-        <a href="{{ url('categories/' . $category->slug) }}">{{ $category->title }}</a>
-    </li>
-    <li class="breadcrumb-item active">{{ $primary_category->title }}</li>
-    @else
-    <li class="breadcrumb-item">
-        <a href="{{ url('categories/' . $category->slug) }}">{{ $category->title }}</a>
-    </li>
-    <li class="breadcrumb-item active">{{ $attributeValue->name }}</li>
-    @endif
-</ol>
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item">
+                                <a href="{{ url('/') }}">Home</a>
+                            </li>
+                            @if($primary_category)
+                            <li class="breadcrumb-item">
+                                <a href="{{ url('categories/' . $category->slug) }}">{{ $category->title }}</a>
+                            </li>
+                            <li class="breadcrumb-item active">{{ $primary_category->title }}</li>
+                            @else
+                            <li class="breadcrumb-item">
+                                <a href="{{ url('categories/' . $category->slug) }}">{{ $category->title }}</a>
+                            </li>
+                            <li class="breadcrumb-item active">{{ $attributeValue->name }}</li>
+                            @endif
+                        </ol>
                     </nav>
                 </div>
             </div>
@@ -65,19 +65,19 @@ if ($firstCatalogProduct && $firstCatalogProduct->images->isNotEmpty()) {
 <section class="section-b-space shop-section">
     <div class="container-fluid-lg">
         <div class="row">
-            
             <div class="col-lg-12">
                 <div class="h1-heading">
-<h1>
-    @if($primary_category && !empty($primary_category->h1_text))
-        {{ $primary_category->h1_text }}
-    @elseif($primary_category)
-        {{ $primary_category->title }} - Buy Online
-    @else
-        {{ $attributeValue->name }} {{ $category->title }} - Buy Online
-    @endif
-</h1>
+                    <h1>
+                        @if($primary_category && !empty($primary_category->h1_text))
+                            {{ $primary_category->h1_text }}
+                        @elseif($primary_category)
+                            {{ $primary_category->title }} - Buy Online
+                        @else
+                            {{ $attributeValue->name }} {{ $category->title }} - Buy Online
+                        @endif
+                    </h1>                    
                 </div>
+                
             </div>
             <div class="col-xl-12 col-md-12 mobile-gap single-bn-mo-dblock" style="margin-top: 10px;">
                 <div class="row">
@@ -114,36 +114,36 @@ if ($firstCatalogProduct && $firstCatalogProduct->images->isNotEmpty()) {
 
 @push('schema')
 <script type="application/ld+json">
-{
+
     "@context": "https://schema.org",
     "@type": "WebPage",
 
-"name": "{{ $seo_title }}",
-"description": "{{ $seo_desc }}",
-    "url": "{{ url()->current() }}",
-"breadcrumb": {
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-        {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "{{ url('/') }}"
-        },
-        {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "{{ $category->title }}",
-            "item": "{{ url('categories/' . $category->slug) }}"
-        },
-        {
-            "@type": "ListItem",
-            "position": 3,
-            "name": "@if($primary_category){{ $primary_category->title }}@else{{ $attributeValue->name }}@endif",
-            "item": "{{ strtok(url()->current(), '?') }}"
-        }
-    ]
-},
+    "name": "{{ $seo_title }}",
+    "description": "{{ $seo_desc }}",
+        "url": "{{ url()->current() }}",
+    "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "{{ $category->title }}",
+                "item": "{{ url('categories/' . $category->slug) }}"
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "@if($primary_category){{ $primary_category->title }}@else{{ $attributeValue->name }}@endif",
+                "item": "{{ strtok(url()->current(), '?') }}"
+            }
+        ]
+    },
     "mainEntity": {
         "@type": "ItemList",
         "itemListElement": [
@@ -214,34 +214,34 @@ if ($firstCatalogProduct && $firstCatalogProduct->images->isNotEmpty()) {
                         }
                         @endif
                     },
-"additionalProperty": [
-    {
-        "@type": "PropertyValue",
-        "name": "MRP",
-        "value": "{{ $mrp }}"
-    },
-    {
-        "@type": "PropertyValue",
-        "name": "Discount",
-        "value": "{{ $mrp - $final_offer_rate }}"
-    }
-]
-@php $rStat = $reviewStats[$product->id] ?? null; @endphp
-@if($rStat && $rStat->review_count > 0)
-,"aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": "{{ $rStat->avg_rating }}",
-    "reviewCount": "{{ $rStat->review_count }}",
-    "bestRating": "5",
-    "worstRating": "1"
-}
-@endif
-}@if(!$loop->last),@endif
-            @endforeach
-        ]
-    }
-    
-}
+                "additionalProperty": [
+                    {
+                        "@type": "PropertyValue",
+                        "name": "MRP",
+                        "value": "{{ $mrp }}"
+                    },
+                    {
+                        "@type": "PropertyValue",
+                        "name": "Discount",
+                        "value": "{{ $mrp - $final_offer_rate }}"
+                    }
+                ]
+        @php $rStat = $reviewStats[$product->id] ?? null; @endphp
+        @if($rStat && $rStat->review_count > 0)
+        ,"aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "{{ $rStat->avg_rating }}",
+            "reviewCount": "{{ $rStat->review_count }}",
+            "bestRating": "5",
+            "worstRating": "1"
+        }
+        @endif
+        }@if(!$loop->last),@endif
+                    @endforeach
+                ]
+            }
+            
+        }
 </script>
 @endpush
 @push('scripts')
@@ -315,34 +315,29 @@ if ($firstCatalogProduct && $firstCatalogProduct->images->isNotEmpty()) {
         
         /**Auto load  products */
         let isLoading = false;
-        $(window).on('scroll', function () {
-            if (isLoading) return;
+        function loadNextPage() {
             let trigger = $('#load-more-trigger');
-            if (!trigger.length) return;
-            let scrollTop = $(window).scrollTop();
-            let windowHeight = $(window).height();
-            let documentHeight = $(document).height();
-            //let footerHeight = $('footer').outerHeight() || 0;
-            let scrollPercent = (scrollTop / (documentHeight - windowHeight)) * 100;
-            if (scrollPercent >= 60) {
-                let currentPage = parseInt(trigger.data('current-page'));
-                let lastPage = parseInt(trigger.data('last-page'));
-                if (currentPage >= lastPage) {
-                    trigger.remove();
-                    return;
-                }
-                isLoading = true;
-                $('#loading').show();
-                currentPage++;
-                let baseUrl = window.location.href.split('?')[0];
-                let queryParams = new URLSearchParams(window.location.search);
-                queryParams.set('page', currentPage);
-                queryParams.set('load_more', true);
-                let url = `${baseUrl}?${queryParams.toString()}`;
-                fetchProductsWithoutLoader(url, true)
+            if (!trigger.length || isLoading) return;
+            let currentPage = parseInt(trigger.data('current-page'));
+            let lastPage = parseInt(trigger.data('last-page'));
+            if (currentPage >= lastPage) {
+                trigger.remove();
+                return;
+            }
+            isLoading = true;
+            currentPage++;
+            let baseUrl = window.location.href.split('?')[0];
+            let queryParams = new URLSearchParams(window.location.search);
+            queryParams.set('page', currentPage);
+            queryParams.set('load_more', true);
+            let url = `${baseUrl}?${queryParams.toString()}`;
+            fetchProductsWithoutLoader(url, true)
                 .done(function () {
                     trigger.data('current-page', currentPage);
-                    if (currentPage >= lastPage) {
+                    /* Agar aur pages bache hain to 200ms baad automatically next page load karo */
+                    if (currentPage < lastPage) {
+                        setTimeout(loadNextPage, 200);
+                    } else {
                         trigger.remove();
                     }
                 })
@@ -351,9 +346,10 @@ if ($firstCatalogProduct && $firstCatalogProduct->images->isNotEmpty()) {
                 })
                 .always(function () {
                     isLoading = false;
-                    $('#loading').hide();
                 });
-            }
+        }
+        $(document).ready(function () {
+            loadNextPage();
         });
         /*Fetch product without loader */
         function fetchProductsWithoutLoader(url, append = false) {

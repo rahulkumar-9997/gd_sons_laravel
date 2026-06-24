@@ -60,7 +60,7 @@
                     <a><i class="fa-solid fa-filter"></i> Filter</a>
                 </div>
             </div>
-            <div class="category-dropdown" style="margin-left: auto !important;">
+            <div class="category-dropdown">                
                 <h5 class="text-content">Sort By :</h5>
                 <div class="dropdown">
                     <button class="dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown">
@@ -80,6 +80,12 @@
                             <a class="dropdown-item" data-sortid="a-to-z-order" href="javascript:void(0)">A - Z Order</a>
                         </li>
                     </ul>
+                </div>
+                <div class="px-2 py-1.5 text-[16px] font-medium ml-2">
+                    <span class="font-semibold">
+                        {{ $total_count ?? $products->total() }}
+                    </span>
+                    Products
                 </div>
             </div>
             @php

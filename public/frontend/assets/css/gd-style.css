@@ -888,10 +888,10 @@ header .navbar.navbar-expand-xl .navbar-nav .nav-link.mobile-link::before {
   .for-desktop-price .name {
     display: none;
   }
-
+/* 
   .breadcrumb-section {
     display: none;
-  }
+  } */
 }
 
 @media screen and (min-width: 769px) {
@@ -1561,7 +1561,17 @@ a.cntshop {
   }
 
   .category-dropdown .text-content {
-    font-size: 24px;
+    /* font-size: 24px; */
+    font-size: 17px;
+  }
+  .shop-section .show-button .top-filter-menu .category-dropdown{
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 15px;
   }
 
 }

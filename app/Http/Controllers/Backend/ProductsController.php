@@ -1651,8 +1651,8 @@ class ProductsController extends Controller
             $criteria = null;
         }
         try {
-            $query = Product::with(['images', 'category'])
-                ->select(['id', 'title', 'category_id', 'meta_title', 'meta_description', 'g_tin_no', 'slug', 'category_id', 'product_description', 'faq_schema', 'video_id', 'length', 'breadth', 'height', 'weight', 'volumetric_weight_kg']); 
+            $query = Product::with(['images', 'category', 'attributes.values.attributeValue'])
+                ->select(['id', 'title', 'category_id', 'meta_title', 'meta_description', 'g_tin_no', 'slug', 'category_id', 'product_description', 'faq_schema', 'video_id', 'length', 'breadth', 'height', 'weight', 'volumetric_weight_kg']);
             if ($criteria === 'product-image') {
                 $query->whereDoesntHave('images');
             }            
@@ -1679,6 +1679,13 @@ class ProductsController extends Controller
                     ->orWhereNull('height')
                     ->orWhereNull('weight')
                     ->orWhereNull('volumetric_weight_kg');
+                });
+            }
+			if ($criteria === 'product-description') {
+                $query->where(function($q) {
+                    $q->whereNull('product_description')
+                    ->orWhere('product_description', '')
+                    ->orWhereRaw('LENGTH(REGEXP_REPLACE(product_description, "<[^>]+>", "")) < 100');
                 });
             }
             $products = $query->paginate(20);

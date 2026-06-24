@@ -751,21 +751,22 @@ class FrontendController extends Controller
             /**special offer rate */
             $specialOffers = getCustomerSpecialOffers();
             /**special offer rate */
+            $current_count = $products->count() + (($products->currentPage() - 1) * $products->perPage());
+            $total_count = $products->total();
             // Return JSON response for AJAX requests
             if ($request->ajax()) {
                 if ($request->has('load_more') && $request->get('load_more') == true) {
                     return response()->json([
-                        'products' => view('frontend.pages.partials.product-catalog-load-more', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list'))->render(),
+                        'products' => view('frontend.pages.partials.product-catalog-load-more', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list', 'current_count', 'total_count'))->render(),
                         'hasMore' => $products->hasMorePages(),
                     ]);
                 } else {
                     return response()->json([
-                        'products' => view('frontend.pages.ajax-product-catalog', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list'))->render(),
+                        'products' => view('frontend.pages.ajax-product-catalog', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list', 'current_count', 'total_count'))->render(),
                         'hasMore' => $products->hasMorePages(),
                     ]);
                 }
             }
-            DB::disconnect();
 			
 			// Fetch review stats for all products on this page in one query
 			$productIds = $products->pluck('id')->toArray();
@@ -779,29 +780,28 @@ class FrontendController extends Controller
 				->whereIn('product_id', $productIds)
 				->groupBy('product_id')
 				->get()
-				->keyBy('product_id');		
+				->keyBy('product_id');
+                $transformedstr = '';
+                $l1 = 0;
+                foreach ($attributes_with_values_for_filter_list as $arritem) {
+                    $l2 = 0;
+                    $transformedstr .= $arritem['title'] . 's like ';
+                    foreach ($arritem->AttributesValues as $aval) {
+                        if ($aval->name == 'NA' || $aval->name == 'N/A') {
+                            continue;
+                        }
+                        $transformedstr .= $aval->name . ' ';
+                        $l2++;
+                        if ($l2 >= 3) {
+                            break;
+                        }
+                    }
+                    $l1++;
+                    if ($l1 >= 3) {
 
-						$transformedstr = '';
-						$l1 = 0;
-						foreach ($attributes_with_values_for_filter_list as $arritem) {
-							$l2 = 0;
-							$transformedstr .= $arritem['title'] . 's like ';
-							foreach ($arritem->AttributesValues as $aval) {
-								if ($aval->name == 'NA' || $aval->name == 'N/A') {
-									continue;
-								}
-								$transformedstr .= $aval->name . ' ';
-								$l2++;
-								if ($l2 >= 3) {
-									break;
-								}
-							}
-							$l1++;
-							if ($l1 >= 3) {
-
-								break;
-							}
-						}
+                        break;
+                    }
+                }
             return view('frontend.pages.product-catalog', compact(
 				'products',
 				'category',
@@ -811,7 +811,9 @@ class FrontendController extends Controller
 				'specialOffers',
 				'attributes_with_values_for_filter_list',
 				'transformedstr',
-				'reviewStats'
+				'reviewStats',
+                'current_count', 
+                'total_count'                
 			));
         } catch (\Exception $e) {
             Log::error('Error fetching product catalog: ' . $e->getMessage());
@@ -1262,24 +1264,24 @@ class FrontendController extends Controller
                     })->values()
                 ];
             })->values();
-			//return response()->json($additionalFilters);
+            $current_count = $products->count() + (($products->currentPage() - 1) * $products->perPage());
+            $total_count = $products->total();
             /*Additional Filters */  
             if ($request->ajax()) {
                 if ($request->has('load_more') && $request->get('load_more') == true) {
                     return response()->json([
-                        'products' => view('frontend.pages.partials.product-category-catalog-load-more', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list', 'additionalFilters'))->render(),
+                        'products' => view('frontend.pages.partials.product-category-catalog-load-more', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list', 'additionalFilters', 'current_count', 'total_count'))->render(),
                         'hasMore' => $products->hasMorePages(),
                     ]);
                 } else {
                     return response()->json([
-                        'products' => view('frontend.pages.ajax-product-category-catalog', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list', 'additionalFilters'))->render(),
+                        'products' => view('frontend.pages.ajax-product-category-catalog', compact('products', 'specialOffers', 'attributes_with_values_for_filter_list', 'additionalFilters', 'current_count', 'total_count'))->render(),
                         'hasMore' => $products->hasMorePages(),
                     ]);
                 }
             }
-            DB::disconnect();
-            // return response()->json($attributes_with_values_for_filter_list);
-			
+                        
+            // return response()->json($attributes_with_values_for_filter_list);			
 			// Fetch review stats for all products on this page in one query
 			$productIds = $products->pluck('id')->toArray();
 			$reviewStats = DB::table('product_reviews')
@@ -1292,32 +1294,32 @@ class FrontendController extends Controller
 				->whereIn('product_id', $productIds)
 				->groupBy('product_id')
 				->get()
-				->keyBy('product_id');			
+				->keyBy('product_id');	
 						
-						$transformedstr = '';
-						$l1 = 0;
-						$brand = '';
-						foreach ($attributes_with_values_for_filter_list as $arritem) {
-							$l2 = 0;
-							$transformedstr .= $arritem['title'] . 's like ';
-							foreach ($arritem->AttributesValues as $aval) {
-								if ($aval->name == 'NA' || $aval->name == 'N/A') {
-									continue;
-								}
-								$transformedstr .= $aval->name . ' ';
-								$l2++;
-								if ($l2 >= 3) {
-									break;
-								}
-							}
-							$l1++;
-							if ($l1 >= 3) {
+                $transformedstr = '';
+                $l1 = 0;
+                $brand = '';
+                foreach ($attributes_with_values_for_filter_list as $arritem) {
+                    $l2 = 0;
+                    $transformedstr .= $arritem['title'] . 's like ';
+                    foreach ($arritem->AttributesValues as $aval) {
+                        if ($aval->name == 'NA' || $aval->name == 'N/A') {
+                            continue;
+                        }
+                        $transformedstr .= $aval->name . ' ';
+                        $l2++;
+                        if ($l2 >= 3) {
+                            break;
+                        }
+                    }
+                    $l1++;
+                    if ($l1 >= 3) {
 
-								break;
-							}
-						}
+                        break;
+                    }
+                }
             //return response()->json($additionalFilters);
-            return view('frontend.pages.product-catalog-category', compact('products', 'specialOffers', 'category', 'attributes_with_values_for_filter_list', 'primary_category', 'transformedstr', 'categorySlug', 'additionalFilters', 'reviewStats'));
+            return view('frontend.pages.product-catalog-category', compact('products', 'specialOffers', 'category', 'attributes_with_values_for_filter_list', 'primary_category', 'transformedstr', 'categorySlug', 'additionalFilters', 'reviewStats', 'current_count', 'total_count'));
         } catch (\Exception $e) {
             Log::error('Error fetching product catalog: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());

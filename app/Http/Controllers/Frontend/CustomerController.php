@@ -889,16 +889,22 @@ class CustomerController extends Controller
     {
         $req->validate([
             'pincode' => 'required|digits:6',
-            'total_weight' => 'required|numeric|min:0.1',
+            'cart_items' => 'required|json',
         ]);
+        $cartItems = json_decode($req->cart_items, true);
+        if (empty($cartItems)) {
+            return response()->json([
+                'success' => false,
+                'checkout_sidebar' => 'Cart items not found.'
+            ]);
+        }
         $session_cart = session()->get('cart', []);
         if (empty($session_cart)) {
             return redirect('/')->with('error', 'Your cart is empty. Please add items to proceed to checkout.');
         }
-        $productIds = array_keys($session_cart); 
-               
-        $pincode = $req->pincode;
-        $weight = (float) $req->total_weight;
+        $productIds = array_keys($session_cart);         
+        $pincode = $req->pincode;        
+        $grand_total_amount_input = $req->grand_total_amount_input;        
         $fromPin = config('services.shiprocket.shiprocket_pickup_pincode');
 
         if (!$fromPin) {
@@ -907,11 +913,50 @@ class CustomerController extends Controller
                 'checkout_sidebar' => '<span class="text-danger">Pickup pincode missing.</span>'
             ]);
         }
+        $totalWeight = 0;
+        $maxLength = 0;
+        $maxBreadth = 0;
+        $totalHeight = 0;
+        $declaredValue = 0;
+        foreach ($cartItems as $item) {
+            $qty = (int) ($item['qty'] ?? 1);
+            $weight = (float) ($item['weight'] ?? 0);
+            $length = (float) ($item['length'] ?? 0);
+            $breadth = (float) ($item['breadth'] ?? 0);
+            $height = (float) ($item['height'] ?? 0);
+            $totalWeight += ($weight * $qty);
+            $maxLength = max($maxLength, $length);
+            $maxBreadth = max($maxBreadth, $breadth);
+            $totalHeight += ($height * $qty);
+            
+        }
 
         $ship = app(\App\Services\ShiprocketService::class);
         $cod = $req->cod ?? 0;
         $paymentType = $req->input('payment_type') ?? 'online';
-        $response = $ship->getServiceability($fromPin, $pincode, $weight, $cod);
+        /*Log::info('Shipment Calculation Customer Controller page', [
+            'cart_items'      => $cartItems,
+            'total_weight'    => $totalWeight,
+            'max_length'      => $maxLength,
+            'max_breadth'     => $maxBreadth,
+            'total_height'    => $totalHeight,
+            'declared_value'  => $grand_total_amount_input,
+            'cod'             => $cod,
+            'delivery_pin'    => $pincode,
+        ]);*/
+        //$response = $ship->getServiceability($fromPin, $pincode, $weight, $cod);
+        $response = $ship->getServiceability([
+            'pickup_postcode'   => $fromPin,
+            'delivery_postcode' => $pincode,
+            'weight'            => max($totalWeight, 0.5),
+            'length'            => $maxLength,
+            'breadth'           => $maxBreadth,
+            'height'            => $totalHeight,
+            'cod'               => $cod,
+            'declared_value'    => $grand_total_amount_input,
+            'mode'              => 'Air',
+        ]);
+
         //Log::info('Shiprocket Response: ' . json_encode($response, JSON_PRETTY_PRINT));
         if (!$response || !$response['success']) {
             if (!empty($response['response']['message'])) {
@@ -1003,7 +1048,7 @@ class CustomerController extends Controller
         $pincode = $request->pincode;
         $ship = app(\App\Services\ShiprocketService::class);
         $response = $ship->getShiprocketLocalityDetails($pincode);
-        Log::info('Shiprocket Response: ' . json_encode($response, JSON_PRETTY_PRINT));
+        //Log::info('Shiprocket Response: ' . json_encode($response, JSON_PRETTY_PRINT));
         if (!$response || !$response['success']) {
             return response()->json([
                 'success' => false,
@@ -1018,7 +1063,7 @@ class CustomerController extends Controller
             'banaras',
             'benares'
         ]);
-        Log::info('Customer Controller Locality: ' . json_encode($details['locality'], JSON_PRETTY_PRINT));
+        //Log::info('Customer Controller Locality: ' . json_encode($details['locality'], JSON_PRETTY_PRINT));
         return response()->json([
             'success' => true,
             'state'   => $details['state'] ?? '',

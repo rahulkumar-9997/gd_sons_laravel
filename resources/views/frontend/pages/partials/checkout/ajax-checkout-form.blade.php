@@ -61,6 +61,7 @@ if (auth('customer')->check()) {
         @endphp
     @endforeach
 @endif
+
 <form action="{{route('checkout.submit')}}" method="POST" accept-charset="UTF-8" enctype="multipart/form-data" id="checkoutFormSubmit">
     @csrf
     <input type="hidden" name="pick_up_status" value="pick_up_online">

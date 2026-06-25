@@ -215,6 +215,11 @@
         let paymentType = $("input[name='payment_type']:checked").val();
         let placeOrderBtn = $("button[type='submit']");
         let couponCode = $("#applied_coupon_code").val();
+        let totalAmount = 0;
+
+        $("input[name='total_price[]']").each(function () {
+            totalAmount += parseFloat($(this).val()) || 0;
+        });
         if (paymentType === "Pick Up From Store") {
             updateTotals(0);
             $(".courier-radio").hide();
@@ -235,7 +240,7 @@
         }
 
         let cartItems = JSON.parse(cartJsonInput.val());
-        let totalWeight = calculateTotalWeight(cartItems);
+        //let totalWeight = calculateTotalWeight(cartItems);
 
         $("#shipping_status").html("Checking serviceability...");
         $("#shipping_loader").fadeIn(200);
@@ -247,10 +252,11 @@
             type: "POST",
             data: {
                 pincode: pincode,
-                total_weight: totalWeight,
+                cart_items: JSON.stringify(cartItems),
                 cod: cod,
                 payment_type: paymentType,
                 coupon_code: couponCode,
+                grand_total_amount_input: totalAmount,
                 _token: $('meta[name="csrf-token"]').attr("content"),
             },
             beforeSend: function () {

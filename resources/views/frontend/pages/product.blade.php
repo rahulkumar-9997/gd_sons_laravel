@@ -425,6 +425,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         'breadth' => (float) ($data['product_details']->breadth ?? 0),
                                         'height' => (float) ($data['product_details']->height ?? 0),
                                         'weight' => (float) ($data['product_details']->weight ?? 0),
+                                        'declared_value' => (float) ($final_offer_rate ?? 0),
                                         'qty' => 1
                                     ];
                                 @endphp

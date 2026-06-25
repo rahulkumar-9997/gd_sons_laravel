@@ -88,7 +88,7 @@ class ShiprocketService
     /**
      * Get serviceability and rates
      */
-    public function getServiceability(string $from_pin, string $to_pin, float $weight_kg = 0.5, int $cod = 0)
+    public function getServiceability_old(string $from_pin, string $to_pin, float $weight_kg = 0.5, int $cod = 0)
     {
         $token = $this->getToken();
         if (!$token) {
@@ -131,6 +131,63 @@ class ShiprocketService
         return [
             'success' => false,
             'raw' => $data,
+        ];
+    }
+
+    public function getServiceability(array $params): array
+    {
+        $token = $this->getToken();
+        if (!$token) {
+            return [
+                'success' => false,
+                'message' => 'Shiprocket token unavailable.',
+            ];
+        }
+        $payload = array_filter([
+            'pickup_postcode'   => $params['pickup_postcode'] ?? null,
+            'delivery_postcode' => $params['delivery_postcode'] ?? null,
+            'order_id'          => $params['order_id'] ?? null,
+            'cod'               => $params['cod'] ?? 0,
+            'weight'            => $params['weight'] ?? null,
+            'length'            => $params['length'] ?? null,
+            'breadth'           => $params['breadth'] ?? null,
+            'height'            => $params['height'] ?? null,
+            'declared_value'    => $params['declared_value'] ?? null,
+            'mode'              => $params['mode'] ?? null,
+            'is_return'         => $params['is_return'] ?? null,
+            'couriers_type'     => $params['couriers_type'] ?? null,
+            'only_local'        => $params['only_local'] ?? null,
+            'qc_check'          => $params['qc_check'] ?? null,
+        ], fn ($value) => $value !== null && $value !== '');
+        Log::info('Shiprocket Serviceability Request', [
+            'payload' => $payload
+        ]);
+        $response = Http::withToken($token)
+            ->timeout(30)
+            ->get("{$this->base}/courier/serviceability/", $payload);
+        
+        Log::info(
+            "Shiprocket Serviceability Response\n" .
+            json_encode(
+                $response->json(),
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+            )
+        );
+        if (!$response->successful()) {
+            return [
+                'success' => false,
+                'message' => 'Shiprocket API Error',
+                'response' => $response->json(),
+            ];
+        }
+        $data = $response->json();
+        return [
+            'success' => (
+                ($data['status'] ?? null) == 200 &&
+                !empty($data['data']['available_courier_companies'])
+            ),
+            'raw' => $data,
+            'message' => $data['message'] ?? null,
         ];
     }
 

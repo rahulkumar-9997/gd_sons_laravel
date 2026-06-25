@@ -2297,7 +2297,7 @@ class FrontendController extends Controller
         $pincode = $request->pincode;
         $product_id = $request->product_id ?? null;
         $productData = json_decode($request->product_data, true);
-        $totalWeight = $this->calculateTotalWeight($productData);
+        //$totalWeight = $this->calculateTotalWeight($productData);
         $fromPin = config('services.shiprocket.shiprocket_pickup_pincode');
         if (!$fromPin) {
             return response()->json([
@@ -2306,7 +2306,19 @@ class FrontendController extends Controller
             ]);
         }
         $ship = app(\App\Services\ShiprocketService::class);
-        $response = $ship->getServiceability($fromPin, $pincode, $totalWeight,  0);
+        //$response = $ship->getServiceability($fromPin, $pincode, $totalWeight,  0);
+        $response = $ship->getServiceability([
+            'pickup_postcode'   => $fromPin,
+            'delivery_postcode' => $pincode,
+            'weight'            => $productData['weight'] ?? null,
+            'length'            => $productData['length'] ?? null,
+            'breadth'           => $productData['breadth'] ?? null,
+            'height'            => $productData['height'] ?? null,
+            'cod'               => 0,/*0=online payement, 1=cash on delivery*/
+            'declared_value'    => $productData['declared_value'] ?? null,
+            'mode'              => 'Air',
+        ]);
+
         if (!$response || !$response['success']) {
             return response()->json([
                 'success' => false,
@@ -2343,7 +2355,7 @@ class FrontendController extends Controller
             }
         }
         usort($couriers, fn($a, $b) => $a['rate'] <=> $b['rate']);
-        Log::info('Available couriers: ' . json_encode($couriers, JSON_PRETTY_PRINT));
+        //Log::info('Available couriers: ' . json_encode($couriers, JSON_PRETTY_PRINT));
         $key = 'courier_options_' . $product_id . '_' . $pincode;
         session()->put($key, [
             'data' => $couriers,

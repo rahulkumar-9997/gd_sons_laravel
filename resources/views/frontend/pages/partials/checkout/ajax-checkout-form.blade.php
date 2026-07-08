@@ -307,7 +307,7 @@ if (auth('customer')->check()) {
                                             </div>
                                         @endif
                                         <!-- Store Pickup Option -->
-                                        <div class="accordion-item">
+                                        <!--<div class="accordion-item">
                                             <div class="accordion-header" id="flush-headingStore">
                                                 <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#flush-collapseStore">
                                                     <div class="custom-form-check form-check mb-0">
@@ -325,7 +325,7 @@ if (auth('customer')->check()) {
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div>-->
                                     </div>
                                 </div>
                             </div>

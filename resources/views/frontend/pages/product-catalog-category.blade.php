@@ -554,7 +554,6 @@
                     } else {
                         $('#product-catalog-frontend').html(response.products);
                     }
-
                     feather.replace();
                 },
                 error: function(xhr) {

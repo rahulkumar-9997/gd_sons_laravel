@@ -702,6 +702,7 @@ class FrontendController extends Controller
             } else {
                 $productsQuery->orderBy('created_at', 'desc');
             }
+            $perPage = $request->has('load_more') ? 40 : 40;         
 
             /* Fetch attributes with values for the filter list (mapped attributes and counts) */
             $attributes_with_values_for_filter_list = $category->attributes()
@@ -746,7 +747,7 @@ class FrontendController extends Controller
                 })
                 ->whereHas('images')/*only select which product whose images have (if all product selected than remove this line)*/
                 ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
-                ->paginate(20);
+                ->paginate($perPage);
 
             /**special offer rate */
             $specialOffers = getCustomerSpecialOffers();
@@ -1131,13 +1132,13 @@ class FrontendController extends Controller
             $primary_category = PrimaryCategory::where('link', $request->url())->first();
             $category = Category::where('slug', $categorySlug)->first();
             if (!$primary_category) {
-                Log::error("No primary category found for URL: " . $request->url());
+                //Log::error("No primary category found for URL: " . $request->url());
                 // continue;
                 //return response()->json(['error' => 'No primary category found for URL'], 404);
             }
 
             if (!$category) {
-                Log::error("No category found for slug: {$categorySlug}");
+                //Log::error("No category found for slug: {$categorySlug}");
                 return response()->json(['error' => 'No category found for slug'], 404);
             }
 
@@ -1213,7 +1214,7 @@ class FrontendController extends Controller
             } else {
                 $productsQuery->orderBy('created_at', 'desc');
             }
-			$perPage = $request->has('load_more') ? 10 : 40;
+			$perPage = $request->has('load_more') ? 40 : 40;            
             $products = $productsQuery->with([
                 'category',
                 'images' => function ($query) {
@@ -1242,6 +1243,7 @@ class FrontendController extends Controller
                 'filterAttributes.attribute:id,title,slug',
                 'filterAttributes.attributeValues.attributeValue:id,name,slug',
             ])
+            
             ->where('category_id', $category->id)
             ->where('status', 'active')
             ->get()
@@ -1266,6 +1268,14 @@ class FrontendController extends Controller
             })->values();
             $current_count = $products->count() + (($products->currentPage() - 1) * $products->perPage());
             $total_count = $products->total();
+            Log::info('Product Pagination', [
+                'page'        => $request->get('page', 1),
+                'load_more'   => $request->has('load_more'),
+                'per_page'    => $perPage,
+                'url'         => $request->fullUrl(),
+                'first_item'       => $products->firstItem(),
+                'last_item'        => $products->lastItem(),
+            ]);
             /*Additional Filters */  
             if ($request->ajax()) {
                 if ($request->has('load_more') && $request->get('load_more') == true) {
@@ -1319,6 +1329,7 @@ class FrontendController extends Controller
                     }
                 }
             //return response()->json($additionalFilters);
+            
             return view('frontend.pages.product-catalog-category', compact('products', 'specialOffers', 'category', 'attributes_with_values_for_filter_list', 'primary_category', 'transformedstr', 'categorySlug', 'additionalFilters', 'reviewStats', 'current_count', 'total_count'));
         } catch (\Exception $e) {
             Log::error('Error fetching product catalog: ' . $e->getMessage());

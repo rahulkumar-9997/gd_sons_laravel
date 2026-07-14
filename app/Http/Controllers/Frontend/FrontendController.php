@@ -2327,7 +2327,6 @@ class FrontendController extends Controller
             'height'            => $productData['height'] ?? null,
             'cod'               => 0,/*0=online payement, 1=cash on delivery*/
             'declared_value'    => $productData['declared_value'] ?? null,
-            'mode'              => 'Air',
         ]);
 
         if (!$response || !$response['success']) {

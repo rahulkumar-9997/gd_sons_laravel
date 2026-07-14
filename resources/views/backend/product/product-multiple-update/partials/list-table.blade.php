@@ -64,6 +64,25 @@
                     <a href="https://www.google.com/search?q={{ urlencode($product->title) }}&udm=2" target="_blank" class="text-primary">
                         {{ ucwords(strtolower($product->title)) }}
                     </a>
+                    @if($product->slug)
+                    @php
+                        $firstAttrValueSlug = optional(
+                            optional(
+                                optional($product->attributes->first())->values->first()
+                            )->attributeValue
+                        )->slug;
+                        $productUrl = $firstAttrValueSlug
+                            ? url('/products/' . $product->slug . '/' . $firstAttrValueSlug)
+                            : url('/products/' . $product->slug);
+                    @endphp
+                    <br>
+                    <span class="text-muted fs-13" style="word-break: break-all; font-size: 11px;">
+                        {{ $productUrl }}
+                        <i class="ti ti-copy copy-url-icon cursor-pointer ms-1"
+                            data-url="{{ $productUrl }}"
+                            title="Copy URL"></i>
+                    </span>
+                    @endif
                 </td>
                 <td>{{ $product->category->title ?? 'No Category' }}</td>
 

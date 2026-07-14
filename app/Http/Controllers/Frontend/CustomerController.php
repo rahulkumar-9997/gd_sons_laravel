@@ -953,8 +953,7 @@ class CustomerController extends Controller
             'breadth'           => $maxBreadth,
             'height'            => $totalHeight,
             'cod'               => $cod,
-            'declared_value'    => $grand_total_amount_input,
-            'mode'              => 'Air',
+            'declared_value'    => $grand_total_amount_input,           
         ]);
 
         //Log::info('Shiprocket Response: ' . json_encode($response, JSON_PRETTY_PRINT));

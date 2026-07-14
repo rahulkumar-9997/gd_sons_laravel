@@ -255,7 +255,7 @@ class OrderController extends Controller
             }
 
             /* ── Fetch payment from Razorpay to confirm capture */
-            $api     = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+            $api= new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
             $payment = $api->payment->fetch($input['razorpay_payment_id']);
             if ($payment->status !== 'captured') {
                 throw new \Exception('Payment not captured. Status: ' . $payment->status);

@@ -96,6 +96,16 @@
     var routes = {
         filterIndex: "{{ route('product-multiple-update') }}",
     };
+	$(document).on('click', '.copy-url-icon', function() {
+        var url = $(this).data('url');
+        var icon = $(this);
+        navigator.clipboard.writeText(url).then(function() {
+            icon.removeClass('ti-copy').addClass('ti-check text-success');
+            setTimeout(function() {
+                icon.removeClass('ti-check text-success').addClass('ti-copy');
+            }, 1200);
+        });
+    });
     $('#selecte-criteria').on('change', function() {
         var selectedValue = $(this).val();
         var url = new URL(window.location.href);

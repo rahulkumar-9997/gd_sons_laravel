@@ -28,9 +28,9 @@ $(document).ready(function () {
 					feather.replace();
 					$('#drawer-cart-id').addClass('drawer--is-visible');
 					$('body').css('overflow', 'hidden');
-					showNotificationAll("success", "", response.message);
+					/* showNotificationAll("success", "", response.message);*/
 
-					// GA4 add_to_cart event
+					/* GA4 add_to_cart event */
 					gtag('event', 'add_to_cart', {
 						currency: "INR",
 						value: parseFloat($(addToCartButton).data('price')) * parseInt(quantity),

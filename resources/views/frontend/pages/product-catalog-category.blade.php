@@ -32,7 +32,7 @@
 @extends('frontend.layouts.master')
 @section('main-content')
 <!-- Breadcrumb Section Start -->
-<section class="breadcrumb-section pt-0">
+<section class="breadcrumb-section pt-0 hidden md:block">
    <div class="container-fluid-lg">
       <div class="row">
          <div class="col-12">
@@ -554,6 +554,7 @@
                     } else {
                         $('#product-catalog-frontend').html(response.products);
                     }
+
                     feather.replace();
                 },
                 error: function(xhr) {

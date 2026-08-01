@@ -67,12 +67,7 @@ class Category extends Model
             'category_id'
         );
     }
-
-    /** 
-     * Write code on Method
-     *
-     * @return response()
-     */
+    
     private function createSlug($title){
         if (static::whereSlug($slug = Str::slug($title))->exists()) {
             $max = static::whereTitle($title)->latest('id')->skip(1)->value('slug');

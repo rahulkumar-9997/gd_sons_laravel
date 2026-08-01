@@ -51,8 +51,7 @@
         </div>
     </div>
 </div>
-<div class="col-custom-">
-
+<div class="col-custom-">    
     <div class="show-button filter-bar">
         <div class="top-filter-menu">
             <div class="filter-button-group d-lg-none">

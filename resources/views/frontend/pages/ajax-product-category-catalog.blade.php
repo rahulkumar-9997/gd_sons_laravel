@@ -53,79 +53,30 @@
 </div>
 <div class="col-custom-">
     @if(!empty($additionalFilters) && count($additionalFilters) > 0)
-        @php
-            $buttons = [];
-            $currentFilters = request()->query();
-            foreach ($additionalFilters as $filter) {
-                $attributeData = [];
-                if(isset($filter['filter_attributes'])) {
-                    foreach ($filter['filter_attributes'] as $filterAttribute) {
-                        $attributeSlug = $filterAttribute['attribute_slug'];
-                        $valueSlugs = [];
-                        foreach ($filterAttribute['filter_attributes_value'] as $attributeValue) {
-                            $valueSlugs[] = $attributeValue['slug'];
-                        }
-                        $attributeData[] = [
-                            'attribute_slug' => $attributeSlug,
-                            'value_slugs'    => $valueSlugs,
-                        ];
-                    }
-                }
-                $isSelected = false;
-                foreach ($attributeData as $attribute) {
-                    $attributeSlug = $attribute['attribute_slug'];
-                    $valueSlugs = $attribute['value_slugs'];
-                    if(isset($currentFilters[$attributeSlug])) {
-                        $selectedValues =
-                            is_array($currentFilters[$attributeSlug])
-                            ? $currentFilters[$attributeSlug]
-                            : explode(',', $currentFilters[$attributeSlug]);
-                        $matchedValues = array_intersect(
-                            $selectedValues,
-                            $valueSlugs
-                        );
-                        if(count($matchedValues) === count($valueSlugs)) {
-                            $isSelected = true;
-                        }
-                    }
-                }
-                $buttons[] = [
-                    'filter_button_name' => $filter['filter_button_name'],
-                    'attribute_data'     => $attributeData,
-                    'is_selected'        => $isSelected,
-                ];
-            }
-        @endphp
-        <div class="additional-filter-section mb-2">
-            <div class="bg-white p-2 overflow-x-auto">
-                <div class="flex items-center gap-2 whitespace-nowrap">
-                    @foreach($buttons as $filter)
-                        <button type="button"class="additional-filter-btn inline-flex items-center gap-1.5 px-3 py-3.5 rounded-full text-[16px] transition-all duration-150 cursor-pointer flex-shrink-0 border-[1px] font-medium
-                        {{ $filter['is_selected'] 
-                            ? 'active bg-[#117174] text-white border-[#117174]' 
-                            : 'border-[#0F8B8D] text-primary-navy bg-gray hover:border-[#117174] hover:text-[#117174]' 
-                        }}" data-filters='@json($filter['attribute_data'])'
-                        >
-                            <span class="leading-none">
-                                {{ $filter['filter_button_name'] }}
-                            </span>
-                            @if($filter['is_selected'])
-                                <span class="remove-icon flex items-center justify-center ml-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        class="w-3.5 h-3.5"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        stroke-width="2">
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M6 18L18 6M6 6l12 12"
-                                        />
-                                    </svg>
-                                </span>
-                            @endif
-                        </button>
+        <div class="additional-filter-section mb-2 mt-[10px] lg:mt-0">
+            <div class="bg-white overflow-x-auto md:overflow-visible p-[10px] lg:p-3">
+                <div class="block items-center gap-2 whitespace-normal">
+                    @foreach($additionalFilters as $filter)
+                        @foreach($filter['filter_attributes'] ?? [] as $attribute)
+                            @foreach($attribute['filter_attributes_value'] ?? [] as $value)
+                                <a
+                                    href="{{ url(
+                                        'kitchen-catalog/' .
+                                        $filter['category_slug'] . '/' .
+                                        $attribute['attribute_slug'] . '/' .
+                                        $value['slug']
+                                    ) }}"
+                                    class="inline-flex items-center px-3 py-1.5 text-[14px] font-medium mr-2 mb-2
+                                    text-primary-navy bg-white
+                                    border-1 border-[#0F8B8D]
+                                    rounded-xl
+                                    hover:text-primary-teal
+                                    transition-all duration-200 flex-shrink-0"
+                                >
+                                    {{ $value['name'] }}
+                                </a>
+                            @endforeach
+                        @endforeach
                     @endforeach
                 </div>
             </div>

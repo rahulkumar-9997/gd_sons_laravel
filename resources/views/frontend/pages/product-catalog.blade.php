@@ -31,7 +31,7 @@ if ($firstCatalogProduct && $firstCatalogProduct->images->isNotEmpty()) {
 @section('keywords', 'GD Sons - ' . $category->title . ' : ' . $attributeValue->name)
 @section('main-content')
 <!-- Breadcrumb Section Start -->
-<section class="breadcrumb-section pt-0">
+<section class="breadcrumb-section pt-0 hidden md:block">
     <div class="container-fluid-lg">
         <div class="row">
             <div class="col-12">

@@ -30,7 +30,7 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="mb-2">
-                                    <label for="filter_button_name" class="form-label">Filter Button Name *</label>
+                                    <label for="filter_button_name" class="form-label">Filter Button Name </label>
                                     <input type="text" name="filter_button_name" id="filter_button_name" class="form-control" placeholder="Filter Button Name" value="">
                                     @error('filter_button_name')
                                     <span class="text-danger">{{ $message }}</span>
@@ -112,4 +112,35 @@
 <!-- modal--->
 @endsection
 @push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const attributeValueCheckboxes = document.querySelectorAll(
+            'input[name^="attribute_values["]'
+        );
+        attributeValueCheckboxes.forEach(function (valueCheckbox) {
+            valueCheckbox.addEventListener('change', function () {
+                const match = this.name.match(/attribute_values\[(\d+)\]/);
+                if (!match) return;
+                const attributeId = match[1];
+                const attributeCheckbox = document.querySelector(
+                    '#attribute-' + attributeId
+                );
+                if (!attributeCheckbox) return;
+                if (this.checked) {
+                    attributeCheckbox.checked = true;
+                }
+                const allValues = document.querySelectorAll(
+                    'input[name="attribute_values[' + attributeId + '][]"]'
+                );
+                const hasSelectedValue = Array.from(allValues).some(function (checkbox) {
+                    return checkbox.checked;
+                });
+                if (!hasSelectedValue) {
+                    attributeCheckbox.checked = false;
+                }
+            });
+        });
+
+    });
+</script>
 @endpush

@@ -191,7 +191,7 @@ $search_value = !empty($query) ? $query : '';
                                     @foreach($categoriesWithMappedAttributesAndValues as $category)
                                        <button type="button" data-mcat-open="m-cat-detail-{{ $loop->index }}" 
                                           aria-label="View {{ $category['title'] }} subcategories" 
-                                          class="group flex w-full items-center justify-between rounded-lg px-[0.50rem] py-[0.50rem] text-left text-sm font-medium text-ink transition hover:bg-brand-50">
+                                          class="group flex w-full items-center justify-between rounded-lg px-[0.30rem] py-[0.30rem] text-left text-sm font-medium text-ink transition hover:bg-brand-50">
                                           <span class="flex items-center gap-3">
                                              @if($category['category-image'] && file_exists(public_path('images/category/icon/' . $category['category-image'])))
                                                 <img src="{{ asset('images/category/icon/' . $category['category-image']) }}" 
@@ -215,7 +215,7 @@ $search_value = !empty($query) ? $query : '';
                                        <button type="button" 
                                           data-mcat-back 
                                           aria-label="Back to all categories" 
-                                          class="flex w-full items-center gap-2 px-[0.75rem] py-[1rem] text-[17px] font-medium text-ink-soft transition hover:text-brand-600">
+                                          class="flex w-full items-center gap-2 px-[0.40rem] py-[0.40rem] text-[17px] font-medium text-ink-soft transition hover:text-brand-600 mb-2">
                                           <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                                           </svg>
@@ -223,7 +223,7 @@ $search_value = !empty($query) ? $query : '';
                                        </button>
                                        <div class="px-[0.75rem] pb-[1rem]">
                                           <a href="{{ url('categories/'.$category['category-slug']) }}" 
-                                             class="mb-3 inline-flex items-center gap-1 text-[16px] text-primary-teal transition hover:text-primary-navy">
+                                             class="mb-2 inline-flex items-center gap-1 text-[16px] text-primary-teal transition hover:text-primary-navy">
                                              View All {{ $category['title'] }}
                                              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -231,11 +231,19 @@ $search_value = !empty($query) ? $query : '';
                                           </a>
                                           @if(!empty($category['attributes']))
                                              @foreach($category['attributes'] as $attribute)
-                                                <div class="mb-3">
-                                                   <div class="text-[17px] font-semibold tracking-wider text-ink-soft/70">{{ $attribute['title'] }}</div>
+                                                <div class="mb-2">
+                                                   <div class="text-[17px] font-semibold tracking-wider text-ink-soft/70 mb-2">{{ $attribute['title'] }}</div>
                                                    <div class="">
+                                                      <!-- @foreach($attribute['values'] as $value)
+                                                         <a href="{{ url('kitchen-catalog/' . $category['category-slug'] . '/' . $attribute['slug'] . '/' . $value['slug']) }}" class="block items-center px-[0.600rem] py-[0.4rem] text-[15px] text-[#4a5568] hover:text-[#4a5568] boder border-primary-navy">{{ ucwords(strtolower($value['name'])) }}
+                                                         </a>
+                                                      @endforeach -->
                                                       @foreach($attribute['values'] as $value)
-                                                         <a href="{{ url('kitchen-catalog/' . $category['category-slug'] . '/' . $attribute['slug'] . '/' . $value['slug']) }}" class="block items-center px-[0.600rem] py-[0.5rem] text-[16px] text-[#4a5568] hover:text-[#4a5568]">{{ ucwords(strtolower($value['name'])) }}
+                                                         <a
+                                                            href="{{ url('kitchen-catalog/' . $category['category-slug'] . '/' . $attribute['slug'] . '/' . $value['slug']) }}"
+                                                            class="inline-block px-1.5 py-1.5 mb-2 mr-2 text-[14px] text-[#4a5568] border-1 border-primary-navy rounded-xl bg-white hover:bg-primary-navy hover:text-primary-teal transition-all duration-200"
+                                                         >
+                                                            {{ ucwords(strtolower($value['name'])) }}
                                                          </a>
                                                       @endforeach
                                                    </div>
@@ -251,7 +259,7 @@ $search_value = !empty($query) ? $query : '';
                                  <p class="px-3 py-4 text-sm text-ink-soft/70">No categories available</p>
                                  @endif
                               </div>
-                              <a href="{{ route('flash.sale') }}" class="group flex items-center justify-between text-primary-teal rounded-3xl bg-white border border-slate-100 p-3 shadow-[0_8px_10px_rgb(0,0,0,0.08)] transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl">
+                              <a href="{{ route('flash.sale') }}" class="group flex items-center justify-between text-primary-teal rounded-xl bg-white border border-slate-100 p-2.5">
                                  <span class="flex items-center gap-2">
                                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>

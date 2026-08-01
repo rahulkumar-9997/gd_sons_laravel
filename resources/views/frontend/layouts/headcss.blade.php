@@ -6,6 +6,7 @@
 	<meta name="keywords" content="@yield('keywords')">
 	<meta property="og:locale" content="en_IN">
 	<meta name="language" content="English">
+	<meta name="theme-color" content="#0F8B8D"/>
 	@if(View::hasSection('canonical'))
 		@yield('canonical')
 	@else

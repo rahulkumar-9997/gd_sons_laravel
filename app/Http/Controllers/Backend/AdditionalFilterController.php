@@ -63,16 +63,17 @@ class AdditionalFilterController extends Controller
     public function additionalFilterStore(Request $request)
     {
         $request->validate([
-            'category_id'         => 'required',
-            'filter_button_name'  => 'required|string|max:255',
+            'category_id'         => 'required|exists:category,id',
+            'filter_button_name'  => 'nullable|string|max:255',
         ]);
         //return response()->json($request->all());
         DB::beginTransaction();
         try {
+            $categories = Category::findOrFail($request->category_id);
             $additionalFilter = AdditionalFilter::create([
                 'category_id'        => $request->category_id,
-                'filter_button_name' => $request->filter_button_name,
-                'slug'               => Str::slug($request->filter_button_name),
+                'filter_button_name' => $request->filter_button_name ?? $categories->title,
+                'slug'               => Str::slug($request->filter_button_name ?? $categories->title),
                 'sort_order'         => 1,
                 'status'             => 'active',
             ]);
@@ -151,14 +152,15 @@ class AdditionalFilterController extends Controller
     public function additionalFilterUpdate(Request $request, $id)
     {
         $request->validate([
-            'category_id'        => 'required',
-            'filter_button_name' => 'required|string|max:255',
+            'category_id'         => 'required|exists:category,id',
+            'filter_button_name'  => 'nullable|string|max:255',
         ]);
         DB::beginTransaction();
         try {
+            $categories = Category::findOrFail($request->category_id);
             $additionalFilter = AdditionalFilter::findOrFail($id);
             $additionalFilter->update([
-                'filter_button_name' => $request->filter_button_name,
+                'filter_button_name' => $request->filter_button_name ?? $categories->title,
             ]);
 
             $oldAttributes = AdditionalFilterAttribute::where(

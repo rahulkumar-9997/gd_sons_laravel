@@ -48,13 +48,16 @@ if (auth('customer')->check()) {
 
             /* Discount percentage */
             $discountPercent = 0;
+			
 			$ga4_checkout_items[] = [
-				'item_id' => $cart->product_id,
-				'item_name' => $cart->product->title ?? $cart->title ?? 'Unknown',
-				'price' => $final_offer_rate,
-				'quantity' => $quantity,
+				'item_id'       => (string)$cart->product_id,
+				'item_name'     => $cart->title,
+				'item_category' => $cart->category ?? '',
+				'price'         => (float)$cart->final_offer_rate,
+				'quantity'      => (int)$cart->quantity,
 			];
-            if ($mrp && $final_offer_rate < $mrp) {
+            
+			if ($mrp && $final_offer_rate < $mrp) {
                 $discountPercent = (($mrp - $final_offer_rate)/$mrp) * 100;
                 $discountPercent = number_format($discountPercent, 2);
             }
@@ -287,24 +290,26 @@ if (auth('customer')->check()) {
                                             </div>
                                         </div>
                                         @if($subtotal_amount >= 500 && $subtotal_amount < 5000)
+                                            @if(!session()->has('applied_coupon'))
                                             <!-- Cash on Delivery Option -->
-                                            <div class="accordion-item">
-                                                <div class="accordion-header" id="flush-headingCOD">
-                                                    <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#flush-collapseCOD">
-                                                        <div class="custom-form-check form-check mb-0">
-                                                            <label class="form-check-label" for="payment_cod">
-                                                                <input class="form-check-input mt-0" type="radio" name="payment_type" id="payment_cod" value="Cash on Delivery">
-                                                                Cash On Delivery
-                                                            </label>
+                                                <div class="accordion-item" id="cod-payment-option">
+                                                    <div class="accordion-header" id="flush-headingCOD">
+                                                        <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#flush-collapseCOD">
+                                                            <div class="custom-form-check form-check mb-0">
+                                                                <label class="form-check-label" for="payment_cod">
+                                                                    <input class="form-check-input mt-0" type="radio" name="payment_type" id="payment_cod" value="Cash on Delivery">
+                                                                    Cash On Delivery
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div id="flush-collapseCOD" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                                                        <div class="accordion-body">
+                                                            Pay with cash upon delivery.
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div id="flush-collapseCOD" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                                                    <div class="accordion-body">
-                                                        Pay with cash upon delivery.
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            @endif
                                         @endif
                                         <!-- Store Pickup Option -->
                                         <!--<div class="accordion-item">
@@ -334,7 +339,6 @@ if (auth('customer')->check()) {
                 </div>
             </div>
         </div>
-
         <div class="col-lg-4" id="checkout-sidebar">
             @include('frontend.pages.partials.checkout.component.ajax-checkout-sidebar',['carts' => $carts, 'specialOffers' => $specialOffers, 'couriers' => $couriers, 'rate' => $rate ?? 0, 'paymentType' => $paymentType])
         </div>

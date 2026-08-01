@@ -302,7 +302,7 @@ class OrderController extends Controller
             Mail::to('akshat.gd@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
             $this->sendWhatsAppNotifications($order->order_id, 'Paid', $waPayload);
             /* Clear session */
-            session()->forget(['checkout_data', 'cart_items', 'cart', 'courierData']);
+            session()->forget(['checkout_data', 'cart_items', 'cart', 'courierData', 'applied_coupon']);
             DB::commit();
             $token=Str::random(32);
             $encodedOrderId = Crypt::encrypt($order->id);
@@ -747,7 +747,7 @@ class OrderController extends Controller
 
                 $this->sendWhatsAppNotifications($orderId, 'Unpaid', $waPayload);
 
-                session()->forget(['checkout_data', 'cart_items', 'cart', 'courierData']);
+                session()->forget(['checkout_data', 'cart_items', 'cart', 'courierData', 'applied_coupon']);
                 session()->save();
             }
 

@@ -518,19 +518,18 @@ document.addEventListener('DOMContentLoaded', function() {
 @push('scripts')
 <script>
 gtag('event', 'purchase', {
-    transaction_id: "{{ $order->order_id }}",
-    value: {{ $order->grand_total_amount }},
-    currency: "INR",
-    shipping: {{ $order->shiprocketCourier ? $order->shiprocketCourier->courier_shipping_rate : 0 }},
-    payment_type: "{{ $order->payment_mode }}",
+    transaction_id: '{{ $order->order_id }}',
+    value: {{ (float)$order->grand_total_amount }},
+    currency: 'INR',
+    payment_type: '{{ $order->payment_mode }}',
     items: [
-        @foreach($order->orderLines as $orderLine)
+        @foreach($order->orderLines as $line)
         {
-            item_id: "{{ $orderLine->product->id }}",
-            item_name: "{{ str_replace('"', '', $orderLine->product->title) }}",
-            price: {{ $orderLine->price }},
-            quantity: {{ $orderLine->quantity }}
-        }@if(!$loop->last),@endif
+            item_id: '{{ $line->product_id }}',
+            item_name: '{{ addslashes($line->product->title ?? '') }}',
+            price: {{ (float)$line->price }},
+            quantity: {{ (int)$line->quantity }}
+        }{{ !$loop->last ? ',' : '' }}
         @endforeach
     ]
 });

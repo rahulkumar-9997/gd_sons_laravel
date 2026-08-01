@@ -12,8 +12,8 @@
                     <h4 class="card-title flex-grow-1">
                         {{ $categories->title }}
                         <a href="{{route('category')}}" data-title="Go Back to Category" data-bs-toggle="tooltip" class="btn btn-sm btn-purple" data-bs-original-title="Go Back to Category">
-                        << Go Back to Category
-                        </a>
+                            << Go Back to Category
+                                </a>
                     </h4>
                 </div>
                 <div class="card-body">
@@ -34,7 +34,7 @@
                             <div class="col-lg-12">
                                 <div class="mb-2">
                                     <label for="filter_button_name" class="form-label">
-                                        Filter Button Name *
+                                        Filter Button Name
                                     </label>
                                     <input type="text"
                                         name="filter_button_name"
@@ -117,10 +117,41 @@
         </div>
     </div>
 </div>
-<!-- End Container Fluid -->
-<!-- Modal -->
 @include('backend.layouts.common-modal-form')
-<!-- modal--->
 @endsection
 @push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const attributeValueCheckboxes = document.querySelectorAll(
+            'input[name^="attribute_values["]'
+        );
+        function updateAttributeCheckbox(attributeId) {
+            const attributeCheckbox = document.querySelector(
+                '#attribute-' + attributeId
+            );
+            if (!attributeCheckbox) return;
+            const allValues = document.querySelectorAll(
+                'input[name="attribute_values[' + attributeId + '][]"]'
+            );
+            const hasSelectedValue = Array.from(allValues).some(function(checkbox) {
+                return checkbox.checked;
+            });
+            attributeCheckbox.checked = hasSelectedValue;
+        }
+        document.querySelectorAll('input[name^="attribute_values["]').forEach(function(checkbox) {
+            const match = checkbox.name.match(/attribute_values\[(\d+)\]/);
+            if (match) {
+                updateAttributeCheckbox(match[1]);
+            }
+        });
+        attributeValueCheckboxes.forEach(function(valueCheckbox) {
+            valueCheckbox.addEventListener('change', function() {
+                const match = this.name.match(/attribute_values\[(\d+)\]/);
+                if (!match) return;
+                const attributeId = match[1];
+                updateAttributeCheckbox(attributeId);
+            });
+        });
+    });
+</script>
 @endpush

@@ -269,351 +269,6 @@ class FrontendController extends Controller
         return view('frontend.index', compact('data', 'specialOffers'));
     }
 
-    public function showProductCatalogOld_29_1_25(Request $request, $categorySlug, $attributeSlug, $valueSlug)
-    {
-
-        try {
-            $category = Category::where('slug', $categorySlug)->firstOrFail();
-            $attribute_top = Attribute::where('slug', $attributeSlug)->first();
-            if (!$attribute_top) {
-                Log::error("No attribute found for slug: {$attributeSlug}");
-                return response()->json(['error' => 'Attribute not found'], 404);
-            }
-            Log::info('Route Attribute Slug:', ['slug' => $attributeSlug]);
-            $attributeValue = Attribute_values::where('slug', $valueSlug)->firstOrFail();
-            Log::info('Filters: ' . json_encode($request->query()));
-            $productsQuery = Product::where('category_id', $category->id)->where('product_status', 1);
-
-            $productsQuery->whereHas('attributes', function ($query) use ($attribute_top, $attributeValue) {
-                $query->where('attributes_id', $attribute_top->id)
-                    ->whereHas('values', function ($q) use ($attributeValue) {
-                        $q->where('attributes_value_id', $attributeValue->id);
-                    });
-            });
-            $filters = $request->query();
-            if (!empty($filters)) {
-                foreach ($filters as $attributeSlug => $valueSlugs) {
-                    if ($attributeSlug !== $attribute_top->slug) {
-                        if (is_string($valueSlugs)) {
-                            $valueSlugs = explode(',', $valueSlugs);
-                        }
-                        $attribute = Attribute::where('slug', $attributeSlug)->first();
-                        if (!$attribute) {
-                            Log::warning("Attribute not found for slug: {$attributeSlug}");
-                            continue;
-                        }
-                        $valueIds = Attribute_values::whereIn('slug', $valueSlugs)->pluck('id')->toArray();
-                        $productsQuery->whereHas('attributes', function ($query) use ($attribute, $valueIds) {
-                            $query->where('attributes_id', $attribute->id)
-                                ->whereHas('values', function ($q) use ($valueIds) {
-                                    $q->whereIn('attributes_value_id', $valueIds);
-                                });
-                        });
-                    }
-                }
-            }
-            if ($request->has('sort')) {
-                $sortOption = $request->get('sort');
-                Log::warning("Attribute not found for slug: {$sortOption}");
-                switch ($sortOption) {
-                    case 'new-arrivals':
-                        $productsQuery->orderBy('created_at', 'desc');
-                        break;
-                    case 'price-low-to-high':
-                        $productsQuery->orderBy('inventories.mrp', 'asc');
-                        break;
-                    case 'price-high-to-low':
-                        $productsQuery->orderBy('inventories.mrp', 'desc');
-                        break;
-                    case 'a-to-z-order':
-                        $productsQuery->orderBy('products.title', 'asc');
-                        break;
-                    default:
-                        $productsQuery->orderBy('products.id', 'desc');
-                        break;
-                }
-            }
-
-            $products = $productsQuery->with([
-                'category',
-                'images',
-                'ProductAttributesValues' => function ($query) {
-                    $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
-                        ->with([
-                            'attributeValue:id,slug'
-                        ])
-                        ->orderBy('id');
-                }
-            ])
-                ->leftJoin('inventories', function ($join) {
-                    $join->on('products.id', '=', 'inventories.product_id')
-                        ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-                })
-                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
-                ->paginate(32);
-            $attributes_with_values_for_filter_list = $category->attributes()
-                ->where('slug', '!=', $attribute_top->slug)
-                ->with(['AttributesValues' => function ($query) use ($category, $products) {
-                    $query->whereHas('map_attributes_value_to_categories', function ($q) use ($category) {
-                        $q->where('category_id', $category->id);
-                    })
-                        ->whereHas('productAttributesValues', function ($q) use ($products) {
-                            $q->whereHas('product', function ($q) use ($products) {
-                                $q->whereIn('id', $products->pluck('id'));
-                            });
-                        })->orderBy('name');
-                }])
-                ->orderBy('title')
-                ->get();
-            if ($request->ajax()) {
-                return response()->json([
-                    'products' => view('frontend.pages.ajax-product-catalog', compact('products'))->render(),
-                    'hasMore' => $products->hasMorePages(),
-                ]);
-            }
-            return view('frontend.pages.product-catalog', compact('products', 'category', 'attributeValue', 'attribute_top', 'attributes_with_values_for_filter_list'));
-        } catch (\Exception $e) {
-            Log::error('Error fetching product catalog: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
-            return response()->json(['error' => 'Something went wrong.'], 500);
-        }
-    }
-
-    public function showProductCatalogOld_30_1_2025(Request $request, $categorySlug, $attributeSlug, $valueSlug)
-    {
-
-        try {
-            $category = Category::where('slug', $categorySlug)->firstOrFail();
-            $attribute_top = Attribute::where('slug', $attributeSlug)->first();
-            if (!$attribute_top) {
-                Log::error("No attribute found for slug: {$attributeSlug}");
-                return response()->json(['error' => 'Attribute not found'], 404);
-            }
-            Log::info('Route Attribute Slug:', ['slug' => $attributeSlug]);
-            $attributeValue = Attribute_values::where('slug', $valueSlug)->firstOrFail();
-            Log::info('Filters: ' . json_encode($request->query()));
-            $productsQuery = Product::where('category_id', $category->id)->where('product_status', 1);
-
-            $productsQuery->whereHas('attributes', function ($query) use ($attribute_top, $attributeValue) {
-                $query->where('attributes_id', $attribute_top->id)
-                    ->whereHas('values', function ($q) use ($attributeValue) {
-                        $q->where('attributes_value_id', $attributeValue->id);
-                    });
-            });
-            $filters = $request->query();
-            if (!empty($filters)) {
-                foreach ($filters as $attributeSlug => $valueSlugs) {
-                    if ($attributeSlug !== $attribute_top->slug) {
-                        if (is_string($valueSlugs)) {
-                            $valueSlugs = explode(',', $valueSlugs);
-                        }
-                        $attribute = Attribute::where('slug', $attributeSlug)->first();
-                        if (!$attribute) {
-                            Log::warning("Attribute not found for slug: {$attributeSlug}");
-                            continue;
-                        }
-                        $valueIds = Attribute_values::whereIn('slug', $valueSlugs)->pluck('id')->toArray();
-                        $productsQuery->whereHas('attributes', function ($query) use ($attribute, $valueIds) {
-                            $query->where('attributes_id', $attribute->id)
-                                ->whereHas('values', function ($q) use ($valueIds) {
-                                    $q->whereIn('attributes_value_id', $valueIds);
-                                });
-                        });
-                    }
-                }
-            }
-            if ($request->has('sort')) {
-                $sortOption = $request->get('sort');
-                Log::warning("Attribute not found for slug: {$sortOption}");
-                switch ($sortOption) {
-                    case 'new-arrivals':
-                        $productsQuery->orderBy('created_at', 'desc');
-                        break;
-                    case 'price-low-to-high':
-                        $productsQuery->orderBy('inventories.mrp', 'asc');
-                        break;
-                    case 'price-high-to-low':
-                        $productsQuery->orderBy('inventories.mrp', 'desc');
-                        break;
-                    case 'a-to-z-order':
-                        $productsQuery->orderBy('products.title', 'asc');
-                        break;
-                    default:
-                        $productsQuery->orderBy('products.id', 'desc');
-                        break;
-                }
-            }
-
-            $products = $productsQuery->with([
-                'category',
-                'images',
-                'ProductAttributesValues' => function ($query) {
-                    $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
-                        ->with([
-                            'attributeValue:id,slug'
-                        ])
-                        ->orderBy('id');
-                }
-            ])
-                ->leftJoin('inventories', function ($join) {
-                    $join->on('products.id', '=', 'inventories.product_id')
-                        ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-                })
-                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
-                ->paginate(32);
-            // $attributes_with_values_for_filter_list = $category->attributes()
-            // ->where('slug', '!=', $attribute_top->slug)
-            // ->with(['AttributesValues' => function ($query) use ($category, $products) {
-            //     $query->whereHas('map_attributes_value_to_categories', function ($q) use ($category) {
-            //         $q->where('category_id', $category->id);
-            //     })
-            //     ->whereHas('productAttributesValues', function ($q) use ($products) {
-            //         $q->whereHas('product', function ($q) use ($products) {
-            //             $q->whereIn('id', $products->pluck('id'));
-            //         });
-            //     })->orderBy('name');
-            // }])
-            // ->orderBy('title')
-            // ->get();
-            $attributes_with_values_for_filter_list = $category->attributes()
-                ->where('slug', '!=', $attribute_top->slug)
-                ->with(['AttributesValues' => function ($query) use ($category) {
-                    $query->whereHas('map_attributes_value_to_categories', function ($q) use ($category) {
-                        $q->where('category_id', $category->id);
-                    })
-                        ->withCount(['productAttributesValues' => function ($q) use ($category) {
-                            $q->whereHas('product', function ($q) use ($category) {
-                                $q->where('category_id', $category->id);
-                            });
-                        }])
-                        ->orderBy('name');
-                }])
-                ->orderBy('title')
-                ->get();
-            //return response()->json($attributes_with_values_for_filter_list);
-            if ($request->ajax()) {
-                if ($request->has('load_more') && $request->get('load_more') == true) {
-                    return response()->json([
-                        'products' => view('frontend.pages.partials.product-catalog-load-more', compact('products', 'attributes_with_values_for_filter_list'))->render(),
-                        'hasMore' => $products->hasMorePages(),
-                    ]);
-                } else {
-                    return response()->json([
-                        'products' => view('frontend.pages.ajax-product-catalog', compact('products', 'attributes_with_values_for_filter_list'))->render(),
-                        'hasMore' => $products->hasMorePages(),
-                    ]);
-                }
-            }
-            return view('frontend.pages.product-catalog', compact('products', 'category', 'attributeValue', 'attribute_top', 'attributes_with_values_for_filter_list'));
-        } catch (\Exception $e) {
-            Log::error('Error fetching product catalog: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
-            return response()->json(['error' => 'Something went wrong.'], 500);
-        }
-    }
-
-    public function showProductCatalogOld_31_1_2025(Request $request, $categorySlug, $attributeSlug, $valueSlug)
-    {
-        try {
-            $category = Category::where('slug', $categorySlug)->firstOrFail();
-            $attribute_top = Attribute::where('slug', $attributeSlug)->first();
-            if (!$attribute_top) {
-                Log::error("No attribute found for slug: {$attributeSlug}");
-                return response()->json(['error' => 'Attribute not found'], 404);
-            }
-            $attributeValue = Attribute_values::where('slug', $valueSlug)->firstOrFail();
-            Log::info('Filters: ' . json_encode($request->query()));
-            $productsQuery = Product::where('category_id', $category->id)
-                ->where('product_status', 1);
-            $productsQuery->whereHas('attributes', function ($query) use ($attribute_top, $attributeValue) {
-                $query->where('attributes_id', $attribute_top->id)
-                    ->whereHas('values', function ($q) use ($attributeValue) {
-                        $q->where('attributes_value_id', $attributeValue->id);
-                    });
-            });
-            $filters = $request->query();
-            if (!empty($filters)) {
-                foreach ($filters as $attributeSlug => $valueSlugs) {
-                    if ($attributeSlug !== $attribute_top->slug) {
-                        if (is_string($valueSlugs)) {
-                            $valueSlugs = explode(',', $valueSlugs);
-                        }
-                        $attribute = Attribute::where('slug', $attributeSlug)->first();
-                        if (!$attribute) {
-                            Log::warning("Attribute not found for slug: {$attributeSlug}");
-                            continue;
-                        }
-                        $valueIds = Attribute_values::whereIn('slug', $valueSlugs)->pluck('id')->toArray();
-                        $productsQuery->whereHas('attributes', function ($query) use ($attribute, $valueIds) {
-                            $query->where('attributes_id', $attribute->id)
-                                ->whereHas('values', function ($q) use ($valueIds) {
-                                    $q->whereIn('attributes_value_id', $valueIds);
-                                });
-                        });
-                    }
-                }
-            }
-            $attributes_with_values_for_filter_list = $category->attributes()
-                ->where('slug', '!=', $attribute_top->slug)
-                ->with(['AttributesValues' => function ($query) use ($category, $productsQuery) {
-                    $query->whereHas('map_attributes_value_to_categories', function ($q) use ($category) {
-                        $q->where('category_id', $category->id);
-                    })
-                        ->withCount(['productAttributesValues' => function ($q) use ($category, $productsQuery) {
-                            $q->whereHas('product', function ($q) use ($category, $productsQuery) {
-                                $q->where('category_id', $category->id)
-                                    ->whereIn('id', $productsQuery->pluck('products.id'));
-                            });
-                        }])
-                        // ->having('product_attributes_values_count', '>', 0)
-                        ->orderBy('name');
-                }])
-                ->orderBy('title')
-                ->get();
-            $products = $productsQuery->with([
-                'category',
-                'images',
-                'ProductAttributesValues' => function ($query) {
-                    $query->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
-                        ->with([
-                            'attributeValue:id,slug',
-                        ])
-                        ->orderBy('id');
-                },
-            ])
-                ->leftJoin('inventories', function ($join) {
-                    $join->on('products.id', '=', 'inventories.product_id')
-                        ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-                })
-                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
-                ->paginate(32);
-            if ($request->ajax()) {
-                if ($request->has('load_more') && $request->get('load_more') == true) {
-                    return response()->json([
-                        'products' => view('frontend.pages.partials.product-catalog-load-more', compact('products', 'attributes_with_values_for_filter_list'))->render(),
-                        'hasMore' => $products->hasMorePages(),
-                    ]);
-                } else {
-                    return response()->json([
-                        'products' => view('frontend.pages.ajax-product-catalog', compact('products', 'attributes_with_values_for_filter_list'))->render(),
-                        'hasMore' => $products->hasMorePages(),
-                    ]);
-                }
-            }
-            return view('frontend.pages.product-catalog', compact(
-                'products',
-                'category',
-                'attributeValue',
-                'attribute_top',
-                'attributes_with_values_for_filter_list'
-            ));
-        } catch (\Exception $e) {
-            Log::error('Error fetching product catalog: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
-            return response()->json(['error' => 'Something went wrong.'], 500);
-        }
-    }
-
     public function showProductCatalog(Request $request, $categorySlug, $attributeSlug, $valueSlug)
     {
         try {
@@ -754,7 +409,6 @@ class FrontendController extends Controller
             /**special offer rate */
             $current_count = $products->count() + (($products->currentPage() - 1) * $products->perPage());
             $total_count = $products->total();
-            // Return JSON response for AJAX requests
             if ($request->ajax()) {
                 if ($request->has('load_more') && $request->get('load_more') == true) {
                     return response()->json([
@@ -772,37 +426,38 @@ class FrontendController extends Controller
 			// Fetch review stats for all products on this page in one query
 			$productIds = $products->pluck('id')->toArray();
 			$reviewStats = DB::table('product_reviews')
-				->select(
-					'product_id',
-					DB::raw('ROUND(AVG(rating_star_value), 1) as avg_rating'),
-					DB::raw('COUNT(*) as review_count')
-				)
-				->where('status', 1)
-				->whereIn('product_id', $productIds)
-				->groupBy('product_id')
-				->get()
-				->keyBy('product_id');
-                $transformedstr = '';
-                $l1 = 0;
-                foreach ($attributes_with_values_for_filter_list as $arritem) {
-                    $l2 = 0;
-                    $transformedstr .= $arritem['title'] . 's like ';
-                    foreach ($arritem->AttributesValues as $aval) {
-                        if ($aval->name == 'NA' || $aval->name == 'N/A') {
-                            continue;
-                        }
-                        $transformedstr .= $aval->name . ' ';
-                        $l2++;
-                        if ($l2 >= 3) {
-                            break;
-                        }
+            ->select(
+                'product_id',
+                DB::raw('ROUND(AVG(rating_star_value), 1) as avg_rating'),
+                DB::raw('COUNT(*) as review_count')
+            )
+            ->where('status', 1)
+            ->whereIn('product_id', $productIds)
+            ->groupBy('product_id')
+            ->get()
+            ->keyBy('product_id');
+            $transformedstr = '';
+            $l1 = 0;
+            foreach ($attributes_with_values_for_filter_list as $arritem) {
+                $l2 = 0;
+                $transformedstr .= $arritem['title'] . 's like ';
+                foreach ($arritem->AttributesValues as $aval) {
+                    if ($aval->name == 'NA' || $aval->name == 'N/A') {
+                        continue;
                     }
-                    $l1++;
-                    if ($l1 >= 3) {
-
+                    $transformedstr .= $aval->name . ' ';
+                    $l2++;
+                    if ($l2 >= 3) {
                         break;
                     }
                 }
+                $l1++;
+                if ($l1 >= 3) {
+
+                    break;
+                }
+            }
+            //return response($additionalFilters);
             return view('frontend.pages.product-catalog', compact(
 				'products',
 				'category',
@@ -1239,33 +894,70 @@ class FrontendController extends Controller
                 ->paginate($perPage);
             $specialOffers = getCustomerSpecialOffers();
             /*Additional Filters */
-            $additionalFilters = AdditionalFilter::with([
-                'filterAttributes.attribute:id,title,slug',
-                'filterAttributes.attributeValues.attributeValue:id,name,slug',
-            ])
-            
-            ->where('category_id', $category->id)
-            ->where('status', 'active')
-            ->get()
-            ->map(function ($filter) {
-                return [
-                    'filter_button_name' => $filter->filter_button_name,
-                    'slug' => $filter->slug,
-                    'filter_attributes' => $filter->filterAttributes->map(function ($attribute) {
-                        return [
-                            'attribute_name' => $attribute->attribute->title ?? '',
-                            'attribute_slug' => $attribute->attribute->slug ?? '',
-                            'filter_attributes_value' => $attribute->attributeValues->map(function ($value) {
-                                return [
-                                    'name' => $value->attributeValue->name ?? '',
-                                    'slug' => $value->attributeValue->slug ?? '',
-                                ];
+            $additionalFilters = Category::query()
+            ->where('id', $category->id)
+            ->with([
+                'attributes' => function ($query) {
+                    $query->whereHas('mappedCategoryToAttributesForFront')
+                        ->orderBy('title');
+                },
 
-                            })->values()
-                        ];
-                    })->values()
-                ];
-            })->values();
+                'attributes.AttributesValues' => function ($query) {
+                    $query->whereHas('map_attributes_value_to_categories');
+                },
+                'attributes.mappedCategoryToAttributesForFront',
+                'attributes.AttributesValues.map_attributes_value_to_categories',
+            ])
+            ->orderBy('title')
+            ->get()
+            ->map(function ($category) {
+                $filterAttributes = $category->attributes
+                    ->filter(function ($attribute) use ($category) {
+                        return $attribute->mappedCategoryToAttributesForFront
+                        ->contains('category_id', $category->id);
+                    })
+                    ->map(function ($attribute) use ($category) {
+                        $values = $attribute->AttributesValues
+                            ->filter(function ($value) use ($category) {
+                                return $value->map_attributes_value_to_categories
+                                ->contains('id', $category->id);
+
+                            })
+                            ->map(function ($value) {
+                                return [
+                                    'name' => $value->name,
+                                    'slug' => $value->slug,
+                                ];
+                            })
+                            ->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)
+                            ->values();
+                        return $values->isNotEmpty()
+                            ? [
+                                'attribute_name' => $attribute->title,
+                                'attribute_slug' => $attribute->slug,
+                                'filter_attributes_value' => $values,
+                            ]
+                            : null;
+
+                    })
+                    ->filter()
+                    ->values();
+
+                return $filterAttributes->isNotEmpty()
+                    ? [
+                        'filter_button_name' => $category->title,
+                        'category_name' => $category->title,
+                        'category_slug' => $category->slug,
+                        'slug' => $category->slug,
+                        'filter_attributes' => $filterAttributes,
+                    ]
+                    : null;
+
+            })
+            ->filter()
+            ->values();            
+            /*Additional Filters */
+            
             $current_count = $products->count() + (($products->currentPage() - 1) * $products->perPage());
             $total_count = $products->total();
             Log::info('Product Pagination', [
@@ -1328,8 +1020,7 @@ class FrontendController extends Controller
                         break;
                     }
                 }
-            //return response()->json($additionalFilters);
-            
+            //return response()->json($additionalFilters);            
             return view('frontend.pages.product-catalog-category', compact('products', 'specialOffers', 'category', 'attributes_with_values_for_filter_list', 'primary_category', 'transformedstr', 'categorySlug', 'additionalFilters', 'reviewStats', 'current_count', 'total_count'));
         } catch (\Exception $e) {
             Log::error('Error fetching product catalog: ' . $e->getMessage());

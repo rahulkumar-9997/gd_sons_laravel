@@ -41,8 +41,11 @@
             },
             success: function (res) {
                 if (res.success) {
+                    $("#cod-payment-option").hide();
+                    $("#payment_cod").prop("checked", false);
                     $("#apply-coupon-input").val("");
                     $("#applied_coupon_code").val(couponCode);
+
                     $("#coupon_discount_amount").val(res.discount_amount);
                     if ($("#applied-coupon-alert").length === 0) {
                         let alertHtml =
@@ -73,6 +76,8 @@
                     }
                 } else {
                     showNotificationAll("warning", "Warning", res.message);
+                    $("#cod-payment-option").show();
+                    $("#payment_cod").prop("checked", false);
                 }
             },
             error: function () {
@@ -89,6 +94,7 @@
             },
         });
     }
+
     /* SMOOTH UPDATE TOTALS WITH COUPON */
     function smoothUpdateTotalsWithCoupon(shipping, discount, subtotal) {
         shipping = parseFloat(shipping) || 0;
@@ -139,6 +145,8 @@
             success: function (res) {
                 if (res.success) {
                     $("#applied_coupon_code").val("");
+                    $("#cod-payment-option").show();
+                    $("#payment_cod").prop("checked", false);
                     $("#coupon_discount_amount").val(0);
                     $("#applied-coupon-alert").slideUp(300, function () {
                         $(this).remove();

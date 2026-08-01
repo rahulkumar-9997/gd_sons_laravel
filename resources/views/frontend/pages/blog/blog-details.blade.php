@@ -272,4 +272,29 @@
 @endsection
 @push('scripts')
 <!-- <script src="{{asset('frontend/assets/js/pages/addwishlist.js')}}"></script> -->
+{{-- GA4 TRACKING ADDED [2026-07-30] - Blog to product click tracking --}}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var blogSlug = window.location.pathname.replace('/blogs/', '').replace(/\/$/, '');
+
+    // Target both content areas where product links appear
+    var contentAreas = document.querySelectorAll(
+        '.blog-detail-contain, .blog-paragraphs-section'
+    );
+
+    contentAreas.forEach(function (area) {
+        var productLinks = area.querySelectorAll('a[href*="/products/"]');
+        productLinks.forEach(function (link) {
+            link.addEventListener('click', function () {
+                gtag('event', 'blog_product_click', {
+                    blog_slug: blogSlug,
+                    product_url: link.getAttribute('href'),
+                    link_text: link.innerText.trim().substring(0, 100)
+                });
+            });
+        });
+    });
+});
+</script>
 @endpush

@@ -1146,7 +1146,7 @@ class CustomerController extends Controller
             'success' => true,
             'message' => 'Coupon applied successfully!',
             'discount_amount' => $discountAmount,
-            'coupon_code' => $coupon->discount_code
+            'coupon_code' => $coupon->discount_code,            
         ]);
     }
 

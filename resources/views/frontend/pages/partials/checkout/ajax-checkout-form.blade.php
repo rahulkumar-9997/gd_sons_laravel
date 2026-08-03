@@ -290,26 +290,24 @@ if (auth('customer')->check()) {
                                             </div>
                                         </div>
                                         @if($subtotal_amount >= 500 && $subtotal_amount < 5000)
-                                            @if(!session()->has('applied_coupon'))
                                             <!-- Cash on Delivery Option -->
-                                                <div class="accordion-item" id="cod-payment-option">
-                                                    <div class="accordion-header" id="flush-headingCOD">
-                                                        <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#flush-collapseCOD">
-                                                            <div class="custom-form-check form-check mb-0">
-                                                                <label class="form-check-label" for="payment_cod">
-                                                                    <input class="form-check-input mt-0" type="radio" name="payment_type" id="payment_cod" value="Cash on Delivery">
-                                                                    Cash On Delivery
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div id="flush-collapseCOD" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                                                        <div class="accordion-body">
-                                                            Pay with cash upon delivery.
+                                            <div class="accordion-item" id="cod-payment-option" style="{{ session()->has('applied_coupon') ? 'display:none;' : '' }}">
+                                                <div class="accordion-header" id="flush-headingCOD">
+                                                    <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#flush-collapseCOD">
+                                                        <div class="custom-form-check form-check mb-0">
+                                                            <label class="form-check-label" for="payment_cod">
+                                                                <input class="form-check-input mt-0" type="radio" name="payment_type" id="payment_cod" value="Cash on Delivery">
+                                                                Cash On Delivery
+                                                            </label>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            @endif
+                                                <div id="flush-collapseCOD" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                                                    <div class="accordion-body">
+                                                        Pay with cash upon delivery.
+                                                    </div>
+                                                </div>
+                                            </div>
                                         @endif
                                         <!-- Store Pickup Option -->
                                         <!--<div class="accordion-item">

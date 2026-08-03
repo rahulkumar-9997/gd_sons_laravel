@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 class CouponCodeController extends Controller
 {
+
     public function index()
     {
         $coupons = DiscountCode::latest()->paginate(20);
@@ -73,6 +74,12 @@ class CouponCodeController extends Controller
                             <label class="form-check-label" for="is_active">Active</label>
                         </div>
                     </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="is_cod_available" name="is_cod_available" value="0">
+                            <label class="form-check-label" for="is_cod_available">COD Available</label>
+                        </div>
+                    </div>
                     <div class="modal-footer pb-0">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary" id="saveCouponBtn">Save Coupon</button>
@@ -101,6 +108,7 @@ class CouponCodeController extends Controller
             'short_description'    => 'nullable|string|max:500',
             'usage_limit'          => 'nullable|integer|min:1',
             'is_active'            => 'nullable|boolean',
+            'is_cod_available'     => 'nullable|boolean',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -120,6 +128,7 @@ class CouponCodeController extends Controller
                 'short_description'   => $request->short_description,
                 'usage_limit'         => $request->usage_limit ?? 1,
                 'is_active'           => $request->has('is_active') ? 1 : 0,
+                'is_cod_available'    => $request->has('is_cod_available') ? 1 : 0,
             ]);
             DB::commit();
             if($coupon){
@@ -218,6 +227,17 @@ class CouponCodeController extends Controller
                             <label class="form-check-label" for="is_active">Active</label>
                         </div>
                     </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input"
+                                type="checkbox"
+                                id="is_cod_available"
+                                name="is_cod_available"
+                                value="1"
+                                '.($coupons_row->is_cod_available ? 'checked' : '').'>
+                            <label class="form-check-label" for="is_cod_available">COD Available</label>
+                        </div>
+                    </div>
                     <div class="modal-footer pb-0">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary" id="updateCouponBtn">Update Coupon</button>
@@ -247,6 +267,7 @@ class CouponCodeController extends Controller
             'short_description'    => 'nullable|string|max:500',
             'usage_limit'          => 'nullable|integer|min:1',
             'is_active'            => 'nullable|boolean',
+            'is_cod_available'     => 'nullable|boolean',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -266,6 +287,7 @@ class CouponCodeController extends Controller
                 'short_description'   => $request->short_description,
                 'usage_limit'         => $request->usage_limit ?? 1,
                 'is_active'           => $request->has('is_active') ? 1 : 0,
+                'is_cod_available'    => $request->has('is_cod_available') ? 1 : 0,
             ]);
             DB::commit();
             if ($updated) {

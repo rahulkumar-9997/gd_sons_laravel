@@ -11,6 +11,7 @@
                 <th>Max Discount</th>
                 <th>Valid From</th>
                 <th>Valid Till</th>
+                <th>COD Available</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
@@ -36,6 +37,13 @@
                 </td>
                 <td>
                     {{ optional($row->valid_till)->format('d-m-Y') }}
+                </td>
+                <td>
+                    @if($row->is_cod_available)
+                        <span class="badge bg-success">Yes</span>
+                    @else
+                        <span class="badge bg-danger">No</span>
+                    @endif
                 </td>
                 <td>
                     <div class="d-flex flex-column gap-1">

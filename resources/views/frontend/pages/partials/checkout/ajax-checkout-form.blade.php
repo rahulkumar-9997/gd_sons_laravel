@@ -16,6 +16,7 @@ if (auth('customer')->check()) {
     $subtotal_amount = 0;
     $sessionCart = session('cart', []);
     $ga4_checkout_items = [];
+    $appliedCouponSession = session('applied_coupon');
 @endphp
 @if($carts && $carts->count() > 0)
     @foreach ($carts as $cart)
@@ -291,7 +292,9 @@ if (auth('customer')->check()) {
                                         </div>
                                         @if($subtotal_amount >= 500 && $subtotal_amount < 5000)
                                             <!-- Cash on Delivery Option -->
-                                            <div class="accordion-item" id="cod-payment-option" style="{{ session()->has('applied_coupon') ? 'display:none;' : '' }}">
+                                            <div class="accordion-item" id="cod-payment-option" @if($appliedCouponSession && isset($appliedCouponSession['is_cod_available']) && (int)$appliedCouponSession['is_cod_available'] === 0)
+                                                    style="display:none;"
+                                                @endif>
                                                 <div class="accordion-header" id="flush-headingCOD">
                                                     <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#flush-collapseCOD">
                                                         <div class="custom-form-check form-check mb-0">
@@ -344,6 +347,8 @@ if (auth('customer')->check()) {
 
 </form>
 <script>
+window.appliedCouponIsCodAvailable = {{ ($appliedCouponSession && isset($appliedCouponSession['is_cod_available'])) ? (int)$appliedCouponSession['is_cod_available'] : 'undefined' }};
+
 gtag('event', 'begin_checkout', {
     currency: "INR",
     value: {{ $subtotal_amount }},

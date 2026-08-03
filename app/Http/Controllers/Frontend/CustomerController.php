@@ -110,6 +110,7 @@ class CustomerController extends Controller
                     ->whereIn('products.id', array_keys($cart))
                     ->get();
             });
+
             $specialOffers = getCustomerSpecialOffers();
             return response()->json([
                 'success' => true,
@@ -1138,7 +1139,8 @@ class CustomerController extends Controller
                 'discount_amount' => $discountAmount,
                 'mode' => $coupon->mode,
                 'value' => $coupon->discount_value,
-                'id' => $coupon->id
+                'id' => $coupon->id,
+                'is_cod_available' => (int) $coupon->is_cod_available, 
             ]
         ]);
 
@@ -1146,7 +1148,8 @@ class CustomerController extends Controller
             'success' => true,
             'message' => 'Coupon applied successfully!',
             'discount_amount' => $discountAmount,
-            'coupon_code' => $coupon->discount_code,            
+            'coupon_code' => $coupon->discount_code,
+            'is_cod_available'  => (int) $coupon->is_cod_available,            
         ]);
     }
 

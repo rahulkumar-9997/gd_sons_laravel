@@ -23,7 +23,8 @@ class DiscountCode extends Model
         'usage_limit',
         'total_used',
         'used_by_ips',
-        'used_by_customers'
+        'used_by_customers',
+        'is_cod_available',
     ];
     protected $casts = [
         'valid_from' => 'date',
@@ -31,6 +32,7 @@ class DiscountCode extends Model
         'is_active'  => 'boolean',
         'usage_limit' => 'integer',
         'total_used' => 'integer',
+        'is_cod_available' => 'boolean',
     ];
 
      public function canUse($customerId = null, $ip = null)

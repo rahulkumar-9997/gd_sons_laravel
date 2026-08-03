@@ -59,13 +59,17 @@
                                 '<button type="button" class="btn-close float-end" id="remove-coupon-btn" aria-label="Close"></button>',
                         );
                     }
-                    /* HIDE COD PAYMENT OPTION ON COUPON APPLY */
-                    $("#cod-payment-option").fadeOut(300);
-                    if ($("#payment_cod").is(":checked")) {
-                        $("#payment_razorpay").prop("checked", true).trigger("change");
+                    
+                    /* COD SHOW/HIDE BASED ON COUPON'S is_cod_available */
+                    if (parseInt(res.is_cod_available) === 1) {
+                        $("#cod-payment-option").fadeIn(300);
+                    } else {
+                        $("#cod-payment-option").fadeOut(300);
+                        if ($("#payment_cod").is(":checked")) {
+                            $("#payment_razorpay").prop("checked", true).trigger("change");
+                        }
                     }
-                    /* HIDE COD PAYMENT OPTION ON COUPON APPLY */
-
+                    /* END COD TOGGLE */
                     let discountAmount = parseFloat(res.discount_amount) || 0;
                     smoothUpdateTotalsWithCoupon(
                         shipping,
@@ -416,7 +420,6 @@
     /* ON PAGE LOAD → AUTO-RUN FIRST ADDRESS */
     $(document).ready(function () {
         let firstAddr = $(".exiting_customer_address_radio:checked");
-
         if (firstAddr.length) {
             let pin = firstAddr.data("pincode");
             $("#checkout_pincode").val(pin);
@@ -424,10 +427,8 @@
                 handleServiceabilityCheck(pin);
             }
         }
-
         let firstShip = $(".shipping_radio:checked");
         if (firstShip.length) firstShip.trigger("change");
-
         let paymentType = $("input[name='payment_type']:checked").val();
         if (paymentType === "Pick Up From Store") {
             updateTotals(0);
@@ -435,6 +436,21 @@
             $("#courier_partner").html(
                 '<span class="text-success">Pick Up From Store — No Shipping Charges</span>',
             );
+        }
+        /* ON PAGE LOAD: if a coupon is already applied via session, sync COD visibility */
+        if (
+            $("#applied_coupon_code").length &&
+            $("#applied_coupon_code").val() &&
+            typeof window.appliedCouponIsCodAvailable !== "undefined"
+        ) {
+            if (parseInt(window.appliedCouponIsCodAvailable) === 1) {
+                $("#cod-payment-option").show();
+            } else {
+                $("#cod-payment-option").hide();
+                if ($("#payment_cod").is(":checked")) {
+                    $("#payment_razorpay").prop("checked", true).trigger("change");
+                }
+            }
         }
     });
 

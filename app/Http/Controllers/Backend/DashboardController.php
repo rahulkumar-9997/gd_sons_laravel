@@ -18,7 +18,8 @@ use App\Models\OrderStatus;
 use App\Models\VisitorTracking;
 use App\Models\ClickTrackers;
 use App\Models\Counter;
-use Image;
+use App\Exports\VisitorsExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;
 class DashboardController extends Controller
 {
@@ -149,18 +150,131 @@ class DashboardController extends Controller
 		]);
 	}
 
-    public function getVisitorList(){
-        $data['visitor_list'] = VisitorTracking::orderBy('id', 'desc')->paginate(50);
-        $data['page_counts'] = VisitorTracking::selectRaw('
-                page_name, 
-                COUNT(*) as visitor_count'
-            )
+    public function getVisitorList(Request $request){
+        try {
+            $request->validate([
+                'date_filter' => 'nullable|string|in:today,yesterday,last7,last30,last60,last90,all',
+                'page'=> 'nullable|integer|min:1',
+            ]);
+
+            $data['visitor_list'] = $this->getFilteredVisitorsQuery($request)
+                ->paginate(50)
+                ->appends($request->except('page'));
+            $data['page_counts'] = $this->getPageCounts();
+
+            if ($request->ajax()) {
+                return view('backend.dashboard.partials.ajax-visitor-list', compact('data'))->render();
+            }
+
+            return view('backend.dashboard.visitor-list', compact('data'));
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => collect($e->errors())->flatten()->first() ?? 'Invalid filter selected.',
+                ], 422);
+            }
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('Visitor list error: ' . $e->getMessage());
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Something went wrong while loading visitors. Please try again.',
+                ], 500);
+            }
+            return back()->with('error', 'Something went wrong while loading visitors.');
+        }
+    }
+
+    private function getFilteredVisitorsQuery(Request $request)
+    {
+        $query = VisitorTracking::orderBy('id', 'desc');
+        $filter = $request->input('date_filter', 'all');
+
+        switch ($filter) {
+            case 'today':
+                $query->whereDate('visited_at', Carbon::today());
+                break;
+            case 'yesterday':
+                $query->whereDate('visited_at', Carbon::yesterday());
+                break;
+            case 'last7':
+                $query->whereBetween('visited_at', [
+                    Carbon::now()->subDays(6)->startOfDay(),
+                    Carbon::now()->endOfDay(),
+                ]);
+                break;
+            case 'last30':
+                $query->whereBetween('visited_at', [
+                    Carbon::now()->subDays(29)->startOfDay(),
+                    Carbon::now()->endOfDay(),
+                ]);
+                break;
+            case 'last60':
+                $query->whereBetween('visited_at', [
+                    Carbon::now()->subDays(59)->startOfDay(),
+                    Carbon::now()->endOfDay(),
+                ]);
+                break;
+            case 'last90':
+                $query->whereBetween('visited_at', [
+                    Carbon::now()->subDays(89)->startOfDay(),
+                    Carbon::now()->endOfDay(),
+                ]);
+                break;
+            case 'all':
+            default:
+                break;
+        }
+        return $query;
+    }
+
+    private function getPageCounts()
+    {
+        return VisitorTracking::selectRaw('page_name, COUNT(*) as visitor_count')
             ->groupBy('page_name')
             ->get()
-            ->keyBy(function($item) {
-                return $item->page_name;
-            });
-        return view('backend.dashboard.visitor-list', compact('data')); 
+            ->keyBy(fn($item) => $item->page_name);
+    }
+
+    /**
+     * Export to excel — uses same filter as current list view.
+     */
+    public function exportVisitorList(Request $request)
+    {
+        try {
+            $request->validate([
+                'date_filter' => 'nullable|string|in:today,yesterday,last7,last30,last60,last90,all',
+            ]);
+            ini_set('memory_limit', '1024M');
+            set_time_limit(300);
+            $count = $this->getFilteredVisitorsQuery($request)->count();
+            if ($count === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No visitor data found for the selected filter.',
+                ], 404);
+            }
+            Log::info('Export Visitor List Count: ' . $count);
+            $fileName = 'visitor-list-' . now()->format('Y-m-d-His') . '.xlsx';
+            return Excel::download(new VisitorsExport($this->getFilteredVisitorsQuery($request)), $fileName);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => collect($e->errors())->flatten()->first() ?? 'Invalid filter selected.',
+            ], 422);
+        } catch (\Throwable $e) {
+            Log::error('Visitor export error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to export visitor data. Please try again.',
+                'debug' => config('app.debug') ? $e->getMessage() : null,
+            ], 500);
+        }
     }
 
     public function getClickDetails()
@@ -195,6 +309,37 @@ class DashboardController extends Controller
                 'data' => $data
             ])->render()
         ]);
+    }
+
+    public function clearOldVisitorData(Request $request)
+    {
+        try {
+            $cutoffDate = Carbon::now()->subDays(90)->startOfDay();
+            $count = VisitorTracking::where('visited_at', '<', $cutoffDate)->count();
+            if ($count === 0) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'No old data found to delete. All records are within the last 90 days.',
+                    'deleted_count' => 0,
+                ]);
+            }
+            VisitorTracking::where('visited_at', '<', $cutoffDate)->delete();
+            Log::info('Cleared old visitor data. Deleted count: ' . $count . ', Cutoff date: ' . $cutoffDate);
+            $data['visitor_list'] = $this->getFilteredVisitorsQuery($request)->paginate(50);
+            $data['page_counts'] = $this->getPageCounts();
+            return response()->json([
+                'success' => true,
+                'message' => $count . ' old visitor record(s) deleted successfully (older than 90 days).',
+                'deleted_count' => $count,
+                'html' => view('backend.dashboard.partials.ajax-visitor-list', compact('data'))->render(),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Clear old visitor data error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to clear old data. Please try again.',
+            ], 500);
+        }
     }
 
     public function orderAnalytics(Request $request){

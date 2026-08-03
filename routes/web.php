@@ -216,6 +216,10 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('get-visitor-stats', [DashboardController::class, 'getVisitorStats'])->name('get-visitor-stats');
     Route::get('get-visitor-list', [DashboardController::class, 'getVisitorList'])->name('get-visitor-list');
     Route::post('visitors/bulk-delete',[DashboardController::class,'bulkDeleteVisitor'])->name('visitors.bulk-delete');
+    Route::post('visitors/clear-old-data', [DashboardController::class, 'clearOldVisitorData'])->name('visitors.clear-old-data');
+
+    Route::get('visitors/export', [DashboardController::class, 'exportVisitorList'])->name('visitors.export');
+
     Route::get('click-details', [DashboardController::class, 'getClickDetails'])->name('get-click-details');
     Route::get('order-analytics', [DashboardController::class, 'orderAnalytics'])->name('order.analytics');
 

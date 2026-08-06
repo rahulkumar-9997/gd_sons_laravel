@@ -129,9 +129,10 @@ class OrderController extends Controller
         $recalculatedGrandTotal = round($itemsSubtotal + $shippingRate + $codCharges, 2);
 
         session([
-            'checkout_data' => array_merge($request->all(), [
-                'grand_total_amount' => $recalculatedGrandTotal,
-            ]),
+            // 'checkout_data' => array_merge($request->all(), [
+            //     'grand_total_amount' => $recalculatedGrandTotal,
+            // ]),
+            'checkout_data' => $request->all(),
             'cart_items'    => $cartItems,
             'courierData'   => $courierData,
         ]);

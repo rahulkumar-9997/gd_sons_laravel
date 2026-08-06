@@ -36,6 +36,8 @@ use App\Models\ClickTrackers;
 use App\Models\RelatedProduct;
 use App\Models\AdditionalFilter;
 use Illuminate\Support\Facades\Cache;
+use App\Mail\ProductEnquiryMailForCustomer;
+use App\Mail\ProductEnquiryMailForAdmin;
 
 class FrontendController extends Controller
 {
@@ -481,7 +483,6 @@ class FrontendController extends Controller
             ], 500);
         }
     }
-
 
     public function showProductDetails(Request $request, $slug, $attributes_value_slug)
     {
@@ -1321,7 +1322,7 @@ class FrontendController extends Controller
             <div class="row">
                 <div class="col-md-12">
                     <div class="mb-2">
-                        <label for="name" class="form-label">Enter your name *</label>
+                        <label for="name" class="form-label">Enter your name</label>
                         <input type="text" id="name" name="name" class="form-control" value="' . $customerName . '">
                     </div>
                 </div>
@@ -1333,7 +1334,7 @@ class FrontendController extends Controller
                 </div>
                 <div class="col-md-12">
                     <div class="mb-2">
-                        <label for="email" class="form-label">Enter your email</label>
+                        <label for="email" class="form-label">Enter your email *</label>
                         <input type="email" id="email" name="email" class="form-control" value="' . $customerEmail . '">
                     </div>
                 </div>
@@ -1355,9 +1356,9 @@ class FrontendController extends Controller
     public function productEnquiryModalFormSubmit(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
             'phone_number' => 'required|digits_between:10,15',
-            //'email' => 'required|email',
+            'email' => 'required|email',
             'product_id' => 'required|integer',
             'current_page_url' => 'required|url',
         ]);
@@ -1380,6 +1381,17 @@ class FrontendController extends Controller
                     ->orderBy('id');
             }
         ])->where('id', $request->product_id)->firstOrFail();
+        $productImage = $request->productImage ?? null;
+        $productPrice = $request->productPrice ?? null;
+                        
+        $enquiry =[
+            'name'              => $request->name,
+            'phone_number'      => $request->phone_number,
+            'email'             => $request->email,
+            'product_id'        => $request->product_id,
+            'current_page_url'  => $request->current_page_url,
+        ];
+        /*
         $firstImage = $product->images->first();
         if ($firstImage && !empty($firstImage->image_path)) {
             $imageFileName = str_replace('.webp', '.jpg', $firstImage->image_path);
@@ -1394,9 +1406,6 @@ class FrontendController extends Controller
             $imagePathJpg = "https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png";
             $imageName = 'Girdhar-Das-and-Sons.jpg';
         }
-
-
-
         $this->sendAiSensyCampaign(
             $request->phone_number,
             $request->name,
@@ -1405,19 +1414,27 @@ class FrontendController extends Controller
             $imagePathJpg,
             $imageName
         );
-        // $existingConversation = WhatsappConversation::where('mobile_number', $request->phone_number)->first();
-        // if (!$existingConversation) {
         $conversation = WhatsappConversation::create([
             'mobile_number' => $request->phone_number,
             'name' => $request->name,
             'conversation_message' => $product->title,
         ]);
-        //}
+        */
+        // Customer confirmation
+        Mail::to($request->email)->queue(new ProductEnquiryMailForCustomer($enquiry, $product, $productImage, $productPrice));
+        $recipientEmails = [
+            'rahulkumarmaurya464@gmail.com',
+            // 'karishma@gdsons.co.in',
+            // 'akshat.gd@gmail.com',
+        ];
+        foreach (array_unique($recipientEmails) as $email) {
+            Mail::to($email)->queue(
+                new ProductEnquiryMailForAdmin($enquiry, $product, $productPrice)
+            );
+        }
         return response()->json([
             'status' => 'success',
-            'message' => 'Enquiry submitted successfully, Our team contact you shortly.!',
-            'image_path' =>  $imagePathJpg,
-            'image_name' => $imageName,
+            'message' => 'Enquiry submitted successfully, Our team contact you shortly.!',           
             'product_path' =>  $request->current_page_url,
         ], 200, [], JSON_UNESCAPED_SLASHES);
     }

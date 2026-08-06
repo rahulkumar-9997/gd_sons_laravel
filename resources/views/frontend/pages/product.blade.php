@@ -344,6 +344,8 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         data-title="{{ucwords(strtolower($data['product_details']->title))}}" data-pid="{{$data['product_details']->id}}"
                                         data-url="{{route('product-enquiry-modal-form')}}"
                                         data-pageurl="{{url()->current()}}"
+                                        data-pprice="{{ $final_offer_rate }}"
+                                        data-pimage="{{ $firstImage }}"
                                         data-size="md" href="javascript:void(0);"
                                         data-track-btn-type="Send Enquiry through WhatsApp"
                                         data-track-click="true"

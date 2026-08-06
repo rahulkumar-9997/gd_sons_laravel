@@ -47,12 +47,16 @@
             var url = $(this).data('url');
             var productId = $(this).data('pid');
             var currentPageUrl = $(this).data('pageurl');
+            var productPrice = $(this).data('pprice');
+            var productImage = $(this).data('pimage');
             var data = {
                 _token: $('meta[name="csrf-token"]').attr('content'),
                 size: size,
                 url: url,
                 productId: productId,
-                currentPageUrl: currentPageUrl
+                currentPageUrl: currentPageUrl,
+                productPrice: productPrice,
+                productImage: productImage
             };
             $("#commoanModal .modal-title").html(title);
             $("#commoanModal .modal-dialog").addClass('modal-' + size);

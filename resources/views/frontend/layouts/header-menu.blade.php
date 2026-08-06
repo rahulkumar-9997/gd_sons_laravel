@@ -137,10 +137,10 @@ $search_value = !empty($query) ? $query : '';
                         <li class="right-side onhover-dropdown">
                            <div class="delivery-login-box">
                               @if (auth()->guard('customer')->check())
-                              <a href="{{ route('myaccount') }}">
+                              <a href="{{ route('myaccount') }} ">
                                  <div class="delivery-icon">
                                     <i data-feather="user"></i>
-                                    <span class="position-absolute bottom-0 start-100 translate-middle badge customer-login-display-name">
+                                    <span class="position-absolute bottom-0 start-100 translate-middle badge customer-login-display-name" style="color: #0f8b8d;">
                                     {{ Auth::guard('customer')->user()->name }}
                                     </span>
                                  </div>

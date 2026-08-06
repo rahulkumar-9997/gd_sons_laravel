@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
-use App\Mail\OrderDetailsMail;
+use App\Mail\OrderDetailsMailForCustomer;
+use App\Mail\OrderDetailMailForAdmin;
 use App\Mail\PaymentFailedMail;
 use Illuminate\Support\Facades\Mail;
 use Razorpay\Api\Api;
@@ -67,8 +68,7 @@ class OrderController extends Controller
                     'ship_pin_code'     => 'required|digits:6',
                 ]);
             }
-            if ($request->payment_type !== 'Pick Up From Store')
-            {
+            if ($request->payment_type !== 'Pick Up From Store') {
                 $request->validate([
                     'courier_name'           => 'required|string|max:255',
                     'courier_id'             => 'required|string|max:100',
@@ -78,52 +78,60 @@ class OrderController extends Controller
                     'delivery_expected_date' => 'required|string|max:50',
                 ]);
             }
-        } 
+        }
+
         $productIds  = $request->input('product_id', []);
         $quantities  = $request->input('cart_quantity', []);
-        $prices      = $request->input('cart_offer_rate', []);
-        $totalPrices = $request->input('total_price', []);
 
-        if (
-            count($productIds) !== count($quantities) ||
-            count($productIds) !== count($prices) ||
-            count($productIds) !== count($totalPrices)
-        ) {
+        if (count($productIds) !== count($quantities)) {
             return response()->json([
                 'status'  => false,
                 'message' => 'Cart data arrays must have the same length.',
             ], 422);
         }
 
-        $cartItems = [];
-        foreach ($productIds as $index => $productId) {
-            $cartItems[] = [
-                'product_id'  => $productId,
-                'quantity'    => $quantities[$index],
-                'price'       => $prices[$index],
-                'total_price' => $totalPrices[$index],
-            ];
+        /*
+         * ── SECURITY: never trust client-submitted prices/totals.
+         * Recalculate price, total_price and grand_total_amount from the
+         * database so a tampered request can't check out at an arbitrary price.
+         */
+        try {
+            $cartItems = $this->recalculateCartItems($productIds, $quantities);
+        } catch (\Exception $e) {
+            Log::warning('Cart recalculation failed: ' . $e->getMessage());
+            return response()->json(['status' => false, 'message' => $e->getMessage()], 422);
         }
 
         if (empty($cartItems)) {
             return response()->json(['status' => false, 'message' => 'Cart is empty.'], 422);
         }
 
+        $itemsSubtotal = array_sum(array_column($cartItems, 'total_price'));
         /* Courier data */
         $courierData = [];
+        $shippingRate = 0;
+        $codCharges   = 0;
         if ($request->pick_up_status === 'pick_up_online') {
+            $shippingRate = (float) $request->input('shipping_rate', 0);
+            $codCharges   = (float) $request->input('cod_charges', 0);
+
             $courierData = [
                 'courier_name'          => $request->input('courier_name'),
                 'courier_id'            => $request->input('courier_id'),
                 'courier_company_id'    => $request->input('courier_company_id'),
-                'courier_shipping_rate' => $request->input('shipping_rate'),
-                'cod_charges'           => $request->input('cod_charges'),
+                'courier_shipping_rate' => $shippingRate,
+                'cod_charges'           => $codCharges,
                 'delivery_expected_date' => $request->input('delivery_expected_date'),
             ];
         }
 
+        // Server-computed grand total (items + shipping + COD charges where applicable)
+        $recalculatedGrandTotal = round($itemsSubtotal + $shippingRate + $codCharges, 2);
+
         session([
-            'checkout_data' => $request->all(),
+            'checkout_data' => array_merge($request->all(), [
+                'grand_total_amount' => $recalculatedGrandTotal,
+            ]),
             'cart_items'    => $cartItems,
             'courierData'   => $courierData,
         ]);
@@ -133,7 +141,6 @@ class OrderController extends Controller
         if ($paymentType === 'Cash on Delivery' || $paymentType === 'Pick Up From Store') {
             try {
                 $response = $this->storeOrderAfterPayment($request);
-
                 if ($response instanceof \Illuminate\Http\JsonResponse) {
                     $responseData = $response->getData(true);
                 } else {
@@ -141,26 +148,24 @@ class OrderController extends Controller
                 }
                 if (isset($responseData['error']) || !isset($responseData['order_id'])) {
                     return response()->json([
-                        'status' => false, 
+                        'status' => false,
                         'message' => $responseData['message'] ?? 'Order creation failed.'
                     ], 500);
                 }
                 return response()->json([
-                   'status'       => true,
+                    'status'       => true,
                     'payment_type' => $paymentType,
                     'message'      => 'Order placed successfully!',
                     'redirect_url' => $responseData['redirect_url'] ?? null,
                 ]);
             } catch (\Exception $e) {
-               Log::error('COD/PickUp order creation failed: ' . $e->getMessage());
+                Log::error('COD/PickUp order creation failed: ' . $e->getMessage());
                 return response()->json(['status' => false, 'message' => 'Order creation failed.'], 500);
             }
         }
-
         if ($paymentType === 'Razorpay') {
             try {
                 $orderResponse = $this->storeOrderAfterPayment($request);
-
                 if ($orderResponse instanceof \Illuminate\Http\JsonResponse) {
                     $responseData = $orderResponse->getData(true);
                 } elseif (is_array($orderResponse)) {
@@ -168,13 +173,12 @@ class OrderController extends Controller
                 } else {
                     $responseData = (array) $orderResponse;
                 }
-
                 if (!isset($responseData['order_id'])) {
                     Log::error('Order creation failed – no order_id returned', ['response' => $responseData]);
                     return response()->json(['status' => false, 'message' => 'Order creation failed.'], 500);
                 }
                 $order = Orders::findOrFail($responseData['order_id']);
-                $grandTotal = (float) $request->input('grand_total_amount');
+                $grandTotal = (float) $order->grand_total_amount;
                 if ($grandTotal <= 0) {
                     $order->delete();
                     return response()->json(['status' => false, 'message' => 'Invalid order amount.'], 422);
@@ -226,10 +230,7 @@ class OrderController extends Controller
         }
         return response()->json(['status' => false, 'message' => 'Invalid payment method selected.'], 422);
     }
-
-   
     /* RAZORPAY CALLBACK  (client-side verify after rzp.on handler) */
-
     public function handleRazorpayCallback(Request $request)
     {
         $request->validate([
@@ -239,7 +240,7 @@ class OrderController extends Controller
             'order_db_id'         => 'required|integer',
         ]);
 
-        $input=$request->all();
+        $input = $request->all();
         $checkoutData = session('checkout_data');
         Log::info('Razorpay callback received', ['order_db_id' => $input['order_db_id']]);
         DB::beginTransaction();
@@ -253,14 +254,13 @@ class OrderController extends Controller
             if (!hash_equals($expectedSignature, $input['razorpay_signature'])) {
                 throw new \Exception('Payment signature verification failed.');
             }
-
             /* ── Fetch payment from Razorpay to confirm capture */
-            $api= new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+            $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
             $payment = $api->payment->fetch($input['razorpay_payment_id']);
             if ($payment->status !== 'captured') {
                 throw new \Exception('Payment not captured. Status: ' . $payment->status);
             }
-            $order = Orders::findOrFail($input['order_db_id']);
+            $order = Orders::with('customer')->findOrFail($input['order_db_id']);
             $order->update([
                 'razorpay_payment_id'  => $input['razorpay_payment_id'],
                 'razorpay_order_id'    => $input['razorpay_order_id'],
@@ -271,10 +271,11 @@ class OrderController extends Controller
                 'order_status_comment' => 'complete_order',
             ]);
 
-            /*  Decrement inventory */
+            /*  Decrement inventory (guarded against overselling) */
             foreach ($order->orderLines as $line) {
                 Inventory::where('product_id', $line->product_id)
                     ->where('mrp', $line->price)
+                    ->where('stock_quantity', '>=', $line->quantity)
                     ->decrement('stock_quantity', $line->quantity);
             }
             /* Send order-confirmation email */
@@ -289,7 +290,7 @@ class OrderController extends Controller
             $shipping      = $orderDetails->shippingAddress;
             $customerName  = $shipping->full_name  ?? 'Customer';
             $customerPhone = $shipping->phone_number ?? '';
-            $customerEmail = $shipping->email_id   ?? '';
+            $customerEmail = $shipping->email_id   ??  ($order->customer->email ?? null);
 
             $courierData = session('courierData', []);
             $waPayload   = array_merge($checkoutData ?? [], [
@@ -299,12 +300,23 @@ class OrderController extends Controller
                 'delivery_expected_date' => $courierData['delivery_expected_date']
                     ?? now()->setTimezone('Asia/Kolkata')->addDays(2)->format('d-m-Y'),
             ]);
-            Mail::to('akshat.gd@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
-            $this->sendWhatsAppNotifications($order->order_id, 'Paid', $waPayload);
+
+            // ── Send confirmation to admins AND the customer ──────────────────
+            $recipientEmails = [
+                'karishma@gdsons.co.in',
+                'akshat.gd@gmail.com',
+            ];
+            if (!empty($customerEmail)) {
+                 Mail::to($customerEmail)->queue(new OrderDetailsMailForCustomer($orderDetails));
+            }
+            foreach (array_unique($recipientEmails) as $email) {
+                Mail::to($email)->queue(new OrderDetailMailForAdmin($orderDetails, $customerName));
+            }
+            //$this->sendWhatsAppNotifications($order->order_id, 'Paid', $waPayload);
             /* Clear session */
             session()->forget(['checkout_data', 'cart_items', 'cart', 'courierData', 'applied_coupon']);
             DB::commit();
-            $token=Str::random(32);
+            $token = Str::random(32);
             $encodedOrderId = Crypt::encrypt($order->id);
             session(['order_token' => $token]);
             return response()->json([
@@ -358,7 +370,7 @@ class OrderController extends Controller
     }
 
     /* Webhook sub-handlers */
-   
+
     private function webhookPaymentCaptured(array $event): void
     {
         $paymentEntity = $event['payload']['payment']['entity'] ?? [];
@@ -370,7 +382,7 @@ class OrderController extends Controller
             Log::warning('Razorpay webhook payment.captured: missing fields', $paymentEntity);
             return;
         }
-        $order = Orders::find($orderDbId);
+        $order = Orders::with('customer')->find($orderDbId);
         if (!$order) {
             Log::warning('Razorpay webhook payment.captured: order not found', ['order_db_id' => $orderDbId]);
             return;
@@ -392,6 +404,7 @@ class OrderController extends Controller
             foreach ($order->orderLines as $line) {
                 Inventory::where('product_id', $line->product_id)
                     ->where('mrp', $line->price)
+                    ->where('stock_quantity', '>=', $line->quantity)
                     ->decrement('stock_quantity', $line->quantity);
             }
             $orderDetails = Orders::with([
@@ -401,8 +414,22 @@ class OrderController extends Controller
                 'orderLines.product',
                 'orderLines.product.images',
             ])->find($order->id);
-            $customerName = $orderDetails->shippingAddress->full_name ?? 'Customer';
-            Mail::to('akshat.gd@gmail.com')->queue(new OrderDetailsMail($orderDetails, $customerName));
+
+            $customerName  = $orderDetails->shippingAddress->full_name ?? 'Customer';
+            $customerEmail = $orderDetails->shippingAddress->email_id
+                ?? ($order->customer->email ?? null);
+
+            // ── Send confirmation to admin AND the customer ───────────────────
+            $recipientEmails = [
+                'karishma@gdsons.co.in',
+                'akshat.gd@gmail.com',
+            ];
+            if (!empty($customerEmail)) {
+                Mail::to($customerEmail)->queue(new OrderDetailsMailForCustomer($orderDetails));
+            }
+            foreach (array_unique($recipientEmails) as $email) {
+                Mail::to($email)->queue(new OrderDetailMailForAdmin($orderDetails, $customerName));
+            }
             DB::commit();
             Log::info('Razorpay webhook payment.captured: order updated', ['order_db_id' => $orderDbId]);
         } catch (\Exception $e) {
@@ -426,7 +453,7 @@ class OrderController extends Controller
             Log::warning('Razorpay webhook payment.failed: missing order_db_id', $paymentEntity);
             return;
         }
-        $order = Orders::find($orderDbId);
+        $order = Orders::with('customer')->find($orderDbId);
         if (!$order) {
             Log::warning('Razorpay webhook payment.failed: order not found', ['order_db_id' => $orderDbId]);
             return;
@@ -441,9 +468,7 @@ class OrderController extends Controller
                 'razorpay_method'      => 'Razorpay',
                 'failure_reason'       => $failureReason,
             ]);
-
             $this->sendPaymentFailedNotification($order, $failureReason);
-
             DB::commit();
             Log::warning('Razorpay webhook payment.failed: order marked failed', ['order_db_id' => $orderDbId]);
         } catch (\Exception $e) {
@@ -468,9 +493,9 @@ class OrderController extends Controller
             Log::warning('Razorpay webhook order.paid: missing order_db_id', $orderEntity);
             return;
         }
-        $order = Orders::find($orderDbId);
+        $order = Orders::with('customer')->find($orderDbId);
         if (!$order || $order->payment_received) {
-            return; 
+            return;
         }
 
         DB::beginTransaction();
@@ -600,7 +625,7 @@ class OrderController extends Controller
 
         DB::beginTransaction();
         try {
-            $pickUpStatus     = $checkoutData['pick_up_status'] ?? null;
+            $pickUpStatus      = $checkoutData['pick_up_status'] ?? null;
             $shippingAddressId = null;
             $billingAddressId  = null;
             $shippingAddress   = null;
@@ -670,28 +695,23 @@ class OrderController extends Controller
                     $billingAddressId = $billingAddress->id;
                 }
             }
-
             // ── Generate unique order_id ───────────────────────────────────────
             $nextSerial = ((int) (Orders::max('order_id') ?? 0)) + 1;
             $orderId    = str_pad($nextSerial, 10, '0', STR_PAD_LEFT);
-
             $orderStatus = OrderStatus::firstOrCreate(['status_name' => 'New']);
-
             $order = Orders::create([
-                'order_date'         => now()->setTimezone('Asia/Kolkata'),
-                'order_id'           => $orderId,
-                'grand_total_amount' => $checkoutData['grand_total_amount'] ?? 0,
-                'payment_mode'       => $checkoutData['payment_type']       ?? null,
-                'pick_up_status'     => $pickUpStatus,
-                'customer_id'        => $customerId,
+                'order_date'          => now()->setTimezone('Asia/Kolkata'),
+                'order_id'            => $orderId,
+                'grand_total_amount'  => $checkoutData['grand_total_amount'] ?? 0,
+                'payment_mode'        => $checkoutData['payment_type']       ?? null,
+                'pick_up_status'      => $pickUpStatus,
+                'customer_id'         => $customerId,
                 'shipping_address_id' => $shippingAddressId,
-                'billing_address_id' => $billingAddressId,
-                'order_status_id'    => $orderStatus->id,
+                'billing_address_id'  => $billingAddressId,
+                'order_status_id'     => $orderStatus->id,
             ]);
-
             $this->trackCouponUsage($order);
-
-            // ── Order lines ───────────────────────────────────────────────────
+            // ── Order lines (server-recalculated prices from session cart_items) ─
             foreach (session('cart_items', []) as $item) {
                 OrderLines::create([
                     'order_id'    => $order->id,
@@ -701,28 +721,22 @@ class OrderController extends Controller
                     'total_price' => $item['total_price'],
                 ]);
             }
-
-            // ── Courier / shiprocket ──────────────────────────────────────────
             $paymentType = $checkoutData['payment_type'] ?? null;
             $courierData = session('courierData', []);
-
             if (!empty($courierData)) {
                 ShiprocketCourier::create([
-                    'customer_id'           => $customerId,
-                    'order_id'              => $order->id,
-                    'courier_name'          => $courierData['courier_name']          ?? null,
-                    'courier_id'            => $courierData['courier_id']            ?? null,
-                    'courier_company_id'    => $courierData['courier_company_id']    ?? null,
-                    'courier_shipping_rate' => $courierData['courier_shipping_rate'] ?? null,
-                    'cod_charges'           => $courierData['cod_charges']           ?? null,
+                    'customer_id'            => $customerId,
+                    'order_id'               => $order->id,
+                    'courier_name'           => $courierData['courier_name']          ?? null,
+                    'courier_id'             => $courierData['courier_id']            ?? null,
+                    'courier_company_id'     => $courierData['courier_company_id']    ?? null,
+                    'courier_shipping_rate'  => $courierData['courier_shipping_rate'] ?? null,
+                    'cod_charges'            => $courierData['cod_charges']           ?? null,
                     'delivery_expected_date' => $courierData['delivery_expected_date'] ?? null,
                 ]);
             }
-
-            // ── COD / Pick-up: mark complete and notify ───────────────────────
             if ($paymentType === 'Cash on Delivery' || $paymentType === 'Pick Up From Store') {
                 $order->update(['order_status_comment' => 'complete_order']);
-
                 $orderDetails = Orders::with([
                     'orderStatus',
                     'shippingAddress',
@@ -731,11 +745,30 @@ class OrderController extends Controller
                     'orderLines.product.images',
                 ])->find($order->id);
 
-                $resolvedName  = $checkoutData['ship_full_name']    ?? $customer_address->name          ?? $shippingAddress->full_name  ?? 'Customer';
-                $resolvedEmail = $checkoutData['ship_email']        ?? $customer_address->email         ?? $shippingAddress->email_id   ?? null;
-                $resolvedPhone = $checkoutData['ship_phone_number'] ?? $customer_address->phone_number  ?? $shippingAddress->phone_number ?? null;
+                $resolvedName  = $checkoutData['ship_full_name']
+                    ?? $customer_address?->name
+                    ?? $shippingAddress?->full_name
+                    ?? 'Customer';
+                $resolvedEmail = $checkoutData['ship_email']
+                    ?? $customer_address?->email
+                    ?? $shippingAddress?->email_id
+                    ?? auth()->guard('customer')->user()->email ?? null;
+                $resolvedPhone = $checkoutData['ship_phone_number']
+                    ?? $customer_address?->phone_number
+                    ?? $shippingAddress?->phone_number
+                    ?? null;
 
-                Mail::to('akshat@gdsons.co.in')->queue(new OrderDetailsMail($orderDetails, $resolvedName));
+                // ── Send order confirmation to the customer AND admin ─────────
+                $recipientEmails = [
+                    'karishma@gdsons.co.in',
+                    'akshat.gd@gmail.com',
+                ];
+                if (!empty($resolvedEmail)) {
+                    Mail::to($resolvedEmail)->queue(new OrderDetailsMailForCustomer($orderDetails));
+                }
+                foreach (array_unique($recipientEmails) as $email) {
+                    Mail::to($email)->queue(new OrderDetailMailForAdmin($orderDetails, $resolvedName));
+                }
 
                 $waPayload = array_merge($checkoutData, [
                     'ship_full_name'         => $resolvedName,
@@ -744,20 +777,15 @@ class OrderController extends Controller
                     'delivery_expected_date' => $courierData['delivery_expected_date']
                         ?? now()->setTimezone('Asia/Kolkata')->addDays(2)->format('d-m-Y'),
                 ]);
-
-                $this->sendWhatsAppNotifications($orderId, 'Unpaid', $waPayload);
-
+                //$this->sendWhatsAppNotifications($orderId, 'Unpaid', $waPayload);
                 session()->forget(['checkout_data', 'cart_items', 'cart', 'courierData', 'applied_coupon']);
                 session()->save();
             }
-
             DB::commit();
-
-            $token          = Str::random(32);
+            $token   = Str::random(32);
             $encodedOrderId = Crypt::encrypt($order->id);
             session(['order_token' => $token]);
             session()->save();
-
             return response()->json([
                 'message'      => 'Order stored successfully!',
                 'order_id'     => $order->id,
@@ -772,10 +800,38 @@ class OrderController extends Controller
             return response()->json(['message' => 'Failed to store order.', 'error' => $e->getMessage()], 500);
         }
     }
+    
+    protected function recalculateCartItems(array $productIds, array $quantities): array
+    {
+        $cartItems = [];
+        foreach ($productIds as $index => $productId) {
+            $quantity = (int) ($quantities[$index] ?? 0);
+            if ($quantity < 1) {
+                throw new \Exception("Invalid quantity for product ID {$productId}.");
+            }
+            $inventory = Inventory::where('product_id', $productId)
+                ->orderBy('mrp')
+                ->first();
 
-    // =========================================================================
-    // HELPERS
-    // =========================================================================
+            if (!$inventory) {
+                throw new \Exception("Product ID {$productId} is not available.");
+            }
+
+            if ($inventory->stock_quantity < $quantity) {
+                throw new \Exception("Insufficient stock for product ID {$productId}.");
+            }
+            $unitPrice = (float) ($inventory->offer_rate ?: $inventory->mrp);
+            $lineTotal = round($unitPrice * $quantity, 2);
+            $cartItems[] = [
+                'product_id'  => (int) $productId,
+                'quantity'    => $quantity,
+                'price'       => $unitPrice,
+                'total_price' => $lineTotal,
+            ];
+        }
+
+        return $cartItems;
+    }
 
     protected function trackCouponUsage(Orders $order): void
     {
@@ -791,7 +847,7 @@ class OrderController extends Controller
             }
         }
 
-        $order->coupon_code            = $applied['code']            ?? null;
+        $order->coupon_code=$applied['code'] ?? null;
         $order->coupon_discount_amount = $applied['discount_amount'] ?? 0;
         $order->save();
 
@@ -804,10 +860,19 @@ class OrderController extends Controller
             $customerEmail = $order->customer->email ?? null;
             $customerName  = $order->customer->name  ?? 'Customer';
 
+            if (!empty($customerEmail)) {
+                Mail::to($customerEmail)->queue(new PaymentFailedMail(
+                    order: $order,
+                    reason: $reason,
+                    customerName: $customerName
+                ));
+            }
+
             Mail::to('rahulkumarmaurya464@gmail.com')->queue(new PaymentFailedMail(
                 order: $order,
                 reason: $reason,
-                customerName: $customerName
+                customerName: $customerName,
+                isAdmin: true
             ));
             Mail::to('akshat.gd@gmail.com')->queue(new PaymentFailedMail(
                 order: $order,
@@ -838,7 +903,7 @@ class OrderController extends Controller
 
     protected function sendWhatsAppNotifications(string $orderId, string $payment_status, array $checkoutData): void
     {
-        $apiKey       = config('services.aisensy.api_key'); // move to config!
+        $apiKey        = config('services.aisensy.api_key'); // move to config!
         $customerPhone = $checkoutData['ship_phone_number'] ?? null;
 
         if ($customerPhone && preg_match('/^[0-9]{10}$/', $customerPhone)) {
@@ -853,7 +918,7 @@ class OrderController extends Controller
                     $checkoutData['grand_total_amount']     ?? 0,
                     $checkoutData['delivery_expected_date'] ?? '',
                 ],
-                'source'             => 'checkout',
+                'source'              => 'checkout',
                 'paramsFallbackValue' => ['FirstName' => 'user'],
             ]);
         }
@@ -868,7 +933,7 @@ class OrderController extends Controller
                 ($checkoutData['grand_total_amount'] ?? 0) . ' (' . ($checkoutData['payment_type'] ?? '') . ')',
                 $payment_status,
             ],
-            'source'             => 'checkout',
+            'source'              => 'checkout',
             'paramsFallbackValue' => ['FirstName' => 'user'],
         ]);
     }
@@ -894,7 +959,7 @@ class OrderController extends Controller
     public function showOrderSuccess(Request $request)
     {
         try {
-            $orderId     = Crypt::decrypt($request->input('order_id'));
+            $orderId      = Crypt::decrypt($request->input('order_id'));
             $sessionToken = session('order_token');
 
             if ($request->input('token') !== $sessionToken) {

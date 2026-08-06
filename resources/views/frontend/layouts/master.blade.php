@@ -98,7 +98,7 @@
 		@stack('schema')
 		@include('frontend.layouts.footerjs')
 		@stack('scripts')	
-        <script>
+        <!-- <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
                 navigator.serviceWorker
@@ -111,6 +111,6 @@
                 });
             });
         }
-        </script>
+        </script> -->
 	</body>
 </html>

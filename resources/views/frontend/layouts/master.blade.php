@@ -89,7 +89,7 @@
             }
         }
         </script>
-	</head>
+	</head>    
     <body class="bg-effect">		
 		@include('frontend.layouts.header-menu')		
 		@yield('main-content')	
@@ -98,5 +98,19 @@
 		@stack('schema')
 		@include('frontend.layouts.footerjs')
 		@stack('scripts')	
+        <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker
+                .register('/service-worker.js')
+                .then(function (registration) {
+                    console.log('Service Worker Registered');
+                })
+                .catch(function (error) {
+                    console.log('Service Worker Registration Failed:', error);
+                });
+            });
+        }
+        </script>
 	</body>
 </html>

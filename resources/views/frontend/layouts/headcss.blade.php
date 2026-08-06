@@ -5,7 +5,13 @@
 	<meta name="description" content="{{ \Illuminate\Support\Str::limit(strip_tags(trim($__env->yieldContent('description'))), 160, '') }}">
 	<meta name="keywords" content="@yield('keywords')">
 	<meta property="og:locale" content="en_IN">
+
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="default">
 	<meta name="language" content="English">
+	<link rel="manifest" href="{{ asset('manifest.json') }}">
+	
 	<meta name="theme-color" content="#0F8B8D"/>
 	@if(View::hasSection('canonical'))
 		@yield('canonical')

@@ -1,0 +1,23 @@
+{
+    "name": "GD Sons",
+    "short_name": "GD Sons",
+    "description": "GD Sons E-commerce",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#ffffff",
+    "theme_color": "#d4af37",
+    "icons": [
+        {
+            "src": "https://www.gdsons.co.in/public/frontend/assets/gd-img/fav-icon.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "https://www.gdsons.co.in/public/frontend/assets/gd-img/fav-icon.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

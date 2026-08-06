@@ -32,7 +32,7 @@
                                     </td>
                                     <td style="padding:15px 15px 15px 0;">
                                         <p style="margin:0 0 5px 0; font-size:15px; font-weight:bold; color:#0d3b3e;">{{ ucwords(strtolower($product->title)) }}</p>
-                                        <p style="margin:0; font-size:14px; color:#1f9d55; font-weight:bold;">₹{{ number_format($productPrice, 2) }}</p>
+                                        <p style="margin:0; font-size:14px; color:#1f9d55; font-weight:bold;">Rs. {{ number_format($enquiry->product_price, 2) }}</p>
                                     </td>
                                 </tr>
                             </table>
@@ -68,7 +68,7 @@
                     <tr>
                         <td style="background-color:#f0f0f0; padding:20px 30px; text-align:center;">
                             <p style="font-size:12px; color:#888888; margin:0 0 6px 0;">G.D. Sons | <a href="https://www.gdsons.co.in" style="color:#888888;">www.gdsons.co.in</a></p>
-                            <p style="font-size:12px; color:#888888; margin:0;">Support: +91 83188 94257 &nbsp;|&nbsp; support@gdsons.co.in</p>
+                            <p style="font-size:12px; color:#888888; margin:0;">Support: +91 - 8318894257 &nbsp;|&nbsp; gdsons.vns@gmail.com</p>
                         </td>
                     </tr>
                 </table>

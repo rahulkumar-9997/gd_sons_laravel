@@ -61,7 +61,7 @@
                                             </tr>
                                             <tr>
                                                 <td style="font-size:13px; color:#777; padding:3px 0;">Price:</td>
-                                                <td style="font-size:13px; color:#222; padding:3px 0;">₹{{ number_format($productPrice, 2) }}</td>
+                                                <td style="font-size:13px; color:#222; padding:3px 0;">Rs. {{ number_format($enquiry->product_price, 2) }}</td>
                                             </tr>
                                             <tr>
                                                 <td style="font-size:13px; color:#777; padding:3px 0;">Product URL:</td>

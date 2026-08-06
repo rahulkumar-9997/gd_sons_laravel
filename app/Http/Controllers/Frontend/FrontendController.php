@@ -1302,6 +1302,9 @@ class FrontendController extends Controller
     {
         $productId = $request->input('productId');
         $currentPageUrl = $request->input('currentPageUrl');
+        $productPrice = $request->input('productPrice');
+        $productImage = $request->input('productImage');
+
         if (auth('customer')->check()) {
             $customer = auth('customer')->user();
             $customerId = $customer->id;
@@ -1319,6 +1322,8 @@ class FrontendController extends Controller
             ' . csrf_field() . '
             <input type="hidden" value="' . $productId . '" name="product_id"> 
             <input type="hidden" value="' . $currentPageUrl . '" name="current_page_url"> 
+            <input type="hidden" value="' . $productPrice . '" name="product_price"> 
+            <input type="hidden" value="' . $productImage . '" name="product_image"> 
             <div class="row">
                 <div class="col-md-12">
                     <div class="mb-2">
@@ -1381,16 +1386,19 @@ class FrontendController extends Controller
                     ->orderBy('id');
             }
         ])->where('id', $request->product_id)->firstOrFail();
-        $productImage = $request->productImage ?? null;
-        $productPrice = $request->productPrice ?? null;
+        $productImage = $request->input('product_image') ?? null;
+        $productPrice = $request->input('product_price') ?? null;
                         
-        $enquiry =[
+        $enquiry = (object) [
+            'id'                => 'ENQ-' . strtoupper(Str::random(6)),
             'name'              => $request->name,
             'phone_number'      => $request->phone_number,
             'email'             => $request->email,
-            'product_id'        => $request->product_id,
             'current_page_url'  => $request->current_page_url,
+            'product_price'       => $productPrice,
+            'created_at'        => now()->setTimezone('Asia/Kolkata'),
         ];
+        //Log::info('Product Enquiry Submitted: ', (array) $enquiry);
         /*
         $firstImage = $product->images->first();
         if ($firstImage && !empty($firstImage->image_path)) {
@@ -1421,11 +1429,10 @@ class FrontendController extends Controller
         ]);
         */
         // Customer confirmation
-        Mail::to($request->email)->queue(new ProductEnquiryMailForCustomer($enquiry, $product, $productImage, $productPrice));
+       Mail::to($request->email)->queue(new ProductEnquiryMailForCustomer($enquiry, $product, $productImage, $productPrice));
         $recipientEmails = [
-            'rahulkumarmaurya464@gmail.com',
-            // 'karishma@gdsons.co.in',
-            // 'akshat.gd@gmail.com',
+            'karishma@gdsons.co.in',
+            'akshat.gd@gmail.com',
         ];
         foreach (array_unique($recipientEmails) as $email) {
             Mail::to($email)->queue(

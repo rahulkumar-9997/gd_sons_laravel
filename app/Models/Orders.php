@@ -22,6 +22,7 @@ class Orders extends Model
         'billing_address_id',
         'billing_address_id',
         'order_status_id',
+        'tracking_link',
         'order_status_comment',
         'order_comment',
         'razorpay_payment_id',

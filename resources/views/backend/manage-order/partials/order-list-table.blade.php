@@ -118,7 +118,11 @@
                         id="select_order_status_{{ $order->id }}"
                         name="update_order_status"
                         data-cusid="{{ $order->customer->id }}"
-                        data-url="{{ route('update-order-status', ['orderId' => $order->id]) }}">
+                        data-orderid="{{ $order->id }}"
+                        data-url="{{ route('update-order-status', ['orderId' => $order->id]) }}"
+                        data-tracking-form-url="{{ route('tracking-link-form', ['orderId' => $order->id]) }}"
+                        data-delivered-coupon-form-url="{{ route('delivered-coupon-form', ['orderId' => $order->id]) }}"
+                        >
                         <option value="">Update Order Status</option>
                         @foreach($orders_status as $order_status)
                         <option

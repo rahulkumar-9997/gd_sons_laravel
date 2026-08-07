@@ -597,7 +597,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
     </div>
 </section>
 <!--product review-->
-<section class="product-section-box review-section">
+<section class="product-section-box review-section" id="reviewssection">
     <div class="container-fluid-lg">
         <div class="review-box">
             <div class="row">

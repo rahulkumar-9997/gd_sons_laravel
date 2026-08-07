@@ -1,60 +1,192 @@
 $(document).ready(function () {
-    $(document).on('change', 'select[name="update_order_status"]', function () {
+    /* Order Status dropdown change  */
+      $(document).on('change', 'select[name="update_order_status"]', function () {
         var selectElement = $(this);
         var selectedStatus = selectElement.val();
+        var selectedText = selectElement.find('option:selected').text().trim();
         var customerId = selectElement.data('cusid');
-        var updateUrl = selectElement.data('url');
-        if (selectedStatus !== "") {
+        var orderId = selectElement.data('orderid');
+        var updateUrl = selectElement.data('url'); 
+        var trackingFormUrl = selectElement.data('tracking-form-url');
+        var deliveredCouponFormUrl = selectElement.data('delivered-coupon-form-url');
+        if (selectedStatus === "") return; 
+        if (selectedText.toLowerCase() === 'shipped') {
             $.ajax({
-                url: updateUrl,
-                type: "POST",
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content'),
-                    order_status_id: selectedStatus,
-                    customer_id: customerId
+                url: trackingFormUrl + '?order_status_id=' + selectedStatus,
+                type: 'GET',
+                success: function (data) {
+                    $("#commanModel .modal-title").html('Add Tracking Link');
+                    $("#commanModel .modal-dialog").removeAttr('class').addClass('modal-dialog modal-md');
+                    $('#commanModel .render-data').html(data.form);
+                    $("#commanModel").modal('show');
                 },
-                beforeSend: function () {
-                    selectElement.prop('disabled', true);
-                },
-                success: function (response) {
-                    if (response.success) {
-                        Toastify({
-                            text: response.message,
-                            duration: 3000,
-                            gravity: "top",
-                            position: "right",
-                            className: "bg-success",
-                            close: true
-                        }).showToast();
-                        location.reload();
-                    } else {
-                        Toastify({
-                            text: "Failed to update order status!",
-                            duration: 5000,
-                            gravity: "top",
-                            position: "right",
-                            className: "bg-warning",
-                            close: true
-                        }).showToast();
-                    }
-                },
-                error: function (xhr) {
+                error: function () {
                     Toastify({
-                        text: 'Error updating order status!',
-                        duration: 10000,
+                        text: 'Failed to load tracking link form',
+                        duration: 5000,
                         gravity: "top",
                         position: "right",
                         className: "bg-danger",
-                        close: true,
-                        onClick: function () { }
+                        close: true
                     }).showToast();
-                },
-                complete: function () {
-                    selectElement.prop('disabled', false);
+                    selectElement.val('');
                 }
             });
+        } else if (selectedText.toLowerCase() === 'delivered') {
+            $.ajax({
+                url: deliveredCouponFormUrl + '?order_status_id=' + selectedStatus,
+                type: 'GET',
+                success: function (data) {
+                    $("#commanModel .modal-title").html('Select Coupon for Delivery Email');
+                    $("#commanModel .modal-dialog").removeAttr('class').addClass('modal-dialog modal-lg');
+                    $('#commanModel .render-data').html(data.form);
+                    $("#commanModel").modal('show');
+                },
+                error: function () {
+                    Toastify({
+                        text: 'Failed to load coupon form',
+                        duration: 5000,
+                        gravity: "top",
+                        position: "right",
+                        className: "bg-danger",
+                        close: true
+                    }).showToast();
+                    selectElement.val('');
+                }
+            });
+        } else {
+            submitOrderStatusUpdate(selectElement, updateUrl, selectedStatus, customerId, null);
         }
     });
+ 
+    function submitOrderStatusUpdate(selectElement, updateUrl, selectedStatus, customerId, trackingLink) {
+        $.ajax({
+            url: updateUrl,
+            type: "POST",
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                order_status_id: selectedStatus,
+                customer_id: customerId,
+                tracking_link: trackingLink
+            },
+            beforeSend: function () {
+                selectElement.prop('disabled', true);
+            },
+            success: function (response) {
+                if (response.success) {
+                    Toastify({
+                        text: response.message,
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        className: "bg-success",
+                        close: true
+                    }).showToast();
+                    location.reload();
+                } else {
+                    Toastify({
+                        text: response.message || "Failed to update order status!",
+                        duration: 5000,
+                        gravity: "top",
+                        position: "right",
+                        className: "bg-warning",
+                        close: true
+                    }).showToast();
+                    selectElement.prop('disabled', false);
+                }
+            },
+            error: function (xhr) {
+                var message = (xhr.responseJSON && xhr.responseJSON.message) || 'Error updating order status!';
+                Toastify({
+                    text: message,
+                    duration: 10000,
+                    gravity: "top",
+                    position: "right",
+                    className: "bg-danger",
+                    close: true
+                }).showToast();
+                selectElement.prop('disabled', false);
+            },
+            complete: function () {
+                selectElement.prop('disabled', false);
+            }
+        });
+    }
+ 
+    // ── Tracking Link / Delivered Coupon mini form submit ─────────────
+    // Both forms post to the same update-order-status route, so one handler covers both.
+    $(document).off('submit', '#trackingLinkForm, #deliveredCouponForm').on('submit', '#trackingLinkForm, #deliveredCouponForm', function (event) {
+        event.preventDefault();
+        var form = $(this);
+        var submitButton = form.find('button[type="submit"]');
+        var originalBtnText = submitButton.html();
+ 
+        form.find('.form-control').removeClass('is-invalid');
+        form.find('.invalid-feedback').text('');
+ 
+        submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
+ 
+        $.ajax({
+            url: form.attr('action'),
+            type: 'POST',
+            data: form.serialize(),
+            success: function (response) {
+                submitButton.prop('disabled', false).html(originalBtnText);
+                if (response.success) {
+                    $('#commanModel').modal('hide');
+                    Toastify({
+                        text: response.message,
+                        duration: 5000,
+                        gravity: "top",
+                        position: "right",
+                        className: "bg-success",
+                        escapeMarkup: false,
+                        close: true
+                    }).showToast();
+                    location.reload();
+                } else {
+                    Toastify({
+                        text: response.message || 'Failed to update status',
+                        duration: 5000,
+                        gravity: "top",
+                        position: "right",
+                        className: "bg-warning",
+                        close: true
+                    }).showToast();
+                }
+            },
+            error: function (xhr) {
+                submitButton.prop('disabled', false).html(originalBtnText);
+                var errors = xhr.responseJSON ? xhr.responseJSON.errors : null;
+                if (errors) {
+                    $.each(errors, function (key, value) {
+                        var input = $('#' + key);
+                        input.addClass('is-invalid');
+                        $('#' + key + '_error').text(value[0]);
+                    });
+                } else {
+                    var message = (xhr.responseJSON && xhr.responseJSON.message) || 'Something went wrong!';
+                    Toastify({
+                        text: message,
+                        duration: 8000,
+                        gravity: "top",
+                        position: "right",
+                        className: "bg-danger",
+                        close: true
+                    }).showToast();
+                }
+            }
+        });
+    });
+ 
+    // If the tracking-link / delivered-coupon modal is closed without submitting,
+    // reset the dropdown so it doesn't visually stay stuck on that status.
+    $('#commanModel').on('hidden.bs.modal', function () {
+        if ($('#trackingLinkForm').length || $('#deliveredCouponForm').length) {
+            $('select[name="update_order_status"]').val('');
+        }
+    });
+ 
 
     /*Shiprocket order update content */
     $(document).on('click', '.sr-action', function (e) {

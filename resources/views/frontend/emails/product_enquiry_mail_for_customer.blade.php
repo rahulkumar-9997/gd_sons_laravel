@@ -68,7 +68,7 @@
                     <tr>
                         <td style="background-color:#f0f0f0; padding:20px 30px; text-align:center;">
                             <p style="font-size:12px; color:#888888; margin:0 0 6px 0;">G.D. Sons | <a href="https://www.gdsons.co.in" style="color:#888888;">www.gdsons.co.in</a></p>
-                            <p style="font-size:12px; color:#888888; margin:0;">Support: +91 - 8318894257 &nbsp;|&nbsp; gdsons.vns@gmail.com</p>
+                            <p style="font-size:12px; color:#888888; margin:0;">Support: +91 - 8318894257 &nbsp;|&nbsp; support@gdsons.co.in</p>
                         </td>
                     </tr>
                 </table>

@@ -15,6 +15,7 @@ class OrderShipmentRecords extends Model
         'order_status_id',
         'customer_id',
         'tracking_no',
+        'tracking_link',
         'courier_name',
         'shipment_details',
         'shipment_date',

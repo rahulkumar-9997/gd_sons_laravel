@@ -374,6 +374,8 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('update-deduction/{orderId}', [OrderControllerBackend::class, 'updateDeductionForm'])->name('update-deduction');
     Route::post('update-deduction/store/{id}', [OrderControllerBackend::class, 'storeUpdateDeduction']
     )->name('update-deduction.store');
+    Route::get('order/tracking-link-form/{orderId}', [OrderControllerBackend::class, 'trackingLinkForm'])->name('tracking-link-form');
+    Route::get('order/delivered-coupon-form/{orderId}', [OrderControllerBackend::class, 'deliveredCouponForm'])->name('delivered-coupon-form');
     /**Order Route */
     /**Blog Route */    
     Route::resource('manage-blog-category', BlogCategoryController::class);

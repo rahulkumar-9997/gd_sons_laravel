@@ -15,13 +15,19 @@ use App\Models\BillingAddress;
 use App\Models\OrderShipmentRecords;
 use App\Models\ShiprocketShipmentAwbResponse;
 use App\Models\ShiprocketPickupResponse;
+use App\Models\DiscountCode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Mail\OrderShippedMail;
+use App\Mail\OrderPackedMail;
+use App\Mail\OrderDeliveredMail;
+use Illuminate\Support\Facades\Mail;
 
 class OrderControllerBackend extends Controller
 {
     protected $shiprocket;
+
     public function __construct(ShiprocketService $shiprocket)
     {
         $this->shiprocket = $shiprocket;
@@ -106,7 +112,7 @@ class OrderControllerBackend extends Controller
         return view('backend.manage-order.order-details', compact('order'));
     }
 
-    public function updateOrderStatus(Request $request, $orderId)
+    public function updateOrderStatus_07_08_2026(Request $request, $orderId)
     {
         $request->validate([
             'order_status_id' => 'required|exists:order_status,id',
@@ -156,6 +162,223 @@ class OrderControllerBackend extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function updateOrderStatus(Request $request, $orderId)
+    {
+        $request->validate([
+            'order_status_id' => 'required|exists:order_status,id',
+            'customer_id' => 'required|exists:customers,id',
+            'tracking_link' => 'nullable|url|max:500',
+            'coupon_id' => 'nullable|exists:discount_codes,id',
+        ]);
+        DB::beginTransaction();
+        try {
+            $orderStatus = OrderStatus::findOrFail($request->order_status_id);
+            $statusName = strtolower(trim($orderStatus->status_name));
+            $isShipped   = $statusName === 'shipped';
+            $isPacked    = $statusName === 'packed';
+            $isDelivered = $statusName === 'delivered';
+            if ($isShipped && empty($request->tracking_link)) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tracking link is required to mark the order as Shipped.',
+                ], 422);
+            }
+            if ($isDelivered && empty($request->coupon_id)) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please select a coupon code to include in the delivery email.',
+                ], 422);
+            }
+
+            $receiving_date = $isDelivered ? now() : null;
+
+            $existingRecord = OrderShipmentRecords::where('order_id', $orderId)
+                ->where('order_status_id', $request->order_status_id)
+                ->exists();
+
+            $order = Orders::with([
+                'customer',
+                'shippingAddress',
+                'billingAddress',
+                'orderStatus',
+                'orderLines.product',
+                'orderLines.product.images',
+                'orderLines.product.ProductAttributesValues.attributeValue',
+                'shiprocketCourier',
+            ])->findOrFail($orderId);
+
+            $order->order_status_id = $request->order_status_id;
+            if ($isShipped) {
+                $order->tracking_link = $request->tracking_link;
+            }
+            $order->save();
+
+            if (!$existingRecord) {
+                OrderShipmentRecords::create([
+                    'order_id' => $order->id,
+                    'order_status_id' => $request->order_status_id,
+                    'customer_id' => $order->customer_id,
+                    'tracking_no' => null,
+                    'tracking_link' => $isShipped ? $request->tracking_link : null,
+                    'courier_name' => null,
+                    'shipment_details' => 'Order status updated',
+                    'shipment_date' => now(),
+                    'receiving_date' => $receiving_date,
+                ]);
+                $message = 'Order status updated successfully and a new shipment record was added!';
+            } else {
+                $message = 'Order status updated, but a shipment record for this status already exists!';
+            }
+            $customerEmail = $order->customer->email ?? ($order->shippingAddress->email_id ?? null);
+            if (!empty($customerEmail)) {
+                if ($isPacked) {
+                    Mail::to($customerEmail)->queue(new OrderPackedMail($order));
+                    $message .= ' Packed notification email sent to the customer.';
+                } elseif ($isShipped) { 
+                    Mail::to($customerEmail)->queue(new OrderShippedMail($order));
+                    $message .= ' Shipment notification email sent to the customer.';
+                } elseif ($isDelivered) {
+                    $coupon = DiscountCode::find($request->coupon_id);
+                    Mail::to($customerEmail)->queue(new OrderDeliveredMail($order, $coupon));
+                    $message .= ' Delivery confirmation email (with coupon code) sent to the customer.';
+                }
+            }
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong! Please try again.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function trackingLinkForm(Request $request, $orderId)
+    {
+        $order = Orders::findOrFail($orderId);
+        $orderStatusId = $request->query('order_status_id');
+        $form = '
+        <div class="modal-body">
+            <form method="POST" action="'.route('update-order-status', ['orderId' => $order->id]) . '" id="trackingLinkForm">
+                ' . csrf_field() . '
+                <input type="hidden" name="order_status_id" value="' . $orderStatusId . '">
+                <input type="hidden" name="customer_id" value="' . $order->customer_id . '">
+                <div class="mb-3">
+                    <label for="tracking_link" class="form-label">Tracking Link *</label>
+                    <input type="url" id="tracking_link" name="tracking_link" class="form-control"
+                        placeholder="https://tracking-partner.com/track/XXXX" required>
+                    <div class="invalid-feedback" id="tracking_link_error"></div>
+                </div>
+                <div class="modal-footer pb-0">
+                    <button type="submit" class="btn btn-primary btn-md fw-bold">Submit</button>
+                </div>
+            </form>
+        </div>
+        ';
+
+        return response()->json([
+            'message' => 'Tracking link form created successfully',
+            'form' => $form,
+        ]);
+    }
+
+    public function deliveredCouponForm(Request $request, $orderId)
+    {
+        $order = Orders::findOrFail($orderId);
+        $orderStatusId = $request->query('order_status_id');
+        $customerId = $order->customer_id;
+        $coupons = DiscountCode::where('is_active', 1)
+            ->where('valid_till', '>=', now())
+            ->orderBy('discount_code')
+            ->get();
+        $rows = '';
+        foreach ($coupons as $coupon) {
+            $discount = $coupon->mode == 'Percentage'
+                ? $coupon->discount_value . ' %'
+                : '₹ ' . number_format($coupon->discount_value, 2);
+            $minOrder = '₹ ' . number_format($coupon->minimum_order_value, 2);
+            $maxDiscount = $coupon->maximum_discount
+                ? '₹ ' . number_format($coupon->maximum_discount, 2)
+                : '-';
+            $validFrom = $coupon->valid_from
+                ? \Carbon\Carbon::parse($coupon->valid_from)->format('d-m-Y')
+                : '-';
+            $validTill = $coupon->valid_till
+                ? \Carbon\Carbon::parse($coupon->valid_till)->format('d-m-Y')
+                : '-';
+            $rows .= '
+            <tr>
+                <td class="text-center">
+                    <input type="radio" name="coupon_id" value="' . $coupon->id . '" required>
+                </td>
+                <td><strong>' . e($coupon->discount_code) . '</strong></td>
+                <td>' . $discount . '</td>
+                <td>' . $minOrder . '</td>
+                <td>' . $maxDiscount . '</td>
+                <td>' . $validFrom . '</td>
+                <td>' . $validTill . '</td>
+            </tr>';
+        }
+
+        if ($coupons->isEmpty()) {
+            $rows = '
+            <tr>
+                <td colspan="7" class="text-center text-muted py-3">
+                    No active coupons available. Please create one first.
+                </td>
+            </tr>';
+        }
+
+        $form = '
+        <div class="modal-body">
+            <form method="POST"
+                action="' . route('update-order-status', ['orderId' => $order->id]) . '"
+                id="deliveredCouponForm"
+                class="order-status-modal-form">
+                ' . csrf_field() . '
+                <input type="hidden" name="order_status_id" value="' . $orderStatusId . '">
+                <input type="hidden" name="customer_id" value="' . $customerId . '">
+                <p class="mb-2 fw-medium">
+                    Select a coupon code to include in the delivery confirmation email:
+                </p>
+                <div class="table-responsive mb-2">
+                    <table class="table table-sm table-bordered align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:30px;"></th>
+                                <th>Code</th>
+                                <th>Discount</th>
+                                <th>Min Order</th>
+                                <th>Max Discount</th>
+                                <th>Valid From</th>
+                                <th>Expiry</th>
+                            </tr>
+                        </thead>
+                        <tbody>' . $rows . '</tbody>
+                    </table>
+                </div>
+                <div class="invalid-feedback d-block" id="coupon_id_error"></div>
+                <div class="modal-footer pb-0">
+                    <button type="submit" class="btn btn-primary btn-md fw-bold">
+                       Submit
+                    </button>
+                </div>
+            </form>
+        </div>';
+        return response()->json([
+            'message' => 'Delivered coupon form created successfully',
+            'form' => $form,
+        ]);
     }
 
     public function downloadInvoice(Request $request, $orderId)

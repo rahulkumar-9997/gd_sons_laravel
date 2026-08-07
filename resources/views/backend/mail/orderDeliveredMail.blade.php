@@ -30,6 +30,8 @@
                             $customerName = $order->shippingAddress->full_name ?? optional($order->customer)->name ?? 'Customer';  
                             $shopUrl = url('/');
                             $gmbReviewUrl = 'https://g.page/r/CQ6k0J7y3e1HEAg/review';
+                            $itemsSubTotal = $order->orderLines->sum(fn($line) => $line->quantity * $line->price);
+                            $discountAmount = $order->coupon_discount_amount ?? 0;
                             @endphp
                             <p style="font-size:16px; color:#222222; margin:0 0 10px 0;">Hi {{ $customerName }},</p>
                             <p style="font-size:15px; color:#444444; line-height:1.6; margin:0 0 25px 0;">
@@ -49,6 +51,7 @@
                                 $attributesValue = $orderLine->product->ProductAttributesValues->first()->attributeValue->slug;
                                 }
                                 $productUrl = url('products/' . $orderLine->product->slug . '/' . $attributesValue);
+                                
                                 @endphp
                                 <tr>
                                     <td style="font-size:13px; color:#222; padding:10px 12px; border-top:1px solid #eeeeee;">
@@ -59,6 +62,25 @@
                                     <td style="font-size:13px; color:#222; padding:10px 12px; border-top:1px solid #eeeeee; text-align:right;">Rs. {{ number_format($orderLine->quantity * $orderLine->price, 2) }}</td>
                                 </tr>
                                 @endforeach
+                                <tr>
+                                    <td colspan="2" style="font-size:13px; color:#777; padding:8px 12px; border-top:1px solid #eeeeee; text-align:right;">Sub Total</td>
+                                    <td style="font-size:13px; color:#333; padding:8px 12px; border-top:1px solid #eeeeee; text-align:right;">₹{{ number_format($itemsSubTotal, 2) }}</td>
+                                </tr>
+                                @if($discountAmount > 0)
+                                <tr>
+                                    <td colspan="2" style="font-size:13px; color:#777; padding:8px 12px; text-align:right;">
+                                        Discount
+                                        @if($order->coupon_code)
+                                        <br><span style="font-size:11px;color:#1f9d55;">Coupon: {{ $order->coupon_code }}</span>
+                                        @endif
+                                    </td>
+                                    <td style="font-size:13px; color:#c0392b; padding:8px 12px; text-align:right;">- ₹{{ number_format($discountAmount, 2) }}</td>
+                                </tr>
+                                @endif
+                                <tr>
+                                    <td colspan="2" style="font-size:15px; color:#0d3b3e; font-weight:bold; padding:10px 12px; border-top:1px solid #eeeeee; text-align:right;">Grand Total</td>
+                                    <td style="font-size:15px; color:#0d3b3e; font-weight:bold; padding:10px 12px; border-top:1px solid #eeeeee; text-align:right;">₹{{ number_format($order->grand_total_amount, 2) }}</td>
+                                </tr>
                             </table>
                             <!-- <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#fff8e1; border-radius:6px; margin-bottom:25px;">
                                 <tr>

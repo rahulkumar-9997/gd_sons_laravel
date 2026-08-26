@@ -29,7 +29,7 @@
                             @php
                             $customerName = $order->shippingAddress->full_name ?? optional($order->customer)->name ?? 'Customer';  
                             $shopUrl = url('/');
-                            $gmbReviewUrl = 'https://g.page/r/CQ6k0J7y3e1HEAg/review';
+                            $gmbReviewUrl = 'https://g.page/r/CYdyYgptq7c5EBM/review';
                             $itemsSubTotal = $order->orderLines->sum(fn($line) => $line->quantity * $line->price);
                             $discountAmount = $order->coupon_discount_amount ?? 0;
                             @endphp
@@ -56,7 +56,7 @@
                                 <tr>
                                     <td style="font-size:13px; color:#222; padding:10px 12px; border-top:1px solid #eeeeee;">
                                         <a href="{{ $productUrl }}" style="color:#0d3b3e; text-decoration:none; font-weight:600;">{{ ucwords(strtolower($orderLine->product->title)) }}</a>
-                                        <br><a href="{{ $productUrl }}#reviewssection" style="font-size:11px; color:#f39c12; text-decoration:none;">★ Write a Review</a>
+                                        <br><a href="{{ $gmbReviewUrl }}#reviewssection" style="font-size:11px; color:#f39c12; text-decoration:none;">★ Write a GMB Review</a>
                                     </td>
                                     <td style="font-size:13px; color:#222; padding:10px 12px; border-top:1px solid #eeeeee; text-align:center;">{{ $orderLine->quantity }}</td>
                                     <td style="font-size:13px; color:#222; padding:10px 12px; border-top:1px solid #eeeeee; text-align:right;">Rs. {{ number_format($orderLine->quantity * $orderLine->price, 2) }}</td>
@@ -82,10 +82,10 @@
                                     <td style="font-size:15px; color:#0d3b3e; font-weight:bold; padding:10px 12px; border-top:1px solid #eeeeee; text-align:right;">₹{{ number_format($order->grand_total_amount, 2) }}</td>
                                 </tr>
                             </table>
-                            <!-- <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#fff8e1; border-radius:6px; margin-bottom:25px;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#fff8e1; border-radius:6px; margin-bottom:25px;">
                                 <tr>
                                     <td style="padding:20px; text-align:center;">
-                                        <p style="margin:0 0 12px 0; font-size:14px; color:#333333;">⭐ Loved your purchase? A quick review helps us grow!</p>
+                                        <p style="margin:0 0 12px 0; font-size:14px; color:#333333;">Loved your purchase? A quick review helps us grow!</p>
                                         <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
                                             <tr>
                                                 <td align="center" style="border-radius:5px; background-color:#f39c12;">
@@ -95,7 +95,7 @@
                                         </table>
                                     </td>
                                 </tr>
-                            </table> -->
+                            </table>
                             @if($coupon)
                             @php
                             $discountLabel = $coupon->mode === 'Percentage'

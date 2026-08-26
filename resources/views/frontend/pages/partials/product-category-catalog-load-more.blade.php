@@ -8,8 +8,13 @@
 
     @foreach($products as $product)
         @php
-            $firstImage=$product->images->get(0);
-            $secondImage = $product->images->get(1);
+            $firstImage = $product->images->get(0);
+            $firstImageExists = false;
+            if ($firstImage && !empty($firstImage->image_path)) {
+                $firstImageExists = file_exists(
+                    public_path('images/product/thumb/' . $firstImage->image_path)
+                );
+            }
         @endphp
         @php
             $attributes_value ='na';
@@ -70,7 +75,7 @@
                         @endif
                         <div class="product-img">
                             <a href="{{ url('products/'.$product['slug'].'/'.$attributes_value) }}">
-                                @if ($firstImage && file_exists(public_path('images/product/icon/' . $firstImage->image_path)))
+                                @if ($firstImage && $firstImageExists)
                                 <picture>
                                     <source
                                         media="(max-width: 767px)"

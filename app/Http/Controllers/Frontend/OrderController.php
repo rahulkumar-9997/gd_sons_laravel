@@ -304,7 +304,6 @@ class OrderController extends Controller
 
             // ── Send confirmation to admins AND the customer ──────────────────
             $recipientEmails = [
-                'karishma@gdsons.co.in',
                 'akshat.gd@gmail.com',
             ];
             if (!empty($customerEmail)) {
@@ -422,7 +421,6 @@ class OrderController extends Controller
 
             // ── Send confirmation to admin AND the customer ───────────────────
             $recipientEmails = [
-                'karishma@gdsons.co.in',
                 'akshat.gd@gmail.com',
             ];
             if (!empty($customerEmail)) {
@@ -761,7 +759,6 @@ class OrderController extends Controller
 
                 // ── Send order confirmation to the customer AND admin ─────────
                 $recipientEmails = [
-                    'karishma@gdsons.co.in',
                     'akshat.gd@gmail.com',
                 ];
                 if (!empty($resolvedEmail)) {

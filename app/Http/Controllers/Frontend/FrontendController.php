@@ -1431,7 +1431,6 @@ class FrontendController extends Controller
         // Customer confirmation
        Mail::to($request->email)->queue(new ProductEnquiryMailForCustomer($enquiry, $product, $productImage, $productPrice));
         $recipientEmails = [
-            'karishma@gdsons.co.in',
             'akshat.gd@gmail.com',
         ];
         foreach (array_unique($recipientEmails) as $email) {

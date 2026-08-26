@@ -12,8 +12,13 @@
 @if (isset($products) && $products->isNotEmpty())
     @foreach($products as $product)
         @php
-            $firstImage=$product->images->get(0);
-            $secondImage = $product->images->get(1);
+            $firstImage = $product->images->get(0);
+            $firstImageExists = false;
+            if ($firstImage && !empty($firstImage->image_path)) {
+                $firstImageExists = file_exists(
+                    public_path('images/product/thumb/' . $firstImage->image_path)
+                );
+            }
         @endphp
         @php
         $purchase_rate = $product->purchase_rate;
@@ -69,7 +74,7 @@
                         @endif
                         <div class="product-img">
                             <a href="{{ url('products/'.$product['slug'].'/'.$lastSegment) }}">
-                                @if ($firstImage)
+                                @if ($firstImage && $firstImageExists)
                                 <picture>
                                     <source
                                         media="(max-width: 767px)"

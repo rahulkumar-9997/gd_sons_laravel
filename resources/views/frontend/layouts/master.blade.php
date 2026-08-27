@@ -95,22 +95,9 @@
 		@yield('main-content')	
 		@include('frontend.layouts.footer')
 		<!-- @include('frontend.pages.partials.cart-drawer') -->
+        @include('frontend.pages.partials.offer-popup')
 		@stack('schema')
 		@include('frontend.layouts.footerjs')
-		@stack('scripts')	
-        <!-- <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function () {
-                navigator.serviceWorker
-                .register('/service-worker.js')
-                .then(function (registration) {
-                    console.log('Service Worker Registered');
-                })
-                .catch(function (error) {
-                    console.log('Service Worker Registration Failed:', error);
-                });
-            });
-        }
-        </script> -->
+		@stack('scripts')	        
 	</body>
 </html>

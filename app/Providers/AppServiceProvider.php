@@ -12,6 +12,7 @@ use App\Http\ViewComposers\CartComposer;
 use App\Http\ViewComposers\SharedDataComposer;
 use App\Http\ViewComposers\CustomerGroupCategoryComposer;
 use Illuminate\Support\Facades\Auth;
+use App\View\Composers\OfferPopupComposer;
 use App\Models\Cart;
 class AppServiceProvider extends ServiceProvider
 {
@@ -139,6 +140,7 @@ class AppServiceProvider extends ServiceProvider
             ],
             SharedDataComposer::class
         );
+        View::composer('frontend.pages.partials.offer-popup', OfferPopupComposer::class);
     }
 
     

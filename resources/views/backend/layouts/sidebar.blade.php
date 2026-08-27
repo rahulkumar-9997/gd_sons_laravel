@@ -79,13 +79,25 @@
             </a>
          </li>
          <li class="nav-item">
-            <a class="nav-link" href="{{ route('manage-coupon.index') }}">
+            <a class="nav-link menu-arrow" href="#sidebarProducts_user" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarProducts_user">
                <span class="nav-icon">
-                  <iconify-icon icon="solar:tag-bold-duotone"></iconify-icon>
+                  <iconify-icon icon="solar:users-group-two-rounded-bold-duotone"></iconify-icon>
                </span>
-               <span class="nav-text">  Manage Coupon </span>
+               <span class="nav-text"> Manage Coupon and Offer </span>
             </a>
+            <div class="collapse" id="sidebarProducts_user">
+               <ul class="nav sub-navbar-nav">
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="{{ route('manage-coupon.index') }}">Coupon</a>
+                  </li>
+                  
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="{{ route('offer-popups.index') }}">Offer Popup</a>
+                  </li>                     
+               </ul>
+            </div>
          </li>
+         
          <li class="nav-item">
             <a class="nav-link menu-arrow" href="#sidebarProducts_user" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarProducts_user">
                <span class="nav-icon">

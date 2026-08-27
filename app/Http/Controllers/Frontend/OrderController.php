@@ -273,12 +273,15 @@ class OrderController extends Controller
             ]);
 
             /*  Decrement inventory (guarded against overselling) */
+            
+            /*
             foreach ($order->orderLines as $line) {
                 Inventory::where('product_id', $line->product_id)
                     ->where('mrp', $line->price)
                     ->where('stock_quantity', '>=', $line->quantity)
                     ->decrement('stock_quantity', $line->quantity);
             }
+            */
             /* Send order-confirmation email */
             $orderDetails = Orders::with([
                 'orderStatus',

@@ -158,8 +158,10 @@
                         </div>-->
 
                             <div class="pb-0 pt-3">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary" id="submitBtn">Save changes</button>
+                                <a href="{{ route('manage-blog.index') }}" class="btn btn-secondary">
+                                    Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
                             </div>
                         </div>
                     </form>

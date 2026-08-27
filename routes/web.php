@@ -47,6 +47,7 @@ use App\Http\Controllers\Backend\ProductReviewBackendController;
 use App\Http\Controllers\Backend\VideoController;
 use App\Http\Controllers\Backend\EnquiryController;
 use App\Http\Controllers\Backend\CouponCodeController;
+use App\Http\Controllers\Backend\OfferPopupController;
 use App\Http\Controllers\Backend\RelatedProductController;
 use App\Http\Controllers\Backend\ShipmentRateController;
 use App\Http\Controllers\Backend\ProductReviewAutoAiGenerateController;
@@ -426,6 +427,8 @@ Route::group(['middleware' => ['admin']], function () {
        
     });	
     Route::Resource('manage-coupon', CouponCodeController::class);
+    Route::Resource('offer-popups', OfferPopupController::class);
+    Route::patch('offer-popups/{offerPopup}/toggle-status', [OfferPopupController::class, 'toggleStatus'])->name('offer-popups.toggle-status');
     Route::Resource('manage-related-product', RelatedProductController::class);
     
     Route::resource('shipment-rate', ShipmentRateController::class);

@@ -1,4 +1,3 @@
-<script src="{{ mix('js/app.js') }}"></script>
 <script src="{{asset('frontend/assets/js/jquery-3.6.0.min.js')}}"></script>
 <script src="{{asset('frontend/assets/js/jquery-ui.min.js')}}"></script>
 <script src="{{asset('frontend/assets/js/bootstrap/bootstrap.bundle.min.js')}}"></script>

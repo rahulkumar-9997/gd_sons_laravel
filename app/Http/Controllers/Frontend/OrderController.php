@@ -404,12 +404,13 @@ class OrderController extends Controller
                 'payment_status'        => 'Paid',
                 'order_status_comment'  => 'complete_order',
             ]);
-            foreach ($order->orderLines as $line) {
+            /*foreach ($order->orderLines as $line) {
                 Inventory::where('product_id', $line->product_id)
                     ->where('mrp', $line->price)
                     ->where('stock_quantity', '>=', $line->quantity)
                     ->decrement('stock_quantity', $line->quantity);
             }
+            */
             $orderDetails = Orders::with([
                 'orderStatus',
                 'shippingAddress',

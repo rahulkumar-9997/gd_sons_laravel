@@ -64,8 +64,7 @@
 	<link rel="preconnect" href="https://www.googletagmanager.com">
 	<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,600;1,400&display=swap"rel="stylesheet">
 	<link rel="stylesheet" href="{{ asset('frontend/css/app.css') }}?v={{ filemtime(public_path('frontend/css/app.css')) }}">
-	<link rel="preload" href="{{asset('frontend/assets/css/vendors/bootstrap.css')}}" as="style"
-		onload="this.onload=null;this.rel='stylesheet'">
+	<link rel="preload" href="{{asset('frontend/assets/css/vendors/bootstrap.css')}}" as="style" onload="this.onload=null;this.rel='stylesheet'">
 	<link rel="stylesheet" type="text/css" href="{{asset('frontend/assets/css/bulk-style.css')}}">
 	<link rel="stylesheet" href="{{asset('frontend/assets/css/style.css')}}?v={{ env('ASSET_VERSION', '1.0.0') }}">
 	<link rel="stylesheet" type="text/css"

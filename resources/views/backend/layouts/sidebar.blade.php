@@ -79,13 +79,13 @@
             </a>
          </li>
          <li class="nav-item">
-            <a class="nav-link menu-arrow" href="#sidebarProducts_user" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarProducts_user">
+            <a class="nav-link menu-arrow" href="#sidebarProducts_offer" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarProducts_offer">
                <span class="nav-icon">
                   <iconify-icon icon="solar:users-group-two-rounded-bold-duotone"></iconify-icon>
                </span>
                <span class="nav-text"> Manage Coupon and Offer </span>
             </a>
-            <div class="collapse" id="sidebarProducts_user">
+            <div class="collapse" id="sidebarProducts_offer">
                <ul class="nav sub-navbar-nav">
                   <li class="sub-nav-item">
                      <a class="sub-nav-link" href="{{ route('manage-coupon.index') }}">Coupon</a>

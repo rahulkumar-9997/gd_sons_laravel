@@ -18,7 +18,7 @@ use Exception;
 class CustomerControllerBackend extends Controller
 {
     public function index(Request $request){
-        $data['customer_list'] = Customer::orderBy('id', 'desc')->paginate(15);
+        $data['customer_list'] = Customer::withCount('orders')->orderBy('id', 'desc')->paginate(15);
         $data['category_group'] = GroupCategories::with('groups')->get();
         if ($request->ajax()) {
             return view('backend.manage-customer.partials.customer-list', compact('data'))->render();

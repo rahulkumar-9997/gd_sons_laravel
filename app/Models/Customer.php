@@ -89,6 +89,10 @@ class Customer extends Authenticatable
     {
         return $this->hasMany(ShiprocketCourier::class);
     }
-    
-    
+
+    public function orders()
+    {
+        return $this->hasMany(Orders::class, 'customer_id');
+    }
+        
 }

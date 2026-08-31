@@ -13,6 +13,8 @@ class DiscountCode extends Model
         'discount_code',
         'mode',
         'discount_value',
+        'category_id',
+        'attributes_value_id',
         'valid_from',
         'valid_till',
         'short_description',

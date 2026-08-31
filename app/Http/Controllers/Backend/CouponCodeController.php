@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\DiscountCode;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Models\Category;
+use App\Models\Attribute_values;
 class CouponCodeController extends Controller
 {
 
@@ -22,6 +24,17 @@ class CouponCodeController extends Controller
         $size = $request->input('size'); 
         $url = $request->input('url'); 
         $coupon_code = $request->input('coupon_code');
+        $categories = Category::orderBy('title')->get(['id', 'title']);
+        $attributeValues = Attribute_values::orderBy('name')->get(['id', 'name']);
+        $categoryOptions = '<option value="">All Categories</option>';
+        foreach ($categories as $cat) {
+            $categoryOptions .= '<option value="'.$cat->id.'">'.e($cat->title).'</option>';
+        }
+
+        $attributeValueOptions = '<option value="">All Attribute Values</option>';
+        foreach ($attributeValues as $val) {
+            $attributeValueOptions .= '<option value="'.$val->id.'">'.e($val->name).'</option>';
+        }
         $form ='
         <div class="modal-body">
             <form action="'.route('manage-coupon.store').'" accept-charset="UTF-8" enctype="multipart/form-data" id="addCouponForm" method="POST">
@@ -55,6 +68,18 @@ class CouponCodeController extends Controller
                         <label class="form-label">Usage Limit</label>
                         <input type="number" name="usage_limit" id="usage_limit" class="form-control" value="1" placeholder="0 = Unlimited">
                         <small class="text-muted">Total times this coupon can be used</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Apply To Category </label>
+                        <select name="category_id" class="form-select" id="category_id">
+                            '.$categoryOptions.'
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Apply To Attribute Value </label>
+                        <select name="attributes_value_id" class="form-select" id="attributes_value_id">
+                            '.$attributeValueOptions.'
+                        </select>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Valid From</label>
@@ -101,6 +126,8 @@ class CouponCodeController extends Controller
             'discount_code'        => 'required|string|max:50|unique:discount_codes,discount_code',
             'mode'                 => 'required|in:Amount,Percentage',
             'discount_value'       => 'required|numeric|min:0.01',
+            'category_id'          => 'nullable|integer|exists:category,id',
+            'attributes_value_id'  => 'nullable|integer|exists:attributes_value,id',
             'minimum_order_value'  => 'nullable|numeric|min:0',
             'maximum_discount'     => 'nullable|numeric|min:0',
             'valid_from'           => 'required|date',
@@ -121,6 +148,8 @@ class CouponCodeController extends Controller
                 'discount_code'       => $request->discount_code,
                 'mode'                => $request->mode,
                 'discount_value'      => $request->discount_value,
+                'category_id'         => $request->category_id ?: null,
+                'attributes_value_id' => $request->attributes_value_id ?: null,
                 'minimum_order_value' => $request->minimum_order_value ?? 0,
                 'maximum_discount'    => $request->maximum_discount ?? 0,
                 'valid_from'          => $request->valid_from,
@@ -156,6 +185,20 @@ class CouponCodeController extends Controller
     public function edit(Request $request, $id)
     {
         $coupons_row = DiscountCode::findOrFail($id);
+        $categories = Category::orderBy('title')->get(['id', 'title']);
+        $attributeValues = Attribute_values::orderBy('name')->get(['id', 'name']);
+
+        $categoryOptions = '<option value="">All Categories</option>';
+        foreach ($categories as $cat) {
+            $selected = ($coupons_row->category_id == $cat->id) ? 'selected' : '';
+            $categoryOptions .= '<option value="'.$cat->id.'" '.$selected.'>'.e($cat->title).'</option>';
+        }
+
+        $attributeValueOptions = '<option value="">All Attribute Values</option>';
+        foreach ($attributeValues as $val) {
+            $selected = ($coupons_row->attributes_value_id == $val->id) ? 'selected' : '';
+            $attributeValueOptions .= '<option value="'.$val->id.'" '.$selected.'>'.e($val->name).'</option>';
+        }
         $form = '
         <div class="modal-body">
             <form action="'.route('manage-coupon.update', $coupons_row->id).'" 
@@ -200,6 +243,18 @@ class CouponCodeController extends Controller
                         <label class="form-label">Usage Limit</label>
                         <input type="number" name="usage_limit" id="usage_limit" class="form-control" value="'.$coupons_row->usage_limit.'" placeholder="0 = Unlimited">
                         <small class="text-muted">Total times this coupon can be used</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Apply To Category </label>
+                        <select name="category_id" class="form-select" id="category_id">
+                            '.$categoryOptions.'
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Apply To Attribute Value </label>
+                        <select name="attributes_value_id" class="form-select" id="attributes_value_id">
+                            '.$attributeValueOptions.'
+                        </select>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Valid From</label>
@@ -260,6 +315,8 @@ class CouponCodeController extends Controller
             'discount_code'        => 'required|string|max:50|unique:discount_codes,discount_code,' . $coupon->id,
             'mode'                 => 'required|in:Amount,Percentage',
             'discount_value'       => 'required|numeric|min:0.01',
+            'category_id'          => 'nullable|integer|exists:category,id',
+            'attributes_value_id'  => 'nullable|integer|exists:attributes_value,id',
             'minimum_order_value'  => 'nullable|numeric|min:0',
             'maximum_discount'     => 'nullable|numeric|min:0',
             'valid_from'           => 'required|date',
@@ -280,6 +337,8 @@ class CouponCodeController extends Controller
                 'discount_code'       => $request->discount_code,
                 'mode'                => $request->mode,
                 'discount_value'      => $request->discount_value,
+                'category_id'         => $request->category_id ?: null,
+                'attributes_value_id' => $request->attributes_value_id ?: null,
                 'minimum_order_value' => $request->minimum_order_value ?? 0,
                 'maximum_discount'    => $request->maximum_discount ?? 0,
                 'valid_from'          => $request->valid_from,

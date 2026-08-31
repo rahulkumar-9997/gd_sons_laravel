@@ -36,7 +36,7 @@ class DiscountCode extends Model
         'is_cod_available' => 'boolean',
     ];
 
-     public function canUse($customerId = null, $ip = null)
+    public function canUse($customerId = null, $ip = null)
     {
         if (!$this->is_active || 
             Carbon::now()->lt($this->valid_from) || 
@@ -82,5 +82,37 @@ class DiscountCode extends Model
         }
         $this->total_used = $this->total_used + 1;        
         return $this->save();
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function attributeValue()
+    {
+        return $this->belongsTo(Attribute_values::class, 'attributes_value_id');
+    }
+
+    /**
+     * No category_id/attributes_value_id set on the coupon = applies to everything.
+     * If set, product must match to be eligible.
+     */
+    public function appliesToProduct(Product $product): bool
+    {
+        if ($this->category_id && (int) $this->category_id !== (int) $product->category_id) {
+            return false;
+        }
+
+        if ($this->attributes_value_id) {
+            $hasValue = ProductAttributesValues::where('product_id', $product->id)
+                ->where('attributes_value_id', $this->attributes_value_id)
+                ->exists();
+
+            if (!$hasValue) {
+                return false;
+            }
+        }
+        return true;
     }
 }

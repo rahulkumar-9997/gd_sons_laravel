@@ -142,7 +142,7 @@ $(document).ready(function () {
                 product_id: productId,
                 page: currentReviewPage,
                 _token: $('meta[name="csrf-token"]').attr('content')            },
-            success: function (response) {
+                success: function (response) {
                 if (response.success) {
                     if (append) {
                         $('#review-catalog-frontend').append(response.reviews);
@@ -155,6 +155,9 @@ $(document).ready(function () {
                             .data('next-page', response.nextPage);
                     } else {
                         $('#load-more-reviews').hide();
+                    }
+                    if (typeof feather !== 'undefined') {
+                        feather.replace();
                     }
                 }
                 hideLoadMoreButtonLoader();

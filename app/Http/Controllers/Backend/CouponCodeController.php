@@ -17,25 +17,8 @@ class CouponCodeController extends Controller
     public function index()
     {
         /** @var LengthAwarePaginator $coupons */
-        $coupons = DiscountCode::with('category')
-            ->latest()
-            ->paginate(20);
-        $couponCollection = $coupons->getCollection();
-        $attributeValueIds = $couponCollection
-            ->pluck('attributes_value_id')
-            ->filter()
-            ->unique();
-
-        $attributeValues = DB::table('attributes_value')
-            ->whereIn('id', $attributeValueIds)
-            ->get(['id', 'name', 'slug'])
-            ->keyBy('id');
-
-        $couponCollection->each(function ($coupon) use ($attributeValues) {
-            $match = $attributeValues->get($coupon->attributes_value_id);
-            $coupon->attribute_value_title = optional($match)->name;
-            $coupon->attribute_value_slug = optional($match)->slug;
-        });
+        $coupons = DiscountCode::with('category')->latest()->paginate(20);
+        $coupons = $this->attachAttributeValueMeta($coupons);
         return view('backend.manage-coupon.index', compact('coupons'));
     }
 
@@ -182,7 +165,8 @@ class CouponCodeController extends Controller
             ]);
             DB::commit();
             if($coupon){
-                $coupons = DiscountCode::latest()->paginate(20);
+                $coupons = DiscountCode::with('category')->latest()->paginate(20);
+                $coupons = $this->attachAttributeValueMeta($coupons);
                 return response()->json([
                     'message' => 'Coupon created successfully',
                     'status' => 'success',
@@ -371,7 +355,8 @@ class CouponCodeController extends Controller
             ]);
             DB::commit();
             if ($updated) {
-                $coupons = DiscountCode::latest()->paginate(20);
+                $coupons = DiscountCode::with('category')->latest()->paginate(20);
+                $coupons = $this->attachAttributeValueMeta($coupons);
                 return response()->json([
                     'message'       => 'Coupon updated successfully',
                     'status'        => 'success',
@@ -410,6 +395,28 @@ class CouponCodeController extends Controller
                 ->route('manage-coupon.index')
                 ->with('error', 'Something went wrong while deleting coupon');
         }
+    }
+
+    private function attachAttributeValueMeta($coupons)
+    {
+        $couponCollection = $coupons->getCollection();
+        $attributeValueIds = $couponCollection
+            ->pluck('attributes_value_id')
+            ->filter()
+            ->unique();
+
+        $attributeValues = DB::table('attributes_value')
+            ->whereIn('id', $attributeValueIds)
+            ->get(['id', 'name', 'slug'])
+            ->keyBy('id');
+
+        $couponCollection->each(function ($coupon) use ($attributeValues) {
+            $match = $attributeValues->get($coupon->attributes_value_id);
+            $coupon->attribute_value_title = optional($match)->name;
+            $coupon->attribute_value_slug = optional($match)->slug;
+        });
+
+        return $coupons;
     }
 
 }

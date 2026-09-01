@@ -94,10 +94,6 @@ class DiscountCode extends Model
         return $this->belongsTo(Attribute_values::class, 'attributes_value_id');
     }
 
-    /**
-     * No category_id/attributes_value_id set on the coupon = applies to everything.
-     * If set, product must match to be eligible.
-     */
     public function appliesToProduct(Product $product): bool
     {
         if ($this->category_id && (int) $this->category_id !== (int) $product->category_id) {
@@ -113,6 +109,17 @@ class DiscountCode extends Model
                 return false;
             }
         }
+
         return true;
+    }
+
+    public function appliesToCart(array $productIds): bool
+    {
+        if (!$this->category_id && !$this->attributes_value_id) {
+            return true;
+        }
+        return Product::whereIn('id', $productIds)
+            ->get()
+            ->contains(fn ($product) => $this->appliesToProduct($product));
     }
 }

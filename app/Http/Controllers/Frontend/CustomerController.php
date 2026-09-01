@@ -1073,8 +1073,95 @@ class CustomerController extends Controller
         ]);
     }
 
-
     public function applyCoupon(Request $request)
+    {
+        $request->validate([
+            'coupon_code' => 'required|string',
+            'subtotal' => 'required|numeric',
+            'shipping' => 'required|numeric',
+            'payment_type' => 'required|string',
+            'pincode' => 'nullable|string'
+        ]);
+        $customer = Auth::guard('customer')->user();
+        $customerId = $customer ? $customer->id : null;
+        $userIp = $request->ip();
+        $coupon = DiscountCode::where('discount_code', $request->coupon_code)
+            ->where('is_active', true)
+            ->where('valid_from', '<=', Carbon::now())
+            ->where('valid_till', '>=', Carbon::now())
+            ->first();
+        if (!$coupon) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired coupon code'
+            ]);
+        }
+        if (!$coupon->canUse($customerId, $userIp)) {
+            $message = 'This coupon cannot be used anymore';
+            if ($coupon->usage_limit > 0 && $coupon->total_used >= $coupon->usage_limit) {
+                $message = 'This coupon has reached its maximum usage limit';
+            } elseif ($customerId && $coupon->used_by_customers) {
+                $usedCustomers = explode(',', $coupon->used_by_customers);
+                if (in_array($customerId, $usedCustomers)) {
+                    $message = 'You have already used this coupon';
+                }
+            } elseif ($userIp && $coupon->used_by_ips) {
+                $usedIps = explode(',', $coupon->used_by_ips);
+                if (in_array($userIp, $usedIps)) {
+                    $message = 'You have already used this coupon';
+                }
+            }            
+            return response()->json([
+                'success' => false,
+                'message' => $message
+            ]);
+        }
+
+        $sessionCart = session('cart', []);
+        $productIds = array_keys($sessionCart);
+        if (!$coupon->appliesToCart($productIds)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This coupon is not valid for the items in your cart.'
+            ]);
+        }
+
+        if ($request->subtotal < $coupon->minimum_order_value) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Minimum order value should be Rs. ' . $coupon->minimum_order_value
+            ]);
+        }
+
+        $discountAmount = 0;
+        if ($coupon->mode === 'Percentage') {
+            $discountAmount = ($request->subtotal * $coupon->discount_value) / 100;
+            if ($coupon->maximum_discount && $discountAmount > $coupon->maximum_discount) {
+                $discountAmount = $coupon->maximum_discount;
+            }
+        } else {
+            $discountAmount = $coupon->discount_value;
+        }
+        session([
+            'applied_coupon' => [
+                'code' => $coupon->discount_code,
+                'discount_amount' => $discountAmount,
+                'mode' => $coupon->mode,
+                'value' => $coupon->discount_value,
+                'id' => $coupon->id,
+                'is_cod_available' => (int) $coupon->is_cod_available, 
+            ]
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Coupon applied successfully!',
+            'discount_amount' => $discountAmount,
+            'coupon_code' => $coupon->discount_code,
+            'is_cod_available'  => (int) $coupon->is_cod_available,            
+        ]);
+    }
+    public function applyCoupon_old_01_09_2026(Request $request)
     {
         $request->validate([
             'coupon_code' => 'required|string',

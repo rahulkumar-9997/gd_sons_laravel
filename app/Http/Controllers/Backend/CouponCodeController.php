@@ -9,12 +9,33 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\Category;
 use App\Models\Attribute_values;
+use Illuminate\Pagination\LengthAwarePaginator;
+
 class CouponCodeController extends Controller
 {
 
     public function index()
     {
-        $coupons = DiscountCode::latest()->paginate(20);
+        /** @var LengthAwarePaginator $coupons */
+        $coupons = DiscountCode::with('category')
+            ->latest()
+            ->paginate(20);
+        $couponCollection = $coupons->getCollection();
+        $attributeValueIds = $couponCollection
+            ->pluck('attributes_value_id')
+            ->filter()
+            ->unique();
+
+        $attributeValues = DB::table('attributes_value')
+            ->whereIn('id', $attributeValueIds)
+            ->get(['id', 'name', 'slug'])
+            ->keyBy('id');
+
+        $couponCollection->each(function ($coupon) use ($attributeValues) {
+            $match = $attributeValues->get($coupon->attributes_value_id);
+            $coupon->attribute_value_title = optional($match)->name;
+            $coupon->attribute_value_slug = optional($match)->slug;
+        });
         return view('backend.manage-coupon.index', compact('coupons'));
     }
 

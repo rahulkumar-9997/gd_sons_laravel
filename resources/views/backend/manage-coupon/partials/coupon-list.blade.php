@@ -7,6 +7,7 @@
                 <th>Code</th>
                 <th>Mode</th>
                 <th>Value</th>
+                <th>Applies To</th>
                 <th>Min Order</th>
                 <th>Max Discount</th>
                 <th>Valid From</th>
@@ -25,9 +26,33 @@
                 <td>{{ $row->mode }}</td>
                 <td>
                     @if($row->mode == 'Percentage')
-                        {{ $row->discount_value }} %
+                    {{ $row->discount_value }} %
                     @else
-                        ₹ {{ $row->discount_value }}
+                    ₹ {{ $row->discount_value }}
+                    @endif
+                </td>
+                <td>
+                    @if($row->category_id || $row->attributes_value_id)
+                    <div class="d-flex flex-column gap-1">
+                        @if($row->category)
+                        <span class="badge bg-secondary">
+                            {{ $row->category->title }}
+                            @if($row->category->slug)
+                            <small class="text-white-50">({{ $row->category->slug }})</small>
+                            @endif
+                        </span>
+                        @endif
+                        @if($row->attribute_value_title)
+                        <span class="badge bg-secondary">
+                            {{ $row->attribute_value_title }}
+                            @if($row->attribute_value_slug)
+                            <small class="text-white-50">({{ $row->attribute_value_slug }})</small>
+                            @endif
+                        </span>
+                        @endif
+                    </div>
+                    @else
+                    <span class="badge bg-info">All Products</span>
                     @endif
                 </td>
                 <td>₹ {{ $row->minimum_order_value }}</td>
@@ -40,9 +65,9 @@
                 </td>
                 <td>
                     @if($row->is_cod_available)
-                        <span class="badge bg-success">Yes</span>
+                    <span class="badge bg-success">Yes</span>
                     @else
-                        <span class="badge bg-danger">No</span>
+                    <span class="badge bg-danger">No</span>
                     @endif
                 </td>
                 <td>
@@ -55,19 +80,19 @@
                                 {{ $row->is_active ? 'checked' : '' }}>
                         </div>
                         @if($row->usage_limit > 0 && $row->total_used >= $row->usage_limit)
-                            <span class="badge bg-danger">
-                                Usage limit reached
-                            </span>
+                        <span class="badge bg-danger">
+                            Usage limit reached
+                        </span>
                         @else
-                            @if($row->usage_limit > 0)
-                                <span class="badge bg-success">
-                                    {{ $row->usage_limit - $row->total_used }} left
-                                </span>
-                            @else
-                                <span class="badge bg-info">
-                                    Unlimited
-                                </span>
-                            @endif
+                        @if($row->usage_limit > 0)
+                        <span class="badge bg-success">
+                            {{ $row->usage_limit - $row->total_used }} left
+                        </span>
+                        @else
+                        <span class="badge bg-info">
+                            Unlimited
+                        </span>
+                        @endif
                         @endif
                     </div>
                 </td>
@@ -83,12 +108,12 @@
                             <i class="ti ti-pencil"></i>
                         </a>
                         <form method="POST"
-                              action="{{ route('manage-coupon.destroy', $row->id) }}">
+                            action="{{ route('manage-coupon.destroy', $row->id) }}">
                             @csrf
                             @method('DELETE')
                             <a href="javascript:void(0);"
-                               class="btn btn-soft-danger btn-sm show_confirm"
-                               data-name="{{ $row->discount_code }}">
+                                class="btn btn-soft-danger btn-sm show_confirm"
+                                data-name="{{ $row->discount_code }}">
                                 <i class="ti ti-trash"></i>
                             </a>
                         </form>

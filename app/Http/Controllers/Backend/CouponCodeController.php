@@ -13,7 +13,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class CouponCodeController extends Controller
 {
-
     public function index()
     {
         /** @var LengthAwarePaginator $coupons */
@@ -29,16 +28,13 @@ class CouponCodeController extends Controller
         $url = $request->input('url'); 
         $coupon_code = $request->input('coupon_code');
         $categories = Category::orderBy('title')->get(['id', 'title']);
-        $attributeValues = Attribute_values::orderBy('name')->get(['id', 'name']);
+       
         $categoryOptions = '<option value="">All Categories</option>';
         foreach ($categories as $cat) {
             $categoryOptions .= '<option value="'.$cat->id.'">'.e($cat->title).'</option>';
         }
 
         $attributeValueOptions = '<option value="">All Attribute Values</option>';
-        foreach ($attributeValues as $val) {
-            $attributeValueOptions .= '<option value="'.$val->id.'">'.e($val->name).'</option>';
-        }
         $form ='
         <div class="modal-body">
             <form action="'.route('manage-coupon.store').'" accept-charset="UTF-8" enctype="multipart/form-data" id="addCouponForm" method="POST">
@@ -191,7 +187,6 @@ class CouponCodeController extends Controller
     {
         $coupons_row = DiscountCode::findOrFail($id);
         $categories = Category::orderBy('title')->get(['id', 'title']);
-        $attributeValues = Attribute_values::orderBy('name')->get(['id', 'name']);
 
         $categoryOptions = '<option value="">All Categories</option>';
         foreach ($categories as $cat) {
@@ -200,9 +195,27 @@ class CouponCodeController extends Controller
         }
 
         $attributeValueOptions = '<option value="">All Attribute Values</option>';
-        foreach ($attributeValues as $val) {
-            $selected = ($coupons_row->attributes_value_id == $val->id) ? 'selected' : '';
-            $attributeValueOptions .= '<option value="'.$val->id.'" '.$selected.'>'.e($val->name).'</option>';
+        if ($coupons_row->category_id) {
+            $mappedIds = DB::table('map_attributes_values_to_category')
+                ->where('category_id', $coupons_row->category_id)
+                ->pluck('attributes_value_id');
+
+            $mappedValues = Attribute_values::with('attribute')
+                ->whereIn('id', $mappedIds)
+                ->orderBy('name')
+                ->get();
+
+            foreach ($mappedValues as $val) {
+                $selected = ($coupons_row->attributes_value_id == $val->id) ? 'selected' : '';
+                $label = $val->name . ($val->attribute ? ' — '.$val->attribute->title : '');
+                $attributeValueOptions .= '<option value="'.$val->id.'" '.$selected.'>'.e($label).'</option>';
+            }
+        } elseif ($coupons_row->attributes_value_id) {
+            $selectedValue = Attribute_values::with('attribute')->find($coupons_row->attributes_value_id);
+            if ($selectedValue) {
+                $label = $selectedValue->name . ($selectedValue->attribute ? ' — '.$selectedValue->attribute->title : '');
+                $attributeValueOptions .= '<option value="'.$selectedValue->id.'" selected>'.e($label).'</option>';
+            }
         }
         $form = '
         <div class="modal-body">
@@ -376,6 +389,30 @@ class CouponCodeController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function searchAttributeValues(Request $request)
+    {
+        $categoryId = $request->input('category_id');
+
+        if (!$categoryId) {
+            return response()->json(['results' => []]);
+        }
+
+        $mappedIds = DB::table('map_attributes_values_to_category')
+            ->where('category_id', $categoryId)
+            ->pluck('attributes_value_id');
+
+        $results = Attribute_values::with('attribute')
+            ->whereIn('id', $mappedIds)
+            ->orderBy('name')
+            ->get()
+            ->map(fn ($val) => [
+                'id'   => $val->id,
+                'text' => $val->name . ($val->attribute ? ' — '.$val->attribute->title : ''),
+            ]);
+
+        return response()->json(['results' => $results]);
     }
 
     public function destroy(Request $request, $id)

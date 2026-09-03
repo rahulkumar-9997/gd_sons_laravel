@@ -192,6 +192,7 @@ $(document).ready(function () {
             }
         });
     });
+
     $(document).on('click', '.show_confirm', function (event) {
         var form = $(this).closest("form");
         var name = $(this).data("name");
@@ -208,6 +209,38 @@ $(document).ready(function () {
         }).then((result) => {
             if (result.isConfirmed) {
                 form.submit();
+            }
+        });
+    });
+
+    $(document).on('change', '#commanModel #category_id', function () {
+        var categoryId = $(this).val();
+        var $attrSelect = $('#commanModel #attributes_value_id');
+
+        if (!$attrSelect.length) {
+            return;
+        }
+
+        if (!categoryId) {
+            $attrSelect.html('<option value="">All Attribute Values</option>');
+            return;
+        }
+
+        $attrSelect.prop('disabled', true).html('<option value="">Loading…</option>');
+
+        $.ajax({
+            url: window.attributeValueSearchUrl,
+            type: 'GET',
+            data: { category_id: categoryId },
+            success: function (response) {
+                var options = '<option value="">All Attribute Values</option>';
+                (response.results || []).forEach(function (item) {
+                    options += '<option value="' + item.id + '">' + item.text + '</option>';
+                });
+                $attrSelect.prop('disabled', false).html(options);
+            },
+            error: function () {
+                $attrSelect.prop('disabled', false).html('<option value="">All Attribute Values</option>');
             }
         });
     });

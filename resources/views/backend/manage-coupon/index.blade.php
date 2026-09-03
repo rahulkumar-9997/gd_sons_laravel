@@ -2,7 +2,8 @@
 @section('title','Manage Coupon')
 @section('main-content')
 @push('styles')
-
+<link href="{{asset('backend/assets/plugins/select2/select2.css')}}" rel="stylesheet" type="text/css" media="screen"/>
+<link href="{{asset('backend/assets/plugins/multi-select/css/multi-select.css')}}" rel="stylesheet" type="text/css" media="screen"/>   
 @endpush
 <div class="container-fluid">
    <div class="row">
@@ -25,9 +26,16 @@
       </div>
    </div>
 </div>
+
 @include('backend.layouts.common-modal-form')
 @endsection
 @push('scripts')
+<script src="{{asset('backend/assets/plugins/select2/select2.min.js')}}" type="text/javascript"></script>
+<!-- <script src="{{asset('backend/assets/plugins/multi-select/js/jquery.multi-select.js')}}" type="text/javascript"></script> -->
+<!-- <script src="{{asset('backend/assets/plugins/multi-select/js/jquery.quicksearch.js')}}" type="text/javascript"></script>  -->
+<script>
+    window.attributeValueSearchUrl = "{{ route('manage-coupon.attribute-values.search') }}";
+</script>
 <script src="{{asset('backend/assets/js/components/form-flatepicker.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 <script src="{{asset('backend/assets/js/pages/manage-coupon.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 @endpush

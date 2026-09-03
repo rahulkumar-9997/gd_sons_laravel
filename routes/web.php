@@ -427,6 +427,7 @@ Route::group(['middleware' => ['admin']], function () {
        
     });	
     Route::Resource('manage-coupon', CouponCodeController::class);
+    Route::get('manage-coupon/attribute-values/search', [CouponCodeController::class, 'searchAttributeValues'])->name('manage-coupon.attribute-values.search');
     Route::Resource('offer-popups', OfferPopupController::class);
     Route::patch('offer-popups/{offerPopup}/toggle-status', [OfferPopupController::class, 'toggleStatus'])->name('offer-popups.toggle-status');
     Route::Resource('manage-related-product', RelatedProductController::class);

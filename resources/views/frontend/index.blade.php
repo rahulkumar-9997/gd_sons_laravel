@@ -385,7 +385,10 @@
     </div>
 </section>
 
-<section class="why-choose-section bg-gray-50 pb-5">
+<section class="why-choose-section pb-5 w-full overflow-hidden relative bg-gradient-to-br from-white via-[#FFFDF8] to-[#F7E9C7]">
+    <div class="absolute inset-0 pointer-events-none opacity-20" 
+         style="background-image: radial-gradient(circle, #8b0b13 1px, transparent 1px); background-size: 22px 22px;">
+    </div>
     <div class="container-fluid-lg">
         <div class="flex flex-col lg:flex-row gap-8 items-center">
             <div class="choose-card relative bg-[#0f1e36] p-10 lg:w-[480px] flex flex-col justify-between overflow-hidden shadow-2xl rounded-[16px]">
@@ -533,7 +536,7 @@
                     !empty($product['height']) &&
                     !empty($product['weight']);
                 @endphp 
-                <div class="product-card bg-white rounded-2xl p-2">
+                <div class="product-card bg-white rounded-xl p-2">
                     <a href="{{ url('products/'.$product['slug'].'/'.$product['attributes_value_slug']) }}">
                         <div class="flex items-center gap-2">
                             @php
@@ -557,7 +560,7 @@
                                     style="opacity: 1;">
                             </picture>                            
                             <div class="flex-1 min-w-0">
-                                <div class="text-[13px] font-semibold tracking-widest text-primary-navy mb-1">
+                                <div class="text-[13px] font-semibold text-primary-navy mb-1">
                                     {{ $product['category_title'] }}
                                 </div>
                                 <div class="product-detail">

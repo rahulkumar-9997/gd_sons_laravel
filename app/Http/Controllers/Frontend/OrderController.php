@@ -262,6 +262,9 @@ class OrderController extends Controller
                 throw new \Exception('Payment not captured. Status: ' . $payment->status);
             }
             $order = Orders::with('customer')->findOrFail($input['order_db_id']);
+            /*Track coupon usage */
+            $this->trackCouponUsage($order);
+            /* ── Update order with Razorpay details and mark as paid */
             $order->update([
                 'razorpay_payment_id'  => $input['razorpay_payment_id'],
                 'razorpay_order_id'    => $input['razorpay_order_id'],
@@ -713,8 +716,6 @@ class OrderController extends Controller
                 'billing_address_id'  => $billingAddressId,
                 'order_status_id'     => $orderStatus->id,
             ]);
-            $this->trackCouponUsage($order);
-            // ── Order lines (server-recalculated prices from session cart_items) ─
             foreach (session('cart_items', []) as $item) {
                 OrderLines::create([
                     'order_id'    => $order->id,
@@ -739,6 +740,8 @@ class OrderController extends Controller
                 ]);
             }
             if ($paymentType === 'Cash on Delivery' || $paymentType === 'Pick Up From Store') {
+                /*Coupon submit */
+                $this->trackCouponUsage($order);
                 $order->update(['order_status_comment' => 'complete_order']);
                 $orderDetails = Orders::with([
                     'orderStatus',
@@ -771,7 +774,6 @@ class OrderController extends Controller
                 foreach (array_unique($recipientEmails) as $email) {
                     Mail::to($email)->queue(new OrderDetailMailForAdmin($orderDetails, $resolvedName));
                 }
-
                 $waPayload = array_merge($checkoutData, [
                     'ship_full_name'         => $resolvedName,
                     'ship_email'             => $resolvedEmail,

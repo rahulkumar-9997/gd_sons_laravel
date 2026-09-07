@@ -1132,7 +1132,6 @@ class CustomerController extends Controller
                 'message' => 'Minimum order value should be Rs. ' . $coupon->minimum_order_value
             ]);
         }
-
         $discountAmount = 0;
         if ($coupon->mode === 'Percentage') {
             $discountAmount = ($request->subtotal * $coupon->discount_value) / 100;

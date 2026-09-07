@@ -16,9 +16,6 @@
         $btn.html(
             '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Applying...',
         ).prop("disabled", true);
-        $("button[type='submit']")
-            .prop("disabled", true)
-            .addClass("btn-loading");
 
         applyCoupon(couponCode, $btn, originalText);
     });
@@ -30,6 +27,7 @@
             parseFloat($("#shipping_amount").text().replace(/,/g, "")) || 0;
         let paymentType = $("input[name='payment_type']:checked").val();
         let pincode = $("#checkout_pincode").val().trim();
+
         $.ajax({
             url: window.applyCouponUrl,
             type: "POST",
@@ -61,15 +59,14 @@
                                 '<button type="button" class="btn-close float-end" id="remove-coupon-btn" aria-label="Close"></button>',
                         );
                     }
+                    
                     /* COD SHOW/HIDE BASED ON COUPON'S is_cod_available */
                     if (parseInt(res.is_cod_available) === 1) {
                         $("#cod-payment-option").fadeIn(300);
                     } else {
                         $("#cod-payment-option").fadeOut(300);
                         if ($("#payment_cod").is(":checked")) {
-                            $("#payment_razorpay")
-                                .prop("checked", true)
-                                .trigger("change");
+                            $("#payment_razorpay").prop("checked", true).trigger("change");
                         }
                     }
                     /* END COD TOGGLE */
@@ -84,16 +81,9 @@
                         setTimeout(function () {
                             handleServiceabilityCheck(pincode);
                         }, 300);
-                    } else {
-                        $("button[type='submit']")
-                            .prop("disabled", false)
-                            .removeClass("btn-loading");
                     }
                 } else {
                     showNotificationAll("warning", "Warning", res.message);
-                    $("button[type='submit']")
-                        .prop("disabled", false)
-                        .removeClass("btn-loading");
                 }
             },
             error: function () {
@@ -102,9 +92,6 @@
                     "Warning",
                     "Error applying coupon",
                 );
-                $("button[type='submit']")
-                    .prop("disabled", false)
-                    .removeClass("btn-loading");
             },
             complete: function () {
                 if ($btn && originalText) {
@@ -153,9 +140,7 @@
         $btn.html(
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>',
         ).prop("disabled", true);
-        $("button[type='submit']")
-            .prop("disabled", true)
-            .addClass("btn-loading");
+
         $.ajax({
             url: window.removeCouponUrl,
             type: "POST",
@@ -169,7 +154,9 @@
                     $("#applied-coupon-alert").slideUp(300, function () {
                         $(this).remove();
                     });
+                    /* SHOW COD PAYMENT OPTION AGAIN ON COUPON REMOVE */
                     $("#cod-payment-option").fadeIn(300);
+                    
                     let subtotal =
                         parseFloat(
                             $("#subtotal_amount").text().replace(/,/g, ""),
@@ -184,26 +171,13 @@
                         setTimeout(function () {
                             handleServiceabilityCheck(pincode);
                         }, 300);
-                    } else {
-                        $("button[type='submit']")
-                            .prop("disabled", false)
-                            .removeClass("btn-loading");
                     }
                     showNotificationAll(
                         "success",
                         "Success",
                         "Coupon removed successfully",
                     );
-                } else {
-                    $("button[type='submit']")
-                        .prop("disabled", false)
-                        .removeClass("btn-loading");
                 }
-            },
-            error: function () {
-                $("button[type='submit']")
-                    .prop("disabled", false)
-                    .removeClass("btn-loading");
             },
             complete: function () {
                 $btn.html(originalHtml).prop("disabled", false);
@@ -278,10 +252,15 @@
             console.error("cart_items_json input not found!");
             return;
         }
+
         let cartItems = JSON.parse(cartJsonInput.val());
+        //let totalWeight = calculateTotalWeight(cartItems);
+
         $("#shipping_status").html("Checking serviceability...");
         $("#shipping_loader").fadeIn(200);
+
         let cod = paymentType === "Cash on Delivery" ? 1 : 0;
+
         $.ajax({
             url: window.shiprocketCheckUrl,
             type: "POST",
@@ -299,6 +278,7 @@
             },
             success: function (res) {
                 $("#shipping_loader").fadeOut(200);
+
                 if (!res.success) {
                     $("#courier_partner")
                         .html(
@@ -311,6 +291,7 @@
                 }
                 $("#checkout-sidebar").fadeOut(200, function () {
                     $(this).html(res.checkout_sidebar).fadeIn(300);
+
                     let discount =
                         parseFloat($("#coupon_discount_amount").val()) || 0;
                     if (discount > 0) {
@@ -324,25 +305,25 @@
                             ) || 0;
                         updateTotalsWithCoupon(shipping, discount, subtotal);
                     }
+
                     placeOrderBtn
                         .prop("disabled", false)
                         .removeClass("btn-loading");
+
                     let first = $(".shipping_radio:checked");
-                    console.log(
-                        "DEBUG: shipping_radio:checked count =",
-                        first.length,
-                        "rate =",
-                        first.data("rate"),
-                    );
-                    if (first.length) {
-                        first.trigger("change");
-                        let shippingRate = parseFloat(first.data("rate")) || 0;
-                        gtag("event", "shipping_calculated", {
-                            currency: "INR",
-                            shipping_amount: shippingRate,
-                            pincode: pincode,
-                        });
-                    }
+					console.log("DEBUG: shipping_radio:checked count =", first.length, "rate =", first.data("rate"));
+
+					if (first.length) {
+						first.trigger("change");
+
+						// GA4: shipping cost shown to user
+						let shippingRate = parseFloat(first.data("rate")) || 0;
+						gtag('event', 'shipping_calculated', {
+							currency: "INR",
+							shipping_amount: shippingRate,
+							pincode: pincode
+						});
+					}
                 });
             },
             error: function () {
@@ -390,6 +371,7 @@
         } else {
             pincode = $("#checkout_pincode").val().trim();
         }
+
         if (pincode && /^\d{6}$/.test(pincode)) {
             handleServiceabilityCheck(pincode);
         }
@@ -402,12 +384,15 @@
             let qty = parseFloat(i.qty) || 1;
             let physicalWeight = parseFloat(i.weight) || 0;
             let volWeight = 0;
+
             if (i.length > 0 && i.breadth > 0 && i.height > 0) {
                 volWeight = (i.length * i.breadth * i.height) / 5000;
             }
+
             let finalWeight = Math.max(physicalWeight, volWeight);
             totalWeight += finalWeight * qty;
         });
+
         return totalWeight;
     }
 
@@ -420,6 +405,7 @@
         let courierId = $(this).data("courier-id") || "";
         let delivery_expected_date =
             $(this).data("courier-delivery-expected-date") || "";
+
         updateTotals(shipping);
 
         $("#selected_courier_name").val(courierName);
@@ -462,19 +448,13 @@
             } else {
                 $("#cod-payment-option").hide();
                 if ($("#payment_cod").is(":checked")) {
-                    $("#payment_razorpay")
-                        .prop("checked", true)
-                        .trigger("change");
+                    $("#payment_razorpay").prop("checked", true).trigger("change");
                 }
             }
         }
     });
-    $(document).on("submit", "#checkoutFormSubmit", function (e) {
-        if ($("button[type='submit']").prop("disabled")) {
-            e.preventDefault();
-            return false;
-        }
-    });
+
+    /* Get Locality Details from shiprocket api with Debounce */
     let localityTimer;
     $(document).on(
         "keyup",

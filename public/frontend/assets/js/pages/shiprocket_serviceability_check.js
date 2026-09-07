@@ -22,6 +22,18 @@
 
         applyCoupon(couponCode, $btn, originalText);
     });
+	
+	function getCurrentPincode() {
+		let fieldVal = ($("#checkout_pincode").val() || "").trim();
+		if (fieldVal) return fieldVal;
+
+		let selectedAddress = $(".exiting_customer_address_radio:checked");
+		if (selectedAddress.length) {
+			return (selectedAddress.data("pincode") || "").toString().trim();
+		}
+		return "";
+	}
+	
     /* COUPON APPLY FUNCTION */
     function applyCoupon(couponCode, $btn, originalText) {
         let subtotal =
@@ -29,7 +41,8 @@
         let shipping =
             parseFloat($("#shipping_amount").text().replace(/,/g, "")) || 0;
         let paymentType = $("input[name='payment_type']:checked").val();
-        let pincode = $("#checkout_pincode").val().trim();
+        //let pincode = $("#checkout_pincode").val().trim();
+		let pincode = getCurrentPincode();
         $.ajax({
             url: window.applyCouponUrl,
             type: "POST",

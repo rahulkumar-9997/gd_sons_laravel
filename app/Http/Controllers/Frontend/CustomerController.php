@@ -1096,21 +1096,24 @@ class CustomerController extends Controller
                 'message' => 'Invalid or expired coupon code'
             ]);
         }
-        if (!$coupon->canUse($customerId, $userIp)) {
+        if (!$coupon->canActive($customerId, $userIp)) {
             $message = 'This coupon cannot be used anymore';
             if ($coupon->usage_limit > 0 && $coupon->total_used >= $coupon->usage_limit) {
                 $message = 'This coupon has reached its maximum usage limit';
-            } elseif ($customerId && $coupon->used_by_customers) {
+            } 
+            /*elseif ($customerId && $coupon->used_by_customers) {
                 $usedCustomers = explode(',', $coupon->used_by_customers);
                 if (in_array($customerId, $usedCustomers)) {
                     $message = 'You have already used this coupon';
                 }
-            } elseif ($userIp && $coupon->used_by_ips) {
+            } 
+            elseif ($userIp && $coupon->used_by_ips) {
                 $usedIps = explode(',', $coupon->used_by_ips);
                 if (in_array($userIp, $usedIps)) {
                     $message = 'You have already used this coupon';
                 }
-            }            
+            }  
+            */
             return response()->json([
                 'success' => false,
                 'message' => $message

@@ -262,8 +262,6 @@ class OrderController extends Controller
                 throw new \Exception('Payment not captured. Status: ' . $payment->status);
             }
             $order = Orders::with('customer')->findOrFail($input['order_db_id']);
-            /*Track coupon usage */
-            $this->trackCouponUsage($order);
             /* ── Update order with Razorpay details and mark as paid */
             $order->update([
                 'razorpay_payment_id'  => $input['razorpay_payment_id'],
@@ -636,7 +634,6 @@ class OrderController extends Controller
             $billingAddressId  = null;
             $shippingAddress   = null;
             $customer_address  = null;
-
             if ($pickUpStatus === 'pick_up_online') {
 
                 if (filled($checkoutData['customer_address_id'] ?? null)) {
@@ -716,6 +713,8 @@ class OrderController extends Controller
                 'billing_address_id'  => $billingAddressId,
                 'order_status_id'     => $orderStatus->id,
             ]);
+            /*Track coupon usage */
+            $this->trackCouponUsage($order);
             foreach (session('cart_items', []) as $item) {
                 OrderLines::create([
                     'order_id'    => $order->id,
@@ -729,19 +728,17 @@ class OrderController extends Controller
             $courierData = session('courierData', []);
             if (!empty($courierData)) {
                 ShiprocketCourier::create([
-                    'customer_id'            => $customerId,
-                    'order_id'               => $order->id,
-                    'courier_name'           => $courierData['courier_name']          ?? null,
-                    'courier_id'             => $courierData['courier_id']            ?? null,
-                    'courier_company_id'     => $courierData['courier_company_id']    ?? null,
-                    'courier_shipping_rate'  => $courierData['courier_shipping_rate'] ?? null,
-                    'cod_charges'            => $courierData['cod_charges']           ?? null,
+                    'customer_id' =>$customerId,
+                    'order_id' =>$order->id,
+                    'courier_name' =>$courierData['courier_name'] ?? null,
+                    'courier_id' => $courierData['courier_id'] ?? null,
+                    'courier_company_id' => $courierData['courier_company_id'] ?? null,
+                    'courier_shipping_rate' => $courierData['courier_shipping_rate'] ?? null,
+                    'cod_charges' => $courierData['cod_charges'] ?? null,
                     'delivery_expected_date' => $courierData['delivery_expected_date'] ?? null,
                 ]);
             }
             if ($paymentType === 'Cash on Delivery' || $paymentType === 'Pick Up From Store') {
-                /*Coupon submit */
-                $this->trackCouponUsage($order);
                 $order->update(['order_status_comment' => 'complete_order']);
                 $orderDetails = Orders::with([
                     'orderStatus',

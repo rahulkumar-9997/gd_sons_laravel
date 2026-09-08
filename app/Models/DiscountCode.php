@@ -36,6 +36,22 @@ class DiscountCode extends Model
         'is_cod_available' => 'boolean',
     ];
 
+    public function canActive($customerId = null, $ip = null)
+    {
+        if (
+            !$this->is_active ||
+            Carbon::now()->lt($this->valid_from) ||
+            Carbon::now()->gt($this->valid_till)
+        ){
+            return false;
+        }
+        if ($this->usage_limit > 0 && $this->total_used >= $this->usage_limit) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function canUse($customerId = null, $ip = null)
     {
         if (!$this->is_active || 

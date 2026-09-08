@@ -96,150 +96,144 @@
     </div>
 </section>
 
-@if ($data['primary_category'] && $data['primary_category']->isNotEmpty())
 <section class="product-section">
     <div class="container-fluid-lg">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-15">
-            @foreach ($data['primary_category'] as $index => $primary_category_row)
-            <div class="p-3 group/category relative rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-300 border border-slate-200 bg-white flex flex-col h-full">
-                <a href="{{ $primary_category_row['link'] ?? '#' }}">
-                    <h3 class="text-[18px] mb-3 pb-2 font-semibold text-slate-800 group-hover/category:text-primary-600 transition-colors duration-300 text-center line-clamp-1 border-b border-slate-100">
-                        {{ $primary_category_row['title'] }}
-                    </h3>
-                </a>
-                <div class="grid grid-cols-2 gap-2 flex-1">
-                    @foreach ($primary_category_row['products'] as $productIndex => $product)
-                    @php
-                    $offer_rate = $product['offer_rate'];
-                    $mrp = $product['mrp'];
-                    $purchase_rate = $product['purchase_rate'];
-                    $group_offer_rate = null;
-                    $special_offer_rate = null;
+        <div class="row g-sm-4 g-3">
+            @if ($data['primary_category'] && $data['primary_category']->isNotEmpty())
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-15">
+                @foreach ($data['primary_category'] as $index =>$primary_category_row)
 
-                    if ($groupCategory && $offer_rate !== null) {
-                    $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                    if ($group_percentage > 0) {
-                    $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-                    $group_offer_rate = floor($group_offer_rate);
-                    }
-                    }
+                <div class="p-3 group relative rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-300 border border-slate-200 bg-white flex flex-col h-full">
+                    <a href="{{ $primary_category_row['link'] ?? '#' }}">
+                        <h3 class="text-[16px] mb-3 pb-2 font-semibold text-slate-800 group-hover/category:text-primary-600 transition-colors duration-300 text-center line-clamp-1 border-b border-slate-100">
+                            {{ $primary_category_row['title'] }}
+                        </h3>
+                    </a>
+                    <div class="grid grid-cols-2 gap-2 flex-1">
+                        @foreach ($primary_category_row['products'] as $productIndex => $product)
+                        @php
+                        $offer_rate = $product['offer_rate'];
+                        $mrp = $product['mrp'];
+                        $purchase_rate = $product['purchase_rate'];
+                        $group_offer_rate = null;
+                        $special_offer_rate = null;
 
-                    /*Special Offer*/
-                    if (isset($specialOffers[$product['id']])) {
-                    $special_offer_rate = (float) $specialOffers[$product['id']];
-                    }
-                    /* Choose lowest rate */
-                    $all_rates = array_filter([
-                    $offer_rate,
-                    $group_offer_rate,
-                    $special_offer_rate
-                    ]);
-                    if (!empty($all_rates)) {
-                    $final_offer_rate = min($all_rates);
-                    } else {
-                    $final_offer_rate = $offer_rate;
-                    }
+                        if ($groupCategory && $offer_rate !== null) {
+                        $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                        if ($group_percentage > 0) {
+                        $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                        $group_offer_rate = floor($group_offer_rate);
+                        }
+                        }
 
-                    /* Calculate discount */
-                    $discountPercentage = ($mrp > 0 && $final_offer_rate > 0 && $final_offer_rate < $mrp)
-                        ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
-                        : 0;
-                    @endphp
+                        /*Special Offer*/
+                        if (isset($specialOffers[$product['id']])) {
+                        $special_offer_rate = (float) $specialOffers[$product['id']];
+                        }
+                        /* Choose lowest rate */
+                        $all_rates = array_filter([
+                        $offer_rate,
+                        $group_offer_rate,
+                        $special_offer_rate
+                        ]);
+                        if (!empty($all_rates)) {
+                        $final_offer_rate = min($all_rates);
+                        } else {
+                        $final_offer_rate = $offer_rate;
+                        }
 
-                    <div class="w-full h-full shadow-[0_1px_2px_rgba(0,0,0,0.04)] rounded-xl bg-white group/product transition-all duration-300 ease-in-out hover:border-primary-300 hover:shadow-lg">
-                        <div class="relative w-full h-full">
-                            <a href="{{ url('products/'.$product['slug'].'/'.$product['attributes_value_slug']) }}" class="block">
-                                <div class="overflow-hidden rounded-t-xl">
-                                    <div class="relative overflow-hidden image-shine product-img aspect-square">
-                                        @php
-                                            $defaultImage = 'https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png';
-                                            $originalImage = $product['image'] ?? $defaultImage;
-                                            $isCritical = ($loop->index ?? 0) < 4;
-                                        @endphp
-                                        <picture>
-                                            <source media="(max-width: 767px)" srcset="{{ $originalImage }} 600w">
-                                            <img class="absolute top-0 left-0 w-full h-full object-contain {{ $isCritical ? '' : 'blur-up lazyloaded' }} transition-transform duration-600 group-hover/product:scale-105 blur-up lazyloaded"
-                                                data-src="{{ $originalImage }}"
-                                                src="{{ $originalImage }}"
-                                                srcset="{{ $originalImage }} 600w, {{ $originalImage }} 1200w"
-                                                sizes="(max-width: 600px) 600px, 1200px"
-                                                alt="{{ $product['title'] }}"
-                                                title="{{ $product['title'] }}"
-                                                {{ $isCritical ? 'fetchpriority=high' : 'loading=lazy' }}
-                                                width="300"
-                                                height="300"
-                                                onload="this.style.opacity=1"
-                                                style="opacity: 1;">
-                                        </picture>
-                                        @if($discountPercentage > 0)
-                                        <div class="discount absolute top-2 left-2 z-1">
-                                            <span class="group/badge relative inline-flex items-center gap-1 bg-green-700 text-white text-[10px] font-bold tracking-wide px-2 py-[3px] rounded-full cursor-default shadow-badge hover:shadow-badge-hover hover:scale-105 transition-all duration-200">
-                                                {{ $discountPercentage }}% OFF
-                                            </span>
-                                        </div>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="w-full px-2 py-2 space-y-2">
-                                    <div class="mt-1 product-detail">
-                                        <h5 class="name line-clamp-2 text-sm font-medium text-gray-800 group-hover/product:text-primary-600 transition-colors">
-                                            {{ ucwords(strtolower($product['title'])) }}
-                                        </h5>
-                                        <div class="mt-2 flex justify-between items-center">
-                                            @if ($offer_rate === null || $offer_rate == 0)
-                                            <span class="text-xs text-gray-600">Price not available</span>
-                                            @else
-                                            <div class="flex flex-col">
-                                                <h5 class="text-base font-bold text-primary-600">Rs. {{ number_format($offer_rate) }}</h5>
+                        /* Calculate discount */
+                        $discountPercentage = ($mrp > 0 && $final_offer_rate > 0 && $final_offer_rate < $mrp)
+                            ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+                            : 0;
+
+                            @endphp
+                            <div class="w-full h-full shadow-[0_1px_2px_rgba(0,0,0,0.04)] rounded-xl bg-white group/product transition-all duration-300 ease-in-out hover:border-primary-300 hover:shadow-lg">
+                            <div class="relative w-full h-full">
+                                <a href="{{ url('products/'.$product['slug'].'/'.$product['attributes_value_slug']) }}" class="block">
+                                    <div class="overflow-hidden rounded-t-xl">
+                                        <div class="relative overflow-hidden image-shine product-img aspect-square">
+                                            @php
+                                                $defaultImage = 'https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png';
+                                                $originalImage = $product['image'] ?? $defaultImage;
+                                                $isCritical = ($loop->index ?? 0) < 4;
+                                            @endphp
+                                            <picture>
+                                                <source media="(max-width: 767px)" srcset="{{ $originalImage }} 600w">
+                                                <img class="absolute top-0 left-0 w-full h-full     object-contain {{ $isCritical ? '' : 'blur-up lazyloaded' }} transition-transform duration-600 group-hover/product:scale-105 blur-up lazyloaded"
+                                                    data-src="{{ $originalImage }}" 
+                                                    src="{{ $originalImage }}" 
+                                                    srcset="{{ $originalImage }} 600w, {{ $originalImage }} 1200w" 
+                                                    sizes="(max-width: 600px) 600px, 1200px" 
+                                                    alt="{{ $product['title'] }}" 
+                                                    title="{{ $product['title'] }}" 
+                                                    {{ $isCritical ? 'fetchpriority="high"' : 'loading="lazy"' }}
+                                                    width="300" 
+                                                    height="300" 
+                                                    onload="this.style.opacity=1" 
+                                                    style="opacity: 1;">
+                                            </picture>                                             
+                                            @if($discountPercentage > 0)
+                                            <div class="discount absolute top-2 left-2 z-1">
+                                                <span class="group/badge relative inline-flex items-center gap-1 bg-green-700 text-white text-[10px] font-bold tracking-wide px-2 py-[3px] rounded-full cursor-default shadow-badge hover:shadow-badge-hover hover:scale-105 transition-all duration-200">
+                                                    {{ $discountPercentage }}% OFF
+                                                </span>
                                             </div>
                                             @endif
-                                            @if ($mrp !== null && $mrp > $final_offer_rate)
-                                            <del class="text-[14px] text-gray-600">Rs. {{ number_format($mrp) }}</del>
-                                            @endif
                                         </div>
-                                        @if($product['stock_quantity'] !== null)
-                                            @if($product['stock_quantity'] <= 0)
-                                                <span class="text-xs text-red-600 block mt-1">
-                                                    Out of Stock
-                                                </span>
-                                            @endif
-                                        @endif
                                     </div>
-                                </div>
-                            </a>
-                        </div>
+                                    <div class="w-full px-2 py-2 space-y-2">
+                                        <div class="mt-1 product-detail">
+                                            <h5 class="name line-clamp-2 text-sm font-medium text-gray-800 group-hover/product:text-primary-600 transition-colors">
+                                                {{ ucwords(strtolower($product['title'])) }}
+                                            </h5>
+                                            <div class="mt-2 flex justify-between items-center">
+                                                @if ($offer_rate === null || $offer_rate == 0)
+                                                <span class="text-xs text-gray-600">Price not available</span>
+                                                @else
+                                                <div class="flex flex-col">
+                                                    <h5 class="text-base font-bold text-primary-600">Rs. {{ number_format($offer_rate) }}</h5>
+                                                </div>
+                                                @endif
+                                                @if ($mrp !== null && $mrp > $final_offer_rate)
+                                                <del class="text-[14px] text-gray-600">Rs. {{ number_format($mrp) }}</del>
+                                                @endif
+                                            </div>
+                                            @if($product['stock_quantity'] !== null)
+                                                @if($product['stock_quantity'] <= 0)
+                                                    <span class="text-xs text-red-600 block mt-1">
+                                                        Out of Stock
+                                                    </span>
+                                                @endif
+                                            @endif                                                
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
                     </div>
                     @endforeach
                 </div>
-
-                <div class="px-2 pb-1 pt-3 text-center mt-auto">
-                    <a href="{{ $primary_category_row['link'] ?? '#' }}" class="inline-flex items-center gap-1 text-[16px] text-primary-600 hover:text-primary-teal font-medium transition-colors">
+				<div class="px-2 pb-1 pt-3 text-center mt-auto">
+                    <a href="{{ $primary_category_row['link'] ?? '#' }}" class="inline-flex items-center gap-1 text-[13px] text-primary-600 hover:text-primary-700 font-medium transition-colors">
                         View Details & More Products
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
                     </a>
                 </div>
-
-            </div>
+				</div>
             @endforeach
         </div>
-    </div>
-</section>
-@endif
-
-@if ($data['popular_products'] && $data['popular_products']->isNotEmpty())
-<section class="product-section">
-    <div class="container-fluid-lg">
-        <div class="w-full">
-            <div class="title d-block text-center pt-2 pb-2">
+        @endif
+        <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12">
+            @if ($data['popular_products'] && $data['popular_products']->isNotEmpty())
+            <div class="title d-block text-center pt-5 pb-2">
                 <div>
                     <h2>Popular Products</h2>
                     <p class="text-sm text-slate-500 mt-2 mb-0">Customer favourites from across our store — trusted picks, genuine brands.</p>
                     <span class="title-leaf"></span>
                 </div>
             </div>
-
             <div class="section-b-space">
                 <div class="non-product-border non-border-row no-overflow-hidden">
                     <div class="product-box-slider1 no-arrow1">
@@ -247,7 +241,7 @@
                         $row_count = 0;
                         @endphp
                         <div>
-                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 m-0">
+                            <div class="row g-sm-4 g-3 row-cols-xxl-6 row-cols-xl-6 row-cols-lg-5 row-cols-md-3 row-cols-2 m-0">
                                 @foreach ($data['popular_products'] as $popular_product_row)
                                 @php
                                 $firstImage = $popular_product_row->images->get(0);
@@ -295,16 +289,9 @@
                                 $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
                                 ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
                                 : 0;
-
-                                $hasDimensions =
-                                !empty($popular_product_row->length) &&
-                                !empty($popular_product_row->breadth) &&
-                                !empty($popular_product_row->height) &&
-                                !empty($popular_product_row->weight);
                                 @endphp
-
                                 <div>
-                                    <div class="p-1 group/product relative rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 product-box mb-1 h-full !bg-white border border-slate-200">
+                                    <div class="p-1 group relative rounded overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 product-box mb-1 h-100 !bg-white border border-slate-200">
                                         <div class="product-image">
                                             @if ($discountPercentage>0)
                                             <div class="label-flex">
@@ -321,7 +308,7 @@
                                                             media="(max-width: 767px)"
                                                             srcset="https://www.cdn.gdsons.co.in/product/icon/{{ $firstImage->image_path }}">
                                                         <img
-                                                            class="max-w-full blur-up lazyload"
+                                                            class="img-fluid blur-up lazyload"
                                                             data-src="https://www.cdn.gdsons.co.in/product/thumb/{{ $firstImage->image_path }}"
                                                             src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
                                                             srcset="
@@ -336,10 +323,11 @@
                                                             height="300"
                                                             onload="this.style.opacity=1">
                                                     </picture>
+
                                                     @else
                                                     <img
                                                         src="{{ asset('frontend/assets/gd-img/product/no-image.png') }}"
-                                                        class="max-w-full h-auto blur-up lazyload"
+                                                        class="img-fluid blur-up lazyload"
                                                         alt="{{ $popular_product_row->title }}"
                                                         loading="lazy"
                                                         width="300"
@@ -347,10 +335,18 @@
                                                     @endif
                                                 </a>
                                             </div>
+                                            @php
+                                            $hasDimensions =
+                                            !empty($popular_product_row->length) &&
+                                            !empty($popular_product_row->breadth) &&
+                                            !empty($popular_product_row->height) &&
+                                            !empty($popular_product_row->weight);
+                                            @endphp                                            
                                         </div>
                                         <div class="product-detail !bg-white px-2 pb-2 pt-2">
                                             <a href="{{ url('products/'.$popular_product_row->slug.'/'.$attributes_value) }}">
-                                                <h5 class="name text-[13px] leading-[1.4] font-medium text-slate-700 group-hover/product:text-primary-600 transition-colors min-h-[36px]">{{ ucwords(strtolower($popular_product_row->title)) }}</h5>
+													<h5 class="name text-[13px] leading-[1.4] font-medium text-slate-700 group-hover/product:text-primary-600 transition-colors min-h-[36px]">{{ ucwords(strtolower($popular_product_row->title)) }}</h5>
+
                                             </a>
                                             <div class="mt-2 flex justify-between items-center">
                                                 @if ($final_offer_rate === null || $final_offer_rate == 0)
@@ -363,7 +359,7 @@
                                                 @if ($mrp !== null)
                                                 <del class="text-[14px] text-gray-600">Rs. {{ number_format($mrp) }}</del>
                                                 @endif
-                                            </div>
+                                            </div>                                            
                                             @if(($popular_product_row->mrp > 0 && $popular_product_row->stock_quantity <= 0) || !$hasDimensions)
                                                 <span class="text-xs text-red-600 block mt-1">
                                                     Out of Stock
@@ -381,11 +377,13 @@
                     </div>
                 </div>
             </div>
+            @endif
 
         </div>
     </div>
+    </div>
+    </div>
 </section>
-@endif
 
 <section class="why-choose-section pb-5 w-full overflow-hidden relative bg-gradient-to-br from-white via-[#FFFDF8] to-[#F7E9C7]">
     <div class="absolute inset-0 pointer-events-none opacity-20" 

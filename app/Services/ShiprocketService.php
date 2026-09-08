@@ -159,20 +159,20 @@ class ShiprocketService
             'only_local'        => $params['only_local'] ?? null,
             'qc_check'          => $params['qc_check'] ?? null,
         ], fn ($value) => $value !== null && $value !== '');
-        Log::info('Shiprocket Serviceability Request', [
-            'payload' => $payload
-        ]);
+        // Log::info('Shiprocket Serviceability Request', [
+        //     'payload' => $payload
+        // ]);
         $response = Http::withToken($token)
             ->timeout(30)
             ->get("{$this->base}/courier/serviceability/", $payload);
         
-        Log::info(
-            "Shiprocket Serviceability Response\n" .
-            json_encode(
-                $response->json(),
-                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-            )
-        );
+        // Log::info(
+        //     "Shiprocket Serviceability Response\n" .
+        //     json_encode(
+        //         $response->json(),
+        //         JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+        //     )
+        // );
         if (!$response->successful()) {
             return [
                 'success' => false,

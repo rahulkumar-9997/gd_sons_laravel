@@ -14,11 +14,9 @@ use App\Exports\ShipmentRateExport;
 use App\Models\WeightCategoryShippingRate;
 
 class ShipmentRateController extends Controller
-{
-    
+{    
     public function index(Request $request)
-    {
-        
+    {        
         $shipping_rates = Pincode::with([
             'shippingRates.weightCategory'
         ])->paginate(50);

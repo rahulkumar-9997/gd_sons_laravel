@@ -3,114 +3,61 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use App\Models\Pincode;
 use App\Models\WeightCategory;
-use App\Models\PincodeShippingRate;
 use App\Jobs\UpdateShipmentRatesJob;
-use Illuminate\Support\Facades\Log;
 
 class CalculateShippingRates extends Command
 {
     protected $signature = 'shiprocket:update-rates
-            {--chunk=50 : Number of pincodes per chunk}
-            {--delay=5 : Delay in seconds between each job}
-            {--force : Force update even if all weights are processed}';
-    
-    protected $description = 'Update shipping rates from Shiprocket with rate limiting';
+            {--chunk=200 : Pincodes fetched per chunk}
+            {--force : Re-dispatch pairs that already have a rate}';
 
+    protected $description = 'Dispatch Shiprocket rate lookups for every pincode x weight pair';
     public function handle()
     {
-        $this->info('Starting Shiprocket rates update...');
-        $this->line(now()->format('Y-m-d H:i:s'));
-        $this->line('---');
-        
-        $totalWeights = WeightCategory::count();
-        
-        if ($totalWeights === 0) {
-            $this->error('No weight categories found!');
+        $weights = WeightCategory::orderBy('primary_weight')->get();
+        if ($weights->isEmpty()) {
+            $this->error('No weight categories found. Run WeightCategorySeeder first.');
             return 1;
         }
-        
-        $chunkSize = (int)$this->option('chunk');
-        $delaySeconds = (int)$this->option('delay');
-        $force = $this->option('force');
-        
-        $this->info("Total weight categories: {$totalWeights}");
-        $this->info("Chunk size: {$chunkSize}");
-        $this->info("Job delay: {$delaySeconds} seconds");
-        $this->info("Force update: " . ($force ? 'Yes' : 'No'));
-        $this->line('---');
-        $query = Pincode::query();
-        
+        $force     = $this->option('force');
+        $chunkSize = (int) $this->option('chunk');
+        $existing = [];
         if (!$force) {
-            $processedPincodes = PincodeShippingRate::select('pincode_id')
+            DB::table('pincode_shipping_rates')
                 ->whereNotNull('shipping_rate')
-                ->groupBy('pincode_id')
-                ->havingRaw('COUNT(DISTINCT weight_category_id) >= ?', [$totalWeights])
-                ->pluck('pincode_id')
-                ->toArray();
-            
-            $query->whereNotIn('id', $processedPincodes);
+                ->select('pincode_id', 'weight_category_id')
+                ->orderBy('id')
+                ->chunk(5000, function ($rows) use (&$existing) {
+                    foreach ($rows as $r) {
+                        $existing[$r->pincode_id . ':' . $r->weight_category_id] = true;
+                    }
+                });
         }
-        
-        $totalPincodes = $query->count();
-        
-        if ($totalPincodes === 0) {
-            $this->info('All pincodes are already up to date!');
-            return 0;
-        }
-        
-        $this->info("Found {$totalPincodes} pincodes to update");
+        $this->info('Weight slabs: ' . $weights->count());
+        $this->info('Pincodes: ' . Pincode::count());
+        $this->info('Already done: ' . count($existing));
         $this->line('---');
-        if ($this->input->isInteractive() && !$this->confirm("Process {$totalPincodes} pincodes?", true)) {
-            $this->info('Cancelled by user');
-            return 0;
-        }
-        
-        $processedCount = 0;
-        $chunkCount = 0;
-        $bar = $this->output->createProgressBar($totalPincodes);
-        $bar->start();
-        
-        $query->chunkById($chunkSize, function ($pincodes) use ($delaySeconds, &$processedCount, &$chunkCount, $bar) {
-            $chunkCount++;
-            $this->newLine();
-            $this->info("Processing chunk #{$chunkCount} with {$pincodes->count()} pincodes");
-            
-            foreach ($pincodes as $index => $pincode) {
-                $jobDelay = $delaySeconds + ($index * 2);
-                
-                UpdateShipmentRatesJob::dispatch($pincode->id)
-                    ->delay(now()->addSeconds($jobDelay));
-                
-                $processedCount++;
-                $bar->advance();
-                if ($processedCount % 100 === 0) {
-                    $this->line("\nProgress: {$processedCount} pincodes dispatched");
+        $dispatched = 0;
+        $offset     = 0;
+        Pincode::orderBy('id')->chunkById($chunkSize, function ($pincodes) use ($weights, $existing, &$dispatched, &$offset) {
+            foreach ($pincodes as $pincode) {
+                foreach ($weights as $weight) {
+                    if (isset($existing[$pincode->id . ':' . $weight->id])) {
+                        continue;
+                    }
+                    UpdateShipmentRatesJob::dispatch($pincode->id, $weight->id)
+                        ->delay(now()->addSeconds(intdiv($offset, 20) * 60 + ($offset % 20) * 3));
+                    $offset++;
+                    $dispatched++;
                 }
             }
-            if ($chunkCount % 5 === 0) {
-                $this->line("\nCooling down for 30 seconds...");
-                sleep(30);
-            }
+            $this->line("Dispatched so far: {$dispatched}");
         });
-        
-        $bar->finish();
-        $this->newLine(2);
-        
-        $this->info('Jobs dispatched successfully!');
-        $this->info("Total jobs dispatched: {$processedCount}");
-        $this->info('Check logs for processing details:');
-        $this->line('tail -f storage/logs/laravel.log');
-        $this->line('---');
-        
-        Log::info('Shiprocket rate update completed', [
-            'total_pincodes' => $processedCount,
-            'chunk_size' => $chunkSize,
-            'job_delay' => $delaySeconds,
-            'force_update' => $force
-        ]);
-        
+        $this->newLine();
+        $this->info("Total jobs queued: {$dispatched}");
         return 0;
     }
 }

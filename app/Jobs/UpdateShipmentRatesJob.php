@@ -18,13 +18,9 @@ class UpdateShipmentRatesJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 100;
+    public $tries = 25;
     public $timeout = 120;
-
-    public function retryUntil()
-    {
-        return now()->addDay();
-    }
+    public $backoff = [60, 120, 300, 600];
 
     protected $pincodeId;
     protected $weightId;
@@ -32,92 +28,90 @@ class UpdateShipmentRatesJob implements ShouldQueue
     public function __construct($pincodeId, $weightId)
     {
         $this->pincodeId = $pincodeId;
-        $this->weightId = $weightId;
+        $this->weightId  = $weightId;
+    }
+
+    public function retryUntil()
+    {
+        return now()->addDays(5);
     }
 
     public function handle(ShiprocketService $ship)
     {
         $pincode = Pincode::find($this->pincodeId);
-
-        if (!$pincode) {
+        $weight  = WeightCategory::find($this->weightId);
+        if (!$pincode || !$weight) {
             return;
         }
-        $weight = WeightCategory::find($this->weightId);
-        if (!$weight) {
+        if (!$this->allowedByRateLimit()) {
+            $this->release(45);
             return;
         }
         $fromPin = config('services.shiprocket.shiprocket_pickup_pincode');
         try {
-            $rateKey = 'shiprocket_api_' . now()->format('Y-m-d-H-i');
-            $count = Cache::increment($rateKey);
-            if ($count == 1) {
-                Cache::put($rateKey, 1, 60);
-            }
-            if ($count > 25) {
-                Log::warning('Rate limit reached. Releasing job.', [
-                    'pincode' => $pincode->pincode,
-                    'weight' => $weight->primary_weight,
-                ]);
-                $this->release(60);
-                return;
-            }
-            $response = $ship->getServiceability(
-                $fromPin,
-                $pincode->pincode,
-                $weight->primary_weight,
-                0
-            );
-            $companies = $response['raw']['data']['available_courier_companies'] ?? [];
-            $filtered = collect($companies)
-                ->filter(function ($item) use ($weight) {
-                    $minWeight = $item['min_weight'] ?? 0;
-                    $maxWeight = $item['max_weight'] ?? PHP_FLOAT_MAX;
-                    return $weight->primary_weight >= $minWeight
-                        && $weight->primary_weight <= $maxWeight;
-
-                })
-                ->sortBy('rate')
-                ->values();
-            $selectedCourier = $filtered->first();
-            Log::info('Selected Courier', [
-                'pincode' => $pincode->pincode,
-                'weight' => $weight->primary_weight,
-                'courier' => $selectedCourier['courier_name'] ?? '',
-                'rate' => $selectedCourier['rate'] ?? '',
-                'min_weight' => $selectedCourier['min_weight'] ?? '',
-                'max_weight' => $selectedCourier['max_weight'] ?? '',
+            $response = $ship->getServiceability([
+                'pickup_postcode'   => $fromPin,
+                'delivery_postcode' => $pincode->pincode,
+                'weight'            => (string) $weight->primary_weight,
+                'cod'               => 0,
             ]);
-
-            $rate = $filtered->first()['rate'] ?? null;
-            if ($rate === null) {
-                Log::warning('No shipping rate found', [
-                    'pincode' => $pincode->pincode,
-                    'weight' => $weight->primary_weight,
-                ]);
-                return;
-            }
-            
-            PincodeShippingRate::updateOrCreate(
-                [
-                    'pincode_id' => $pincode->id,
-                    'weight_category_id' => $weight->id,
-                ],
-                [
-                    'shipping_rate' => $rate,
-                ]
-            );
-            Log::info('Updated', [
+        } catch (\Throwable $e) {
+            Log::error('Shiprocket API exception', [
                 'pincode' => $pincode->pincode,
-                'weight' => $weight->primary_weight,
-                'rate' => $filtered->first()['rate'] ?? null
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Shiprocket Error', [
-                'pincode' => $pincode->pincode,
-                'weight' => $weight->primary_weight,
+                'weight'  => $weight->primary_weight,
+                'attempt' => $this->attempts(),
                 'message' => $e->getMessage(),
             ]);
-            throw $e;
+            throw $e;        }
+        if (empty($response['raw'])) {
+            throw new \RuntimeException(
+                'Shiprocket request failed: ' . ($response['message'] ?? 'unknown error')
+            );
         }
+        $companies = $response['raw']['data']['available_courier_companies'] ?? [];
+        $courier = collect($companies)
+        ->filter(function ($item) use ($weight) {
+            $min = isset($item['min_weight']) && $item['min_weight'] !== ''
+                ? (float) $item['min_weight'] : 0.0;
+            $max = isset($item['max_weight']) && $item['max_weight'] > 0
+                ? (float) $item['max_weight'] : PHP_FLOAT_MAX;
+            return $weight->primary_weight >= $min && $weight->primary_weight <= $max;
+        })
+        ->filter(fn($item) => isset($item['rate']) && is_numeric($item['rate']))
+        ->filter(fn($item) => empty($item['blocked']))
+        ->sortBy(fn($item) => (float) $item['rate'])
+        ->first();
+        PincodeShippingRate::updateOrCreate(
+            [
+                'pincode_id' => $pincode->id,
+                'weight_category_id' => $weight->id,
+            ],
+            [
+                'shipping_rate' => $courier ? (float) $courier['rate'] : null,              
+            ]
+        );
+
+        if (!$courier) {
+            Log::warning('Not serviceable', [
+                'pincode' => $pincode->pincode,
+                'weight'  => $weight->primary_weight,
+            ]);
+        }
+    }
+
+    protected function allowedByRateLimit(): bool
+    {
+        $key = 'shiprocket_api_' . now()->format('YmdHi');
+        Cache::add($key, 0, 120);
+        return Cache::increment($key) <= 22;
+    }
+
+    public function failed(\Throwable $e)
+    {
+        Log::error('UpdateShipmentRatesJob permanently failed', [
+            'pincode_id' => $this->pincodeId,
+            'weight_id'  => $this->weightId,
+            'message'    => $e->getMessage(),
+        ]);
     }
 }

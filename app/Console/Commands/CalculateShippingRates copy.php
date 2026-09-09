@@ -3,86 +3,114 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 use App\Models\Pincode;
 use App\Models\WeightCategory;
 use App\Models\PincodeShippingRate;
-use App\Services\ShiprocketService;
+use App\Jobs\UpdateShipmentRatesJob;
+use Illuminate\Support\Facades\Log;
 
 class CalculateShippingRates extends Command
 {
-    protected $signature = 'shiprocket:update-rates';
-    protected $description = 'Update shipping rates from Shiprocket';
+    protected $signature = 'shiprocket:update-rates
+            {--chunk=50 : Number of pincodes per chunk}
+            {--delay=5 : Delay in seconds between each job}
+            {--force : Force update even if all weights are processed}';
+    
+    protected $description = 'Update shipping rates from Shiprocket with rate limiting';
 
     public function handle()
     {
-        $this->info('Shiprocket rate update started');
-
-        $ship = app(ShiprocketService::class);
-        $fromPin = config('services.shiprocket.shiprocket_pickup_pincode');
-
-        $weights = WeightCategory::all();
-        $totalWeights = $weights->count();
-
-        // Only pending pincodes
-        $pincodes = Pincode::whereNotIn(
-            'id',
-            PincodeShippingRate::select('pincode_id')
+        $this->info('Starting Shiprocket rates update...');
+        $this->line(now()->format('Y-m-d H:i:s'));
+        $this->line('---');
+        
+        $totalWeights = WeightCategory::count();
+        
+        if ($totalWeights === 0) {
+            $this->error('No weight categories found!');
+            return 1;
+        }
+        
+        $chunkSize = (int)$this->option('chunk');
+        $delaySeconds = (int)$this->option('delay');
+        $force = $this->option('force');
+        
+        $this->info("Total weight categories: {$totalWeights}");
+        $this->info("Chunk size: {$chunkSize}");
+        $this->info("Job delay: {$delaySeconds} seconds");
+        $this->info("Force update: " . ($force ? 'Yes' : 'No'));
+        $this->line('---');
+        $query = Pincode::query();
+        
+        if (!$force) {
+            $processedPincodes = PincodeShippingRate::select('pincode_id')
+                ->whereNotNull('shipping_rate')
                 ->groupBy('pincode_id')
                 ->havingRaw('COUNT(DISTINCT weight_category_id) >= ?', [$totalWeights])
-        )
-        ->orderBy('id')
-        ->limit(10) 
-        ->get();
-        if ($pincodes->isEmpty()) {
-            $this->info('No pending pincodes found');
-            return;
+                ->pluck('pincode_id')
+                ->toArray();
+            
+            $query->whereNotIn('id', $processedPincodes);
         }
-        foreach ($pincodes as $pincode) {
-            $this->info("Processing: {$pincode->pincode}");
-            foreach ($weights as $weightCategory) {
-                try {
-                    $response = $ship->getServiceability(
-                        $fromPin,
-                        $pincode->pincode,
-                        $weightCategory->primary_weight,
-                        0
-                    );
-                    $companies = $response['raw']['data']['available_courier_companies'] ?? [];
-                    if (!empty($companies)) {
-                        $filtered = collect($companies)
-                            ->filter(fn ($item) =>
-                                $weightCategory->primary_weight >= ($item['min_weight'] ?? 0)
-                            )
-                            ->sortBy('rate')
-                            ->values();
-                        if ($filtered->isNotEmpty()) {
-                            PincodeShippingRate::updateOrCreate(
-                                [
-                                    'pincode_id' => $pincode->id,
-                                    'weight_category_id' => $weightCategory->id,
-                                ],
-                                [
-                                    'shipping_rate' => $filtered->first()['rate']
-                                ]
-                            );
-                            $this->info("Updated {$pincode->pincode} - {$weightCategory->primary_weight}kg");
-                        }
-                    }
-                    sleep(3);
-                } catch (\Exception $e) {
-                    Log::error('Shiprocket API Error', [
-                        'pincode' => $pincode->pincode,
-                        'weight' => $weightCategory->primary_weight,
-                        'message' => $e->getMessage(),
-                    ]);
-                    $this->warn("Failed: {$pincode->pincode}");
-                    sleep(10);
-                    continue; 
+        
+        $totalPincodes = $query->count();
+        
+        if ($totalPincodes === 0) {
+            $this->info('All pincodes are already up to date!');
+            return 0;
+        }
+        
+        $this->info("Found {$totalPincodes} pincodes to update");
+        $this->line('---');
+        if ($this->input->isInteractive() && !$this->confirm("Process {$totalPincodes} pincodes?", true)) {
+            $this->info('Cancelled by user');
+            return 0;
+        }
+        
+        $processedCount = 0;
+        $chunkCount = 0;
+        $bar = $this->output->createProgressBar($totalPincodes);
+        $bar->start();
+        
+        $query->chunkById($chunkSize, function ($pincodes) use ($delaySeconds, &$processedCount, &$chunkCount, $bar) {
+            $chunkCount++;
+            $this->newLine();
+            $this->info("Processing chunk #{$chunkCount} with {$pincodes->count()} pincodes");
+            
+            foreach ($pincodes as $index => $pincode) {
+                $jobDelay = $delaySeconds + ($index * 2);
+                
+                UpdateShipmentRatesJob::dispatch($pincode->id)
+                    ->delay(now()->addSeconds($jobDelay));
+                
+                $processedCount++;
+                $bar->advance();
+                if ($processedCount % 100 === 0) {
+                    $this->line("\nProgress: {$processedCount} pincodes dispatched");
                 }
             }
-        }
-
-        $this->info('Batch completed successfully');
+            if ($chunkCount % 5 === 0) {
+                $this->line("\nCooling down for 30 seconds...");
+                sleep(30);
+            }
+        });
+        
+        $bar->finish();
+        $this->newLine(2);
+        
+        $this->info('Jobs dispatched successfully!');
+        $this->info("Total jobs dispatched: {$processedCount}");
+        $this->info('Check logs for processing details:');
+        $this->line('tail -f storage/logs/laravel.log');
+        $this->line('---');
+        
+        Log::info('Shiprocket rate update completed', [
+            'total_pincodes' => $processedCount,
+            'chunk_size' => $chunkSize,
+            'job_delay' => $delaySeconds,
+            'force_update' => $force
+        ]);
+        
+        return 0;
     }
 }

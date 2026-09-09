@@ -2022,7 +2022,6 @@ class FrontendController extends Controller
         $pincode = $request->pincode;
         $product_id = $request->product_id ?? null;
         $productData = json_decode($request->product_data, true);
-        //$totalWeight = $this->calculateTotalWeight($productData);
         $fromPin = config('services.shiprocket.shiprocket_pickup_pincode');
         if (!$fromPin) {
             return response()->json([
@@ -2098,7 +2097,6 @@ class FrontendController extends Controller
         ]);
     }
 
-
     public function editServiceability(Request $request)
     {
         $productData = $request->product_data;
@@ -2115,33 +2113,10 @@ class FrontendController extends Controller
                 'product_id' => $product_id,
             ])->render()
         ]);
-    }
+    }    
 
-    function calculateTotalWeight($productData)
+    public function bulkOrderPage(Request $request)
     {
-        if (isset($productData['weight'])) {
-            $items = [$productData];
-        } else {
-            $items = $productData;
-        }
-        $totalWeight = 0;
-        foreach ($items as $item) {
-            $qty = (float) ($item['qty'] ?? 1);
-            $length  = (float) ($item['length'] ?? 0);
-            $breadth = (float) ($item['breadth'] ?? 0);
-            $height  = (float) ($item['height'] ?? 0);
-            $physicalWeight = (float) ($item['weight'] ?? 0);
-            $volWeight = 0;
-            if ($length > 0 && $breadth > 0 && $height > 0) {
-                $volWeight = ($length * $breadth * $height) / 5000;
-            }
-            $finalWeight = max($physicalWeight, $volWeight);
-            $totalWeight += ($finalWeight * $qty);
-        }
-        $totalWeight = round($totalWeight, 2);
-        Log::info('Total Weight Calculated', [
-            'total_weight' => $totalWeight
-        ]);
-        return $totalWeight;
+        return view('frontend.pages.bulk-order.index');        
     }
 }

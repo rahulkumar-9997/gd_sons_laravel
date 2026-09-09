@@ -329,128 +329,128 @@
                         </div>
                     </div>
                     <div id="form">
-                    <div class="bg-background-card rounded-2xl shadow-2xl p-6 sm:p-8 border border-primary-mint sticky top-24">
-                        <h3 class="text-2xl font-semibold text-primary-navy leading-[1.1] tracking-tight mb-2">
-                            Bulk <span class="text-primary-teal italic font-medium">Order</span>
-                        </h3>
-                        <p class="text-[14px] text-textcolor-secondary leading-relaxed mb-6">
-                            Tell us what you need — our team gets in touch with rates within one working day.
-                        </p>
+                        <div class="bg-background-card rounded-2xl shadow-2xl p-6 sm:p-8 border border-primary-mint sticky top-24">
+                            <h3 class="text-2xl font-semibold text-primary-navy leading-[1.1] tracking-tight mb-2">
+                                Bulk <span class="text-primary-teal italic font-medium">Order</span>
+                            </h3>
+                            <p class="text-[14px] text-textcolor-secondary leading-relaxed mb-6">
+                                Tell us what you need — our team gets in touch with rates within one working day.
+                            </p>
 
-                        @if (session('bulk_success'))
-                        <div class="mb-5 rounded-lg bg-primary-mint px-4 py-3 text-[13.5px] text-primary-navy">
-                            {{ session('bulk_success') }}
-                        </div>
-                        @endif
-
-                        <form id="bulkForm" method="POST" action="" novalidate>
-                            @csrf
-
-                            {{-- honeypot --}}
-                            <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden" value="">
-
-                            <!-- Order details -->
-                            <p class="mb-2.5 text-[12.5px] font-semibold uppercase tracking-wider text-textcolor-secondary">Order details</p>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <input id="f-budget" name="budget" type="text" inputmode="numeric" value="{{ old('budget') }}"
-                                        placeholder="Budget (₹) *"
-                                        class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
-                                    <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
-                                    @error('budget')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
-                                </div>
-                                <div>
-                                    <input id="f-qty" name="quantity" type="text" value="{{ old('quantity') }}"
-                                        placeholder="Quantity *"
-                                        class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
-                                    <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
-                                    @error('quantity')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
-                                </div>
+                            @if (session('bulk_success'))
+                            <div class="mb-5 rounded-lg bg-primary-mint px-4 py-3 text-[13.5px] text-primary-navy">
+                                {{ session('bulk_success') }}
                             </div>
+                            @endif
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                                <div>
-                                    <label for="f-date" class="block text-[11.5px] font-medium text-textcolor-light mb-1.5">Expected date of delivery</label>
-                                    <input id="f-date" name="delivery_date" type="date" value="{{ old('delivery_date') }}"
-                                        class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] text-textcolor-primary focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
-                                    @error('delivery_date')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
-                                </div>
-                                <div>
-                                    <label class="block text-[11.5px] font-medium text-textcolor-light mb-1.5">Gift wrapped</label>
-                                    <div class="flex gap-2">
-                                        @foreach (['Yes', 'No'] as $opt)
-                                        <label class="chip flex-1 text-center">
-                                            <input type="radio" name="gift_wrapped" value="{{ $opt }}" class="sr-only" @checked(old('gift_wrapped') === $opt)>
-                                            <span>{{ $opt }}</span>
-                                        </label>
-                                        @endforeach
+                            <form id="bulkForm" method="POST" action="" novalidate>
+                                @csrf
+
+                                {{-- honeypot --}}
+                                <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden" value="">
+
+                                <!-- Order details -->
+                                <p class="mb-2.5 text-[12.5px] font-semibold uppercase tracking-wider text-textcolor-secondary">Order details</p>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <input id="f-budget" name="budget" type="text" inputmode="numeric" value="{{ old('budget') }}"
+                                            placeholder="Budget (₹) *"
+                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
+                                        <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
+                                        @error('budget')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
                                     </div>
-                                    @error('gift_wrapped')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
+                                    <div>
+                                        <input id="f-qty" name="quantity" type="text" value="{{ old('quantity') }}"
+                                            placeholder="Quantity *"
+                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
+                                        <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
+                                        @error('quantity')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="mt-4">
-                                <textarea id="f-req" name="requirement" rows="4"
-                                    placeholder="Describe in detail — items, sizes, brands, quantities — e.g. 40 x Hawkins 5L steel, 6 x Sunflame 90cm chimney"
-                                    class="w-full resize-y rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">{{ old('requirement') }}</textarea>
-                                <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
-                                @error('requirement')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
-                            </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                                    <div>
+                                        <label for="f-date" class="block text-[11.5px] font-medium text-textcolor-light mb-1.5">Expected date of delivery</label>
+                                        <input id="f-date" name="delivery_date" type="date" value="{{ old('delivery_date') }}"
+                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] text-textcolor-primary focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
+                                        @error('delivery_date')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11.5px] font-medium text-textcolor-light mb-1.5">Gift wrapped</label>
+                                        <div class="flex gap-2">
+                                            @foreach (['Yes', 'No'] as $opt)
+                                            <label class="chip flex-1 text-center">
+                                                <input type="radio" name="gift_wrapped" value="{{ $opt }}" class="sr-only" @checked(old('gift_wrapped') === $opt)>
+                                                <span>{{ $opt }}</span>
+                                            </label>
+                                            @endforeach
+                                        </div>
+                                        @error('gift_wrapped')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
+                                    </div>
+                                </div>
 
-                            <!-- Contact details -->
-                            <p class="mt-6 mb-2.5 text-[12.5px] font-semibold uppercase tracking-wider text-textcolor-secondary">Contact details</p>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <input id="f-name" name="name" type="text" value="{{ old('name') }}" placeholder="Contact person *"
-                                        class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
+                                <div class="mt-4">
+                                    <textarea id="f-req" name="requirement" rows="4"
+                                        placeholder="Describe in detail — items, sizes, brands, quantities — e.g. 40 x Hawkins 5L steel, 6 x Sunflame 90cm chimney"
+                                        class="w-full resize-y rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">{{ old('requirement') }}</textarea>
                                     <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
-                                    @error('name')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
+                                    @error('requirement')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
                                 </div>
-                                <div>
-                                    <input id="f-phone" name="phone" type="tel" inputmode="numeric" maxlength="10"
-                                        value="{{ old('phone') }}" placeholder="Phone number *"
-                                        class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
-                                    <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
-                                    @error('phone')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
-                                </div>
-                            </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                                <div>
-                                    <input id="f-email" name="email" type="email" value="{{ old('email') }}" placeholder="Email *"
-                                        class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
-                                    <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
-                                    @error('email')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
-                                </div>
-                                <div>
-                                    <input id="f-location" name="location" type="text" value="{{ old('location') }}" placeholder="Location *"
-                                        class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
-                                    <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
-                                    @error('location')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
-                                </div>
-                            </div>
+                                <!-- Contact details -->
+                                <p class="mt-6 mb-2.5 text-[12.5px] font-semibold uppercase tracking-wider text-textcolor-secondary">Contact details</p>
 
-                            <div class="flex flex-wrap items-center gap-3 mt-6">
-                                <button type="submit"
-                                    class="inline-flex items-center gap-2 rounded-lg bg-primary-teal text-white text-[12px] font-bold uppercase tracking-[0.12em] px-6 py-3.5 hover:bg-primary-navy hover:-translate-y-0.5 transition-all duration-200">
-                                    Send Enquiry
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M5 12h14"></path>
-                                        <path d="m12 5 7 7-7 7"></path>
-                                    </svg>
-                                </button>
-                                <a id="waSend" href="https://wa.me/919935070000" target="_blank" rel="noopener"
-                                    class="inline-flex items-center gap-2 rounded-lg border border-primary-teal/30 text-primary-teal text-[12px] font-bold uppercase tracking-[0.12em] px-6 py-3.5 hover:bg-primary-mint transition-all duration-200">
-                                    Send on WhatsApp
-                                </a>
-                            </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <input id="f-name" name="name" type="text" value="{{ old('name') }}" placeholder="Contact person *"
+                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
+                                        <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
+                                        @error('name')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
+                                    </div>
+                                    <div>
+                                        <input id="f-phone" name="phone" type="tel" inputmode="numeric" maxlength="10"
+                                            value="{{ old('phone') }}" placeholder="Phone number *"
+                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
+                                        <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
+                                        @error('phone')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
+                                    </div>
+                                </div>
 
-                            <p id="formStatus" role="status" class="mt-4 hidden rounded-lg px-4 py-3 text-[13.5px]"></p>
-                        </form>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                                    <div>
+                                        <input id="f-email" name="email" type="email" value="{{ old('email') }}" placeholder="Email *"
+                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
+                                        <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
+                                        @error('email')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
+                                    </div>
+                                    <div>
+                                        <input id="f-location" name="location" type="text" value="{{ old('location') }}" placeholder="Location *"
+                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
+                                        <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
+                                        @error('location')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-wrap items-center gap-3 mt-6">
+                                    <button type="submit"
+                                        class="inline-flex items-center gap-2 rounded-lg bg-primary-teal text-white text-[12px] font-bold uppercase tracking-[0.12em] px-6 py-3.5 hover:bg-primary-navy hover:-translate-y-0.5 transition-all duration-200">
+                                        Send Enquiry
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M5 12h14"></path>
+                                            <path d="m12 5 7 7-7 7"></path>
+                                        </svg>
+                                    </button>
+                                    <a id="waSend" href="https://wa.me/919935070000" target="_blank" rel="noopener"
+                                        class="inline-flex items-center gap-2 rounded-lg border border-primary-teal/30 text-primary-teal text-[12px] font-bold uppercase tracking-[0.12em] px-6 py-3.5 hover:bg-primary-mint transition-all duration-200">
+                                        Send on WhatsApp
+                                    </a>
+                                </div>
+
+                                <p id="formStatus" role="status" class="mt-4 hidden rounded-lg px-4 py-3 text-[13.5px]"></p>
+                            </form>
+                        </div>
                     </div>
-                </div>
 
                 </div>
             </div>

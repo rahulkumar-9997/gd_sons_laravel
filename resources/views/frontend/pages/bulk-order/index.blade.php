@@ -343,15 +343,10 @@
                             </div>
                             @endif
 
-                            <form id="bulkForm" method="POST" action="" novalidate>
+                            <form id="bulkForm" novalidate>
                                 @csrf
-
-                                {{-- honeypot --}}
                                 <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden" value="">
-
-                                <!-- Order details -->
                                 <p class="mb-2.5 text-[12.5px] font-semibold uppercase tracking-wider text-textcolor-secondary">Order details</p>
-
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <input id="f-budget" name="budget" type="text" inputmode="numeric" value="{{ old('budget') }}"
@@ -753,8 +748,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- ── right: accordion ── -->
                     <div class="lg:col-span-8">
 
                         @php

@@ -229,6 +229,7 @@
                      <li><a href="{{ route('blogs') }}" class="nav-link !text-primary-navy text-[15px]">Blogs</a></li>
                      <li><a href="{{ route('about-us') }}" class="nav-link !text-primary-navy text-[15px]">About Us</a></li>
                      <li><a href="{{ route('contact-us') }}" class="nav-link !text-primary-navy text-[15px]">Contact Us</a></li>
+                     <li><a href="{{ route('bulk.order') }}" class="nav-link !text-primary-navy text-[15px]">Bulk Order</a></li>
                      <li>
                         <a href="{{ route('flash.sale')}}" class="nav-link !text-primary-navy text-[15px]">
                         Flash Sale

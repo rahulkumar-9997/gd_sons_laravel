@@ -101,7 +101,7 @@ Route::middleware([TrackVisitor::class])->group(function () {
     Route::post('check-serviceability', [FrontendController::class, 'checkServiceability'])
     ->name('check.serviceability');
     Route::post('check-serviceability-edit', [FrontendController::class, 'editServiceability'])->name('check.serviceability.edit');
-    Route::get('bulk-order', [FrontendController::class, 'bulkOrderPage'])->name('request.bulk.order');
+    Route::get('bulk-order', [FrontendController::class, 'bulkOrderPage'])->name('bulk.order');
     Route::post('add-to-cart', [CustomerController::class, 'addToCart'])->name('add.to.cart');
     Route::match(['get', 'post'], 'cart', [CustomerController::class, 'cartList'])->name('cart');
     Route::post('/cart/remove', [CustomerController::class, 'removeFromCart'])->name('cart.remove');

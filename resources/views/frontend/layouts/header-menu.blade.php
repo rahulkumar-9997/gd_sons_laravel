@@ -4,59 +4,7 @@ $query = request()->get('query');
 $search_value = !empty($query) ? $query : '';
 @endphp
 <header class="pb-md-2 pb-0 mobile-header">
-   <div class="header-top d-lg-block d-none">
-      <div class="container-fluid-lg">
-         <div class="row">
-            <div class="col-lg-6 col-md-6 d-xxl-block d-sm-none varanasi-top">
-               <div class="top-left-header">
-                  <!-- <i class="iconly-Location icli text-white"></i> -->
-                  <h4 class="text-white">Genuine products. All across India. 55 years of honest service!</h4>
-               </div>
-            </div>
-            <!-- <div class="col-xxl-4 col-lg-9 d-lg-block d-none">
-               <div class="header-offer">
-                  <div class="notification-slider">
-                     <div>
-                        <div class="timer-notification">
-                           <h6>
-                              <strong class="me-1">Welcome to Girdas & Sons!</strong>Wrap new offers/gift every single day on Weekends. <strong class="ms-1">New Coupon Code: Fast024 </strong>
-                           </h6>
-                        </div>
-                     </div>
-                     <div>
-                        <div class="timer-notification">
-                           <h6>Something you love is now on sale! <a href="" class="text-white">Buy Now !</a>
-                           </h6>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div> -->
-            <div class="col-lg-6 col-md-6 d-lg-block d-sm-none">
-               <ul class="about-list right-nav-about header-social-links">
-                  <li class="light-bg">
-                     <a href="https://www.facebook.com/gdandsons" target="_blank" class="footer-link-color" title="Facebook">
-                        <i class="fab fa-facebook-f"></i>
-                     </a>
-                  </li>
-                  <li class="light-bg">
-                     <a href="https://www.youtube.com/@GirdharDasandSons" target="_blank" class="footer-link-color" title="Youtube">
-                        <i class="fab fa-youtube"></i>
-                     </a>
-                  </li>
-
-                  <li class="light-bg">
-                     <a href="https://www.instagram.com/gdsons.vns/" target="_blank" class="footer-link-color" title="Instagram">
-                        <i class="fab fa-instagram"></i>
-                     </a>
-                  </li>
-
-               </ul>
-
-            </div>
-         </div>
-      </div>
-   </div>
+   @include('frontend.layouts.header-top')
    <div class="top-nav top-header sticky-header pa-main-header">
       <div class="container-fluid-lg">
          <div class="row">
@@ -351,10 +299,10 @@ $search_value = !empty($query) ? $query : '';
                            <ul class="navbar-nav">
                               
                               <li class="nav-item for-mobile-display mobile-category" data-open-categories style="margin-bottom: 20px;">
-                                 <a class="nav-link mobile-link all-product-mobile" href="javascript:void(0)">
+                                 <a class="p-2 nav-link mobile-link all-product-mobile" href="javascript:void(0)">
                                     All Products
                                  </a>
-                              </li>
+                              </li>                              
                               <li class="mobile-flash-sale">
                                  <a href="{{ route('flash.sale')}}" class="flash-sale-button">
                                     Flash Sale <small>Only Limited Time</small>
@@ -377,7 +325,11 @@ $search_value = !empty($query) ? $query : '';
 
                               @endforeach
                               @endif
-
+                              <li class="nav-item for-mobile-display">
+                                 <a class="nav-link nav-other mobile-link" href="{{route('bulk.order')}}">
+                                    Bulk Order
+                                 </a>
+                              </li>
                               <li class="nav-item for-mobile-display">
                                  <a class="nav-link nav-other mobile-link" href="{{route('about-us')}}">
                                     About Us

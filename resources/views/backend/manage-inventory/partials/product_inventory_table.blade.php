@@ -50,7 +50,7 @@
                         <div class="d-flex gap-1">
                             <a href="{{ route('product.show', $product->id) }}" data-bs-original-title="View Product" data-bs-toggle="tooltip" class="btn btn-soft-primary btn-sm"><i class="ti ti-eye"></i></a>
                             <a href="{{ route('product.edit', $product->id) }}" class="btn btn-soft-primary btn-sm" data-bs-original-title="Edit Product" data-bs-toggle="tooltip"><i class="ti ti-pencil"></i></a>
-                            <a href="javascript:void(0)" data-ajax-popup-modal="true" data-size="lg" data-title=" Add Inventory" data-pid="{{$product->id}}" data-url="{{route('manage-inventory.create')}}" data-bs-toggle="tooltip" class="btn btn-sm btn-primary" data-bs-original-title=" Add Inventory">
+                            <a href="javascript:void(0)" data-ajax-popup-modal="true" data-size="xl" data-title=" Add Inventory" data-pid="{{$product->id}}" data-url="{{route('manage-inventory.create')}}" data-bs-toggle="tooltip" class="btn btn-sm btn-primary" data-bs-original-title=" Add Inventory">
                                 Add Inventory
                             </a>  
                             <!-- Only show the "View Inventory" button if there are inventories -->

@@ -36,11 +36,16 @@ class OrderControllerBackend extends Controller
     public function showAllOrderList(Request $request)
     {
         $orderStatusId = $request->query('order-status');
+        if (!$orderStatusId) {
+            $newStatus = OrderStatus::where('status_name', 'New')->first();
+            $orderStatusId = $newStatus?->id;
+        }
         if ($orderStatusId) {
             $orders = Orders::with([
                 'orderStatus',
                 'customer',
                 'orderLines.product.images',
+                'orderLines.product.ProductAttributesValues.attributeValue',
                 'shiprocketOrderResponse',
                 'shiprocketCourier'
             ])
@@ -54,6 +59,69 @@ class OrderControllerBackend extends Controller
         //return response()->json($orders);
         $orders_status = OrderStatus::all();
         return view('backend.manage-order.order-list', compact('orders', 'orders_status'));
+    }
+
+    public function getCopyMessageData(Request $request, $orderId)
+    {
+        $order = Orders::with([
+            'customer',
+            'orderLines.product.ProductAttributesValues.attributeValue'
+        ])->findOrFail($orderId);
+        $type = $request->query('type', 'available'); 
+        $customerName = $order->customer->name ?? 'Customer';
+        $products = $order->orderLines->map(function ($line) {
+            $attributeSlug = 'na';
+            if ($line->product && $line->product->ProductAttributesValues->isNotEmpty()) {
+                $attributeSlug = $line->product->ProductAttributesValues->first()->attributeValue->slug;
+            }
+            return [
+                'name' => $line->product ? ucwords(strtolower($line->product->title)) : 'Product',
+                'url'  => $line->product
+                    ? url('products/' . $line->product->slug . '/' . $attributeSlug)
+                    : '',
+            ];
+        });
+        $message = $this->buildOrderMessage($type, $customerName, $products);
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+        ]);
+    }
+
+    private function buildOrderMessage(string $type, string $customerName, $products): string
+    {
+        $productLinks = $products->map(function ($product, $index) {
+            $line = ($index + 1) . '. ' . $product['name'];
+            if (!empty($product['url'])) {
+                $line .= "\n" . $product['url'];
+            }
+            return $line;
+        })->implode("\n\n");
+        $header = "*Order Received on GDSONS.co.in*\n\n"
+            . "Hello *{$customerName}*,\n\n"
+            . "This message is from www.gdsons.co.in (https://www.gdsons.co.in) website representing *Girdhar Das and Sons*, the fastly growing Kitchenware Portal of India.\n\n"
+            . "We have received a *Cash on Delivery Order* from this number for the following Product :\n\n"
+            . "*{$productLinks}*\n";
+
+        switch ($type) {
+            case 'alt_color':
+                return $header . "\n"
+                    . "Unfortunately, the design or color you ordered is not in stock, that is why there is a delay in processing of your Order.\n\n"
+                    . "We have placed the restocking order, but it may take additional 7-8 days to reach to us.\n\n"
+                    . "However, you can check other colours and designs of same model.\n"
+                    . "If you like, we can replace your ordered item with any of the below.";
+
+            case 'not_available':
+                return $header . "\n"
+                    . "Unfortunately, there has been a sudden shortage of this Product, that is why there is a delay in processing of your Order.\n\n"
+                    . "We have placed the restocking order, but it may take additional 7-8 days to reach to us.\n\n"
+                    . "Please let us know if we shall *'Cancel'* the Order, or wait for *'Restocking'*.";
+
+            case 'available':
+            default:
+                return $header . "\n"
+                    . "Kindly confirm with a *'Yes'* as a response to this message so that we can process this Order and dispatch it as earliest as possible.";
+        }
     }
 
     public function orderDelete($orderId)

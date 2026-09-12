@@ -110,10 +110,12 @@ class CalculateProductShipmentRates implements ShouldQueue
                         DB::table('inventories')
                             ->where('id', $inventory->id)
                             ->update([
-                                'shipment_rate'=> $shipmentRate,
-                                'offer_shipment_rate'=> self::offerShipmentRate(
-                                    $inventory->offer_rate,
-                                    $shipmentRate
+                                'shipment_rate'=> round($shipmentRate),
+                                'offer_shipment_rate' => round(
+                                    self::offerShipmentRate(
+                                        $inventory->offer_rate,
+                                        $shipmentRate
+                                    )
                                 ),
                             ]);
                     }

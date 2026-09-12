@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers\Backend;
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
@@ -14,19 +16,23 @@ use App\Exports\InventoryExport;
 use App\Imports\InventoryImport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\ShippingRates;
+use App\Jobs\CalculateProductShipmentRates;
+use App\Services\ShippingRateEstimator;
+
 class InventoryController extends Controller
 {
-    public function index(Request $request){       
-        $data['categories'] = Category::all(); 
+    public function index(Request $request)
+    {
+        $data['categories'] = Category::all();
         $query = Product::with(['images', 'category', 'brand', 'inventories']);
         if ($request->has('category_id') && $request->category_id) {
             $query->where('category_id', $request->category_id);
         }
-       
+
         if ($request->has('search') && $request->search) {
-            $searchTerms = explode(' ', $request->search); 
+            $searchTerms = explode(' ', $request->search);
             $booleanQuery = '+' . implode(' +', $searchTerms);
-        
+
             $query->whereRaw("MATCH(title) AGAINST(? IN BOOLEAN MODE)", [$booleanQuery]);
             $query->orWhere(function ($query) use ($searchTerms) {
                 foreach ($searchTerms as $term) {
@@ -50,10 +56,11 @@ class InventoryController extends Controller
             return view('backend.manage-inventory.partials.product_inventory_table', compact('data'))->render();
         }
         //return response()->json($data['product_list']); 
-        return view('backend.manage-inventory.index', compact('data'));  
+        return view('backend.manage-inventory.index', compact('data'));
     }
 
-    public function create(Request $request){
+    public function create_old(Request $request)
+    {
         $token = $request->input('_token');
         $size = $request->input('size');
         $url = $request->input('url');
@@ -76,28 +83,28 @@ class InventoryController extends Controller
                     <div class="col-lg-6">
                         <div class="mb-3 w-100">
                             <label for="simpleinput" class="form-label">GST in %</label>
-                            <input type="text" name="gst_in_per" class="form-control" value="'.$product_row->gst_in_per.'">
+                            <input type="text" name="gst_in_per" class="form-control" value="' . $product_row->gst_in_per . '">
                         </div>
                     </div>
                     <div class="col-lg-6">';
-                        if($product_row->length && $product_row->breadth && $product_row->height && $product_row->weight){
-                            $form .= '
+        if ($product_row->length && $product_row->breadth && $product_row->height && $product_row->weight) {
+            $form .= '
                             <div class="product_volumetric">
                                 <h4>
                                 Volumetric Weight
                                 </H4>
                             </div>
                             <div class="mt-1">
-                                <span class="badge bg-light text-dark">L: '.number_format($product_row->length, 1).' cm</span>
-                                <span class="badge bg-light text-dark">B: '.number_format($product_row->breadth, 1).' cm</span>
-                                <span class="badge bg-light text-dark">H: '.number_format($product_row->height, 1).' cm</span>
-                                <span class="badge bg-light text-dark">W: '.number_format($product_row->weight, 1).' kg</span>
+                                <span class="badge bg-light text-dark">L: ' . number_format($product_row->length, 1) . ' cm</span>
+                                <span class="badge bg-light text-dark">B: ' . number_format($product_row->breadth, 1) . ' cm</span>
+                                <span class="badge bg-light text-dark">H: ' . number_format($product_row->height, 1) . ' cm</span>
+                                <span class="badge bg-light text-dark">W: ' . number_format($product_row->weight, 1) . ' kg</span>
                                 <span class="badge bg-purple text-white">
-                                    VW: '.number_format($product_row->volumetric_weight_kg, 2) .' kg
+                                    VW: ' . number_format($product_row->volumetric_weight_kg, 2) . ' kg
                                 </span>
                             </div>';
-                        }
-                    $form .= '
+        }
+        $form .= '
                     </div>
                 </div>
                 <div class="table-responsive" style="overflow-x: auto;">
@@ -113,14 +120,15 @@ class InventoryController extends Controller
                                     <th style="min-width: 150px;">Purchase Rate</th>
                                     <th style="min-width: 150px;">Offer Rate</th>
                                     <th style="min-width: 150px;">Shipping Charge</th>
+                                    <th style="min-width: 150px;">Shipping + Offer Rate</th>
                                     <th style="min-width: 150px;">Stock Quantity</th>
                                     <th style="min-width: 120px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>';
-                                if (!$product_row->inventories->isEmpty()) {
-                                    foreach ($product_row->inventories as $inventory) {
-                                        $form .= '
+        if (!$product_row->inventories->isEmpty()) {
+            foreach ($product_row->inventories as $inventory) {
+                $form .= '
                                         <input type="hidden" name="inventory_id[]" class="form-control" value="' . $inventory->id . '">
                                         
                                         <tr class="field-group">
@@ -137,6 +145,16 @@ class InventoryController extends Controller
                                                 <input type="number" name="shipment_rate[]" class="form-control" value="' . $inventory->shipment_rate . '">
                                             </td>
                                             <td>
+                                                <div class="">
+                                                    <input type="number" name="offer_shipment_rate[]" class="form-control" value="' . $inventory->offer_shipment_rate . '">
+                                                </div>
+                                                <div>
+                                                    <span class="badge bg-info-subtle text-info savings-badge">
+                                                        Bachat: ₹' . number_format($inventory->mrp - $inventory->offer_shipment_rate, 2) . '
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td>
                                                 <input type="number" name="stock_quantity[]" class="form-control" value="' . $inventory->stock_quantity . '" >
                                             </td>
                                             <td style="display: none;">
@@ -148,9 +166,9 @@ class InventoryController extends Controller
                                                 </button>
                                             </td>
                                         </tr>';
-                                    }
-                                }else{
-                                $form .= '
+            }
+        } else {
+            $form .= '
                                 <tr class="field-group">
                                     <td>
                                         <input type="number" name="mrp[]" class="form-control" required="">
@@ -173,8 +191,8 @@ class InventoryController extends Controller
                                         </button>
                                     </td>
                                 </tr>';
-                                }
-                                $form .= '
+        }
+        $form .= '
                             </tbody>
                         </table>
                     </div>
@@ -192,10 +210,225 @@ class InventoryController extends Controller
             'message' => 'Inventory Form created successfully',
             'form' => $form,
         ]);
-
     }
 
-    public function store(Request $request){
+    public function create(Request $request)
+    {
+        $product_id   = $request->input('product_id');
+        $product_row  = Product::with('inventories')->findOrFail($product_id);
+        $uniqueSku    = 'SKU-' . strtoupper(uniqid());
+        $volumetricKg = CalculateProductShipmentRates::volumetricWeight($product_row);
+        $shipmentRate = $volumetricKg !== null
+            ? round(ShippingRateEstimator::estimate($volumetricKg)['rate'])
+            : null;
+        $form = '
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h5 class="mb-2 text-primary">' . e($product_row->title) . '</h5>
+                    <div id="error-container"></div>
+                </div>
+            </div>
+            <form method="POST" action="' . route('manage-inventory.store') . '" accept-charset="UTF-8" enctype="multipart/form-data" id="inventoryAddForm">
+                ' . csrf_field() . '
+                <input type="hidden" name="product_id" value="' . $product_id . '">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="mb-3 w-100">
+                            <label for="gst_in_per" class="form-label">GST in %</label>
+                            <input type="text" id="gst_in_per" name="gst_in_per" class="form-control" value="' . $product_row->gst_in_per . '">
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="product_volumetric">
+                            <h4 class="mb-1">Volumetric Weight &amp; Shipping</h4>
+                        </div>
+                        <div class="mt-1" id="volumetric-summary">';
+
+        if ($volumetricKg !== null) {
+            $form .= '
+            <span class="badge bg-light text-dark">L: ' . number_format($product_row->length, 1) . ' cm</span>
+            <span class="badge bg-light text-dark">B: ' . number_format($product_row->breadth, 1) . ' cm</span>
+            <span class="badge bg-light text-dark">H: ' . number_format($product_row->height, 1) . ' cm</span>';
+
+            if ($product_row->weight > 0) {
+                $form .= '
+                <span class="badge bg-light text-dark">W: ' . number_format($product_row->weight, 1) . ' kg</span>';
+            }
+
+            $form .= '
+            <span class="badge bg-purple text-white" id="vw-badge">VW: ' . number_format($volumetricKg, 2) . ' kg</span>
+            <span class="badge bg-success text-white" id="sr-badge">Shipping: &#8377;' . number_format($shipmentRate, 2) . '</span>
+            <button type="button"
+                    class="btn btn-sm btn-outline-primary ms-1 update-shipment-rate"
+                    data-route="' . route('manage-inventory.shipment-rate', $product_id) . '">
+                Update Shipment Rate
+            </button>';
+        } else {
+            $form .= '
+            <span class="badge bg-danger text-white">Dimensions missing — add L, B and H to the product to calculate shipping</span>';
+        }
+
+        $form .= '
+                        </div>
+                    </div>
+                </div>
+ 
+                <div class="table-responsive" style="overflow-x: auto;">
+                    <div style="max-height: 400px; overflow-y: auto; overflow-x: auto;">
+                        <table class="table table-borderless table-centered"
+                               id="dynamic-fields-table"
+                               data-shipment-rate="' . ($shipmentRate ?? '') . '">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 150px;">MRP</th>
+                                    <th style="min-width: 150px;">Purchase Rate</th>
+                                    <th style="min-width: 150px;">Offer Rate</th>
+                                    <th style="min-width: 150px;">Shipping Charge</th>
+                                    <th style="min-width: 150px;">Shipping + Offer Rate</th>
+                                    <th style="min-width: 150px;">Stock Quantity</th>
+                                    <th style="min-width: 120px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>';
+
+        if (!$product_row->inventories->isEmpty()) {
+            foreach ($product_row->inventories as $inventory) {
+                $rowShipment = $inventory->shipment_rate > 0
+                    ? $inventory->shipment_rate
+                    : $shipmentRate;
+                $rowOfferShipment = null;
+                if ($inventory->offer_shipment_rate > 0) {
+                    $rowOfferShipment = $inventory->offer_shipment_rate;
+                } elseif ($inventory->offer_rate > 0 && $rowShipment !== null) {
+                    $rowOfferShipment = round($inventory->offer_rate + $rowShipment, 2);
+                }
+                $bachat = ($inventory->mrp > 0 && $rowOfferShipment > 0)
+                    ? $inventory->mrp - $rowOfferShipment
+                    : null;
+                $form .= '
+            <tr class="field-group">
+                <td>
+                    <input type="hidden" name="inventory_id[]" value="' . $inventory->id . '">
+                    <input type="number" step="0.01" name="mrp[]" class="form-control" value="' . $inventory->mrp . '">
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="purchase_rate[]" class="form-control" value="' . $inventory->purchase_rate . '">
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="offer_rate[]" class="form-control" value="' . $inventory->offer_rate . '">
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="shipment_rate[]" class="form-control" value="' . ($rowShipment ?? '') . '">
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="offer_shipment_rate[]" class="form-control" value="' . ($rowOfferShipment ?? '') . '">
+                    <span class="badge bg-info-subtle text-info savings-badge"' . ($bachat === null ? ' style="display:none;"' : '') . '>
+                        Bachat: &#8377;' . number_format($bachat ?? 0, 2) . '
+                    </span>
+                </td>
+                <td>
+                    <input type="number" name="stock_quantity[]" class="form-control" value="' . $inventory->stock_quantity . '">
+                </td>
+                <td style="display: none;">
+                    <input type="text" name="sku[]" class="form-control" value="' . e($inventory->sku) . '" readonly>
+                </td>
+                <td>
+                    <button type="button" data-inventoryid="' . $inventory->id . '" data-name="' . e($inventory->sku) . '"
+                            class="btn btn-danger btn-sm remove-field delete-inventory-btn">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                </td>
+            </tr>';
+            }
+        } else {
+            $form .= '
+            <tr class="field-group">
+                <td>
+                    <input type="hidden" name="inventory_id[]" value="">
+                    <input type="number" step="0.01" name="mrp[]" class="form-control" required>
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="purchase_rate[]" class="form-control" required>
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="offer_rate[]" class="form-control" required>
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="shipment_rate[]" class="form-control" value="' . ($shipmentRate ?? '') . '">
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="offer_shipment_rate[]" class="form-control">
+                    <span class="badge bg-info-subtle text-info savings-badge" style="display:none;"></span>
+                </td>
+                <td>
+                    <input type="number" name="stock_quantity[]" class="form-control" required>
+                </td>
+                <td style="display: none;">
+                    <input type="text" name="sku[]" class="form-control" value="' . $uniqueSku . '" readonly>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm remove-field">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                </td>
+            </tr>';
+        }
+
+        $form .= '
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="mb-1">
+                    <button type="button" class="btn btn-success btn-sm" id="add-more-fields">Add More</button>
+                </div>
+                <div class="modal-footer pb-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>';
+
+        return response()->json([
+            'message'              => 'Inventory Form created successfully',
+            'form'                 => $form,
+            'volumetric_weight_kg' => $volumetricKg,
+            'shipment_rate'        => $shipmentRate,
+        ]);
+    }
+
+    public function updateShipmentRate(Request $request, $product_id)
+    {
+        $product = Product::select(['id', 'title', 'length', 'breadth', 'height'])
+            ->findOrFail($product_id);
+        $volumetricKg = CalculateProductShipmentRates::volumetricWeight($product);
+
+        if ($volumetricKg === null) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Length, breadth and height must all be set on the product before a shipping rate can be calculated.',
+            ]);
+        }
+        $estimate = ShippingRateEstimator::estimate($volumetricKg);
+        return response()->json([
+            'success' => true,
+            'message' => 'Shipment rate calculated: ₹' . number_format($estimate['rate'], 2)
+                . ' (volumetric weight ' . number_format($volumetricKg, 2) . ' kg)',
+            'volumetric_weight_kg' => $volumetricKg,
+            'shipment_rate'        => round($estimate['rate']),
+            'rate_status'          => $estimate['status'],
+            'dimensions'           => [
+                'length'  => (float) $product->length,
+                'breadth' => (float) $product->breadth,
+                'height'  => (float) $product->height,
+            ],
+        ]);
+    }
+
+
+    public function store(Request $request)
+    {
         $product_id = $request->input('product_id');
         $request->validate([
             'product_id' => 'required|exists:products,id',
@@ -253,9 +486,10 @@ class InventoryController extends Controller
                 'message' => 'An unexpected error occurred. Please try again later.',
             ], 500);
         }
-    }    
-    
-    public function update(Request $request, $id){
+    }
+
+    public function update(Request $request, $id)
+    {
         $request->validate([
             'mrp' => 'required|numeric',
             'purchase_rate' => 'required|numeric',
@@ -265,9 +499,9 @@ class InventoryController extends Controller
         $inventory = Inventory::findOrFail($id);
         /*Check if the MRP already exists for the same product_id*/
         $existingInventory = Inventory::where('product_id', $inventory->product_id)
-        ->where('mrp', $request->mrp)
-        ->where('purchase_rate', $request->purchase_rate)
-        ->first();
+            ->where('mrp', $request->mrp)
+            ->where('purchase_rate', $request->purchase_rate)
+            ->first();
 
         /*If the same MRP already exists for this product, don't update the MRP*/
         if ($existingInventory && $existingInventory->id === $inventory->id) {
@@ -304,7 +538,8 @@ class InventoryController extends Controller
         }
     }
 
-    public function destroy($id){
+    public function destroy($id)
+    {
         try {
             $inventory = Inventory::findOrFail($id);
             $inventory->delete();
@@ -315,20 +550,23 @@ class InventoryController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => 'An error occurred while deleting the inventory. Please try again.', 
+                'error' => 'An error occurred while deleting the inventory. Please try again.',
             ], 500);
         }
     }
 
-    public function exportInventory(){
+    public function exportInventory()
+    {
         return Excel::download(new InventoryExport, 'inventory.xlsx');
     }
 
-    public function importInventory(){
-        return view('backend.manage-inventory.import-inventory.import'); 
+    public function importInventory()
+    {
+        return view('backend.manage-inventory.import-inventory.import');
     }
 
-    public function inventoryImportForm(Request $request){
+    public function inventoryImportForm(Request $request)
+    {
         // Validate the uploaded file
         $request->validate([
             'import_file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
@@ -340,7 +578,7 @@ class InventoryController extends Controller
         ]);
         try {
             Excel::import(new InventoryImport, $request->file('import_file'));
-            return redirect('manage-inventory')->with('success','Inventory imported successfully.');
+            return redirect('manage-inventory')->with('success', 'Inventory imported successfully.');
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $failures = $e->failures();
             $errors = [];
@@ -368,37 +606,37 @@ class InventoryController extends Controller
     public function updateInventoryShipmentRate(Request $request, $id)
     {
         try {
-            $product = Product::find($id);    
+            $product = Product::find($id);
             if (!$product) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Product not found.',
                 ], 404);
             }
-            
+
             if (!$product->length || !$product->breadth || !$product->height) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Product dimensions (length, breadth, height) missing.',
                 ], 422);
             }
-            
+
             if ($product->length <= 0 || $product->breadth <= 0 || $product->height <= 0) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Product dimensions must be greater than 0.',
                 ], 422);
-            }            
-            
+            }
+
             $inventory = Inventory::where('product_id', $product->id)->first();
-            
+
             if (!$inventory) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No inventory found for this product.',
                 ], 404);
             }
-            
+
             /* Calculate volumetric weight */
             $volumetricWeight = round(
                 ($product->length * $product->breadth * $product->height) / 5000,
@@ -410,31 +648,31 @@ class InventoryController extends Controller
             /* Update product with volumetric weight */
             $product->volumetric_weight_kg = $volumetricWeight;
             $product->save();
-            
+
             /* Find weight category*/
-            $weightCategory = $this->findWeightCategory($volumetricWeight);            
-            
+            $weightCategory = $this->findWeightCategory($volumetricWeight);
+
             if (!$weightCategory) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No weight category found for this product weight.',
                 ], 422);
             }
-            
+
             /* Calculate uniform shipping rate */
             $uniformRate = $this->calculateUniformShippingRate($weightCategory->id);
-            
+
             if ($uniformRate <= 0) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unable to calculate shipping rate. No pincode rates found.',
                 ], 422);
             }
-            
+
             /* Update inventory with uniform rate */
             $inventory->shipment_rate = $uniformRate;
-            $inventory->save();            
-            
+            $inventory->save();
+
             return response()->json([
                 'success'              => true,
                 'message'              => 'Uniform shipping rate calculated successfully!',
@@ -458,13 +696,12 @@ class InventoryController extends Controller
                     'note' => 'This rate is same for all customers (local & distant)'
                 ]
             ]);
-            
         } catch (\Exception $e) {
             Log::error('updateInventoryShipmentRate error: ' . $e->getMessage(), [
                 'product_id' => $id,
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong: ' . $e->getMessage(),
@@ -478,7 +715,7 @@ class InventoryController extends Controller
     private function findWeightCategory(float $weight)
     {
         return \App\Models\WeightCategory::where('min_weight', '<=', $weight)
-            ->where(function($query) use ($weight) {
+            ->where(function ($query) use ($weight) {
                 $query->where('max_weight', '>=', $weight)
                     ->orWhereNull('max_weight');
             })
@@ -495,27 +732,27 @@ class InventoryController extends Controller
         $allRates = \App\Models\PincodeShippingRate::where('weight_category_id', $weightCategoryId)
             ->pluck('shipping_rate')
             ->toArray();
-        
+
         if (empty($allRates)) {
             return 0;
         }
-        
+
         /* Simple Average (easy and works well) */
         $averageRate = array_sum($allRates) / count($allRates);
-        
+
         // Method 2: Weighted by distance (more accurate)
         // $weightedAverage = $this->calculateWeightedAverageByDistance($weightCategoryId);
-        
+
         /* Add 15% profit margin */
         $rateWithMargin = $averageRate * 1.15;
-        
+
         /* Round up to nearest 10 or 50 for nice pricing */
         if ($rateWithMargin <= 100) {
-            $finalRate = ceil($rateWithMargin / 10) * 10; 
+            $finalRate = ceil($rateWithMargin / 10) * 10;
         } else {
             $finalRate = ceil($rateWithMargin / 50) * 50;
         }
-        
+
         return $finalRate;
     }
 
@@ -541,22 +778,20 @@ class InventoryController extends Controller
             ->where('psr.weight_category_id', $weightCategoryId)
             ->groupBy('zone')
             ->get();
-        
+
         $weights = [
             'local' => 0.20,     // 20% weight - lowest rates
             'regional' => 0.30,  // 30% weight - medium rates
             'national' => 0.35,  // 35% weight - high rates
             'far' => 0.15        // 15% weight - highest rates
         ];
-        
+
         $weightedSum = 0;
         foreach ($zoneRates as $zone) {
             $weight = $weights[$zone->zone] ?? 0.25;
             $weightedSum += $zone->avg_rate * $weight;
         }
-        
+
         return $weightedSum;
     }
-
-
 }

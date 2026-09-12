@@ -308,6 +308,8 @@ Route::group(['middleware' => ['admin']], function () {
     /**inventory route */
     Route::get('/manage-inventory', [InventoryController::class, 'index'])->name('manage-inventory.index');
     Route::post('/manage-inventory/create', [InventoryController::class, 'create'])->name('manage-inventory.create');
+    Route::post('manage-inventory/shipment-rate/{product_id}', [InventoryController::class, 'updateShipmentRate'])
+    ->name('manage-inventory.shipment-rate');
     Route::post('/manage-inventory/store', [InventoryController::class, 'store'])->name('manage-inventory.store');
     Route::post('/manage-inventory/update/{id}', [InventoryController::class, 'update'])->name('manage-inventory.update');
     Route::delete('/manage-inventory/delete/{id}', [InventoryController::class, 'destroy'])->name('manage-inventory.delete');
@@ -367,6 +369,7 @@ Route::group(['middleware' => ['admin']], function () {
     /**Order Route */
 
     Route::get('order-list', [OrderControllerBackend::class, 'showAllOrderList'])->name('order-list');
+    Route::get('order-list/{orderId}/copy-message', [OrderControllerBackend::class, 'getCopyMessageData'])->name('order-list.copy-message');
     Route::get('order-details/{id}', [OrderControllerBackend::class, 'showOrderDetails'])->name('order-details');
     Route::get('edit-order/{id}', [OrderControllerBackend::class, 'editOrder'])->name('edit-order');
     Route::delete('order-list/destroy/{id}', [OrderControllerBackend::class, 'orderDelete'])->name('order-list.destroy');

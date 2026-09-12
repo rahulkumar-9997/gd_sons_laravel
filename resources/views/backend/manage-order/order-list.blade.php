@@ -93,5 +93,101 @@
         });
 
     });
+    /*Copy new message js code */
+    document.addEventListener('DOMContentLoaded', function () {
+        let currentBaseUrl = null;
+        const textarea = document.getElementById('copyMessageTextarea');
+        function fetchMessage(type) {
+            if (!currentBaseUrl) return;
+            textarea.value = 'Loading...';
+            const url = currentBaseUrl + (currentBaseUrl.includes('?') ? '&' : '?') + 'type=' + encodeURIComponent(type);
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Request failed with status ' + response.status);
+                }
+                return response.json();
+            })
+            .then(function (data) {
+                if (!data.success) {
+                    throw new Error('Server returned an error');
+                }
+                textarea.value = data.message;
+            })
+            .catch(function (error) {
+                console.error('Fetching order message failed:', error);
+                textarea.value = '';
+                Toastify({
+                    text: 'Could not load order message. Please try again.',
+                    duration: 5000,
+                    gravity: 'top',
+                    position: 'right',
+                    className: 'toastify-error',
+                    close: true
+                }).showToast();
+            });
+        }
+        // Open modal -> fetch default template
+        document.querySelectorAll('.copy-order-message').forEach(function (button) {
+            button.addEventListener('click', function () {
+                currentBaseUrl = this.dataset.url;
+
+                document.getElementById('typeAvailable').checked = true;
+                fetchMessage('available');
+            });
+        });
+        document.querySelectorAll('.message-type-radio').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                fetchMessage(this.value);
+            });
+        });
+        document.getElementById('copyFinalMessageBtn').addEventListener('click', function () {
+            const message = textarea.value;
+            navigator.clipboard.writeText(message)
+                .then(function () {
+                    Toastify({
+                        text: 'Message copied to clipboard!',
+                        duration: 3000,
+                        gravity: 'top',
+                        position: 'right',
+                        className: 'toastify-success',
+                        close: true
+                    }).showToast();
+                })
+                .catch(function (error) {
+                    console.error('Copy failed:', error);
+                    try {
+                        textarea.select();
+                        document.execCommand('copy');
+                        Toastify({
+                            text: 'Message copied to clipboard!',
+                            duration: 3000,
+                            gravity: 'top',
+                            position: 'right',
+                            className: 'toastify-success',
+                            close: true
+                        }).showToast();
+                    } catch (err) {
+                        console.error('Fallback copy failed:', err);
+                        Toastify({
+                            text: 'Could not copy the message. Please try again.',
+                            duration: 5000,
+                            gravity: 'top',
+                            position: 'right',
+                            className: 'toastify-error',
+                            close: true
+                        }).showToast();
+                    }
+                });
+        });
+    });
+    /*Copy new message js code */
 </script>
+
 @endpush

@@ -43,24 +43,24 @@
     @if(!empty($couriers))
     @php $cheapest = $couriers[0]; @endphp
     <div class="delivery-result p-2 border rounded bg-light">
-        <div class="d-flex justify-content-between">
+        <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="mb-2">{{ $cheapest['courier'] }}</h4>
+                <!-- <h4 class="mb-2">{{ $cheapest['courier'] }}</h4> -->
                 <div class="delivery-time">
                     Delivery in {{ $cheapest['estimated_delivery_days'] ?? 'N/A' }}-7 business days                    
                 </div>
                 @if(!empty($cheapest['city']))
-                <div class="delivery-city mt-1">                    
+                <div class="delivery-city mt-0">                    
                     <strong>Delivery to : </strong>
                     {{ $cheapest['city'] ?? '' }}                    
                 </div>
                 @endif
             </div>
             <div>
-                <span class="text-success fw-bold">
+                <!--<span class="text-success fw-bold">
                     {{ round($cheapest['rate']) == 0 ? 'FREE' : '₹' . round($cheapest['rate']) }}
-                </span>
-                <div class="mt-2">                    
+                </span>-->
+                <div class="mt-0">                    
                     <form method="POST" action="{{ route('check.serviceability.edit') }}" id="check-delivery-form-edit">
                         @csrf
                         <input type="hidden" name="product_data" value='@json($product_items_for_js ?? [])'>

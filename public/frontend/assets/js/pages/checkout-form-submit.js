@@ -96,7 +96,6 @@ $(document).ready(function () {
                 },
             });
         });
-
     
     /* CLIENT-SIDE VALIDATION */
     function validateCheckoutForm(form) {

@@ -588,7 +588,6 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 @endforeach
                                 @endif
                             </ul>
-
                         </div>
                     </div>
                 </div>

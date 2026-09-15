@@ -1,3 +1,11 @@
+@php
+    $freeShippingThreshold = 500;
+
+    $subtotal = 0;
+    $sessionCart = session('cart', []);
+    $cart_items_for_js = [];
+@endphp
+
 <div class="right-side-summery-box">
     <div class="summery-box-2">
         <div class="summery-header">
@@ -8,7 +16,7 @@
             <div class="mb-3 coupon-box input-group apply-coupon-container">
                 <input type="text" name="apply-coupon-input" class="form-control" id="apply-coupon-input" placeholder="Enter Coupon Code Here...">
                 <button type="button" class="btn theme-bg-color text-white btn-md apply-coupon-btn">Apply</button>
-            </div>   
+            </div>
             @if(session()->has('applied_coupon'))
                 @php $appliedCoupon = session('applied_coupon'); @endphp
                 <div class="alert alert-success alert-dismissible" id="applied-coupon-alert">
@@ -17,13 +25,8 @@
                 </div>
             @endif
         </div>
-        
+
         <ul class="summery-contain">
-            @php
-                $subtotal = 0;
-                $sessionCart = session('cart', []);
-                $cart_items_for_js = [];
-            @endphp
             @foreach ($carts as $cart)
             @php
                 $quantity = $sessionCart[$cart->id]['quantity'] ?? 1;
@@ -35,7 +38,7 @@
                     'height' => (float) ($cart->height ?? 0),
                     'weight' => (float) ($cart->weight ?? 0),
                 ];
-                
+
                 $purchase_rate = $cart->purchase_rate ?? 0;
                 $offer_rate = $cart->offer_rate ?? 0;
                 $mrp = $cart->mrp ?? 0;
@@ -85,7 +88,7 @@
                         @endif
                     </div>
                     <h4>
-                        {{ ucwords(strtolower($cart->title)) }}                        
+                        {{ ucwords(strtolower($cart->title)) }}
                     </h4>
                 </div>
                 <div class="flex-detail">
@@ -101,13 +104,20 @@
                                 <del class="text-content">Rs. {{ number_format($mrp, 2) }}</del>
                             </span>
                         @endif
-                        
                     </div>
                 </div>
             </li>
             @endforeach
             <input type="hidden" id="cart_items_json" value='@json($cart_items_for_js)'>
         </ul>
+
+        @php
+            /* ---- Free shipping + COD charge rules ---- */
+            $isFreeShipping = $isFreeShipping ?? ($subtotal >= $freeShippingThreshold);
+            $shippingRate   = $isFreeShipping ? 0 : round($rate ?? 0);
+            $codCharge      = $codCharge ?? ((($paymentType ?? '') === 'Cash on Delivery') ? 50 : 0);
+        @endphp
+
         <ul class="summery-total">
             <li>
                 <h4>Subtotal</h4>
@@ -115,25 +125,41 @@
                     <span id="subtotal_amount">{{ number_format($subtotal, 2) }}</span>
                 </h4>
             </li>
+
             <li id="shipping_section">
                 <div class="courier-partner-title">
                     <h4>Shipping</h4>
                     <h4 class="price mt-2">
-                        Rs. <span id="shipping_amount">{{ round($rate ?? 0) }}</span>
+                        @if($isFreeShipping)
+                            <span class="text-success" id="shipping_free_badge">FREE</span>
+                            <span id="shipping_amount" style="display:none">0.00</span>
+                        @else
+                            Rs. <span id="shipping_amount">{{ $shippingRate }}</span>
+                            <span id="shipping_free_badge" class="text-success" style="display:none">FREE</span>
+                        @endif
                     </h4>
                 </div>
+
+                @if(!$isFreeShipping)
+                    <p class="text-muted mb-0" id="free_shipping_hint" style="font-size:12px;">
+                        Add items worth Rs. {{ number_format(max(0, $freeShippingThreshold - $subtotal), 2) }} more for free shipping.
+                    </p>
+                @else
+                    <p class="text-muted mb-0" id="free_shipping_hint" style="font-size:12px; display:none;"></p>
+                @endif
+
                 <div class="courier-partner" id="courier_partner" style="display:none">
                     <div id="shipping_loader" class="checkout_loader_gif" style="display:none;"></div>
                     @if(!empty($couriers) && count($couriers) > 0 && ($paymentType ?? '') !== 'Pick Up From Store')
                         @foreach ($couriers as $index => $c)
                             @php $checked = $index === 0 ? 'checked' : ''; @endphp
                             <div class="form-check mt-2">
-                                <input type="radio" 
-                                    name="shipping_method" 
+                                <input type="radio"
+                                    name="shipping_method"
                                     class="form-check-input shipping_radio"
-                                    value="{{ round($c['rate']) }}"
+                                    value="{{ $c['rate'] }}"
                                     data-courier-name="{{ $c['courier'] }}"
-                                    data-rate="{{ round($c['rate']) }}"
+                                    data-rate="{{ $c['rate'] }}"
                                     data-courier-company-id="{{ $c['courier_company_id'] ?? '' }}"
                                     data-cod-charges="{{ round($c['cod_charges']) ?? 0 }}"
                                     data-courier-id="{{ $c['id'] ?? '' }}"
@@ -141,7 +167,12 @@
                                     {{ $checked }}>
                                 <label class="form-check-label">
                                     <strong>{{ $c['courier'] }}</strong>
-                                    ({{ $c['service'] ?: 'Service' }}) — ₹{{ round($c['rate']) }}
+                                    ({{ $c['service'] ?: 'Service' }}) —
+                                    @if($isFreeShipping)
+                                        <span class="text-success">Free</span>
+                                    @else
+                                        ₹{{ round($c['rate']) }}
+                                    @endif
                                 </label>
                                 <p><small class="text-muted">(ETD: {{ \Carbon\Carbon::parse($c['etd'])->addDays(2)->format('M d, Y') }})</small></p>
                             </div>
@@ -149,6 +180,12 @@
                     @endif
                 </div>
             </li>
+
+            <li class="cod-charge-row" style="{{ $codCharge > 0 ? '' : 'display:none;' }}">
+                <h4>COD Charges</h4>
+                <h4 class="price">Rs. <span id="cod_charge_display">{{ number_format($codCharge, 2) }}</span></h4>
+            </li>
+
             <li class="coupon-discount-row" style="{{ session()->has('applied_coupon') ? '' : 'display: none;' }}">
                 <h4>Coupon Discount</h4>
                 <h4 class="price text-success">- Rs.
@@ -161,26 +198,25 @@
             <li class="list-total">
                 <h4>Total (Rs.)</h4>
                 <h4 class="price">Rs.
-                    @php 
-                        $shippingRate = round($rate ?? 0);
+                    @php
                         $discountAmount = session()->has('applied_coupon') ? session('applied_coupon')['discount_amount'] : 0;
-                        $total = $subtotal + $shippingRate - $discountAmount;
+                        $total = $subtotal + $shippingRate + $codCharge - $discountAmount;
                     @endphp
                     <span id="grand_total_amount_span">{{ number_format($total, 2) }}</span>
                     <input type="hidden" id="grand_total_amount_input" name="grand_total_amount" value="{{ $total }}">
                 </h4>
             </li>
         </ul>
-    </div>    
-    {{-- Hidden Inputs --}}
+    </div>
     <input type="hidden" id="selected_courier_name" name="courier_name">
-    <input type="hidden" id="selected_shipping_rate" name="shipping_rate">
+    <input type="hidden" id="selected_shipping_rate" name="shipping_rate" value="{{ $shippingRate }}">
     <input type="hidden" id="selected_courier_company_id" name="courier_company_id">
-    <input type="hidden" id="selected_cod_charges" name="cod_charges">
+    <input type="hidden" id="selected_cod_charges" name="cod_charges" value="{{ $codCharge }}">
     <input type="hidden" id="selected_courier_id" name="courier_id">
     <input type="hidden" id="selected_courier_delivery_expected_date" name="delivery_expected_date">
+    <input type="hidden" id="cod_charge_amount" name="cod_charge_amount" value="{{ $codCharge }}">
     <input type="hidden" id="applied_coupon_code" name="applied_coupon_code" value="{{ session()->has('applied_coupon') ? session('applied_coupon')['code'] : '' }}">
     <input type="hidden" id="coupon_discount_amount" name="coupon_discount_amount" value="{{ session()->has('applied_coupon') ? session('applied_coupon')['discount_amount'] : 0 }}">
-    
+
     <button type="submit" class="btn theme-bg-color submit-checkout-btn text-white btn-md w-100 mt-4 fw-bold">Place Order</button>
 </div>

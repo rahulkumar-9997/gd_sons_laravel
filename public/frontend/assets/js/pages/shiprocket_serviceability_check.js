@@ -22,18 +22,24 @@
 
         applyCoupon(couponCode, $btn, originalText);
     });
-	
-	function getCurrentPincode() {
-		let fieldVal = ($("#checkout_pincode").val() || "").trim();
-		if (fieldVal) return fieldVal;
 
-		let selectedAddress = $(".exiting_customer_address_radio:checked");
-		if (selectedAddress.length) {
-			return (selectedAddress.data("pincode") || "").toString().trim();
-		}
-		return "";
-	}
-	
+    function getCurrentPincode() {
+        let fieldVal = ($("#checkout_pincode").val() || "").trim();
+        if (fieldVal) return fieldVal;
+
+        let selectedAddress = $(".exiting_customer_address_radio:checked");
+        if (selectedAddress.length) {
+            return (selectedAddress.data("pincode") || "").toString().trim();
+        }
+        return "";
+    }
+
+    /* HELPER: current COD charge based on selected payment type */
+    function getCodCharge() {
+        let paymentType = $("input[name='payment_type']:checked").val();
+        return paymentType === "Cash on Delivery" ? 50 : 0;
+    }
+
     /* COUPON APPLY FUNCTION */
     function applyCoupon(couponCode, $btn, originalText) {
         let subtotal =
@@ -41,8 +47,8 @@
         let shipping =
             parseFloat($("#shipping_amount").text().replace(/,/g, "")) || 0;
         let paymentType = $("input[name='payment_type']:checked").val();
-        //let pincode = $("#checkout_pincode").val().trim();
-		let pincode = getCurrentPincode();
+        let pincode = getCurrentPincode();
+
         $.ajax({
             url: window.applyCouponUrl,
             type: "POST",
@@ -126,22 +132,40 @@
             },
         });
     }
-    /* SMOOTH UPDATE TOTALS WITH COUPON */
+
+    /* SMOOTH UPDATE TOTALS WITH COUPON (animated version, used after applying a coupon) */
     function smoothUpdateTotalsWithCoupon(shipping, discount, subtotal) {
         shipping = parseFloat(shipping) || 0;
         discount = parseFloat(discount) || 0;
         subtotal = parseFloat(subtotal) || 0;
-        let total = subtotal + shipping - discount;
+        let codCharge = getCodCharge();
+        let total = subtotal + shipping + codCharge - discount;
+
         animateNumber($("#shipping_amount"), shipping);
         animateNumber($("#coupon_discount_display"), discount);
         animateNumber($("#grand_total_amount_span"), total);
         $("#grand_total_amount_input").val(total.toFixed(2));
+
+        $("#cod_charge_display").text(codCharge.toFixed(2));
+        $("#cod_charge_amount").val(codCharge);
+        $("#selected_cod_charges").val(codCharge);
+        $(".cod-charge-row").toggle(codCharge > 0);
+
+        if (shipping === 0) {
+            $("#shipping_free_badge").show();
+            $("#shipping_amount").hide();
+        } else {
+            $("#shipping_free_badge").hide();
+            $("#shipping_amount").show();
+        }
+
         if (discount > 0) {
             $(".coupon-discount-row").slideDown(300);
         } else {
             $(".coupon-discount-row").slideUp(300);
         }
     }
+
     /* ANIMATE NUMBER FUNCTION */
     function animateNumber($element, newValue) {
         let oldValue = parseFloat($element.text()) || 0;
@@ -159,6 +183,7 @@
             }
         }, 20);
     }
+
     /* REMOVE COUPON */
     $(document).on("click", "#remove-coupon-btn", function () {
         let $btn = $(this);
@@ -224,41 +249,66 @@
         });
     });
 
-    /* UPDATE TOTALS WITH COUPON */
+    /* UPDATE TOTALS WITH COUPON (non-animated, used after AJAX sidebar refresh) */
     function updateTotalsWithCoupon(shipping, discount, subtotal) {
         shipping = parseFloat(shipping) || 0;
         discount = parseFloat(discount) || 0;
         subtotal = parseFloat(subtotal) || 0;
-        let total = subtotal + shipping - discount;
-        $("#shipping_amount").text(shipping.toFixed(2));
+        let codCharge = getCodCharge();
+        let total = subtotal + shipping + codCharge - discount;
+
+        if (shipping === 0) {
+            $("#shipping_free_badge").show();
+            $("#shipping_amount").hide().text("0.00");
+        } else {
+            $("#shipping_free_badge").hide();
+            $("#shipping_amount").show().text(shipping.toFixed(2));
+        }
+
         $("#coupon_discount_display").text(discount.toFixed(2));
         $("#grand_total_amount_span").text(total.toFixed(2));
         $("#grand_total_amount_input").val(total.toFixed(2));
-        if (discount > 0) {
-            $(".coupon-discount-row").show();
-        } else {
-            $(".coupon-discount-row").hide();
-        }
+
+        $("#cod_charge_display").text(codCharge.toFixed(2));
+        $("#cod_charge_amount").val(codCharge);
+        $("#selected_cod_charges").val(codCharge);
+        $(".cod-charge-row").toggle(codCharge > 0);
+
+        $(".coupon-discount-row").toggle(discount > 0);
     }
 
-    /* MODIFIED UPDATE TOTALS FUNCTION */
+    /* MODIFIED UPDATE TOTALS FUNCTION — includes flat COD charge */
     function updateTotals(shipping) {
         let subtotal =
             parseFloat($("#subtotal_amount").text().replace(/,/g, "")) || 0;
         let discount = parseFloat($("#coupon_discount_amount").val()) || 0;
-        let total = subtotal + shipping - discount;
-        $("#shipping_amount").text(shipping.toFixed(2));
+        let codCharge = getCodCharge();
+        let total = subtotal + shipping + codCharge - discount;
+
+        if (shipping === 0) {
+            $("#shipping_free_badge").show();
+            $("#shipping_amount").hide().text("0.00");
+        } else {
+            $("#shipping_free_badge").hide();
+            $("#shipping_amount").show().text(shipping.toFixed(2));
+        }
+
+        $("#cod_charge_display").text(codCharge.toFixed(2));
+        $(".cod-charge-row").toggle(codCharge > 0);
+
         if (discount > 0) {
             $("#coupon_discount_display").text(discount.toFixed(2));
             $(".coupon-discount-row").show();
         }
+
         $("#grand_total_amount_span").text(total.toFixed(2));
         $("#grand_total_amount_input").val(total.toFixed(2));
         $("#selected_shipping_rate").val(shipping);
+        $("#selected_cod_charges").val(codCharge);
+        $("#cod_charge_amount").val(codCharge);
 
-        if (shipping === 0) {
+        if (shipping === 0 && !$(".shipping_radio:checked").length) {
             $("#selected_courier_company_id").val("");
-            $("#selected_cod_charges").val(0);
             $("#selected_courier_id").val("");
         }
     }
@@ -273,6 +323,7 @@
         $("input[name='total_price[]']").each(function () {
             totalAmount += parseFloat($(this).val()) || 0;
         });
+
         if (paymentType === "Pick Up From Store") {
             updateTotals(0);
             $(".courier-radio").hide();
@@ -291,10 +342,24 @@
             console.error("cart_items_json input not found!");
             return;
         }
-        let cartItems = JSON.parse(cartJsonInput.val());
+
+        let cartItems;
+        try {
+            cartItems = JSON.parse(cartJsonInput.val());
+        } catch (e) {
+            console.error("Invalid cart_items_json", e);
+            showNotificationAll(
+                "warning",
+                "Warning",
+                "Something went wrong reading your cart. Please refresh the page.",
+            );
+            return;
+        }
+
         $("#shipping_status").html("Checking serviceability...");
         $("#shipping_loader").fadeIn(200);
         let cod = paymentType === "Cash on Delivery" ? 1 : 0;
+
         $.ajax({
             url: window.shiprocketCheckUrl,
             type: "POST",
@@ -341,27 +406,27 @@
                         .prop("disabled", false)
                         .removeClass("btn-loading");
                     let first = $(".shipping_radio:checked");
-                    console.log(
-                        "DEBUG: shipping_radio:checked count =",
-                        first.length,
-                        "rate =",
-                        first.data("rate"),
-                    );
                     if (first.length) {
                         first.trigger("change");
                         let shippingRate = parseFloat(first.data("rate")) || 0;
-                        gtag("event", "shipping_calculated", {
-                            currency: "INR",
-                            shipping_amount: shippingRate,
-                            pincode: pincode,
-                        });
+                        if (typeof gtag === "function") {
+                            gtag("event", "shipping_calculated", {
+                                currency: "INR",
+                                shipping_amount: shippingRate,
+                                pincode: pincode,
+                            });
+                        }
                     }
                 });
             },
-            error: function () {
+            error: function (xhr) {
                 $("#shipping_loader").fadeOut(200);
+                let msg =
+                    xhr.responseJSON?.checkout_sidebar ||
+                    xhr.responseJSON?.message ||
+                    "Error checking serviceability.";
                 $("#shipping_status").html(
-                    `<span class="text-danger">Error checking serviceability.</span>`,
+                    `<span class="text-danger">${msg}</span>`,
                 );
                 placeOrderBtn
                     .prop("disabled", false)
@@ -392,8 +457,12 @@
         }
     });
 
-    /* EVENT: Payment Type Change */
+    /* EVENT: Payment Type Change — instant COD charge feedback + re-check serviceability */
     $(document).on("change", "input[name='payment_type']", function () {
+        let currentShipping =
+            parseFloat($(".shipping_radio:checked").data("rate")) || 0;
+        updateTotals(currentShipping);
+
         let selectedAddress = $(".exiting_customer_address_radio:checked");
         let pincode = "";
 
@@ -437,11 +506,12 @@
 
         $("#selected_courier_name").val(courierName);
         $("#selected_courier_company_id").val(courierCompanyId);
-        $("#selected_cod_charges").val(codCharges);
         $("#selected_courier_id").val(courierId);
         $("#selected_courier_delivery_expected_date").val(
             delivery_expected_date,
         );
+        // Note: #selected_cod_charges is now the flat ₹50 rule (set inside updateTotals),
+        // not the per-courier Shiprocket cod_charges value.
     });
 
     /* ON PAGE LOAD → AUTO-RUN FIRST ADDRESS */
@@ -456,6 +526,7 @@
         }
         let firstShip = $(".shipping_radio:checked");
         if (firstShip.length) firstShip.trigger("change");
+
         let paymentType = $("input[name='payment_type']:checked").val();
         if (paymentType === "Pick Up From Store") {
             updateTotals(0);
@@ -464,6 +535,7 @@
                 '<span class="text-success">Pick Up From Store — No Shipping Charges</span>',
             );
         }
+
         /* ON PAGE LOAD: if a coupon is already applied via session, sync COD visibility */
         if (
             $("#applied_coupon_code").length &&
@@ -482,12 +554,14 @@
             }
         }
     });
+
     $(document).on("submit", "#checkoutFormSubmit", function (e) {
         if ($("button[type='submit']").prop("disabled")) {
             e.preventDefault();
             return false;
         }
     });
+
     let localityTimer;
     $(document).on(
         "keyup",

@@ -105,6 +105,7 @@ class FrontendController extends Controller
                         ->addSelect([
                             'inventories.mrp',
                             'inventories.offer_rate',
+                             DB::raw('COALESCE(inventories.offer_shipment_rate, inventories.offer_rate) as display_price'),
                             'inventories.purchase_rate',
                             'inventories.sku',
                             'inventories.stock_quantity'
@@ -123,6 +124,7 @@ class FrontendController extends Controller
                                 'slug' => $product->slug,
                                 'mrp' => $product->mrp,
                                 'offer_rate' => $product->offer_rate,
+                                'display_price' => $product->display_price,
                                 'purchase_rate' => $product->purchase_rate,
                                 'sku' => $product->sku,
                                 'stock_quantity' => $product->stock_quantity,
@@ -159,9 +161,17 @@ class FrontendController extends Controller
                 $join->on('products.id', '=', 'inventories.product_id')
                     ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
             })
-            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
-            ->get()
-            ->shuffle();
+            ->select(
+            'products.*',
+            'inventories.mrp',
+            'inventories.offer_rate',
+            DB::raw('COALESCE(inventories.offer_shipment_rate, inventories.offer_rate) as display_price'),
+            'inventories.purchase_rate',
+            'inventories.sku',
+            'inventories.stock_quantity'
+        )
+        ->get()
+        ->shuffle();
         $data['popular_products'] = $products->where('label_id', $popular_label_id)->take(12);
 
         $data['attributes_value'] = Attribute_values::select('name', 'slug', 'images')->whereNotNull('images')
@@ -210,6 +220,7 @@ class FrontendController extends Controller
 						'products.weight',
 
 						'inventories.mrp',
+                        DB::raw('COALESCE(inventories.offer_shipment_rate, inventories.offer_rate) as display_price'),
 						'inventories.offer_rate',
 						'inventories.purchase_rate',
 						'inventories.sku',
@@ -257,6 +268,7 @@ class FrontendController extends Controller
 						'weight' => $product->weight,
 						'mrp' => $product->mrp,
 						'offer_rate' => $product->offer_rate,
+                        'display_price' => $product->display_price,
 						'purchase_rate' => $product->purchase_rate,
 						'sku' => $product->sku,
 						'stock_quantity' => $product->stock_quantity,
@@ -942,6 +954,7 @@ class FrontendController extends Controller
 
                     })
                     ->filter()
+                    ->sortBy('attribute_name', SORT_NATURAL | SORT_FLAG_CASE)
                     ->values();
 
                 return $filterAttributes->isNotEmpty()
@@ -958,7 +971,6 @@ class FrontendController extends Controller
             ->filter()
             ->values();            
             /*Additional Filters */
-            
             $current_count = $products->count() + (($products->currentPage() - 1) * $products->perPage());
             $total_count = $products->total();
             Log::info('Product Pagination', [
@@ -966,8 +978,8 @@ class FrontendController extends Controller
                 'load_more'   => $request->has('load_more'),
                 'per_page'    => $perPage,
                 'url'         => $request->fullUrl(),
-                'first_item'       => $products->firstItem(),
-                'last_item'        => $products->lastItem(),
+                'first_item'  => $products->firstItem(),
+                'last_item'   => $products->lastItem(),
             ]);
             /*Additional Filters */  
             if ($request->ajax()) {

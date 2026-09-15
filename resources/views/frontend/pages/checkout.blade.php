@@ -7,7 +7,6 @@
 @endpush
 @section('main-content')
 <!-- Breadcrumb Section Start -->
-
 <section class="breadcrumb-section pt-0">
     <div class="container-fluid-lg">
         <div class="row">

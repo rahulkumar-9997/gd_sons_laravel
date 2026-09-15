@@ -344,7 +344,6 @@ if (auth('customer')->check()) {
             @include('frontend.pages.partials.checkout.component.ajax-checkout-sidebar',['carts' => $carts, 'specialOffers' => $specialOffers, 'couriers' => $couriers, 'rate' => $rate ?? 0, 'paymentType' => $paymentType])
         </div>
     </div>
-
 </form>
 <script>
 window.appliedCouponIsCodAvailable = {{ ($appliedCouponSession && isset($appliedCouponSession['is_cod_available'])) ? (int)$appliedCouponSession['is_cod_available'] : 'undefined' }};

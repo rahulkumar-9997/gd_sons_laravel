@@ -886,7 +886,7 @@ class CustomerController extends Controller
         }
     }
 
-    public function checkServiceability(Request $req)
+    public function checkServiceability_old_15_9_2026(Request $req)
     {
         $req->validate([
             'pincode' => 'required|digits:6',
@@ -1036,6 +1036,158 @@ class CustomerController extends Controller
                 'specialOffers' => $specialOffers,
                 'paymentType' => $paymentType,
                 'appliedCoupon' => $appliedCoupon,
+            ])->render(),
+        ], 200);
+    }
+
+    public function checkServiceability(Request $req)
+    {
+        $req->validate([
+            'pincode'    => 'required|digits:6',
+            'cart_items' => 'required|json',
+        ]);
+        $cartItems = json_decode($req->cart_items, true);
+        if (empty($cartItems)) {
+            return response()->json([
+                'success' => false,
+                'checkout_sidebar' => 'Cart items not found.'
+            ]);
+        }
+        $session_cart = session()->get('cart', []);
+        if (empty($session_cart)) {
+            return redirect('/')->with('error', 'Your cart is empty. Please add items to proceed to checkout.');
+        }
+        $productIds  = array_keys($session_cart);
+        $pincode     = $req->pincode;
+        $paymentType = $req->input('payment_type') ?? 'online';
+        $fromPin     = config('services.shiprocket.shiprocket_pickup_pincode');
+        if (!$fromPin) {
+            return response()->json([
+                'success' => false,
+                'checkout_sidebar' => '<span class="text-danger">Pickup pincode missing.</span>'
+            ]);
+        }
+        $customerId        = auth('customer')->id();
+        $customer_address  = Address::where('customer_id', $customerId)->get();
+        $specialOffers     = getCustomerSpecialOffers();
+        $carts = Product::with(['category', 'images'])
+            ->leftJoin('inventories', function ($join) {
+                $join->on('products.id', '=', 'inventories.product_id')
+                    ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+            })
+            ->select('products.*', 'inventories.mrp', 'inventories.purchase_rate', 'inventories.offer_rate', 'inventories.sku')
+            ->whereIn('products.id', $productIds)
+            ->get();
+        if ($carts->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'checkout_sidebar' => '<span class="text-danger">Cart is empty or invalid.</span>'
+            ]);
+        }
+        $subtotal = 0;
+        foreach ($carts as $cart) {
+            $quantity      = $session_cart[$cart->id]['quantity'] ?? 1;
+            $purchase_rate = $cart->purchase_rate ?? 0;
+            $offer_rate    = $cart->offer_rate ?? 0;
+            $group_offer_rate   = null;
+            $special_offer_rate = null;
+            if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
+                $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
+                if ($group_percentage > 0) {
+                    $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
+                    $group_offer_rate = floor($group_offer_rate);
+                }
+            }
+            if (isset($specialOffers[$cart->id])) {
+                $special_offer_rate = (float) $specialOffers[$cart->id];
+            }
+            $final_offer_rate = collect([$offer_rate, $group_offer_rate, $special_offer_rate])->filter()->min();
+            $subtotal += $final_offer_rate * $quantity;
+        }
+        $FREE_SHIPPING_THRESHOLD = 500;
+        $COD_CHARGE              = 50;
+        $isFreeShipping = $subtotal >= $FREE_SHIPPING_THRESHOLD;
+        $codCharge      = ($paymentType === 'Cash on Delivery') ? $COD_CHARGE : 0;
+        $totalWeight = 0;
+        $maxLength   = 0;
+        $maxBreadth  = 0;
+        $totalHeight = 0;
+        foreach ($cartItems as $item) {
+            $qty     = (int) ($item['qty'] ?? 1);
+            $weight  = (float) ($item['weight'] ?? 0);
+            $length  = (float) ($item['length'] ?? 0);
+            $breadth = (float) ($item['breadth'] ?? 0);
+            $height  = (float) ($item['height'] ?? 0);
+            $totalWeight += ($weight * $qty);
+            $maxLength    = max($maxLength, $length);
+            $maxBreadth   = max($maxBreadth, $breadth);
+            $totalHeight += ($height * $qty);
+        }
+        $ship = app(\App\Services\ShiprocketService::class);
+        $cod  = $paymentType === 'Cash on Delivery' ? 1 : 0;
+        try {
+            $response = $ship->getServiceability([
+                'pickup_postcode'   => $fromPin,
+                'delivery_postcode' => $pincode,
+                'weight'            => max($totalWeight, 0.5),
+                'length'            => $maxLength,
+                'breadth'           => $maxBreadth,
+                'height'            => $totalHeight,
+                'cod'               => $cod,
+                'declared_value'    => $subtotal,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Shiprocket serviceability check failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'checkout_sidebar' => '<span class="text-danger">Unable to check delivery availability right now. Please try again.</span>'
+            ]);
+        }
+        if (!$response || !($response['success'] ?? false)) {
+            $errorMessage = $response['response']['message'] ?? 'Delivery not available at this pincode.';
+            return response()->json([
+                'success' => false,
+                'checkout_sidebar' => $errorMessage
+            ]);
+        }
+        $couriers = [];
+        foreach (($response['raw']['data']['available_courier_companies'] ?? []) as $c) {
+            $rate = $c['rate'] ?? $c['freight_charge'] ?? null;
+            if (!$rate) continue;
+
+            $couriers[] = [
+                'courier'             => $c['courier_name'] ?? 'Unknown',
+                'service'             => $c['service'] ?? '',
+                'etd'                 => $c['etd'] ?? '',
+                'shiprocket_rate'     => $rate,
+                'rate'                => $isFreeShipping ? 0 : $rate,
+                'courier_company_id'  => $c['courier_company_id'] ?? null,
+                'cod_charges'         => $c['cod_charges'] ?? 0,
+                'id'                  => $c['id'] ?? null,
+            ];
+        }
+        if (empty($couriers)) {
+            return response()->json([
+                'success' => false,
+                'checkout_sidebar' => '<span class="text-danger">No courier services available.</span>'
+            ]);
+        }
+        usort($couriers, fn($a, $b) => $a['shiprocket_rate'] <=> $b['shiprocket_rate']);
+        $couriers = array_slice($couriers, 0, 5);
+        $appliedCoupon = session('applied_coupon');
+        return response()->json([
+            'success'          => true,
+            'is_free_shipping' => $isFreeShipping,
+            'cod_charge'       => $codCharge,
+            'checkout_sidebar' => view('frontend.pages.partials.checkout.component.ajax-checkout-sidebar', [
+                'couriers'       => $couriers,
+                'rate'           => $couriers[0]['rate'],
+                'carts'          => $carts,
+                'specialOffers'  => $specialOffers,
+                'paymentType'    => $paymentType,
+                'appliedCoupon'  => $appliedCoupon,
+                'isFreeShipping' => $isFreeShipping,
+                'codCharge'      => $codCharge,
             ])->render(),
         ], 200);
     }

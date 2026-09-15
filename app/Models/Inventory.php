@@ -20,7 +20,6 @@ class Inventory extends Model
         'stock_quantity',
         'sku'
     ];
-
     public function product(){
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }
@@ -28,4 +27,14 @@ class Inventory extends Model
     // {
     //     return $this->hasMany(VendorPurchaseLine::class, 'inventory_id');
     // }
+
+    protected static function booted()
+    {
+        static::saving(function (Inventory $inventory) {
+            if ($inventory->offer_rate > 0) {
+            } else {
+                $inventory->offer_shipment_rate = null;
+            }
+        });
+    }
 }

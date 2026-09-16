@@ -23,44 +23,21 @@
             }
         @endphp
         @php
-            $purchase_rate = $product->purchase_rate;
             $offer_rate = $product->offer_rate;
+            $display_price = $product->display_price ?? $offer_rate;
             $mrp = $product->mrp;
-            $group_offer_rate = null;
-            $special_offer_rate = null;
 
-        /*Group price calculation*/
-        if ($groupCategory && $offer_rate !== null) {
-            $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-            if ($group_percentage > 0) {
-                $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-                $group_offer_rate = floor($group_offer_rate);
-            }
-        }
+            /*Discount Percentage*/
+            $discountPercentage = ($mrp > 0 && $display_price > 0)
+            ? round((($mrp - $display_price) / $mrp) * 100, 2)
+            : 0;
 
-        /* Special offer price from array/helper*/
-        if (isset($specialOffers[$product->id])) {
-            $special_offer_rate = (float) $specialOffers[$product->id];
-        }
-
-        /*Select the lowest price from all available options*/
-        $final_offer_rate = collect([
-        $offer_rate,
-        $group_offer_rate,
-        $special_offer_rate
-        ])->filter()->min();
-
-        /*Discount Percentage*/
-        $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
-        ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
-        : 0;
-
-        $hasDimensions =
-        !empty($product->length) &&
-        !empty($product->breadth) &&
-        !empty($product->height) &&
-        !empty($product->weight);
-        $isOutOfStock = ($product->mrp > 0 && $product->stock_quantity <= 0) || !$hasDimensions;
+            $hasDimensions =
+            !empty($product->length) &&
+            !empty($product->breadth) &&
+            !empty($product->height) &&
+            !empty($product->weight);
+            $isOutOfStock = ($product->mrp > 0 && $product->stock_quantity <= 0) || !$hasDimensions;
         @endphp
         <div>
             <div class="product-box h-100 {{ $isOutOfStock ? 'out-of-stock-product' : '' }}">
@@ -121,10 +98,10 @@
                             <h5 class="name">{{ ucwords(strtolower($product->title)) }}</h5>
                         </a>
                         <h5 class="price">
-                            @if ($final_offer_rate === null)
+                            @if ($display_price === null)
                             <span class="theme-color">Price not available</span>
                             @else
-                            <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
+                            <span class="theme-color">Rs. {{ $display_price }}</span>
                             @endif
 
                             @if ($mrp !== null)

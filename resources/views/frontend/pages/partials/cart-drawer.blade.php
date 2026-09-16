@@ -26,37 +26,20 @@ $sessionCart = session('cart', []);
 				$attributes_value = $item->ProductAttributesValues->first()->attributeValue->slug;
 				}
 
-				$purchase_rate = $item->purchase_rate;
 				$offer_rate = $item->offer_rate;
+				$display_price = $item->display_price ?? $offer_rate;
 				$mrp = $item->mrp;
-				$group_offer_rate = null;
-				$special_offer_rate = null;
-				if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
-					$group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-					if ($group_percentage > 0 && $offer_rate !== null) {
-						$group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-						$group_offer_rate = floor($group_offer_rate);
-					}
-				}
 
-				if(!empty($specialOffers)){
-					if (isset($specialOffers[$item->id])) {
-						$special_offer_rate = (float) $specialOffers[$item->id];
-					}
-				}
-
-				$final_offer_rate = collect([$offer_rate, $group_offer_rate, $special_offer_rate])->filter()->min();
-
-				$totalPrice = $final_offer_rate * $quantity;
+				$totalPrice = $display_price * $quantity;
 				$subtotal += $totalPrice;
 
 				$discountPercent = 0;
-				if($mrp && $final_offer_rate < $mrp){
-					$discountPercent=(($mrp - $final_offer_rate)/$mrp) * 100;
+				if($mrp && $display_price < $mrp){
+					$discountPercent=(($mrp - $display_price)/$mrp) * 100;
 					$discountPercent=number_format($discountPercent, 2);
 					}
 					@endphp
-						
+
 					<li class="item d-flex justify-content-center align-items-center">
 					<a class="product-image rounded-3" href="{{ url('products/'.$item->slug.'/'.$attributes_value) }}">
 						@if($item->images->isNotEmpty())
@@ -75,7 +58,7 @@ $sessionCart = session('cart', []);
 						</a>
 						<div class="priceRow">
 							<div class="product-price">
-								<span class="price">Rs. {{ number_format($final_offer_rate, 2) }}</span>
+								<span class="price">Rs. {{ number_format($display_price, 2) }}</span>
 								@if($discountPercent > 0)
 								<small class="text-success">({{ $discountPercent }}% off)</small>
 								@endif

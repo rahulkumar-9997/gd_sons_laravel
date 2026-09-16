@@ -106,7 +106,15 @@ class CustomerController extends Controller
                         $join->on('products.id', '=', 'inventories.product_id')
                             ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
                     })
-                    ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+                   ->select(
+                        'products.*',
+                        'inventories.mrp',
+                        'inventories.offer_rate',
+                        DB::raw('inventories.offer_shipment_rate as display_price'),
+                        'inventories.purchase_rate',
+                        'inventories.sku',
+                        'inventories.stock_quantity'
+                    )
                     ->whereIn('products.id', array_keys($cart))
                     ->get();
             });
@@ -173,8 +181,10 @@ class CustomerController extends Controller
                 'products.*',
                 'inventories.mrp',
                 'inventories.offer_rate',
+                DB::raw('inventories.offer_shipment_rate as display_price'),
                 'inventories.purchase_rate',
-                'inventories.sku'
+                'inventories.sku',
+                'inventories.stock_quantity'
             )
             ->whereIn('products.id', array_keys($cart))
             ->get();
@@ -220,14 +230,19 @@ class CustomerController extends Controller
                     $join->on('products.id', '=', 'inventories.product_id')
                         ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
                 })
-                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+                ->select(
+                    'products.*',
+                    'inventories.mrp',
+                    'inventories.offer_rate',
+                    DB::raw('inventories.offer_shipment_rate as display_price'),
+                    'inventories.purchase_rate',
+                    'inventories.sku',
+                    'inventories.stock_quantity'
+                )
                 ->whereIn('products.id', array_keys($session_cart))
                 ->get();
             return view('frontend.pages.cart', compact('carts', 'specialOffers'));
         }
-
-
-
         /*Handle POST Request: Update Cart Quantity (AJAX)*/
         if ($request->isMethod('post')) {
             $productId = $request->input('cart_id');
@@ -271,7 +286,15 @@ class CustomerController extends Controller
                         $join->on('products.id', '=', 'inventories.product_id')
                             ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
                     })
-                    ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+                    ->select(
+                        'products.*',
+                        'inventories.mrp',
+                        'inventories.offer_rate',
+                        DB::raw('inventories.offer_shipment_rate as display_price'),
+                        'inventories.purchase_rate',
+                        'inventories.sku',
+                        'inventories.stock_quantity'
+                    )
                     ->whereIn('products.id', array_keys($cart))
                     ->get();
             });
@@ -315,7 +338,15 @@ class CustomerController extends Controller
                         $join->on('products.id', '=', 'inventories.product_id')
                             ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
                     })
-                    ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+                    ->select(
+                        'products.*',
+                        'inventories.mrp',
+                        'inventories.offer_rate',
+                        DB::raw('inventories.offer_shipment_rate as display_price'),
+                        'inventories.purchase_rate',
+                        'inventories.sku',
+                        'inventories.stock_quantity'
+                    )
                     ->whereIn('products.id', array_keys($session_cart))
                     ->get();
             });
@@ -358,7 +389,15 @@ class CustomerController extends Controller
             $join->on('products.id', '=', 'inventories.product_id')
                 ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
         })
-        ->select('products.*', 'inventories.mrp', 'inventories.purchase_rate', 'inventories.offer_rate', 'inventories.sku')
+        ->select(
+            'products.*',
+            'inventories.mrp',
+            'inventories.offer_rate',
+            DB::raw('inventories.offer_shipment_rate as display_price'),
+            'inventories.purchase_rate',
+            'inventories.sku',
+            'inventories.stock_quantity'
+        )
         ->whereIn('products.id', $productIds)
         ->get();
         $couriers = []; 
@@ -701,7 +740,15 @@ class CustomerController extends Controller
                     $join->on('products.id', '=', 'inventories.product_id')
                         ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
                 })
-                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+               ->select(
+                    'products.*',
+                    'inventories.mrp',
+                    'inventories.offer_rate',
+                    DB::raw('inventories.offer_shipment_rate as display_price'),
+                    'inventories.purchase_rate',
+                    'inventories.sku',
+                    'inventories.stock_quantity'
+                )
                 ->whereIn('products.id', array_keys($session_cart))
                 ->get();
             $specialOffers = getCustomerSpecialOffers();
@@ -1023,7 +1070,15 @@ class CustomerController extends Controller
                 $join->on('products.id', '=', 'inventories.product_id')
                     ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
             })
-            ->select('products.*', 'inventories.mrp', 'inventories.purchase_rate', 'inventories.offer_rate', 'inventories.sku')
+            ->select(
+                'products.*',
+                'inventories.mrp',
+                'inventories.offer_rate',
+                DB::raw('inventories.offer_shipment_rate as display_price'),
+                'inventories.purchase_rate',
+                'inventories.sku',
+                'inventories.stock_quantity'
+            )
             ->whereIn('products.id', $productIds)
             ->get();
         $appliedCoupon = session('applied_coupon');
@@ -1075,9 +1130,18 @@ class CustomerController extends Controller
                 $join->on('products.id', '=', 'inventories.product_id')
                     ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
             })
-            ->select('products.*', 'inventories.mrp', 'inventories.purchase_rate', 'inventories.offer_rate', 'inventories.sku')
+            ->select(
+                'products.*',
+                'inventories.mrp',
+                'inventories.offer_rate',
+                DB::raw('inventories.offer_shipment_rate as display_price'),
+                'inventories.purchase_rate',
+                'inventories.sku',
+                'inventories.stock_quantity'
+            )
             ->whereIn('products.id', $productIds)
             ->get();
+        Log::info('Cart Contents', ['cart' => $session_cart, 'carts' => $carts]);
         if ($carts->isEmpty()) {
             return response()->json([
                 'success' => false,
@@ -1087,22 +1151,9 @@ class CustomerController extends Controller
         $subtotal = 0;
         foreach ($carts as $cart) {
             $quantity      = $session_cart[$cart->id]['quantity'] ?? 1;
-            $purchase_rate = $cart->purchase_rate ?? 0;
             $offer_rate    = $cart->offer_rate ?? 0;
-            $group_offer_rate   = null;
-            $special_offer_rate = null;
-            if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
-                $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                if ($group_percentage > 0) {
-                    $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-                    $group_offer_rate = floor($group_offer_rate);
-                }
-            }
-            if (isset($specialOffers[$cart->id])) {
-                $special_offer_rate = (float) $specialOffers[$cart->id];
-            }
-            $final_offer_rate = collect([$offer_rate, $group_offer_rate, $special_offer_rate])->filter()->min();
-            $subtotal += $final_offer_rate * $quantity;
+            $display_price = $cart->display_price;
+            $subtotal += $display_price * $quantity;
         }
         $FREE_SHIPPING_THRESHOLD = 500;
         $COD_CHARGE              = 50;
@@ -1154,7 +1205,6 @@ class CustomerController extends Controller
         foreach (($response['raw']['data']['available_courier_companies'] ?? []) as $c) {
             $rate = $c['rate'] ?? $c['freight_charge'] ?? null;
             if (!$rate) continue;
-
             $couriers[] = [
                 'courier'             => $c['courier_name'] ?? 'Unknown',
                 'service'             => $c['service'] ?? '',

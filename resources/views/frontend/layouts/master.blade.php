@@ -90,7 +90,7 @@
         }
         </script>
 	</head>    
-    <body class="bg-effect">		
+    <body class="bg-effect1">		
 		@include('frontend.layouts.header-menu')		
 		@yield('main-content')	
 		@include('frontend.layouts.footer')

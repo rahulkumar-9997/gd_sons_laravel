@@ -150,60 +150,18 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 <div class="price-rating">
                                     <h3 class="theme-color price">
                                         @php
-                                        $offer_rate_display ='';
-                                        @endphp
-                                        @php
                                         $product = $data['product_details'];
-                                        $final_offer_rate = null;
-                                        
-                                        $offer_rate_display = '';
-                                        $special_offer_rate = null;
-                                        $group_offer_rate = null;
-
-                                        /* Default offer */
-                                        if ($product->offer_rate) {
-                                        $final_offer_rate = $product->offer_rate;
-                                        }
-
-                                        /* Group offer calculation */
-                                        if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
-                                        $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                        if ($group_percentage > 0) {
-                                        $purchase_rate = $product->purchase_rate;
                                         $offer_rate = $product->offer_rate;
-                                        $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-                                        $group_offer_rate = floor($group_offer_rate);
-                                        $offer_rate_display = '<br><span>Regular offer price</span><del class="text-content"> Rs. ' . number_format($offer_rate, 2) . '</del>';
-                                        }
-                                        }
+                                        $display_price = $product->display_price ?? $offer_rate;
 
-                                        /* Special offer */
-                                        if (isset($specialOffers[$product->id])) {
-                                        $special_offer_rate = (float) $specialOffers[$product->id];
-                                        }
-
-                                        /* Get minimum of all available offer prices*/
-                                        $all_offer_prices = array_filter([
-                                        $special_offer_rate,
-                                        $group_offer_rate,
-                                        $product->offer_rate,
-                                        ]);
-
-                                        if (!empty($all_offer_prices)) {
-                                        $final_offer_rate = min($all_offer_prices);
+                                        $discountPercentage = 0;
+                                        if ($product->mrp && $display_price) {
+                                            $discountPercentage = round((($product->mrp - $display_price) / $product->mrp) * 100, 2);
                                         }
                                         @endphp
-                                        @if($final_offer_rate)
+                                        @if($display_price)
                                         <div>
-                                            <span class="text-[24px] lg:text-[26px]">Rs. {{ number_format($final_offer_rate, 2) }}</span>
-                                            {{-- Discount --}}
-                                            @if($product->mrp)
-                                                @php
-                                                    $discountPercentage = round((($product->mrp - $final_offer_rate) / $product->mrp) * 100, 2);
-                                                    $schema_offer = $final_offer_rate;
-
-                                                @endphp  
-                                            @endif
+                                            <span class="text-[24px] lg:text-[26px]">Rs. {{ number_format($display_price, 2) }}</span>
                                             @if($product->mrp)
                                             <del class="text-content ml-2">
                                                 Rs. {{ number_format($product->mrp, 2) }}
@@ -214,50 +172,12 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                                 ({{ $discountPercentage }}% off)
                                             </span>
                                             @endif
-                                            {{-- Show "regular offer" if group rate was applied --}}
-                                            {!! $offer_rate_display !!}
                                         </div>
                                         @endif
 
                                     </h3>
                                 </div>
-                            </div>
-                            <!--div class="additional_discount_area">
-                                <div class="additional-tex">
-                                    <h4>Get Additional Discount</h4>
-                                </div>
-                                <div class="additional-info">
-                                    <div class="help-tip">
-                                        <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                            <defs>
-                                                <circle id="b" cx="8" cy="8" r="8"></circle>
-                                                <filter id="a" width="130%" height="130%" x="-15%" y="-8.8%" filterUnits="objectBoundingBox">
-                                                    <feMorphology in="SourceAlpha" operator="dilate" radius=".4" result="shadowSpreadOuter1"></feMorphology>
-                                                    <feOffset dy="1" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
-                                                    <feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation=".5"></feGaussianBlur>
-                                                    <feComposite in="shadowBlurOuter1" in2="SourceAlpha" operator="out" result="shadowBlurOuter1"></feComposite>
-                                                    <feColorMatrix in="shadowBlurOuter1" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0"></feColorMatrix>
-                                                </filter>
-                                            </defs>
-                                            <g fill="none">
-                                                <g transform="translate(2 1)">
-                                                    <use fill="#000" filter="url(#a)" xlink:href="#b"></use>
-                                                    <use fill="#FCFCFC" stroke="#000" stroke-opacity=".3" stroke-width=".8" xlink:href="#b"></use>
-                                                </g>
-                                                <text fill="#1D1D1D" font-family="Roboto, sans-serif" font-size="11" font-weight="400" opacity="0.59" transform="translate(2 1)">
-                                                    <tspan x="6.6" y="12.2">i</tspan>
-                                                </text>
-                                            </g>
-                                        </svg>
-                                        <div class="tooltips-class tooltips-other">
-                                            <p>
-                                                If you Pick up your Order from our Varanasi Sigra Store, you get additional discount on all our Products. The final offer price will be displayed in the Shopping Cart Page.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div-->
-
+                            </div> 
                             <div class="note-box product-package">
                                 <div class="cart_qty qty-box product-qty">
                                     <div class="input-group">
@@ -280,7 +200,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 @if(intval($p->mrp) > 0  && intval($p->stock_quantity) > 0 && $hasDimensions )
                                 <button class="add-to-cart btn btn-md bg-dark cart-button text-white w-100" data-url="{{route('add.to.cart')}}" data-pid="{{$data['product_details']->id}}"
 									data-mrp="{{$data['product_details']->mrp}}"
-									data-price="{{ $final_offer_rate }}"
+									data-price="{{ $display_price }}"
 									data-title="{{ str_replace('"', '', $data['product_details']->title) }}"
 									data-category="{{ $categorytitle }}"
 									data-track-btn-type="Add to cart without login"
@@ -295,48 +215,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 									@php $inStock = 0; @endphp
                                 </button>
                                 @endif
-                            </div>
-
-                            <!--<div class="buy-box">
-                                @if (auth()->guard('customer')->check())
-                                @php
-                                $customerId = auth('customer')->id();
-                                $isInWishlist = \App\Models\Wishlist::where('customer_id', $customerId)->where('product_id', $data['product_details']->id)->exists();
-                                @endphp
-                                <a href="javascript:void(0)"
-                                    class="btn theme-bg-color text-white addwishlist {{ $isInWishlist ? 'added-to-wishlist' : '' }}"
-                                    data-pid="{{ $data['product_details']->id }}"
-                                    data-url="{{ route('wishlist.add') }}"
-                                    data-cuid="{{ $customerId }}"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
-                                    data-track-btn-type="Add To Wishlist"
-                                    data-track-click="true"
-                                    data-track-route="{{route('click.tracker')}}"
-                                    title="Wishlist">
-                                    @if ($isInWishlist)
-                                    <i class="feather-icon heart-icon filled" data-feather="heart"></i>
-                                    @else
-                                    <i class="feather-icon heart-icon" data-feather="heart"></i>
-                                    @endif
-                                    <span>{{ $isInWishlist ? 'In Wishlist' : 'Add To Wishlist' }}</span>
-                                </a>
-
-                                @else
-                                <a href="{{ route('logincustomer') }}?redirect={{ url()->current() }}"
-                                    class="addwishlist-le btn theme-bg-color text-white"
-                                    data-pid="{{ $data['product_details']->id }}"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
-                                    title="Wishlist"
-                                    data-track-btn-type="Add To Wishlist"
-                                    data-track-click="true"
-                                    data-track-route="{{route('click.tracker')}}">
-                                    <i data-feather="heart"></i>
-                                    <span>Add To Wishlist</span>
-                                </a>
-                                @endif
-                            </div>-->
+                            </div>                            
                             <div class="whatsapp-area">
                                 <div class="whatapp-enquirybtn">
                                     <a
@@ -344,7 +223,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         data-title="{{ucwords(strtolower($data['product_details']->title))}}" data-pid="{{$data['product_details']->id}}"
                                         data-url="{{route('product-enquiry-modal-form')}}"
                                         data-pageurl="{{url()->current()}}"
-                                        data-pprice="{{ $final_offer_rate }}"
+                                        data-pprice="{{ $display_price }}"
                                         data-pimage="{{ $firstImage }}"
                                         data-size="md" href="javascript:void(0);"
                                         data-track-btn-type="Send Enquiry through WhatsApp"
@@ -412,10 +291,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                     </ul>
                                 </div>
                             </div>
-                            @endif
-							
-							
-							
+                            @endif								
                             @php
                                 $product_items_for_js = [];
                             @endphp
@@ -427,7 +303,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         'breadth' => (float) ($data['product_details']->breadth ?? 0),
                                         'height' => (float) ($data['product_details']->height ?? 0),
                                         'weight' => (float) ($data['product_details']->weight ?? 0),
-                                        'declared_value' => (float) ($final_offer_rate ?? 0),
+                                        'declared_value' => (float) ($display_price ?? 0),
                                         'qty' => 1
                                     ];
                                 @endphp
@@ -449,6 +325,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                             @endif
                         </div>
                     </div>
+
                     @if($data['product_details']->additionalFeatures->isNotEmpty())
                     <div class="col-12">
                         <div class="product-section-box description-box">
@@ -539,6 +416,13 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 if($related_product_row->ProductAttributesValues->isNotEmpty()){
                                     $attributes_value = $related_product_row->ProductAttributesValues->first()->attributeValue->slug;
                                 }
+
+                                $displayPrice = $related_product_row->display_price ?? null;
+                                $mrp = $related_product_row->mrp ?? null;    
+                                $discountPercentage = 0;
+                                if ($mrp && $displayPrice && $mrp > $displayPrice) {
+                                    $discountPercentage = round((($mrp - $displayPrice) / $mrp) * 100, 2);
+                                }                                
                                 @endphp
 
                                 <li class="{{ $loop->last ? 'mb-0' : '' }}">
@@ -560,27 +444,30 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                                     </h6>
                                                 </a>
                                                 <span>{{ $related_product_row->category->title ?? 'N/A' }}</span>
-                                                <h6 class="price theme-color">
-                                                    @if ($related_product_row->offer_rate === null)
-                                                    <span class="theme-color price">Price not available</span>
+                                                <div class="mt-2">
+                                                    @if (is_numeric($displayPrice))
+                                                        <div class="flex flex-wrap items-center gap-1">
+                                                            <div class="text-base font-bold text-[#0F8B8D]">
+                                                                Rs. {{ number_format($displayPrice, 2) }}
+                                                            </div>
+                                                            @if ($mrp && $mrp > $displayPrice)
+                                                                <del class="text-sm text-gray-500">
+                                                                    Rs. {{ number_format($mrp, 2) }}
+                                                                </del>
+                                                            @endif
+                                                        </div>
+
+                                                        @if ($discountPercentage > 0)
+                                                            <span class="mt-0.5 block text-xs font-semibold text-green-600">
+                                                                ({{ $discountPercentage }}% off)
+                                                            </span>
+                                                        @endif
                                                     @else
-                                                    @php
-                                                    $final_offer_rate = $related_product_row->offer_rate;
-                                                    if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
-                                                    $group_category_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                                    if ($group_category_percentage > 0) {
-                                                    $purchase_rate = $related_product_row->purchase_rate;
-                                                    $offer_rate = $related_product_row->offer_rate;
-                                                    $percent_discount = 100/$group_category_percentage;
-                                                    $final_offer_rate =
-                                                    $purchase_rate+($offer_rate-$purchase_rate)*$percent_discount/100;
-                                                    $final_offer_rate = floor($final_offer_rate);
-                                                    }
-                                                    }
-                                                    @endphp
-                                                    <span class="theme-color">Rs. {{$final_offer_rate}}</span>
+                                                        <span class="text-sm font-medium text-gray-500">
+                                                            Price not available
+                                                        </span>
                                                     @endif
-                                                </h6>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

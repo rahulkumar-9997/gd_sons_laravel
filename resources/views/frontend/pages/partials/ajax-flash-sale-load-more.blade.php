@@ -12,36 +12,13 @@ $attributes_value ='na';
 if($product->ProductAttributesValues->isNotEmpty()){
 $attributes_value = $product->ProductAttributesValues->first()->attributeValue->slug;
 }
-$purchase_rate = $product->purchase_rate;
 $offer_rate = $product->offer_rate;
+$display_price = $product->display_price ?? $offer_rate;
 $mrp = $product->mrp;
-$group_offer_rate = null;
-$special_offer_rate = null;
-
-/* Group price calculation*/
-if ($groupCategory && $offer_rate !== null) {
-$group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-if ($group_percentage > 0) {
-$group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-$group_offer_rate = floor($group_offer_rate);
-}
-}
-
-/* Special offer (from array) */
-if (isset($specialOffers[$product->id])) {
-$special_offer_rate = (float) $specialOffers[$product->id];
-}
-
-/* Final price: lowest among all available */
-$final_offer_rate = collect([
-$offer_rate,
-$group_offer_rate,
-$special_offer_rate
-])->filter()->min();
 
 /* Discount calculation */
-$discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
-? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+$discountPercentage = ($mrp > 0 && $display_price > 0)
+? round((($mrp - $display_price) / $mrp) * 100, 2)
 : 0;
 @endphp
 <div>
@@ -120,10 +97,10 @@ $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
                     <h5 class="name">{{ ucwords(strtolower($product->title)) }}</h5>
                 </a>
                 <h5 class="price">
-                    @if ($final_offer_rate === null)
+                    @if ($display_price === null)
                     <span class="theme-color">Price not available</span>
                     @else
-                    <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
+                    <span class="theme-color">Rs. {{ $display_price }}</span>
                     @endif
 
                     @if ($mrp !== null)

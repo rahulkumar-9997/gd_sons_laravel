@@ -111,38 +111,12 @@
                     @foreach ($primary_category_row['products'] as $productIndex => $product)
                     @php
                     $offer_rate = $product['offer_rate'];
+                    $display_price = $product['display_price'] ?? null;
                     $mrp = $product['mrp'];
-                    $purchase_rate = $product['purchase_rate'];
-                    $group_offer_rate = null;
-                    $special_offer_rate = null;
-
-                    if ($groupCategory && $offer_rate !== null) {
-                    $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                    if ($group_percentage > 0) {
-                    $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-                    $group_offer_rate = floor($group_offer_rate);
-                    }
-                    }
-
-                    /*Special Offer*/
-                    if (isset($specialOffers[$product['id']])) {
-                    $special_offer_rate = (float) $specialOffers[$product['id']];
-                    }
-                    /* Choose lowest rate */
-                    $all_rates = array_filter([
-                    $offer_rate,
-                    $group_offer_rate,
-                    $special_offer_rate
-                    ]);
-                    if (!empty($all_rates)) {
-                    $final_offer_rate = min($all_rates);
-                    } else {
-                    $final_offer_rate = $offer_rate;
-                    }
 
                     /* Calculate discount */
-                    $discountPercentage = ($mrp > 0 && $final_offer_rate > 0 && $final_offer_rate < $mrp)
-                        ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+                    $discountPercentage = ($mrp > 0 && $display_price > 0 && $display_price < $mrp)
+                        ? round((($mrp - $display_price) / $mrp) * 100, 2)
                         : 0;
                     @endphp
 
@@ -186,14 +160,14 @@
                                             {{ ucwords(strtolower($product['title'])) }}
                                         </h5>
                                         <div class="mt-2 flex justify-between items-center">
-                                            @if ($offer_rate === null || $offer_rate == 0)
+                                            @if ($display_price === null || $display_price == 0)
                                             <span class="text-xs text-gray-600">Price not available</span>
                                             @else
                                             <div class="flex flex-col">
-                                                <h5 class="text-base font-bold text-primary-600">Rs. {{ number_format($offer_rate) }}</h5>
+                                                <h5 class="text-base font-bold text-primary-600">Rs. {{ number_format($display_price) }}</h5>
                                             </div>
                                             @endif
-                                            @if ($mrp !== null && $mrp > $final_offer_rate)
+                                            @if ($mrp !== null && $mrp > $display_price)
                                             <del class="text-[14px] text-gray-600">Rs. {{ number_format($mrp) }}</del>
                                             @endif
                                         </div>
@@ -258,42 +232,12 @@
                                 }
                                 @endphp
                                 @php
-                                $final_offer_rate = $popular_product_row->offer_rate;
+                                $display_price = $popular_product_row->display_price ?? null;
                                 $mrp = $popular_product_row->mrp;
 
-                                $purchase_rate = $popular_product_row->purchase_rate;
-                                $offer_rate = $popular_product_row->offer_rate;
-
-                                $group_offer_rate = null;
-                                $special_offer_rate = null;
-
-                                /*Group Offer*/
-                                if ($groupCategory && $offer_rate !== null) {
-                                $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                                if ($group_percentage > 0) {
-                                $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-                                $group_offer_rate = floor($group_offer_rate);
-                                }
-                                }
-
-                                /*Special Offer*/
-                                if (isset($specialOffers[$popular_product_row->id])) {
-                                $special_offer_rate = (float) $specialOffers[$popular_product_row->id];
-                                }
-
-                                /* Choose lowest rate */
-                                $all_rates = array_filter([
-                                $offer_rate,
-                                $group_offer_rate,
-                                $special_offer_rate
-                                ]);
-                                if (!empty($all_rates)) {
-                                $final_offer_rate = min($all_rates);
-                                }
-
                                 /* Calculate discount */
-                                $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
-                                ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+                                $discountPercentage = ($mrp > 0 && $display_price > 0)
+                                ? round((($mrp - $display_price) / $mrp) * 100, 2)
                                 : 0;
 
                                 $hasDimensions =
@@ -353,11 +297,11 @@
                                                 <h5 class="name text-[13px] leading-[1.4] font-medium text-slate-700 group-hover/product:text-primary-600 transition-colors min-h-[36px]">{{ ucwords(strtolower($popular_product_row->title)) }}</h5>
                                             </a>
                                             <div class="mt-2 flex justify-between items-center">
-                                                @if ($final_offer_rate === null || $final_offer_rate == 0)
+                                                @if ($display_price === null || $display_price == 0)
                                                 <span class="text-xs text-gray-600">Price not available</span>
                                                 @else
                                                 <div class="flex flex-col">
-                                                    <h5 class="text-base font-bold text-primary-600">Rs. {{ number_format($final_offer_rate) }}</h5>
+                                                    <h5 class="text-base font-bold text-primary-600">Rs. {{ number_format($display_price) }}</h5>
                                                 </div>
                                                 @endif
                                                 @if ($mrp !== null)
@@ -498,36 +442,12 @@
             @foreach ($data['trending_products_weekly'] as $index =>$product)
                 @php
                     $offer_rate = $product['offer_rate'];
+                    $display_price = $product['display_price'] ?? null;
                     $mrp = $product['mrp'];
-                    $purchase_rate = $product['purchase_rate'];
-                    $group_offer_rate = null;
-                    $special_offer_rate = null;
 
-                    if ($groupCategory && $offer_rate !== null) {
-                        $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                        if ($group_percentage > 0) {
-                            $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-                            $group_offer_rate = floor($group_offer_rate);
-                        }
-                    }
-                    /*Special Offer*/
-                    if (isset($specialOffers[$product['id']])) {
-                        $special_offer_rate = (float) $specialOffers[$product['id']];
-                    }
-                    /* Choose lowest rate */
-                    $all_rates = array_filter([
-                        $offer_rate,
-                        $group_offer_rate,
-                        $special_offer_rate
-                    ]);
-                    if (!empty($all_rates)) {
-                        $final_offer_rate = min($all_rates);
-                    } else {
-                        $final_offer_rate = $offer_rate;
-                    }
                     /* Calculate discount */
-                    $discountPercentage = ($mrp > 0 && $final_offer_rate > 0 && $final_offer_rate < $mrp)
-                    ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+                    $discountPercentage = ($mrp > 0 && $display_price > 0 && $display_price < $mrp)
+                    ? round((($mrp - $display_price) / $mrp) * 100, 2)
                     : 0;
 
                 @endphp
@@ -571,17 +491,19 @@
                                     </h5>
                                 </div>
                                 <div class="flex items-center gap-2 mt-2 flex-wrap">
-                                    @if ($offer_rate === null || $offer_rate == 0)
+                                    @if ($display_price === null || $display_price == 0)
                                         <h5 class="text-base font-bold text-primary-600">
                                             Price not available
                                         </h5>
                                     @else
                                         <h5 class="text-base font-bold text-primary-600">
-                                            Rs. {{ number_format($offer_rate) }}
+                                            Rs. {{ number_format($display_price) }}
                                         </h5>
                                     @endif
-                                    @if ($mrp !== null && $mrp > $final_offer_rate)
-                                        <del class="text-[14px] text-gray-600">Rs. {{ number_format($mrp) }}</del>
+                                    @if($display_price)
+                                        @if ($mrp !== null && $mrp > $display_price)
+                                            <del class="text-[14px] text-gray-600">Rs. {{ number_format($mrp) }}</del>
+                                        @endif
                                     @endif
                                     @if($discountPercentage>0)
                                         <span class="group/badge relative inline-flex items-center gap-1 bg-green-700 text-white text-[10px] font-bold tracking-wide px-2 py-[3px] rounded-full cursor-default shadow-badge hover:shadow-badge-hover hover:scale-105 transition-all duration-200">

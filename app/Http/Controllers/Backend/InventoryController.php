@@ -292,90 +292,90 @@ class InventoryController extends Controller
                             </thead>
                             <tbody>';
 
-        if (!$product_row->inventories->isEmpty()) {
-            foreach ($product_row->inventories as $inventory) {
-                $rowShipment = $inventory->shipment_rate > 0
-                    ? $inventory->shipment_rate
-                    : $shipmentRate;
-                $rowOfferShipment = null;
-                if ($inventory->offer_shipment_rate > 0) {
-                    $rowOfferShipment = $inventory->offer_shipment_rate;
-                } elseif ($inventory->offer_rate > 0 && $rowShipment !== null) {
-                    $rowOfferShipment = round($inventory->offer_rate + $rowShipment, 2);
-                }
-                $bachat = ($inventory->mrp > 0 && $rowOfferShipment > 0)
-                    ? $inventory->mrp - $rowOfferShipment
-                    : null;
-                $form .= '
-            <tr class="field-group">
-                <td>
-                    <input type="hidden" name="inventory_id[]" value="' . $inventory->id . '">
-                    <input type="number" step="0.01" name="mrp[]" class="form-control" value="' . $inventory->mrp . '">
-                </td>
-                <td>
-                    <input type="number" step="0.01" name="purchase_rate[]" class="form-control" value="' . $inventory->purchase_rate . '">
-                </td>
-                <td>
-                    <input type="number" step="0.01" name="offer_rate[]" class="form-control" value="' . $inventory->offer_rate . '">
-                </td>
-                <td>
-                    <input type="number" step="0.01" name="shipment_rate[]" class="form-control" value="' . ($rowShipment ?? '') . '">
-                </td>
-                <td>
-                    <input type="number" step="0.01" name="offer_shipment_rate[]" class="form-control" value="' . ($rowOfferShipment ?? '') . '">
-                    <span class="badge bg-info-subtle text-info savings-badge"' . ($bachat === null ? ' style="display:none;"' : '') . '>
-                        Bachat: &#8377;' . number_format($bachat ?? 0, 2) . '
-                    </span>
-                </td>
-                <td>
-                    <input type="number" name="stock_quantity[]" class="form-control" value="' . $inventory->stock_quantity . '">
-                </td>
-                <td style="display: none;">
-                    <input type="text" name="sku[]" class="form-control" value="' . e($inventory->sku) . '" readonly>
-                </td>
-                <td>
-                    <button type="button" data-inventoryid="' . $inventory->id . '" data-name="' . e($inventory->sku) . '"
-                            class="btn btn-danger btn-sm remove-field delete-inventory-btn">
-                        <i class="ti ti-trash"></i>
-                    </button>
-                </td>
-            </tr>';
-            }
-        } else {
-            $form .= '
-            <tr class="field-group">
-                <td>
-                    <input type="hidden" name="inventory_id[]" value="">
-                    <input type="number" step="0.01" name="mrp[]" class="form-control" required>
-                </td>
-                <td>
-                    <input type="number" step="0.01" name="purchase_rate[]" class="form-control" required>
-                </td>
-                <td>
-                    <input type="number" step="0.01" name="offer_rate[]" class="form-control" required>
-                </td>
-                <td>
-                    <input type="number" step="0.01" name="shipment_rate[]" class="form-control" value="' . ($shipmentRate ?? '') . '">
-                </td>
-                <td>
-                    <input type="number" step="0.01" name="offer_shipment_rate[]" class="form-control">
-                    <span class="badge bg-info-subtle text-info savings-badge" style="display:none;"></span>
-                </td>
-                <td>
-                    <input type="number" name="stock_quantity[]" class="form-control" required>
-                </td>
-                <td style="display: none;">
-                    <input type="text" name="sku[]" class="form-control" value="' . $uniqueSku . '" readonly>
-                </td>
-                <td>
-                    <button type="button" class="btn btn-danger btn-sm remove-field">
-                        <i class="ti ti-trash"></i>
-                    </button>
-                </td>
-            </tr>';
-        }
+                            if (!$product_row->inventories->isEmpty()) {
+                                foreach ($product_row->inventories as $inventory) {
+                                    $rowShipment = $inventory->shipment_rate > 0
+                                        ? $inventory->shipment_rate
+                                        : $shipmentRate;
+                                    $rowOfferShipment = null;
+                                    if ($inventory->offer_shipment_rate > 0) {
+                                        $rowOfferShipment = $inventory->offer_shipment_rate;
+                                    } elseif ($inventory->offer_rate > 0 && $rowShipment !== null) {
+                                        $rowOfferShipment = round($inventory->offer_rate + $rowShipment, 2);
+                                    }
+                                    $bachat = ($inventory->mrp > 0 && $rowOfferShipment > 0)
+                                        ? $inventory->mrp - $rowOfferShipment
+                                        : null;
+                                    $form .= '
+                                <tr class="field-group">
+                                    <td>
+                                        <input type="hidden" name="inventory_id[]" value="' . $inventory->id . '">
+                                        <input type="number" step="1" name="mrp[]" class="form-control" value="' . round($inventory->mrp) . '">
+                                    </td>
+                                    <td>
+                                        <input type="number" step="1" name="purchase_rate[]" class="form-control" value="' . round($inventory->purchase_rate) . '">
+                                    </td>
+                                    <td>
+                                        <input type="number" step="1" name="offer_rate[]" class="form-control" value="' . round($inventory->offer_rate) . '">
+                                    </td>
+                                    <td>
+                                        <input type="number" step="1" name="shipment_rate[]" class="form-control" value="' . ($rowShipment ?? '') . '">
+                                    </td>
+                                    <td>
+                                        <input type="number" step="1" name="offer_shipment_rate[]" class="form-control" value="' . ($rowOfferShipment ?? '') . '">
+                                        <span class="badge bg-info-subtle text-info savings-badge"' . ($bachat === null ? ' style="display:none;"' : '') . '>
+                                            Bachat: &#8377;' . number_format($bachat ?? 0, 2) . '
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="stock_quantity[]" class="form-control" value="' . $inventory->stock_quantity . '">
+                                    </td>
+                                    <td style="display: none;">
+                                        <input type="text" name="sku[]" class="form-control" value="' . e($inventory->sku) . '" readonly>
+                                    </td>
+                                    <td>
+                                        <button type="button" data-inventoryid="' . $inventory->id . '" data-name="' . e($inventory->sku) . '"
+                                                class="btn btn-danger btn-sm remove-field delete-inventory-btn">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>';
+                                }
+                            } else {
+                                $form .= '
+                                <tr class="field-group">
+                                    <td>
+                                        <input type="hidden" name="inventory_id[]" value="">
+                                        <input type="number" step="1" name="mrp[]" class="form-control" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" step="1" name="purchase_rate[]" class="form-control" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" step="1" name="offer_rate[]" class="form-control" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" step="1" name="shipment_rate[]" class="form-control" value="' . ($shipmentRate ?? '') . '">
+                                    </td>
+                                    <td>
+                                        <input type="number" step="1" name="offer_shipment_rate[]" class="form-control">
+                                        <span class="badge bg-info-subtle text-info savings-badge" style="display:none;"></span>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="stock_quantity[]" class="form-control" required>
+                                    </td>
+                                    <td style="display: none;">
+                                        <input type="text" name="sku[]" class="form-control" value="' . $uniqueSku . '" readonly>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-sm remove-field">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>';
+                            }
 
-        $form .= '
+                            $form .= '
                             </tbody>
                         </table>
                     </div>

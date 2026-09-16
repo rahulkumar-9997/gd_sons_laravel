@@ -21,45 +21,27 @@ if (auth('customer')->check()) {
 @if($carts && $carts->count() > 0)
     @foreach ($carts as $cart)
         @php
-            $quantity = $sessionCart[$cart->id]['quantity'] ?? 1;  
-            $purchase_rate = $cart->purchase_rate ?? 0;
+            $quantity = $sessionCart[$cart->id]['quantity'] ?? 1;
             $offer_rate = $cart->offer_rate ?? 0;
+            $display_price = $cart->display_price;
             $mrp = $cart->mrp ?? 0;
-            $group_offer_rate = null;
-            $special_offer_rate = null;
 
-            /* Group discount logic */
-            if (Auth::guard('customer')->check() && isset($groupCategory->groupCategory)) {
-                $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                if ($group_percentage > 0) {
-                    $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-                    $group_offer_rate = floor($group_offer_rate);
-                }
-            }
-
-            /* Special offer */
-            if (isset($specialOffers[$cart->product_id])) {
-                $special_offer_rate = (float) $specialOffers[$cart->product_id];
-            }
-            
-            $final_offer_rate = collect([$offer_rate, $group_offer_rate, $special_offer_rate])->filter()->min();
-
-            $totalPrice = $final_offer_rate * $quantity;
+            $totalPrice = $display_price * $quantity;
             $subtotal_amount += $totalPrice;
 
             /* Discount percentage */
             $discountPercent = 0;
-			
+
 			$ga4_checkout_items[] = [
 				'item_id'       => (string)$cart->product_id,
 				'item_name'     => $cart->title,
 				'item_category' => $cart->category ?? '',
-				'price'         => (float)$cart->final_offer_rate,
-				'quantity'      => (int)$cart->quantity,
+				'price'         => (float)$display_price,
+				'quantity'      => (int)$quantity,
 			];
-            
-			if ($mrp && $final_offer_rate < $mrp) {
-                $discountPercent = (($mrp - $final_offer_rate)/$mrp) * 100;
+
+			if ($mrp && $display_price < $mrp) {
+                $discountPercent = (($mrp - $display_price)/$mrp) * 100;
                 $discountPercent = number_format($discountPercent, 2);
             }
         @endphp

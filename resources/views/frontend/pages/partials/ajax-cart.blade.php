@@ -17,41 +17,14 @@ $columnClass = $carts->isEmpty() ? 'col-md-12 col-lg-12' : 'col-md-9 col-lg-9';
                 @foreach($carts as $cart)
                 @php
                 $quantity = $sessionCart[$cart->id]['quantity'] ?? 1;
-                $purchase_rate = $cart->purchase_rate ?? 0;
                 $offer_rate = $cart->offer_rate ?? 0;
+                $display_price = $cart->display_price ?? null;
                 $mrp = $cart->mrp ?? 0;
 
-                $group_offer_rate = null;
-                $special_offer_rate = null;
-
-                // Group Offer Rate Calculation
-                if ($groupCategory && $offer_rate !== null) {
-                $group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-                if ($group_percentage > 0) {
-                $group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-                $group_offer_rate = floor($group_offer_rate);
-                }
-                }
-
-                /*Special Offer Rate (if available) */
-                if (isset($specialOffers[$cart->id])) {
-                    $special_offer_rate = (float) $specialOffers[$cart->id];
-                }
-
-                // Final offer rate — take minimum from all available
-                $final_offer_rate = collect([
-                $offer_rate,
-                $group_offer_rate,
-                $special_offer_rate
-                ])->filter()->min();
-
-                // Calculate discount and total
-                $product_discount_rate = $mrp - $final_offer_rate;
-                $totalPrice = $final_offer_rate * $quantity;
+                $product_discount_rate = $mrp - $display_price;
+                $totalPrice = $display_price * $quantity;
                 $subtotal += $totalPrice;
 
-                // Optional: Discount total
-                // $discount += $product_discount_rate * $quantity;
                 $attributes_value ='na';
                 if($cart->ProductAttributesValues->isNotEmpty()){
                 $attributes_value = $cart->ProductAttributesValues->first()->attributeValue->slug;
@@ -85,7 +58,7 @@ $columnClass = $carts->isEmpty() ? 'col-md-12 col-lg-12' : 'col-md-9 col-lg-9';
                                     <div class="price-container mb-2">
                                         @if($cart->offer_rate)
                                         <div class="current-price">
-                                            Rs. {{ number_format($final_offer_rate, 2) }}
+                                            Rs. {{ number_format($display_price, 2) }}
                                             @if($cart->mrp)
                                             <del class="text-muted small ms-1">
                                                 Rs. {{ number_format($cart->mrp, 2) }}</del>

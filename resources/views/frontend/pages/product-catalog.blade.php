@@ -114,10 +114,8 @@ if ($firstCatalogProduct && $firstCatalogProduct->images->isNotEmpty()) {
 
 @push('schema')
 <script type="application/ld+json">
-
     "@context": "https://schema.org",
     "@type": "WebPage",
-
     "name": "{{ $seo_title }}",
     "description": "{{ $seo_desc }}",
         "url": "{{ url()->current() }}",
@@ -153,13 +151,12 @@ if ($firstCatalogProduct && $firstCatalogProduct->images->isNotEmpty()) {
                 $urlPath = Request::path();
                 $segments = explode('/', $urlPath);
                 $lastSegment = end($segments);
-                
-                $purchase_rate = $product->purchase_rate;
+
                 $offer_rate = $product->offer_rate;
+                $display_price = $product->display_price ?? $offer_rate;
                 $mrp = $product->mrp;
-                $final_offer_rate = $offer_rate;
-                $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
-                    ? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+                $discountPercentage = ($mrp > 0 && $display_price > 0)
+                    ? round((($mrp - $display_price) / $mrp) * 100, 2)
                     : 0;
 					
 				$attributes_value = $product->ProductAttributesValues->isNotEmpty() ? $product->ProductAttributesValues->first()->attributeValue->slug : 'na';
@@ -195,11 +192,11 @@ if ($firstCatalogProduct && $firstCatalogProduct->images->isNotEmpty()) {
                         "@type": "Offer",
                         "url": "{{ url('products/'.$product['slug'].'/'.$lastSegment) }}",
                         "priceCurrency": "INR",
-                        "price": "{{ $final_offer_rate }}",
+                        "price": "{{ $display_price }}",
                         "priceValidUntil": "{{ \Carbon\Carbon::now()->addYear()->format('Y-m-d') }}",
                         "itemCondition": "https://schema.org/NewCondition",
                         "availability": "https://schema.org/{{ $product->stock_quantity > 0 ? 'InStock' : 'OutOfStock' }}",
-                        @if($mrp > $final_offer_rate)
+                        @if($mrp > $display_price)
                         "priceSpecification": {
 							"@type": "PriceSpecification",
 							"price": "{{ $mrp }}",
@@ -223,7 +220,7 @@ if ($firstCatalogProduct && $firstCatalogProduct->images->isNotEmpty()) {
                     {
                         "@type": "PropertyValue",
                         "name": "Discount",
-                        "value": "{{ $mrp - $final_offer_rate }}"
+                        "value": "{{ $mrp - $display_price }}"
                     }
                 ]
         @php $rStat = $reviewStats[$product->id] ?? null; @endphp

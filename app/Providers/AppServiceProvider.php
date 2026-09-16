@@ -14,6 +14,7 @@ use App\Http\ViewComposers\CustomerGroupCategoryComposer;
 use Illuminate\Support\Facades\Auth;
 use App\View\Composers\OfferPopupComposer;
 use App\Models\Cart;
+use Illuminate\Support\Facades\DB;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -79,7 +80,15 @@ class AppServiceProvider extends ServiceProvider
                     $join->on('products.id', '=', 'inventories.product_id')
                         ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
                 })
-                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+                ->select(
+                    'products.*',
+                    'inventories.mrp',
+                    'inventories.offer_rate',
+                    DB::raw('inventories.offer_shipment_rate as display_price'),
+                    'inventories.purchase_rate',
+                    'inventories.sku',
+                    'inventories.stock_quantity'
+                )
                 ->whereIn('products.id', $productIds)
                 ->get();
             

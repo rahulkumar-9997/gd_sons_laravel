@@ -821,7 +821,7 @@ class OrderController extends Controller
             if ($inventory->stock_quantity < $quantity) {
                 throw new \Exception("Insufficient stock for product ID {$productId}.");
             }
-            $unitPrice = (float) ($inventory->offer_rate ?: $inventory->mrp);
+            $unitPrice = (float) ($inventory->offer_shipment_rate);
             $lineTotal = round($unitPrice * $quantity, 2);
             $cartItems[] = [
                 'product_id'  => (int) $productId,
@@ -975,6 +975,7 @@ class OrderController extends Controller
                 'orderLines.product.images',
                 'shiprocketCourier',
             ])->findOrFail($orderId);
+            //return response($order);
         } catch (\Exception $e) {
             abort(403, 'Unauthorized access.');
         }
@@ -1080,7 +1081,15 @@ class OrderController extends Controller
                         $j->on('products.id', '=', 'inventories.product_id')
                             ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
                     })
-                    ->select('products.*', 'inventories.mrp', 'inventories.purchase_rate', 'inventories.offer_rate', 'inventories.sku');
+                    ->select(
+                        'products.*',
+                        'inventories.mrp',
+                        'inventories.offer_rate',
+                        DB::raw('inventories.offer_shipment_rate as display_price'),
+                        'inventories.purchase_rate',
+                        'inventories.sku',
+                        'inventories.stock_quantity'
+                    );
             }])
             ->get();
     }

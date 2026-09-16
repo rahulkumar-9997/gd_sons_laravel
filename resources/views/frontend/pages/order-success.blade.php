@@ -162,7 +162,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Headline -->
             <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-3xl font-extrabold text-gray-800 mb-2 sm:mb-3 fade-in-up fade-in-up-delay-1">
                 Order Placed!
@@ -250,6 +249,11 @@
                         </div>
                         <div class="overflow-x-auto p-3 sm:p-4 md:p-6">
                             @if($order->orderLines->isNotEmpty())
+                            @php                                
+                                $orderLinesSubtotal = $order->orderLines->sum(function ($line) {
+                                    return $line->quantity * $line->price;
+                                });
+                            @endphp
                             <table class="w-full table-mobile-card">
                                 <thead class="hidden sm:table-header-group">
                                     <tr class="border-b border-gray-100">
@@ -287,7 +291,7 @@
                                             </span>
                                         </td>
                                         <td class="py-3 sm:py-4 text-left sm:text-right block sm:table-cell" data-label="Total">
-                                            <span class="font-bold text-emerald-600 text-sm sm:text-base">Rs. {{ $orderLine->quantity * $orderLine->price }}</span>
+                                            <span class="font-bold text-emerald-600 text-sm sm:text-base">Rs. {{ number_format($orderLine->quantity * $orderLine->price, 2) }}</span>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -297,7 +301,7 @@
                                         </td>
                                         <td class="py-3 sm:py-4 text-left sm:text-right font-semibold text-gray-800 block sm:table-cell" data-label="Subtotal">
                                             <span class="sm:hidden font-semibold text-gray-600">Subtotal: </span>
-                                            Rs. {{ number_format($order->grand_total_amount + ($order->coupon_discount_amount ?? 0) - ($order->shiprocketCourier->courier_shipping_rate ?? 0), 2) }}
+                                            Rs. {{ number_format($orderLinesSubtotal, 2) }}
                                         </td>
                                     </tr>
                                     @if($order->shiprocketCourier)
@@ -308,12 +312,33 @@
                                                 <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
                                                 </svg>
-                                                Shipping ({{ $order->shiprocketCourier->courier_name }})
+                                                @if($order->payment_mode === 'Cash on Delivery')
+                                                    Shipping
+                                                @else
+                                                    Shipping ({{ $order->shiprocketCourier->courier_name }})
+                                                @endif
                                             </span>
                                         </td>
                                         <td class="py-2 text-left sm:text-right font-medium text-gray-700 block sm:table-cell" data-label="Shipping">
                                             <span class="sm:hidden font-medium text-gray-500">Shipping: </span>
                                             Rs. {{ number_format($order->shiprocketCourier->courier_shipping_rate, 2) }}
+                                        </td>
+                                    </tr>
+                                    @endif
+                                    @if($order->shiprocketCourier && $order->shiprocketCourier->cod_charges > 0)
+                                    <tr class="block sm:table-row">
+                                        <td colspan="3" class="py-2 text-right text-gray-500 text-sm block sm:table-cell" data-label="">
+                                            <span class="sm:hidden font-medium text-gray-500">COD Charges: </span>
+                                            <span class="hidden sm:inline-flex items-center gap-1">
+                                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                                                </svg>
+                                                COD Charges
+                                            </span>
+                                        </td>
+                                        <td class="py-2 text-left sm:text-right font-medium text-gray-700 block sm:table-cell" data-label="COD Charges">
+                                            <span class="sm:hidden font-medium text-gray-500">COD Charges: </span>
+                                            Rs. {{ number_format($order->shiprocketCourier->cod_charges, 2) }}
                                         </td>
                                     </tr>
                                     @endif
@@ -441,46 +466,6 @@
         </div>
     </div>
 </section>
-
-<!-- Help Section - Responsive -->
-<!--<section class="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-    <div class="container mx-auto px-3 sm:px-4">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                <div class="text-center p-4 sm:p-6 md:p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300">
-                    <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-xl shadow-blue-500/20">
-                        <svg class="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0a9 9 0 01-12.728 0m12.728 0a9 9 0 01-12.728 0m-4.243-4.243a9 9 0 010-12.728m0 0a9 9 0 0112.728 0"></path>
-                        </svg>
-                    </div>
-                    <h4 class="font-bold text-white text-base sm:text-lg md:text-xl mb-1 sm:mb-2">24/7 Support</h4>
-                    <p class="text-gray-400 text-xs sm:text-sm leading-relaxed">Our team is always here to help. Reach out anytime.</p>
-                    <a href="#" class="inline-block mt-3 sm:mt-4 text-emerald-400 font-semibold hover:text-emerald-300 transition-colors text-xs sm:text-sm">Contact Support →</a>
-                </div>
-                <div class="text-center p-4 sm:p-6 md:p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300">
-                    <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-emerald-400 to-green-500 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-xl shadow-emerald-500/20">
-                        <svg class="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                        </svg>
-                    </div>
-                    <h4 class="font-bold text-white text-base sm:text-lg md:text-xl mb-1 sm:mb-2">Track Order</h4>
-                    <p class="text-gray-400 text-xs sm:text-sm leading-relaxed">Get real-time updates on your delivery status.</p>
-                    <a href="#" class="inline-block mt-3 sm:mt-4 text-emerald-400 font-semibold hover:text-emerald-300 transition-colors text-xs sm:text-sm">Track Now →</a>
-                </div>
-                <div class="text-center p-4 sm:p-6 md:p-8 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300">
-                    <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-xl shadow-yellow-500/20">
-                        <svg class="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <h4 class="font-bold text-white text-base sm:text-lg md:text-xl mb-1 sm:mb-2">FAQs</h4>
-                    <p class="text-gray-400 text-xs sm:text-sm leading-relaxed">Find answers to common questions about orders.</p>
-                    <a href="#" class="inline-block mt-3 sm:mt-4 text-emerald-400 font-semibold hover:text-emerald-300 transition-colors text-xs sm:text-sm">View FAQs →</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>-->
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

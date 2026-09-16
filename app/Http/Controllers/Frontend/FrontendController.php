@@ -105,7 +105,7 @@ class FrontendController extends Controller
                         ->addSelect([
                             'inventories.mrp',
                             'inventories.offer_rate',
-                             DB::raw('COALESCE(inventories.offer_shipment_rate, inventories.offer_rate) as display_price'),
+                            DB::raw('inventories.offer_shipment_rate as display_price'),
                             'inventories.purchase_rate',
                             'inventories.sku',
                             'inventories.stock_quantity'
@@ -165,7 +165,7 @@ class FrontendController extends Controller
             'products.*',
             'inventories.mrp',
             'inventories.offer_rate',
-            DB::raw('COALESCE(inventories.offer_shipment_rate, inventories.offer_rate) as display_price'),
+            DB::raw('inventories.offer_shipment_rate as display_price'),
             'inventories.purchase_rate',
             'inventories.sku',
             'inventories.stock_quantity'
@@ -220,7 +220,7 @@ class FrontendController extends Controller
 						'products.weight',
 
 						'inventories.mrp',
-                        DB::raw('COALESCE(inventories.offer_shipment_rate, inventories.offer_rate) as display_price'),
+                        DB::raw('inventories.offer_shipment_rate as display_price'),
 						'inventories.offer_rate',
 						'inventories.purchase_rate',
 						'inventories.sku',
@@ -356,10 +356,10 @@ class FrontendController extends Controller
                         $productsQuery->orderBy('created_at', 'desc');
                         break;
                     case 'price-low-to-high':
-                        $productsQuery->orderByRaw('ISNULL(inventories.offer_rate), inventories.offer_rate ASC');
+                        $productsQuery->orderByRaw('ISNULL(inventories.offer_shipment_rate), inventories.offer_shipment_rate ASC');
                         break;
                     case 'price-high-to-low':
-                        $productsQuery->orderByRaw('ISNULL(inventories.offer_rate), inventories.offer_rate DESC');
+                        $productsQuery->orderByRaw('ISNULL(inventories.offer_shipment_rate), inventories.offer_shipment_rate DESC');
                         break;
                     case 'a-to-z-order':
                         $productsQuery->orderBy('products.title', 'asc');
@@ -415,7 +415,15 @@ class FrontendController extends Controller
                         ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
                 })
                 ->whereHas('images')/*only select which product whose images have (if all product selected than remove this line)*/
-                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
+                ->select(
+                    'products.*',
+                    'inventories.mrp',
+                    'inventories.offer_rate',
+                    DB::raw('inventories.offer_shipment_rate as display_price'),
+                    'inventories.purchase_rate',
+                    'inventories.sku',
+                    'inventories.stock_quantity'
+                )
                 ->paginate($perPage);
 
             /**special offer rate */
@@ -600,7 +608,15 @@ class FrontendController extends Controller
                 $join->on('products.id', '=', 'inventories.product_id')
                     ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
             })
-            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
+            ->select(
+                'products.*',
+                'inventories.mrp',
+                'inventories.offer_rate',
+                DB::raw('inventories.offer_shipment_rate as display_price'),
+                'inventories.purchase_rate',
+                'inventories.sku',
+                'inventories.stock_quantity'
+            )
             ->where('products.slug', $slug)
             ->firstOrFail();
         /**Review */
@@ -640,7 +656,15 @@ class FrontendController extends Controller
                 $join->on('products.id', '=', 'inventories.product_id')
                     ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
             })
-            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
+            ->select(
+                'products.*',
+                'inventories.mrp',
+                'inventories.offer_rate',
+                DB::raw('inventories.offer_shipment_rate as display_price'),
+                'inventories.purchase_rate',
+                'inventories.sku',
+                'inventories.stock_quantity'
+            )
             ->where('products.category_id', $categoryId)
             ->whereHas('productAttributesValues', function ($query) use ($attributeValue) {
                 $query->where('attributes_value_id', $attributeValue->id);
@@ -667,10 +691,11 @@ class FrontendController extends Controller
                     ]);
             }
         ])
-            ->whereIn('variant_id', $variantIds)
-            ->select('product_id', 'variant_id', 'title', 'group_title', 'description')
-            ->get()
-            ->groupBy('group_title');
+        ->whereIn('variant_id', $variantIds)
+        ->where('product_id', '!=', $product->id)
+        ->select('product_id', 'variant_id', 'title', 'group_title', 'description')
+        ->get()
+        ->groupBy('group_title');
         /*Related product from related table */
 
         DB::disconnect();
@@ -867,10 +892,10 @@ class FrontendController extends Controller
                         $productsQuery->orderBy('created_at', 'desc');
                         break;
                     case 'price-low-to-high':
-                        $productsQuery->orderByRaw('ISNULL(inventories.offer_rate), inventories.offer_rate ASC');
+                        $productsQuery->orderByRaw('ISNULL(inventories.offer_shipment_rate), inventories.offer_shipment_rate ASC');
                         break;
                     case 'price-high-to-low':
-                        $productsQuery->orderByRaw('ISNULL(inventories.offer_rate), inventories.offer_rate DESC');
+                        $productsQuery->orderByRaw('ISNULL(inventories.offer_shipment_rate), inventories.offer_shipment_rate DESC');
                         break;
                     case 'a-to-z-order':
                         $productsQuery->orderBy('products.title', 'asc');
@@ -898,13 +923,21 @@ class FrontendController extends Controller
                         ->orderBy('id');
                 }
             ])
-                ->leftJoin('inventories', function ($join) {
-                    $join->on('products.id', '=', 'inventories.product_id')
-                        ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
-                })
-                ->whereHas('images')/*only select which product whose images have (if all product selected than remove this line)*/
-                ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity')
-                ->paginate($perPage);
+            ->leftJoin('inventories', function ($join) {
+                $join->on('products.id', '=', 'inventories.product_id')
+                    ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
+            })
+            ->whereHas('images')/*only select which product whose images have (if all product selected than remove this line)*/
+            ->select(
+                'products.*',
+                'inventories.mrp',
+                'inventories.offer_rate',
+                DB::raw('inventories.offer_shipment_rate as display_price'),
+                'inventories.purchase_rate',
+                'inventories.sku',
+                'inventories.stock_quantity'
+            )
+            ->paginate($perPage);
             $specialOffers = getCustomerSpecialOffers();
             /*Additional Filters */
             $additionalFilters = Category::query()
@@ -1644,7 +1677,15 @@ class FrontendController extends Controller
                 $join->on('products.id', '=', 'inventories.product_id')
                     ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
             })
-            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku', 'inventories.stock_quantity');
+            ->select(
+                'products.*',
+                'inventories.mrp',
+                'inventories.offer_rate',
+                DB::raw('inventories.offer_shipment_rate as display_price'),
+                'inventories.purchase_rate',
+                'inventories.sku',
+                'inventories.stock_quantity'
+            );
         /*Apply filters*/
         if ($request->has('filter')) {
             Log::info('Filters flash sale: ' . json_encode($request->query()));
@@ -1664,10 +1705,10 @@ class FrontendController extends Controller
         if ($request->has('sort')) {
             switch ($request->sort) {
                 case 'price-low-to-high':
-                    $query->orderBy('inventories.offer_rate', 'asc');
+                    $query->orderBy('inventories.offer_shipment_rate', 'asc');
                     break;
                 case 'price-high-to-low':
-                    $query->orderBy('inventories.offer_rate', 'desc');
+                    $query->orderBy('inventories.offer_shipment_rate', 'desc');
                     break;
                 case 'a-to-z-order':
                     $query->orderBy('products.title', 'asc');

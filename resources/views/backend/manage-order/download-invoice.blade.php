@@ -227,18 +227,36 @@
                                 <!-- <tr>
                                     <td colspan="3" align="right" style="padding-top: 5px; padding-bottom: 5px;"> GST (@5%): <b>Rs. 305.48 </b> </td>
                                 </tr> -->
-                                @if($order->shiprocketCourier)
+                                                                @if($order->shiprocketCourier)
                                 <tr>
-                                    <td colspan="3" align="right" style="padding-top: 5px; padding-bottom: 5px;"> Shipping Charges: <b>Rs. {{ $order->shiprocketCourier->courier_shipping_rate }} </b> </td>
+                                    <td colspan="3" align="right" style="padding-top: 5px; padding-bottom: 5px;">
+                                        Shipping Charges:
+                                        <b>
+                                            @if($order->shiprocketCourier->courier_shipping_rate > 0)
+                                                Rs. {{ number_format($order->shiprocketCourier->courier_shipping_rate, 2) }}
+                                            @else
+                                                FREE
+                                            @endif
+                                        </b>
+                                    </td>
+                                </tr>
+                                @if($order->shiprocketCourier->cod_charges > 0)
+                                <tr>
+                                    <td colspan="3" align="right" style="padding-top: 5px; padding-bottom: 5px;">
+                                        COD Charges: <b>Rs. {{ number_format($order->shiprocketCourier->cod_charges, 2) }}</b>
+                                    </td>
+                                </tr>
+                                @endif
+                                @endif
+                                @if(!empty($order->coupon_code) && $order->coupon_discount_amount > 0)
+                                <tr>
+                                    <td colspan="3" align="right" style="padding-top: 5px; padding-bottom: 5px;">
+                                        Discount (Coupon: {{ $order->coupon_code }}): <b>- Rs. {{ number_format($order->coupon_discount_amount, 2) }}</b>
+                                    </td>
                                 </tr>
                                 @endif
                                 <tr>
                                     <td colspan="3" align="right" style="padding-top: 5px; padding-bottom: 5px;"> Total Amount: <b>Rs. {{ number_format($order->grand_total_amount, 2)	}} </b> </td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3" align="right" style="padding-top: 5px; padding-bottom: 10px;"><b>Total Amount in Words : </b>
-                                        Rs. {{ numberToWords($order->grand_total_amount) }} Only.
-                                    </td>
                                 </tr>
                                 <tr>
                                     <td colspan="3">

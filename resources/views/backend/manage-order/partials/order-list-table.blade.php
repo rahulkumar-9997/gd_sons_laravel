@@ -56,13 +56,16 @@
                     data-bs-html="true"
                     title="
                         Shiprocket Courier: <strong>{{ $order->shiprocketCourier->courier_name }}</strong><br>
-                        Rate: <strong>Rs. {{ $order->shiprocketCourier->courier_shipping_rate }}</strong><br>
+                        Rate: <strong>{{ $order->shiprocketCourier->courier_shipping_rate > 0 ? 'Rs. '.number_format($order->shiprocketCourier->courier_shipping_rate, 2) : 'FREE' }}</strong><br>
+                        @if($order->shiprocketCourier->cod_charges > 0)
+                        COD Charges: <strong>Rs. {{ number_format($order->shiprocketCourier->cod_charges, 2) }}</strong><br>
+                        @endif
                         Delivery Expected: <strong>{{ $order->shiprocketCourier->delivery_expected_date }}</strong>
                     ">
                     
                     <i class="ti ti-question-mark"></i>
                 </label>
-            @endif
+                @endif
             </td>
             <td>
                 <span class="badge border border-success text-success">{{ $order->payment_mode }}</span>

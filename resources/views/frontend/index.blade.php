@@ -40,8 +40,11 @@
             <div class="col-lg-12">
                 <div class="text-center mt-2">
                     <h1 class="class-h1-tags">
-                        Buy Kitchen Appliances, Cookware & More Online — Pan-India delivery.
+                        Buy Kitchen Appliances, Cookware & More Online
                     </h1>
+                    <h2 class="mt-2 text-[22px] text-primary-teal">
+                        Free Pan-India Delivery.
+                    </h2>
                 </div>
             </div>
         </div>

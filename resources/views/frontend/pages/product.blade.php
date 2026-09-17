@@ -76,7 +76,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 <section class="product-section">
     <div class="container-fluid-lg">
         <div class="row">
-            <div class="col-xxl-9 col-xl-8 col-lg-7">
+            <div class="col-xxl-8 col-xl-8 col-lg-8">
                 <div class="row g-4">
                     <div class="col-xl-6">
                         @if(preg_match('/(android|iphone|ipod|mobile)/i', strtolower($_SERVER['HTTP_USER_AGENT'])))
@@ -150,31 +150,41 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                 <div class="price-rating">
                                     <h3 class="theme-color price">
                                         @php
-                                        $product = $data['product_details'];
-                                        $offer_rate = $product->offer_rate;
-                                        $display_price = $product->display_price ?? $offer_rate;
-
-                                        $discountPercentage = 0;
-                                        if ($product->mrp && $display_price) {
-                                            $discountPercentage = round((($product->mrp - $display_price) / $product->mrp) * 100, 2);
-                                        }
+                                            $product = $data['product_details'];
+                                            $offer_rate = $product->offer_rate;
+                                            $display_price = $product->display_price ?? $offer_rate;
+                                            $discountPercentage = 0;
+                                            if ($product->mrp && $display_price) {
+                                                $discountPercentage = round(
+                                                    (($product->mrp - $display_price) / $product->mrp) * 100,
+                                                    2
+                                                );
+                                            }
                                         @endphp
                                         @if($display_price)
-                                        <div>
-                                            <span class="text-[24px] lg:text-[26px]">Rs. {{ number_format($display_price, 2) }}</span>
-                                            @if($product->mrp)
-                                            <del class="text-content ml-2">
-                                                Rs. {{ number_format($product->mrp, 2) }}
-                                            </del>
-                                            @endif
-                                            @if($discountPercentage>0)
-                                            <br><span class="mt-2 text-[18px] theme-color">
-                                                ({{ $discountPercentage }}% off)
-                                            </span>
-                                            @endif
-                                        </div>
+                                            <div>
+                                                <span class="text-[24px] lg:text-[26px]">
+                                                    Rs. {{ number_format($display_price, 2) }}
+                                                </span>
+                                                @if($product->mrp)
+                                                    <del class="text-content ml-2">
+                                                        Rs. {{ number_format($product->mrp, 2) }}
+                                                    </del>
+                                                @endif
+                                                @if($discountPercentage > 0)
+                                                    <br>
+                                                    <span class="mt-2 text-[18px] theme-color">
+                                                        ({{ $discountPercentage }}% off)
+                                                    </span>
+                                                @endif
+                                                {{-- Shipping Charges Message --}}
+                                                @if($display_price > $product->mrp)
+                                                    <div class="mt-2 text-[14px] text-primary-navy">
+                                                        (Offer value includes Shipping Charges)
+                                                    </div>
+                                                @endif
+                                            </div>
                                         @endif
-
                                     </h3>
                                 </div>
                             </div> 
@@ -398,7 +408,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                     @endif -->
                 </div>
             </div>
-            <div class="col-xxl-3 col-xl-4 col-lg-5 d-lg-block mb-5">
+            <div class="col-xxl-4 col-xl-4 col-lg-4 d-lg-block mb-5">
                 <div class="right-sidebar-box">
                     <div class="pt-25">
                         <div class="category-menu">

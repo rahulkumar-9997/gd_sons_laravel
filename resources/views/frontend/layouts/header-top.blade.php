@@ -10,6 +10,16 @@
                     <span class="text-primary-mint">55 years of honest service.</span>
                 </h4>
             </div>
+
+            <div class="flex items-center gap-2 py-1.5">
+                <svg class="h-4 w-4 text-primary-mint shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <h4 class="m-0 text-[13px] font-medium tracking-wide text-white/90"> 
+                    Free Delivery Available Across India. 
+                </h4>
+            </div>
+
             <div class="flex items-center gap-6 py-1.5">
                 <a href="{{ route('bulk.order') }}" class="flex items-center gap-1.5 rounded-full bg-primary-teal px-3.5 py-1 text-[13px] font-semibold text-white transition-colors duration-200 hover:bg-primary-cyan">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

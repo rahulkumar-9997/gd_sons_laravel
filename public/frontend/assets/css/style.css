@@ -44220,7 +44220,7 @@ body.rtl .question-answer li .question-box .link-dislike-box {
     font-weight: 700;
     margin-bottom: calc(10px + 5*(100vw - 320px)/1600);
     line-height: 1.5;
-    font-size: calc(22px + 6*(100vw - 320px) / 1600);
+    font-size: 24px;
 }
 
 .product-section .right-box-contain .price-rating {

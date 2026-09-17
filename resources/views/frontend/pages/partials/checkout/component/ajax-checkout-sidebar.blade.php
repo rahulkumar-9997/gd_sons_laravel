@@ -1,6 +1,4 @@
 @php
-$freeShippingThreshold = 500;
-
 $subtotal = 0;
 $sessionCart = session('cart', []);
 $cart_items_for_js = [];
@@ -31,15 +29,14 @@ $cart_items_for_js = [];
             @php
             $quantity = $sessionCart[$cart->id]['quantity'] ?? 1;
             $cart_items_for_js[] = [
-                'product_id' => $cart->id,
-                'qty' => $quantity,
-                'length' => (float) ($cart->length ?? 0),
-                'breadth' => (float) ($cart->breadth ?? 0),
-                'height' => (float) ($cart->height ?? 0),
-                'weight' => (float) ($cart->weight ?? 0),
+            'product_id' => $cart->id,
+            'qty' => $quantity,
+            'length' => (float) ($cart->length ?? 0),
+            'breadth' => (float) ($cart->breadth ?? 0),
+            'height' => (float) ($cart->height ?? 0),
+            'weight' => (float) ($cart->weight ?? 0),
             ];
 
-            $offer_rate = $cart->offer_rate ?? 0;
             $display_price = $cart->display_price;
             $mrp = $cart->mrp ?? 0;
 
@@ -94,9 +91,7 @@ $cart_items_for_js = [];
         </ul>
 
         @php
-        /* ---- Free shipping + COD charge rules ---- */
-        $isFreeShipping = $isFreeShipping ?? ($subtotal >= $freeShippingThreshold);
-        $shippingRate = $isFreeShipping ? 0 : round($rate ?? 0);
+        /* Shipping हमेशा free है — price में shipping पहले से शामिल है */
         $codCharge = $codCharge ?? ((($paymentType ?? '') === 'Cash on Delivery') ? 50 : 0);
         @endphp
 
@@ -112,23 +107,10 @@ $cart_items_for_js = [];
                 <div class="courier-partner-title">
                     <h4>Shipping</h4>
                     <h4 class="price mt-2">
-                        @if($isFreeShipping)
                         <span class="text-success" id="shipping_free_badge">FREE</span>
                         <span id="shipping_amount" style="display:none">0.00</span>
-                        @else
-                        Rs. <span id="shipping_amount">{{ $shippingRate }}</span>
-                        <span id="shipping_free_badge" class="text-success" style="display:none">FREE</span>
-                        @endif
                     </h4>
                 </div>
-
-                @if(!$isFreeShipping)
-                <p class="text-muted mb-0" id="free_shipping_hint" style="font-size:12px;">
-                    Add items worth Rs. {{ number_format(max(0, $freeShippingThreshold - $subtotal), 2) }} more for free shipping.
-                </p>
-                @else
-                <p class="text-muted mb-0" id="free_shipping_hint" style="font-size:12px; display:none;"></p>
-                @endif
 
                 <div class="courier-partner" id="courier_partner" style="display:none">
                     <div id="shipping_loader" class="checkout_loader_gif" style="display:none;"></div>
@@ -139,9 +121,9 @@ $cart_items_for_js = [];
                         <input type="radio"
                             name="shipping_method"
                             class="form-check-input shipping_radio"
-                            value="{{ $c['rate'] }}"
+                            value="0"
                             data-courier-name="{{ $c['courier'] }}"
-                            data-rate="{{ $c['rate'] }}"
+                            data-rate="0"
                             data-courier-company-id="{{ $c['courier_company_id'] ?? '' }}"
                             data-cod-charges="{{ round($c['cod_charges']) ?? 0 }}"
                             data-courier-id="{{ $c['id'] ?? '' }}"
@@ -149,12 +131,7 @@ $cart_items_for_js = [];
                             {{ $checked }}>
                         <label class="form-check-label">
                             <strong>{{ $c['courier'] }}</strong>
-                            ({{ $c['service'] ?: 'Service' }}) —
-                            @if($isFreeShipping)
-                            <span class="text-success">Free</span>
-                            @else
-                            ₹{{ round($c['rate']) }}
-                            @endif
+                            ({{ $c['service'] ?: 'Service' }}) — <span class="text-success">Free</span>
                         </label>
                         <p><small class="text-muted">(ETD: {{ \Carbon\Carbon::parse($c['etd'])->addDays(2)->format('M d, Y') }})</small></p>
                     </div>
@@ -182,7 +159,7 @@ $cart_items_for_js = [];
                 <h4 class="price">Rs.
                     @php
                     $discountAmount = session()->has('applied_coupon') ? session('applied_coupon')['discount_amount'] : 0;
-                    $total = $subtotal + $shippingRate + $codCharge - $discountAmount;
+                    $total = $subtotal + $codCharge - $discountAmount;
                     @endphp
                     <span id="grand_total_amount_span">{{ number_format($total, 2) }}</span>
                     <input type="hidden" id="grand_total_amount_input" name="grand_total_amount" value="{{ $total }}">
@@ -191,7 +168,7 @@ $cart_items_for_js = [];
         </ul>
     </div>
     <input type="hidden" id="selected_courier_name" name="courier_name">
-    <input type="hidden" id="selected_shipping_rate" name="shipping_rate" value="{{ $shippingRate }}">
+    <input type="hidden" id="selected_shipping_rate" name="shipping_rate" value="0">
     <input type="hidden" id="selected_courier_company_id" name="courier_company_id">
     <input type="hidden" id="selected_cod_charges" name="cod_charges" value="{{ $codCharge }}">
     <input type="hidden" id="selected_courier_id" name="courier_id">

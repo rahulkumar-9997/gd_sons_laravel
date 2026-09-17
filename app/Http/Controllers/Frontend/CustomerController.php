@@ -1134,31 +1134,32 @@ class CustomerController extends Controller
                 'products.*',
                 'inventories.mrp',
                 'inventories.offer_rate',
-                DB::raw('inventories.offer_shipment_rate as display_price'),
+                DB::raw('COALESCE(inventories.offer_shipment_rate, inventories.offer_rate) as display_price'),
                 'inventories.purchase_rate',
                 'inventories.sku',
                 'inventories.stock_quantity'
             )
             ->whereIn('products.id', $productIds)
             ->get();
-        Log::info('Cart Contents', ['cart' => $session_cart, 'carts' => $carts]);
+
         if ($carts->isEmpty()) {
             return response()->json([
                 'success' => false,
                 'checkout_sidebar' => '<span class="text-danger">Cart is empty or invalid.</span>'
             ]);
         }
+
         $subtotal = 0;
         foreach ($carts as $cart) {
             $quantity      = $session_cart[$cart->id]['quantity'] ?? 1;
-            $offer_rate    = $cart->offer_rate ?? 0;
             $display_price = $cart->display_price;
             $subtotal += $display_price * $quantity;
         }
-        $FREE_SHIPPING_THRESHOLD = 500;
-        $COD_CHARGE              = 50;
-        $isFreeShipping = $subtotal >= $FREE_SHIPPING_THRESHOLD;
-        $codCharge      = ($paymentType === 'Cash on Delivery') ? $COD_CHARGE : 0;
+
+        /* ---- Shipping is ALWAYS free — price already includes shipping. Only COD adds a flat fee. ---- */
+        $COD_CHARGE = 50;
+        $codCharge  = ($paymentType === 'Cash on Delivery') ? $COD_CHARGE : 0;
+
         $totalWeight = 0;
         $maxLength   = 0;
         $maxBreadth  = 0;
@@ -1174,8 +1175,10 @@ class CustomerController extends Controller
             $maxBreadth   = max($maxBreadth, $breadth);
             $totalHeight += ($height * $qty);
         }
+
         $ship = app(\App\Services\ShiprocketService::class);
         $cod  = $paymentType === 'Cash on Delivery' ? 1 : 0;
+
         try {
             $response = $ship->getServiceability([
                 'pickup_postcode'   => $fromPin,
@@ -1194,6 +1197,7 @@ class CustomerController extends Controller
                 'checkout_sidebar' => '<span class="text-danger">Unable to check delivery availability right now. Please try again.</span>'
             ]);
         }
+
         if (!$response || !($response['success'] ?? false)) {
             $errorMessage = $response['response']['message'] ?? 'Delivery not available at this pincode.';
             return response()->json([
@@ -1201,6 +1205,7 @@ class CustomerController extends Controller
                 'checkout_sidebar' => $errorMessage
             ]);
         }
+
         $couriers = [];
         foreach (($response['raw']['data']['available_courier_companies'] ?? []) as $c) {
             $rate = $c['rate'] ?? $c['freight_charge'] ?? null;
@@ -1209,35 +1214,37 @@ class CustomerController extends Controller
                 'courier'             => $c['courier_name'] ?? 'Unknown',
                 'service'             => $c['service'] ?? '',
                 'etd'                 => $c['etd'] ?? '',
-                'shiprocket_rate'     => $rate,
-                'rate'                => $isFreeShipping ? 0 : $rate,
+                'shiprocket_rate'     => $rate,   // असली Shiprocket rate — सिर्फ sorting/reference के लिए
+                'rate'                => 0,       // customer को हमेशा ₹0 दिखेगा — shipping हमेशा free
                 'courier_company_id'  => $c['courier_company_id'] ?? null,
                 'cod_charges'         => $c['cod_charges'] ?? 0,
                 'id'                  => $c['id'] ?? null,
             ];
         }
+
         if (empty($couriers)) {
             return response()->json([
                 'success' => false,
                 'checkout_sidebar' => '<span class="text-danger">No courier services available.</span>'
             ]);
         }
+
         usort($couriers, fn($a, $b) => $a['shiprocket_rate'] <=> $b['shiprocket_rate']);
         $couriers = array_slice($couriers, 0, 5);
+
         $appliedCoupon = session('applied_coupon');
+
         return response()->json([
-            'success'          => true,
-            'is_free_shipping' => $isFreeShipping,
-            'cod_charge'       => $codCharge,
+            'success'    => true,
+            'cod_charge' => $codCharge,
             'checkout_sidebar' => view('frontend.pages.partials.checkout.component.ajax-checkout-sidebar', [
-                'couriers'       => $couriers,
-                'rate'           => $couriers[0]['rate'],
-                'carts'          => $carts,
-                'specialOffers'  => $specialOffers,
-                'paymentType'    => $paymentType,
-                'appliedCoupon'  => $appliedCoupon,
-                'isFreeShipping' => $isFreeShipping,
-                'codCharge'      => $codCharge,
+                'couriers'      => $couriers,
+                'rate'          => 0,
+                'carts'         => $carts,
+                'specialOffers' => $specialOffers,
+                'paymentType'   => $paymentType,
+                'appliedCoupon' => $appliedCoupon,
+                'codCharge'     => $codCharge,
             ])->render(),
         ], 200);
     }

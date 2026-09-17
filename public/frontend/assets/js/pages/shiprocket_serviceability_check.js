@@ -44,8 +44,6 @@
     function applyCoupon(couponCode, $btn, originalText) {
         let subtotal =
             parseFloat($("#subtotal_amount").text().replace(/,/g, "")) || 0;
-        let shipping =
-            parseFloat($("#shipping_amount").text().replace(/,/g, "")) || 0;
         let paymentType = $("input[name='payment_type']:checked").val();
         let pincode = getCurrentPincode();
 
@@ -55,7 +53,7 @@
             data: {
                 coupon_code: couponCode,
                 subtotal: subtotal,
-                shipping: shipping,
+                shipping: 0,
                 payment_type: paymentType,
                 pincode: pincode,
                 _token: $('meta[name="csrf-token"]').attr("content"),
@@ -93,11 +91,7 @@
                     }
                     /* END COD TOGGLE */
                     let discountAmount = parseFloat(res.discount_amount) || 0;
-                    smoothUpdateTotalsWithCoupon(
-                        shipping,
-                        discountAmount,
-                        subtotal,
-                    );
+                    smoothUpdateTotalsWithCoupon(discountAmount, subtotal);
                     showNotificationAll("success", "Success", res.message);
                     if (pincode && /^\d{6}$/.test(pincode)) {
                         setTimeout(function () {
@@ -134,14 +128,12 @@
     }
 
     /* SMOOTH UPDATE TOTALS WITH COUPON (animated version, used after applying a coupon) */
-    function smoothUpdateTotalsWithCoupon(shipping, discount, subtotal) {
-        shipping = parseFloat(shipping) || 0;
+    function smoothUpdateTotalsWithCoupon(discount, subtotal) {
         discount = parseFloat(discount) || 0;
         subtotal = parseFloat(subtotal) || 0;
         let codCharge = getCodCharge();
-        let total = subtotal + shipping + codCharge - discount;
+        let total = subtotal + codCharge - discount;
 
-        animateNumber($("#shipping_amount"), shipping);
         animateNumber($("#coupon_discount_display"), discount);
         animateNumber($("#grand_total_amount_span"), total);
         $("#grand_total_amount_input").val(total.toFixed(2));
@@ -151,13 +143,9 @@
         $("#selected_cod_charges").val(codCharge);
         $(".cod-charge-row").toggle(codCharge > 0);
 
-        if (shipping === 0) {
-            $("#shipping_free_badge").show();
-            $("#shipping_amount").hide();
-        } else {
-            $("#shipping_free_badge").hide();
-            $("#shipping_amount").show();
-        }
+        /* Shipping हमेशा free रहती है */
+        $("#shipping_free_badge").show();
+        $("#shipping_amount").hide();
 
         if (discount > 0) {
             $(".coupon-discount-row").slideDown(300);
@@ -212,11 +200,7 @@
                         parseFloat(
                             $("#subtotal_amount").text().replace(/,/g, ""),
                         ) || 0;
-                    let shipping =
-                        parseFloat(
-                            $("#shipping_amount").text().replace(/,/g, ""),
-                        ) || 0;
-                    smoothUpdateTotalsWithCoupon(shipping, 0, subtotal);
+                    smoothUpdateTotalsWithCoupon(0, subtotal);
                     let pincode = $("#checkout_pincode").val().trim();
                     if (pincode && /^\d{6}$/.test(pincode)) {
                         setTimeout(function () {
@@ -250,20 +234,14 @@
     });
 
     /* UPDATE TOTALS WITH COUPON (non-animated, used after AJAX sidebar refresh) */
-    function updateTotalsWithCoupon(shipping, discount, subtotal) {
-        shipping = parseFloat(shipping) || 0;
+    function updateTotalsWithCoupon(discount, subtotal) {
         discount = parseFloat(discount) || 0;
         subtotal = parseFloat(subtotal) || 0;
         let codCharge = getCodCharge();
-        let total = subtotal + shipping + codCharge - discount;
+        let total = subtotal + codCharge - discount;
 
-        if (shipping === 0) {
-            $("#shipping_free_badge").show();
-            $("#shipping_amount").hide().text("0.00");
-        } else {
-            $("#shipping_free_badge").hide();
-            $("#shipping_amount").show().text(shipping.toFixed(2));
-        }
+        $("#shipping_free_badge").show();
+        $("#shipping_amount").hide().text("0.00");
 
         $("#coupon_discount_display").text(discount.toFixed(2));
         $("#grand_total_amount_span").text(total.toFixed(2));
@@ -277,21 +255,16 @@
         $(".coupon-discount-row").toggle(discount > 0);
     }
 
-    /* MODIFIED UPDATE TOTALS FUNCTION — includes flat COD charge */
-    function updateTotals(shipping) {
+    /* UPDATE TOTALS — shipping हमेशा 0, सिर्फ flat COD charge जुड़ता है */
+    function updateTotals() {
         let subtotal =
             parseFloat($("#subtotal_amount").text().replace(/,/g, "")) || 0;
         let discount = parseFloat($("#coupon_discount_amount").val()) || 0;
         let codCharge = getCodCharge();
-        let total = subtotal + shipping + codCharge - discount;
+        let total = subtotal + codCharge - discount;
 
-        if (shipping === 0) {
-            $("#shipping_free_badge").show();
-            $("#shipping_amount").hide().text("0.00");
-        } else {
-            $("#shipping_free_badge").hide();
-            $("#shipping_amount").show().text(shipping.toFixed(2));
-        }
+        $("#shipping_free_badge").show();
+        $("#shipping_amount").hide().text("0.00");
 
         $("#cod_charge_display").text(codCharge.toFixed(2));
         $(".cod-charge-row").toggle(codCharge > 0);
@@ -303,14 +276,9 @@
 
         $("#grand_total_amount_span").text(total.toFixed(2));
         $("#grand_total_amount_input").val(total.toFixed(2));
-        $("#selected_shipping_rate").val(shipping);
+        $("#selected_shipping_rate").val(0);
         $("#selected_cod_charges").val(codCharge);
         $("#cod_charge_amount").val(codCharge);
-
-        if (shipping === 0 && !$(".shipping_radio:checked").length) {
-            $("#selected_courier_company_id").val("");
-            $("#selected_courier_id").val("");
-        }
     }
 
     /* MODIFIED HANDLE SERVICEABILITY FUNCTION */
@@ -325,7 +293,7 @@
         });
 
         if (paymentType === "Pick Up From Store") {
-            updateTotals(0);
+            updateTotals();
             $(".courier-radio").hide();
             $("#courier_partner").html(
                 '<span class="text-success">Pick Up From Store — No Shipping Charges</span>',
@@ -383,7 +351,7 @@
                             `<span class="text-danger">${res.checkout_sidebar}</span>`,
                         )
                         .fadeIn(300);
-                    updateTotals(0);
+                    updateTotals();
                     placeOrderBtn.prop("disabled", true);
                     return;
                 }
@@ -396,11 +364,7 @@
                             parseFloat(
                                 $("#subtotal_amount").text().replace(/,/g, ""),
                             ) || 0;
-                        let shipping =
-                            parseFloat(
-                                $(".shipping_radio:checked").data("rate"),
-                            ) || 0;
-                        updateTotalsWithCoupon(shipping, discount, subtotal);
+                        updateTotalsWithCoupon(discount, subtotal);
                     }
                     placeOrderBtn
                         .prop("disabled", false)
@@ -408,11 +372,10 @@
                     let first = $(".shipping_radio:checked");
                     if (first.length) {
                         first.trigger("change");
-                        let shippingRate = parseFloat(first.data("rate")) || 0;
                         if (typeof gtag === "function") {
                             gtag("event", "shipping_calculated", {
                                 currency: "INR",
-                                shipping_amount: shippingRate,
+                                shipping_amount: 0,
                                 pincode: pincode,
                             });
                         }
@@ -459,9 +422,7 @@
 
     /* EVENT: Payment Type Change — instant COD charge feedback + re-check serviceability */
     $(document).on("change", "input[name='payment_type']", function () {
-        let currentShipping =
-            parseFloat($(".shipping_radio:checked").data("rate")) || 0;
-        updateTotals(currentShipping);
+        updateTotals();
 
         let selectedAddress = $(".exiting_customer_address_radio:checked");
         let pincode = "";
@@ -493,16 +454,14 @@
         return totalWeight;
     }
 
-    /* EVENT: Shipping Radio Change */
+    /* EVENT: Shipping Radio Change — courier select होता है delivery ke liye, charge nahi lagta */
     $(document).on("change", ".shipping_radio", function () {
-        let shipping = parseFloat($(this).data("rate")) || 0;
         let courierName = $(this).data("courier-name") || "";
         let courierCompanyId = $(this).data("courier-company-id") || "";
-        let codCharges = parseFloat($(this).data("cod-charges")) || 0;
         let courierId = $(this).data("courier-id") || "";
         let delivery_expected_date =
             $(this).data("courier-delivery-expected-date") || "";
-        updateTotals(shipping);
+        updateTotals();
 
         $("#selected_courier_name").val(courierName);
         $("#selected_courier_company_id").val(courierCompanyId);
@@ -529,7 +488,7 @@
 
         let paymentType = $("input[name='payment_type']:checked").val();
         if (paymentType === "Pick Up From Store") {
-            updateTotals(0);
+            updateTotals();
             $(".courier-radio").hide();
             $("#courier_partner").html(
                 '<span class="text-success">Pick Up From Store — No Shipping Charges</span>',

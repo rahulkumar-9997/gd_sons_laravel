@@ -85,22 +85,22 @@
 
                                             <div class="order-detail">
                                                 <h4>Order Status: <span>{{ $order->orderStatus->status_name ?? 'Pending' }}</span>
-                                                <span class="success-bg">
-                                                    {{ $order->order_id }}
-                                                </span>
-                                            </h4>
+                                                    <span class="success-bg">
+                                                        {{ $order->order_id }}
+                                                    </span>
+                                                </h4>
                                                 <h6 class="text-content">{{ $order->orderStatus->description ?? 'No additional details available.' }}</h6>
-                                                
+
                                             </div>
                                         </div>
 
                                         @foreach($order->orderLines as $orderLine)
-                                            @php
-                                                $attributes_value ='na';
-                                                    if($orderLine->product->ProductAttributesValues->isNotEmpty()){
-                                                    $attributes_value = $orderLine->product->ProductAttributesValues->first()->attributeValue->slug;
-                                                }
-                                            @endphp
+                                        @php
+                                        $attributes_value ='na';
+                                        if($orderLine->product->ProductAttributesValues->isNotEmpty()){
+                                        $attributes_value = $orderLine->product->ProductAttributesValues->first()->attributeValue->slug;
+                                        }
+                                        @endphp
                                         <div class="product-order-detail">
                                             <a href="{{ url('products/'.$orderLine->product->slug.'/'. $attributes_value) }}" class="order-image">
                                                 <div class="order-details-img">
@@ -151,47 +151,47 @@
                                                     <ul class="summery-contain pb-0 border-bottom-0">
                                                         <li class="d-block">
                                                             <h4>
-                                                            {{ $order->shippingAddress->full_name }}
+                                                                {{ $order->shippingAddress->full_name }}
                                                             </h4>
                                                             <h4 class="mt-2">
-                                                            {{ $order->shippingAddress->phone_number }}
+                                                                {{ $order->shippingAddress->phone_number }}
                                                             </h4>
                                                             <h4 class="mt-2">{{ $order->shippingAddress->full_address }}</h4>
                                                             @if($order->shippingAddress->apartment )
-                                                                <h4 class="mt-2">{{ $order->shippingAddress->apartment }}</h4>
+                                                            <h4 class="mt-2">{{ $order->shippingAddress->apartment }}</h4>
                                                             @endif
                                                             <h4 class="mt-2">{{ $order->shippingAddress->city_name }}, {{ $order->shippingAddress->state }} {{ $order->shippingAddress->pin_code }}</h4>
                                                         </li>
-                                                        
+
                                                     </ul>
                                                 </div>
 
-                                                
+
                                             </div>
                                             <div class="col-lg-6 col-sm-6">
                                                 @if($order->billingAddress)
-                                                    <div class="summery-box address-box">
-                                                        <div class="summery-header d-block">
-                                                            <h3>Billing Address</h3>
-                                                        </div>
+                                                <div class="summery-box address-box">
+                                                    <div class="summery-header d-block">
+                                                        <h3>Billing Address</h3>
+                                                    </div>
 
-                                                        <ul class="summery-contain pb-0 border-bottom-0">
-                                                            <li class="d-block">
+                                                    <ul class="summery-contain pb-0 border-bottom-0">
+                                                        <li class="d-block">
                                                             <h4>
-                                                            {{ $order->billingAddress->full_name }}
+                                                                {{ $order->billingAddress->full_name }}
                                                             </h4>
                                                             <h4 class="mt-2">
-                                                            {{ $order->billingAddress->phone_number }}
+                                                                {{ $order->billingAddress->phone_number }}
                                                             </h4>
-                                                                <h4 class="mt-2">{{ $order->billingAddress->full_address }}</h4>
-                                                                @if($order->billingAddress->apartment)
-                                                                    <h4 class="mt-2">{{ $order->billingAddress->full_address }}</h4>
-                                                                @endif
-                                                                <h4 class="mt-2">{{ $order->billingAddress->city_name }}, {{ $order->billingAddress->state }} {{ $order->billingAddress->pin_code }}</h4>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                @endif                                                
+                                                            <h4 class="mt-2">{{ $order->billingAddress->full_address }}</h4>
+                                                            @if($order->billingAddress->apartment)
+                                                            <h4 class="mt-2">{{ $order->billingAddress->apartment }}</h4>
+                                                            @endif
+                                                            <h4 class="mt-2">{{ $order->billingAddress->city_name }}, {{ $order->billingAddress->state }} {{ $order->billingAddress->pin_code }}</h4>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                @endif
                                             </div>
                                         </div>
                                         <div class="row">
@@ -204,7 +204,17 @@
                                                                 <span>Delivery Charges:</span>
                                                             </th>
                                                             <td>
-                                                                <span>Rs. {{ $order->shiprocketCourier->courier_shipping_rate }}</span>
+                                                                <span>Rs. {{ number_format($order->shiprocketCourier->courier_shipping_rate, 2) }}</span>
+                                                            </td>
+                                                        </tr>
+                                                        @endif
+                                                        @if($order->shiprocketCourier && $order->shiprocketCourier->cod_charges > 0)
+                                                        <tr>
+                                                            <th>
+                                                                <span>COD Charges:</span>
+                                                            </th>
+                                                            <td>
+                                                                <span>Rs. {{ number_format($order->shiprocketCourier->cod_charges, 2) }}</span>
                                                             </td>
                                                         </tr>
                                                         @endif
@@ -227,7 +237,7 @@
                                                             </th>
                                                             <td>
                                                                 <span class="price-font-order">
-                                                                    Rs. 
+                                                                    Rs.
                                                                     {{ number_format($order->grand_total_amount, 2) }}
                                                                 </span>
                                                             </td>
@@ -238,7 +248,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 @else
                                 <div class="order-box dashboard-bg-box">
                                     <h4>No Orders Found</h4>

@@ -28,6 +28,7 @@
                             $customerEmail = $order->customer->email ?? ($order->shippingAddress->email_id ?? 'N/A');
                             $itemsSubTotal = $order->orderLines->sum(fn($line) => $line->quantity * $line->price);
                             $shippingCharge = $order->shiprocketCourier->courier_shipping_rate ?? 0;
+                            $codCharge = $order->shiprocketCourier->cod_charges ?? 0;
                             $discountAmount = $order->coupon_discount_amount ?? 0;
                             $totalPayable = $order->grand_total_amount;
                             $billing = $order->billingAddress ?? $order->shippingAddress;
@@ -116,6 +117,12 @@
                                     <td style="font-size:13px; color:#777; padding:3px 0;">Delivery Charge ({{ $order->shiprocketCourier->courier_name ?? 'N/A' }})</td>
                                     <td style="font-size:13px; color:#333; padding:3px 0; text-align:right;">₹{{ number_format($shippingCharge, 2) }}</td>
                                 </tr>
+                                @if($codCharge > 0)
+                                <tr>
+                                    <td style="font-size:13px; color:#777; padding:3px 0;">COD Charges</td>
+                                    <td style="font-size:13px; color:#333; padding:3px 0; text-align:right;">₹{{ number_format($codCharge, 2) }}</td>
+                                </tr>
+                                @endif
                                 <tr>
                                     <td style="font-size:15px; color:#0d3b3e; font-weight:bold; padding:10px 0 0 0; border-top:1px solid #eeeeee;">Total Payable</td>
                                     <td style="font-size:15px; color:#0d3b3e; font-weight:bold; padding:10px 0 0 0; border-top:1px solid #eeeeee; text-align:right;">₹{{ number_format($totalPayable, 2) }}</td>
@@ -175,8 +182,8 @@
                             <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
                                 <tr>
                                     <td align="center" style="border-radius:5px; background-color:#0d3b3e;">
-                                       <a href="{{ url('/order-list') . '?order-status=1&id=' . $order->id }}"
-                                        style="display:inline-block; padding:12px 28px; font-size:14px; color:#ffffff; text-decoration:none; font-weight:bold;">
+                                        <a href="{{ url('/order-list') . '?order-status=1&id=' . $order->id }}"
+                                            style="display:inline-block; padding:12px 28px; font-size:14px; color:#ffffff; text-decoration:none; font-weight:bold;">
                                             View Order in Admin Panel
                                         </a>
                                     </td>

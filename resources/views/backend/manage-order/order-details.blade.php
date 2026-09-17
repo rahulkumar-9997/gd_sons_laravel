@@ -31,66 +31,8 @@
                                     </h4>
                                     <p class="mb-0">Order / Order Details / {{ $order->order_id }} - {{ \Carbon\Carbon::parse($order->order_date)->format('d M Y, h:i:s A') }}</p>
                                 </div>
-                                <!-- <div>
-                                    <a href="#!" class="btn btn-outline-secondary">Refund</a>
-                                    <a href="#!" class="btn btn-outline-secondary">Return</a>
-                                    <a href="#!" class="btn btn-primary">Edit Order</a>
-                                </div> -->
-
                             </div>
-
-                            <!-- <div class="mt-4">
-                                <h4 class="fw-medium text-dark">Progress</h4>
-                            </div> -->
-                            <!-- <div class="row row-cols-xxl-5 row-cols-md-2 row-cols-1">
-                                <div class="col">
-                                    <div class="progress mt-3" style="height: 10px;">
-                                        <div class="progress-bar progress-bar  progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 100%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="70">
-                                        </div>
-                                    </div>
-                                    <p class="mb-0 mt-2">Order Confirming</p>
-                                </div>
-                                <div class="col">
-                                    <div class="progress mt-3" style="height: 10px;">
-                                        <div class="progress-bar progress-bar  progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 100%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="70">
-                                        </div>
-                                    </div>
-                                    <p class="mb-0 mt-2">Payment Pending</p>
-                                </div>
-                                <div class="col">
-                                    <div class="progress mt-3" style="height: 10px;">
-                                        <div class="progress-bar progress-bar  progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 60%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="70">
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-2 mt-2">
-                                        <p class="mb-0">Processing</p>
-                                        <div class="spinner-border spinner-border-sm text-warning" role="status">
-                                            <span class="visually-hidden">Loading...</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="progress mt-3" style="height: 10px;">
-                                        <div class="progress-bar progress-bar  progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="70">
-                                        </div>
-                                    </div>
-                                    <p class="mb-0 mt-2">Shipping</p>
-                                </div>
-                                <div class="col">
-                                    <div class="progress mt-3" style="height: 10px;">
-                                        <div class="progress-bar progress-bar  progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="70">
-                                        </div>
-                                    </div>
-                                    <p class="mb-0 mt-2">Delivered</p>
-                                </div>
-                            </div> -->
                         </div>
-                        <!-- <div class="card-footer d-flex flex-wrap align-items-center justify-content-between bg-light-subtle gap-2">
-                            <p class="border rounded mb-0 px-2 py-1 bg-body"><i class='bx bx-arrow-from-left align-middle fs-16'></i> Estimated shipping date : <span class="text-dark fw-medium">Apr 25 , 2024</span></p>
-                            <div>
-                                <a href="#!" class="btn btn-primary">Make As Ready To Ship</a>
-                            </div>
-                        </div> -->
                     </div>
                     <div class="card">
                         <div class="card-header">
@@ -119,7 +61,63 @@
                                         $finalPayable = ($itemsSubTotal - $discountAmount) + $shippingCharge + $codCharge;
                                         @endphp
                                         @foreach($order->orderLines as $line)
-                                        {{-- ... product rows unchanged ... --}}
+                                        @php
+                                        $attributes_value ='na';
+                                        if($line->product->ProductAttributesValues->isNotEmpty()){
+                                        $attributes_value = $line->product->ProductAttributesValues->first()->attributeValue->slug;
+                                        }
+                                        @endphp
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="rounded bg-light avatar-md d-flex align-items-center justify-content-center">
+                                                        @if($line->product->images->first())
+                                                        <img src="{{ asset('images/product/thumb/' . $line->product->images->first()->image_path) }}"
+                                                            class="avatar-md" alt="{{ $line->product->title }}">
+                                                        @else
+                                                        <img src="{{ asset('images/default.png') }}" class="avatar-md" alt="Default Image">
+                                                        @endif
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                                            <a href="{{ url('products/'.$line->product->slug.'/'.$attributes_value) }}" target="_blank" class="text-orange fw-medium text-decoration-none">
+                                                                <span class="text-orange fw-medium fs-16">
+                                                                    {{ ucwords(strtolower($line->product->title)) }}
+                                                                </span>
+                                                            </a>
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-link p-0 copy-product-btn"
+                                                                data-product-name="{{ ucwords(strtolower($line->product->title)) }}"
+                                                                onclick="copyProductName(this); event.stopPropagation();"
+                                                                style="text-decoration: none;">
+                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                                                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                                                </svg>
+                                                            </button>
+                                                            <span class="copy-feedback-{{ $line->id }}" style="display: none; font-size: 12px; color: green;">
+                                                                Copied!
+                                                            </span>
+                                                        </div>
+
+                                                        @if($line->product->length && $line->product->breadth && $line->product->height && $line->product->weight)
+                                                        <ul class="list-unstyled small mb-0">
+                                                            <li><strong>Length in CM :</strong> {{ $line->product->length }}</li>
+                                                            <li><strong>Breadth in CM :</strong> {{ $line->product->breadth }}</li>
+                                                            <li><strong>Height in CM :</strong> {{ $line->product->height }}</li>
+                                                            <li><strong>Weight in Kg :</strong> {{ $line->product->weight }}</li>
+                                                            <li><strong>Volumetric Weight Kg :</strong> {{ $line->product->volumetric_weight_kg }}</li>
+                                                        </ul>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ $line->quantity }}</td>
+                                            <td>Rs. {{ number_format($line->price, 2) }}</td>
+                                            <td>
+                                                Rs. {{ number_format($line->quantity * $line->price, 2) }}
+                                            </td>
+                                        </tr>
                                         @endforeach
                                         <tr class="bg-light">
                                             <td colspan="3" class="text-end fw-bold">
@@ -155,9 +153,9 @@
                                             </td>
                                             <td class="fw-bold">
                                                 @if($shippingCharge > 0)
-                                                    Rs. {{ number_format($shippingCharge, 2) }}
+                                                Rs. {{ number_format($shippingCharge, 2) }}
                                                 @else
-                                                    <span class="text-success">FREE</span>
+                                                <span class="text-success">FREE</span>
                                                 @endif
                                             </td>
                                         </tr>
@@ -260,9 +258,9 @@
                                     </td>
                                     <td class="text-end text-dark fw-medium px-0">
                                         @if($order->shiprocketCourier->courier_shipping_rate > 0)
-                                            Rs. {{ number_format($order->shiprocketCourier->courier_shipping_rate, 2) }}
+                                        Rs. {{ number_format($order->shiprocketCourier->courier_shipping_rate, 2) }}
                                         @else
-                                            <span class="text-success">FREE</span>
+                                        <span class="text-success">FREE</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -301,17 +299,6 @@
                         </p>
                     </div>
                 </div>
-                <div class="card-footer d-flex align-items-center justify-content-between bg-light-subtle">
-                    <div>
-                        <p class="fw-medium text-dark mb-0">Total Amount</p>
-                    </div>
-                    <div>
-                        <p class="fw-medium text-dark mb-0">
-                            {{ number_format($order->grand_total_amount, 2)	}}
-                        </p>
-                    </div>
-
-                </div>
             </div>
             <div class="card">
                 <div class="card-header">
@@ -322,7 +309,6 @@
 
                         <div>
                             <p class="mb-1 text-dark fw-medium">{{ $order->payment_mode }}</p>
-                            <!-- <p class="mb-0 text-dark">xxxx xxxx xxxx 7812</p> -->
                         </div>
                         <div class="ms-auto">
                             <iconify-icon icon="solar:check-circle-broken" class="fs-22 text-success"></iconify-icon>
@@ -331,7 +317,6 @@
                     <p class="text-dark mb-1 fw-medium">Razorpay Order ID : <span class="text-muted fw-normal fs-13"> {{ $order->razorpay_order_id }}</span></p>
                     <p class="text-dark mb-1 fw-medium">Razorpay Payment ID : <span class="text-muted fw-normal fs-13"> {{ $order->razorpay_payment_id }}</span></p>
                     <p class="text-dark mb-1 fw-medium">Razorpay Signature ID : <span class="text-muted fw-normal fs-13"> {{ $order->signature_id }}</span></p>
-                    <!-- <p class="text-dark mb-0 fw-medium">Card Holder Name : <span class="text-muted fw-normal fs-13"> Gaston Lapierre</span></p> -->
 
                 </div>
             </div>
@@ -374,9 +359,6 @@
 
                     <div class="d-flex justify-content-between mt-3">
                         <h5 class="">Shipping Address</h5>
-                        <!-- <div>
-                            <a href="#!"><i class='bx bx-edit-alt fs-18'></i></a>
-                        </div> -->
                     </div>
 
                     <div>
@@ -394,9 +376,6 @@
 
                     <div class="d-flex justify-content-between mt-3">
                         <h5 class="">Billing Address</h5>
-                        <!-- <div>
-                            <a href="#!"><i class='bx bx-edit-alt fs-18'></i></a>
-                        </div> -->
                     </div>
 
                     @if($order->billingAddress)
@@ -426,23 +405,23 @@
 @endsection
 @push('scripts')
 <script>
-function copyProductName(button) {
-    const productName = button.getAttribute('data-product-name');
-    navigator.clipboard.writeText(productName).then(function() {
-        const feedbackSpan = button.nextElementSibling;
-        feedbackSpan.style.display = 'inline-block';
-        feedbackSpan.style.opacity = '1';
-        setTimeout(function() {
-            feedbackSpan.style.opacity = '0';
+    function copyProductName(button) {
+        const productName = button.getAttribute('data-product-name');
+        navigator.clipboard.writeText(productName).then(function() {
+            const feedbackSpan = button.nextElementSibling;
+            feedbackSpan.style.display = 'inline-block';
+            feedbackSpan.style.opacity = '1';
             setTimeout(function() {
-                feedbackSpan.style.display = 'none';
-                feedbackSpan.style.opacity = '1';
-            }, 300);
-        }, 2000);
-    }).catch(function(err) {
-        console.error('Could not copy text: ', err);
-        alert('Failed to copy product name');
-    });
-}
+                feedbackSpan.style.opacity = '0';
+                setTimeout(function() {
+                    feedbackSpan.style.display = 'none';
+                    feedbackSpan.style.opacity = '1';
+                }, 300);
+            }, 2000);
+        }).catch(function(err) {
+            console.error('Could not copy text: ', err);
+            alert('Failed to copy product name');
+        });
+    }
 </script>
 @endpush

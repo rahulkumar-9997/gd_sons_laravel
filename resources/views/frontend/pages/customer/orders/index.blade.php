@@ -70,95 +70,98 @@
                                 <div class="title">
                                     <h2>My Orders</h2>
                                     <span class="title-leaf title-leaf-gray">
-                                        
+
                                     </span>
                                 </div>
 
                                 <div class="order-contain">
                                     @if($order->isNotEmpty())
-                                        @foreach($order as $orderItem)
-                                        <a href="{{ route('order.details', encrypt($orderItem->id)) }}" style="width: 100%;">
-                                            <div class="order-box dashboard-bg-box">
-                                                <div class="order-container">
-                                                    <div class="order-icon">
-                                                        <i data-feather="box"></i>
-                                                    </div>
-
-                                                    <div class="order-detail">
-                                                        <h4 style="color:#212529">
-                                                            Order Status:
-                                                            <span>
-                                                                {{ $orderItem->orderStatus->status_name ?? 'Pending' }}
-                                                            </span>
-                                                            <span class="success-bg">
-                                                                {{ $orderItem->order_id }}
-                                                            </span>
-                                                            @if($orderItem->pick_up_status =='pick_up_store')
-                                                                <span class="success-warning">
-                                                                    Please Item Pickup Our Shop.
-                                                                </span>
-                                                            @endif
-                                                        </h4>
-                                                        
-                                                        <h6 class="text-content">
-                                                            {{ $orderItem->orderStatus->description ?? 'No additional details available.' }}
-                                                        </h6>
-                                                        <h5 class="order-date" style="padding: 2px 0 2px 0;">
-                                                            {{ $orderItem->created_at->translatedFormat('d F Y') }}
-                                                        </h5>
-                                                        <!-- <p class="text-content" style="margin-bottom: 0px;">
-                                                            <strong>Total Items in Order:</strong> {{ $orderItem->orderLines->count() }}
-                                                        </p> -->
-                                                    </div>
+                                    @foreach($order as $orderItem)
+                                    <a href="{{ route('order.details', encrypt($orderItem->id)) }}" style="width: 100%;">
+                                        <div class="order-box dashboard-bg-box">
+                                            <div class="order-container">
+                                                <div class="order-icon">
+                                                    <i data-feather="box"></i>
                                                 </div>
 
-                                                @php
-                                                $orderLine = $orderItem->orderLines->first();
-                                                @endphp
+                                                <div class="order-detail">
+                                                    <h4 style="color:#212529">
+                                                        Order Status:
+                                                        <span>
+                                                            {{ $orderItem->orderStatus->status_name ?? 'Pending' }}
+                                                        </span>
+                                                        <span class="success-bg">
+                                                            {{ $orderItem->order_id }}
+                                                        </span>
+                                                        @if($orderItem->pick_up_status =='pick_up_store')
+                                                        <span class="success-warning">
+                                                            Please Item Pickup Our Shop.
+                                                        </span>
+                                                        @endif
+                                                    </h4>
 
-                                                @if($orderLine)
-                                                <div class="product-order-detail">
-                                                    <div class="order-image">
-                                                        <div class="order-details-img">
-                                                            @if($orderLine->product->images->first())
-                                                            <img src="{{ asset('images/product/thumb/' . $orderLine->product->images->first()->image_path) }}"
-                                                                class="blur-up lazyload" alt="{{ $orderLine->product->name }}">
-                                                            @else
-                                                            <img src="{{ asset('images/default.png') }}"
-                                                                class="blur-up lazyload" alt="Default Image">
-                                                            @endif
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="order-wrap">
-                                                        <div>
-                                                            <h3>
-                                                                {{ ucwords(strtolower($orderLine->product->title)) }}
-                                                            </h3>
-                                                        </div>
-                                                        <p class="text-content">
-                                                            {{ Str::words($orderLine->product->description ?? 'No description available.', 200, '...') }}
-                                                        </p>
-                                                        <ul class="product-size">
-                                                            <li>
-                                                                <div class="size-box">
-                                                                    <h6 class="text-content">Price: </h6>
-                                                                    <h5>Rs. {{ number_format($orderLine->price, 2) }}</h5>
-                                                                </div>
-                                                            </li>
-                                                            <li>
-                                                                <div class="size-box">
-                                                                    <h6 class="text-content">Quantity: </h6>
-                                                                    <h5>{{ $orderLine->quantity }}</h5>
-                                                                </div>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
+                                                    <h6 class="text-content">
+                                                        {{ $orderItem->orderStatus->description ?? 'No additional details available.' }}
+                                                    </h6>
+                                                    <h5 class="order-date" style="padding: 2px 0 2px 0;">
+                                                        {{ $orderItem->created_at->translatedFormat('d F Y') }}
+                                                    </h5>
+                                                    <p class="text-content" style="margin-bottom: 0px;">
+                                                        <strong>Total Items in Order:</strong> {{ $orderItem->orderLines->count() }}
+                                                    </p>
+                                                    <p class="text-content" style="margin-bottom: 0px;">
+                                                        <strong>Order Total:</strong> Rs. {{ number_format($orderItem->grand_total_amount, 2) }}
+                                                    </p>
                                                 </div>
-                                                @endif
                                             </div>
-                                        </a>
-                                        @endforeach
+
+                                            @php
+                                            $orderLine = $orderItem->orderLines->first();
+                                            @endphp
+
+                                            @if($orderLine)
+                                            <div class="product-order-detail">
+                                                <div class="order-image">
+                                                    <div class="order-details-img">
+                                                        @if($orderLine->product->images->first())
+                                                        <img src="{{ asset('images/product/thumb/' . $orderLine->product->images->first()->image_path) }}"
+                                                            class="blur-up lazyload" alt="{{ ucwords(strtolower($orderLine->product->title)) }}">
+                                                        @else
+                                                        <img src="{{ asset('images/default.png') }}"
+                                                            class="blur-up lazyload" alt="Default Image">
+                                                        @endif
+                                                    </div>
+                                                </div>
+
+                                                <div class="order-wrap">
+                                                    <div>
+                                                        <h3>
+                                                            {{ ucwords(strtolower($orderLine->product->title)) }}
+                                                            @if($orderItem->orderLines->count() > 1)
+                                                            <span class="text-content">+ {{ $orderItem->orderLines->count() - 1 }} more</span>
+                                                            @endif
+                                                        </h3>
+                                                    </div>
+                                                    <ul class="product-size">
+                                                        <li>
+                                                            <div class="size-box">
+                                                                <h6 class="text-content">Price: </h6>
+                                                                <h5>Rs. {{ number_format($orderLine->price, 2) }}</h5>
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div class="size-box">
+                                                                <h6 class="text-content">Quantity: </h6>
+                                                                <h5>{{ $orderLine->quantity }}</h5>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            @endif
+                                        </div>
+                                    </a>
+                                    @endforeach
                                     @else
                                     <div class="order-box dashboard-bg-box">
                                         <h4>No Orders Found</h4>

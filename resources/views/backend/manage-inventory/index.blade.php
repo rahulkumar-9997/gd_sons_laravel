@@ -3,14 +3,8 @@
 @section('main-content')
 @push('styles')
 <style>
-    .calculated-row-inventory input{
-        padding: 0.1rem 0.1rem;
-        font-size: 14px;
-        border-radius: 5px;
-    }
-    .calculated-row-inventory label{
-        font-size: 10px;
-        color: red;
+    tr.group-end td {
+        border-bottom: 2px solid #dee2e6;
     }
 </style>
 @endpush
@@ -19,36 +13,36 @@
         <div class="col-xl-12">
             <div id="example-2_wrapper" class="filter-box">
                 <div class="d-flex flex-wrap align-items-center bg-white p-2 gap-1 client-list-filter">
-                <!-- Category Filter -->
-                <div class="d-flex align-items-center border-end pe-1">
-                    <p class="mb-0 me-2 text-dark-grey f-14">Category:</p>
-                    <select id="category-filter" class="form-select form-select-md">
-                        <option value="">All Categories</option>
-                        @foreach($data['categories'] as $category)
+                    <!-- Category Filter -->
+                    <div class="d-flex align-items-center border-end pe-1">
+                        <p class="mb-0 me-2 text-dark-grey f-14">Category:</p>
+                        <select id="category-filter" class="form-select form-select-md">
+                            <option value="">All Categories</option>
+                            @foreach($data['categories'] as $category)
                             <option value="{{ $category->id }}">{{ $category->title }}</option>
-                        @endforeach
-                  </select>
-                </div>
-                <div class="d-flex align-items-center border-end pe-1">
-                    <p class="mb-0 me-2 text-dark-grey f-14">Status:</p>
-                    <select id="product-status" name="status" class="form-select form-select-md">
-                        <option value="">Select Product Status</option>
-                        <option value="1">Published</option>
-                        <option value="0">Not Published</option>
-                    </select>
-                </div>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="d-flex align-items-center border-end pe-1">
+                        <p class="mb-0 me-2 text-dark-grey f-14">Status:</p>
+                        <select id="product-status" name="status" class="form-select form-select-md">
+                            <option value="">Select Product Status</option>
+                            <option value="1">Published</option>
+                            <option value="0">Not Published</option>
+                        </select>
+                    </div>
 
-                <!-- Search Filter -->
-                <div class="d-flex align-items-center">
-                    <label class="mb-0 me-2 text-dark-grey f-14">Search:</label>
-                    <input type="search" class="form-control form-control-md" id="product-search" placeholder="Search products">
-                </div>
-                <button id="reset-button" class="btn btn-danger" style="display: none;">
-                    <svg class="svg-inline--fa fa-times-circle fa-w-16 mr-1" aria-hidden="true" focusable="false" data-prefix="fa" data-icon="times-circle" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg="">
-                        <path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm121.6 313.1c4.7 4.7 4.7 12.3 0 17L338 377.6c-4.7 4.7-12.3 4.7-17 0L256 312l-65.1 65.6c-4.7 4.7-12.3 4.7-17 0L134.4 338c-4.7-4.7-4.7-12.3 0-17l65.6-65-65.6-65.1c-4.7-4.7-4.7-12.3 0-17l39.6-39.6c4.7-4.7 12.3-4.7 17 0l65 65.7 65.1-65.6c4.7-4.7 12.3-4.7 17 0l39.6 39.6c4.7 4.7 4.7 12.3 0 17L312 256l65.6 65.1z"></path>
-                    </svg>
-                    Reset Filters
-                </button>
+                    <!-- Search Filter -->
+                    <div class="d-flex align-items-center">
+                        <label class="mb-0 me-2 text-dark-grey f-14">Search:</label>
+                        <input type="search" class="form-control form-control-md" id="product-search" placeholder="Search products">
+                    </div>
+                    <button id="reset-button" class="btn btn-danger" style="display: none;">
+                        <svg class="svg-inline--fa fa-times-circle fa-w-16 mr-1" aria-hidden="true" focusable="false" data-prefix="fa" data-icon="times-circle" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg="">
+                            <path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm121.6 313.1c4.7 4.7 4.7 12.3 0 17L338 377.6c-4.7 4.7-12.3 4.7-17 0L256 312l-65.1 65.6c-4.7 4.7-12.3 4.7-17 0L134.4 338c-4.7-4.7-4.7-12.3 0-17l65.6-65-65.6-65.1c-4.7-4.7-4.7-12.3 0-17l39.6-39.6c4.7-4.7 12.3-4.7 17 0l65 65.7 65.1-65.6c4.7-4.7 12.3-4.7 17 0l39.6 39.6c4.7 4.7 4.7 12.3 0 17L312 256l65.6 65.1z"></path>
+                        </svg>
+                        Reset Filters
+                    </button>
                 </div>
             </div>
             <div class="card">
@@ -56,25 +50,25 @@
                     <h4 class="card-title flex-grow-1">
                         Manage Inventory
                         <!-- Bulk delete button, hidden initially -->
-                        <button type="button" id="bulk-delete-btn" class="btn btn-sm btn-danger" style="display: none;">Delete Selected</button> 
+                        <button type="button" id="bulk-delete-btn" class="btn btn-sm btn-danger" style="display: none;">Delete Selected</button>
                     </h4>
-                    
+
                     <div class="dropdown">
-                    <a href="#" class="dropdown-toggle btn btn-sm btn-outline-light" data-bs-toggle="dropdown" aria-expanded="false">
-                    Choose any Links
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end">
-                        <a href="{{ route('export.inventory') }}" class="dropdown-item">Export Inventory</a>
-                        <!-- item-->
-                        <a href="{{route('import.inventory')}}" class="dropdown-item">Import Inventory</a>
+                        <a href="#" class="dropdown-toggle btn btn-sm btn-outline-light" data-bs-toggle="dropdown" aria-expanded="false">
+                            Choose any Links
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a href="{{ route('export.inventory') }}" class="dropdown-item">Export Inventory</a>
+                            <!-- item-->
+                            <a href="{{route('import.inventory')}}" class="dropdown-item">Import Inventory</a>
+                        </div>
                     </div>
-                </div>
                 </div>
                 <div class="card-body">
                     @if (isset($data['product_list']) && $data['product_list']->count() > 0)
-                        <div class="table-responsive" id="product-list-container-with-inventory">
-                            @include('backend.manage-inventory.partials.product_inventory_table', ['data' => $data])
-                        </div>
+                    <div class="table-responsive" id="product-list-container-with-inventory">
+                        @include('backend.manage-inventory.partials.product_inventory_table', ['data' => $data])
+                    </div>
                     @endif
                 </div>
             </div>
@@ -82,18 +76,15 @@
     </div>
 </div>
 <!-- End Container Fluid -->
-<!-- Modal -->
-@include('backend.layouts.common-modal-form')
-<!-- modal--->
 @endsection
 @push('scripts')
 <script type="text/javascript" src="{{asset('backend/assets/js/pages/upload-image-file.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 <script type="text/javascript" src="{{asset('backend/assets/js/pages/inventory-shipping-rate.js')}}?v={{ env('ASSET_VERSION', '1.0.0') }}"></script>
 <script>
     window.INVENTORY_ROUTES = {
-        index:  "{{ route('manage-inventory.index') }}",
-        update: "/manage-inventory/update/",
-        delete: "/manage-inventory/delete/"
+        index: "{{ route('manage-inventory.index') }}",
+        delete: "/manage-inventory/delete/",
+        bulkUpdate: "{{ route('manage-inventory.bulk-update') }}"
     };
 </script>
 @endpush

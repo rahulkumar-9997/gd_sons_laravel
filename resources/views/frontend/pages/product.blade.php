@@ -71,11 +71,21 @@ $firstImage = $data['product_details']->images->isNotEmpty()
     </div>
 </section>
 @php $breadcrumb_attribute_slug = $attribute->slug ?? ''; @endphp
-<!-- Breadcrumb Section End -->
-<!-- Product Left Sidebar Start -->
+<div class="container-fluid-lg">
+    <div class="row">     
+        <div class="col-xxl-12 text-center">
+                <div class="inline-flex items-center">
+                    <div class="text-[18px] text-primary-teal px-1 py-2">
+                        FREE Shipping — No Extra Delivery Charges
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>
+</div>
 <section class="product-section">
     <div class="container-fluid-lg">
-        <div class="row">
+        <div class="row">                      
             <div class="col-xxl-8 col-xl-8 col-lg-8">
                 <div class="row g-4">
                     <div class="col-xl-6">

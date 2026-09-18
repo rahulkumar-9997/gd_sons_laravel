@@ -308,8 +308,8 @@ Route::group(['middleware' => ['admin']], function () {
     /**inventory route */
     Route::get('/manage-inventory', [InventoryController::class, 'index'])->name('manage-inventory.index');
     Route::post('/manage-inventory/create', [InventoryController::class, 'create'])->name('manage-inventory.create');
-    Route::post('manage-inventory/shipment-rate/{product_id}', [InventoryController::class, 'updateShipmentRate'])
-    ->name('manage-inventory.shipment-rate');
+    Route::post('manage-inventory/shipment-rate/{product_id}', [InventoryController::class, 'updateShipmentRate'])->name('manage-inventory.shipment-rate');
+    Route::post('manage-inventory/bulk-update', [InventoryController::class, 'bulkUpdate'])->name('manage-inventory.bulk-update');
     Route::post('/manage-inventory/store', [InventoryController::class, 'store'])->name('manage-inventory.store');
     Route::post('/manage-inventory/update/{id}', [InventoryController::class, 'update'])->name('manage-inventory.update');
     Route::delete('/manage-inventory/delete/{id}', [InventoryController::class, 'destroy'])->name('manage-inventory.delete');

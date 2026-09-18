@@ -43,7 +43,7 @@ class InventoryController extends Controller
         if ($request->has('product_status') && is_numeric($request->product_status)) {
             $query->where('product_status', $request->product_status);
         }
-        $data['product_list'] = $query->orderBy('id', 'desc')->paginate(50);
+        $data['product_list'] = $query->orderBy('id', 'desc')->paginate(20);
         /*Check inventories and count how many rows in vendor_purchase_lines reference each inventory*/
         $data['product_list']->getCollection()->each(function ($product) {
             $product->inventories->each(function ($inventory) {
@@ -291,22 +291,21 @@ class InventoryController extends Controller
                                 </tr>
                             </thead>
                             <tbody>';
-
-                            if (!$product_row->inventories->isEmpty()) {
-                                foreach ($product_row->inventories as $inventory) {
-                                    $rowShipment = $inventory->shipment_rate > 0
-                                        ? $inventory->shipment_rate
-                                        : $shipmentRate;
-                                    $rowOfferShipment = null;
-                                    if ($inventory->offer_shipment_rate > 0) {
-                                        $rowOfferShipment = $inventory->offer_shipment_rate;
-                                    } elseif ($inventory->offer_rate > 0 && $rowShipment !== null) {
-                                        $rowOfferShipment = round($inventory->offer_rate + $rowShipment, 2);
-                                    }
-                                    $bachat = ($inventory->mrp > 0 && $rowOfferShipment > 0)
-                                        ? $inventory->mrp - $rowOfferShipment
-                                        : null;
-                                    $form .= '
+        if (!$product_row->inventories->isEmpty()) {
+            foreach ($product_row->inventories as $inventory) {
+                $rowShipment = $inventory->shipment_rate > 0
+                    ? $inventory->shipment_rate
+                    : $shipmentRate;
+                $rowOfferShipment = null;
+                if ($inventory->offer_shipment_rate > 0) {
+                    $rowOfferShipment = $inventory->offer_shipment_rate;
+                } elseif ($inventory->offer_rate > 0 && $rowShipment !== null) {
+                    $rowOfferShipment = round($inventory->offer_rate + $rowShipment, 2);
+                }
+                $bachat = ($inventory->mrp > 0 && $rowOfferShipment > 0)
+                    ? $inventory->mrp - $rowOfferShipment
+                    : null;
+                $form .= '
                                 <tr class="field-group">
                                     <td>
                                         <input type="hidden" name="inventory_id[]" value="' . $inventory->id . '">
@@ -340,9 +339,9 @@ class InventoryController extends Controller
                                         </button>
                                     </td>
                                 </tr>';
-                                }
-                            } else {
-                                $form .= '
+            }
+        } else {
+            $form .= '
                                 <tr class="field-group">
                                     <td>
                                         <input type="hidden" name="inventory_id[]" value="">
@@ -373,9 +372,9 @@ class InventoryController extends Controller
                                         </button>
                                     </td>
                                 </tr>';
-                            }
+        }
 
-                            $form .= '
+        $form .= '
                             </tbody>
                         </table>
                     </div>
@@ -384,7 +383,7 @@ class InventoryController extends Controller
                     <button type="button" class="btn btn-success btn-sm" id="add-more-fields">Add More</button>
                 </div>
                 <div class="modal-footer pb-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary close-inventory-form">Close</button>
                     <button type="submit" class="btn btn-primary">Save changes</button>
                 </div>
             </form>
@@ -429,7 +428,7 @@ class InventoryController extends Controller
 
     public function store(Request $request)
     {
-        $product_id = $request->input('product_id'); 
+        $product_id = $request->input('product_id');
         $request->validate([
             'product_id'            => 'required|exists:products,id',
             'mrp'                   => 'required|array',
@@ -450,7 +449,7 @@ class InventoryController extends Controller
         ], [
             'mrp.*.distinct' => 'The same MRP cannot be used twice. Each row must have a different MRP.',
         ]);
- 
+
         $mrps          = $request->input('mrp');
         $purchaseRates = $request->input('purchase_rate');
         $offerRates    = $request->input('offer_rate');
@@ -463,33 +462,33 @@ class InventoryController extends Controller
         $defaultShip = $volumetric !== null
             ? round(ShippingRateEstimator::estimate($volumetric)['rate'])
             : 0.0;
-        $errors = []; 
+        $errors = [];
         foreach ($mrps as $key => $mrp) {
             $mrp   = (float) $mrp;
             $offer = (float) ($offerRates[$key] ?? 0);
             $ship  = $this->resolveShipmentRate($shipmentRates[$key] ?? null, $defaultShip);
-            $total = round($offer + $ship, 2); 
+            $total = round($offer + $ship, 2);
             if ($mrp > 0 && $total > $mrp) {
                 $errors['offer_rate.' . $key] = [
                     'Row ' . ($key + 1) . ': Shipping + Offer Rate is ₹' . number_format($total, 2)
-                    . ', which is ₹' . number_format($total - $mrp, 2) . ' more than the MRP of ₹'
-                    . number_format($mrp, 2) . '. Please set the Offer Rate to ₹'
-                    . number_format(max($mrp - $ship, 0), 2) . ' or less.',
+                        . ', which is ₹' . number_format($total - $mrp, 2) . ' more than the MRP of ₹'
+                        . number_format($mrp, 2) . '. Please set the Offer Rate to ₹'
+                        . number_format(max($mrp - $ship, 0), 2) . ' or less.',
                 ];
             }
-        } 
+        }
         if (!empty($errors)) {
             return response()->json([
                 'message' => 'Shipping + Offer Rate is higher than the MRP. Nothing was saved.',
                 'errors'  => $errors,
             ], 422);
-        } 
-        $newRows = []; 
-        DB::beginTransaction(); 
+        }
+        $newRows = [];
+        DB::beginTransaction();
         try {
             foreach ($mrps as $key => $mrp) {
                 $offer = (float) $offerRates[$key];
-                $ship  = $this->resolveShipmentRate($shipmentRates[$key] ?? null, $defaultShip); 
+                $ship  = $this->resolveShipmentRate($shipmentRates[$key] ?? null, $defaultShip);
                 $inventoryData = [
                     'product_id'          => $product_id,
                     'mrp'                 => $mrp,
@@ -499,9 +498,9 @@ class InventoryController extends Controller
                     'offer_shipment_rate' => $offer > 0 ? round($offer + $ship, 2) : null,
                     'stock_quantity'      => $stockQtys[$key],
                     'sku'                 => $skus[$key],
-                ]; 
+                ];
                 if (!empty($inventoryIds[$key])) {
-                    $inventoryData['updated_at'] = now(); 
+                    $inventoryData['updated_at'] = now();
                     Inventory::where('id', $inventoryIds[$key])
                         ->where('product_id', $product_id)
                         ->update($inventoryData);
@@ -510,27 +509,175 @@ class InventoryController extends Controller
                     $inventoryData['updated_at'] = now();
                     $newRows[] = $inventoryData;
                 }
-            } 
+            }
             if (!empty($newRows)) {
                 Inventory::insert($newRows);
-            } 
-            DB::commit(); 
+            }
+            DB::commit();
             return response()->json([
                 'message' => 'Inventory records saved successfully.',
-            ]); 
+            ]);
         } catch (QueryException $e) {
-            DB::rollBack(); 
+            DB::rollBack();
             if ($e->getCode() === '23000') {
                 return response()->json([
                     'message' => 'One or more MRP or SKU values already exist for this product. Please check your input.',
                 ], 422);
-            } 
+            }
             return response()->json([
                 'message' => 'An unexpected error occurred. Please try again later.',
             ], 500);
         }
     }
- 
+
+    /**
+     * Bulk save every inventory row sent from the "Save All" button on
+     * the list page. Each row is validated and saved independently so
+     * one bad row doesn't block the rest of the page.
+     */
+    public function bulkUpdate(Request $request)
+    {
+        $request->validate([
+            'rows'                    => 'required|array|min:1',
+            'rows.*.product_id'       => 'required|integer',
+            'rows.*.inventory_id'     => 'nullable',
+            'rows.*.mrp'              => 'required|numeric|min:0',
+            'rows.*.purchase_rate'    => 'required|numeric|min:0',
+            'rows.*.offer_rate'       => 'required|numeric|min:0',
+            'rows.*.shipment_rate'    => 'nullable|numeric|min:0',
+            'rows.*.stock_quantity'   => 'required|integer|min:0',
+        ]);
+
+        $rows = $request->input('rows');
+
+        $productIds = collect($rows)->pluck('product_id')->unique()->filter();
+        $products   = Product::select(['id', 'title', 'length', 'breadth', 'height'])
+            ->whereIn('id', $productIds)
+            ->get()
+            ->keyBy('id');
+
+        $results     = [];
+        $savedCount  = 0;
+        $failedCount = 0;
+        $mrpSeenInRequest = [];
+
+        foreach ($rows as $index => $row) {
+            $rowLabel  = 'Row ' . ($index + 1);
+            $productId = $row['product_id'] ?? null;
+            $product   = $productId ? ($products[$productId] ?? null) : null;
+
+            if (!$product) {
+                $results[] = ['index' => $index, 'success' => false, 'message' => $rowLabel . ': Unknown product.'];
+                $failedCount++;
+                continue;
+            }
+
+            $label = $rowLabel . ' (' . $product->title . ')';
+
+            $mrp          = (float) $row['mrp'];
+            $purchaseRate = (float) $row['purchase_rate'];
+            $offerRate    = (float) $row['offer_rate'];
+            $stockQty     = (int) $row['stock_quantity'];
+            $inventoryId  = $row['inventory_id'] ?? null;
+
+            /* Same MRP twice for the same product in this one save */
+            $mrpKey = $productId . '|' . $mrp;
+            if (isset($mrpSeenInRequest[$mrpKey])) {
+                $results[] = ['index' => $index, 'success' => false, 'message' => $label . ': Duplicate MRP for this product in this save.'];
+                $failedCount++;
+                continue;
+            }
+            $mrpSeenInRequest[$mrpKey] = true;
+
+            $volumetric  = CalculateProductShipmentRates::volumetricWeight($product);
+            $defaultShip = $volumetric !== null
+                ? round(ShippingRateEstimator::estimate($volumetric)['rate'])
+                : 0.0;
+            $ship = $this->resolveShipmentRate($row['shipment_rate'] ?? null, $defaultShip);
+
+            $total = round($offerRate + $ship, 2);
+            if ($mrp > 0 && $total > $mrp) {
+                $results[] = [
+                    'index' => $index,
+                    'success' => false,
+                    'message' => $label . ': Shipping + Offer Rate is ₹' . number_format($total, 2)
+                        . ', which is ₹' . number_format($total - $mrp, 2) . ' more than the MRP of ₹'
+                        . number_format($mrp, 2) . '.',
+                ];
+                $failedCount++;
+                continue;
+            }
+
+            try {
+                if (!empty($inventoryId)) {
+                    $inventory = Inventory::where('id', $inventoryId)->where('product_id', $productId)->first();
+
+                    if (!$inventory) {
+                        $results[] = ['index' => $index, 'success' => false, 'message' => $label . ': Inventory record not found.'];
+                        $failedCount++;
+                        continue;
+                    }
+
+                    $duplicateExists = Inventory::where('product_id', $productId)
+                        ->where('mrp', $mrp)
+                        ->where('id', '!=', $inventory->id)
+                        ->exists();
+
+                    if ($duplicateExists) {
+                        $results[] = ['index' => $index, 'success' => false, 'message' => $label . ': This MRP already exists for the product.'];
+                        $failedCount++;
+                        continue;
+                    }
+
+                    $inventory->mrp                 = $mrp;
+                    $inventory->purchase_rate       = $purchaseRate;
+                    $inventory->offer_rate          = $offerRate;
+                    $inventory->shipment_rate       = $ship;
+                    $inventory->offer_shipment_rate = $offerRate > 0 ? $total : null;
+                    $inventory->stock_quantity      = $stockQty;
+                    $inventory->save();
+                } else {
+                    $duplicateExists = Inventory::where('product_id', $productId)
+                        ->where('mrp', $mrp)
+                        ->exists();
+
+                    if ($duplicateExists) {
+                        $results[] = ['index' => $index, 'success' => false, 'message' => $label . ': This MRP already exists for the product.'];
+                        $failedCount++;
+                        continue;
+                    }
+
+                    Inventory::create([
+                        'product_id'          => $productId,
+                        'mrp'                 => $mrp,
+                        'purchase_rate'       => $purchaseRate,
+                        'offer_rate'          => $offerRate,
+                        'shipment_rate'       => $ship,
+                        'offer_shipment_rate' => $offerRate > 0 ? $total : null,
+                        'stock_quantity'      => $stockQty,
+                        'sku'                 => 'SKU-' . strtoupper(uniqid()),
+                    ]);
+                }
+
+                $results[] = ['index' => $index, 'success' => true, 'message' => $label . ': saved.'];
+                $savedCount++;
+            } catch (QueryException $e) {
+                $msg = $e->getCode() === '23000'
+                    ? 'Duplicate MRP or SKU for this product.'
+                    : 'Could not save this row.';
+                $results[] = ['index' => $index, 'success' => false, 'message' => $label . ': ' . $msg];
+                $failedCount++;
+            }
+        }
+
+        return response()->json([
+            'message' => $savedCount . ' row(s) saved' . ($failedCount ? ', ' . $failedCount . ' failed.' : '.'),
+            'saved'   => $savedCount,
+            'failed'  => $failedCount,
+            'results' => $results,
+        ]);
+    }
+
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -538,61 +685,61 @@ class InventoryController extends Controller
             'purchase_rate'  => 'required|numeric|min:0',
             'offer_rate'     => 'required|numeric|min:0',
             'stock_quantity' => 'required|integer|min:0',
-        ]); 
+        ]);
         $inventory = Inventory::findOrFail($id);
-        $ship = (float) $inventory->shipment_rate; 
+        $ship = (float) $inventory->shipment_rate;
         if ($ship <= 0) {
             $product    = Product::select(['id', 'length', 'breadth', 'height'])->find($inventory->product_id);
             $volumetric = $product ? CalculateProductShipmentRates::volumetricWeight($product) : null;
             $ship       = $volumetric !== null
                 ? round(ShippingRateEstimator::estimate($volumetric)['rate'])
                 : 0.0;
-        } 
+        }
         $mrp   = (float) $request->mrp;
         $offer = (float) $request->offer_rate;
         $total = round($offer + $ship, 2);
         if ($mrp > 0 && $total > $mrp) {
             return response()->json([
                 'error' => 'Shipping + Offer Rate is ₹' . number_format($total, 2)
-                         . ', which is ₹' . number_format($total - $mrp, 2)
-                         . ' more than the MRP of ₹' . number_format($mrp, 2)
-                         . '. Please set the Offer Rate to ₹' . number_format(max($mrp - $ship, 0), 2) . ' or less.',
+                    . ', which is ₹' . number_format($total - $mrp, 2)
+                    . ' more than the MRP of ₹' . number_format($mrp, 2)
+                    . '. Please set the Offer Rate to ₹' . number_format(max($mrp - $ship, 0), 2) . ' or less.',
             ], 422);
         }
         $duplicateExists = Inventory::where('product_id', $inventory->product_id)
             ->where('mrp', $mrp)
             ->where('id', '!=', $inventory->id)
-            ->exists(); 
+            ->exists();
         if ($duplicateExists) {
             return response()->json([
                 'error' => 'An inventory record with MRP ₹' . number_format($mrp, 2)
-                         . ' already exists for this product.',
+                    . ' already exists for this product.',
             ], 422);
-        } 
+        }
         $inventory->mrp                 = $mrp;
         $inventory->purchase_rate       = $request->purchase_rate;
         $inventory->offer_rate          = $offer;
         $inventory->shipment_rate       = $ship;
         $inventory->offer_shipment_rate = $offer > 0 ? $total : null;
-        $inventory->stock_quantity      = $request->stock_quantity; 
+        $inventory->stock_quantity      = $request->stock_quantity;
         try {
-            $inventory->save(); 
+            $inventory->save();
             return response()->json([
                 'success' => true,
                 'message' => 'Inventory updated successfully.',
-            ]); 
+            ]);
         } catch (QueryException $e) {
             if ($e->getCode() === '23000') {
                 return response()->json([
                     'error' => 'This MRP or SKU already exists for the product.',
                 ], 422);
-            } 
+            }
             return response()->json([
                 'error' => 'An error occurred while saving the inventory.',
             ], 500);
         }
     }
-    
+
     private function resolveShipmentRate($posted, float $fallback): float
     {
         return ($posted !== null && $posted !== '')

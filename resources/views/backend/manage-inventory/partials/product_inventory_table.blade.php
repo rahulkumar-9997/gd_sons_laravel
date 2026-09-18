@@ -1,177 +1,135 @@
 @if(isset($data['product_list']) && $data['product_list']->count() > 0)
-    <table id="example-2" class="table align-middle mb-0 table-hover table-centered">
-        <thead class="bg-light-subtle">
-            <tr>
-                <th>No.</th>
-                <th style="width: 20%;">
-                    Name
-                </th>
-                <th>HSN Code</th>
-                <!-- <th>Image</th> -->
-                <th>Status</th>
-                <th>Category</th>
-                <!--<th>Created Date</th>
-                <th>Attributes</th>-->
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @php 
-                $sr_no = 1;
-            @endphp
-            @foreach($data['product_list'] as $product)
-                <tr class="product-row">
-                    <td>{{ $sr_no++ }}</td>
-                    <td>
-                        <a href="https://www.google.com/search?q={{ urlencode($product->title) }}&udm=2" target="_blank" class="text-primary font-normal">
-                            {{ ucwords(strtolower($product->title)) }}
-                        </a>
-                        @if($product->length && $product->breadth && $product->height && $product->weight)
-                            <div class="mt-1 d-flex flex-wrap gap-1">
-                                <span class="badge bg-light text-dark">L: {{ number_format($product->length, 1) }}cm</span>
-                                <span class="badge bg-light text-dark">B: {{ number_format($product->breadth, 1) }}cm</span>
-                                <span class="badge bg-light text-dark">H: {{ number_format($product->height, 1) }}cm</span>
-                                <span class="badge bg-light text-dark">W: {{ number_format($product->weight, 1) }}kg</span>
-                                <span class="badge bg-purple text-white">
-                                    VW: {{ number_format($product->volumetric_weight_kg, 2) }}kg
-                                </span>
-                            </div>
-                        @endif
-                    </td>
-                    <td>
-                        {{ $product->hsn_code??'Null' }}
-                    </td>                    
-                    <td>
-                        <span class="badge {{ $product->product_status==1 ? 'bg-success' : 'bg-danger' }}">
-                            {{ $product->product_status==1 ? 'Published' : 'Not Published' }}
-                        </span>
-                    </td>
-                    <td>{{ $product->category->title ?? 'No Category' }}</td>                    <td>
-                        <div class="d-flex gap-1">
-                            <a href="{{ route('product.show', $product->id) }}" data-bs-original-title="View Product" data-bs-toggle="tooltip" class="btn btn-soft-primary btn-sm"><i class="ti ti-eye"></i></a>
-                            <a href="{{ route('product.edit', $product->id) }}" class="btn btn-soft-primary btn-sm" data-bs-original-title="Edit Product" data-bs-toggle="tooltip"><i class="ti ti-pencil"></i></a>
-                            <a href="javascript:void(0)" data-ajax-popup-modal="true" data-size="xl" data-title=" Add Inventory" data-pid="{{$product->id}}" data-url="{{route('manage-inventory.create')}}" data-bs-toggle="tooltip" class="btn btn-sm btn-primary" data-bs-original-title=" Add Inventory">
-                                Add Inventory
-                            </a>  
-                            <!-- Only show the "View Inventory" button if there are inventories -->
-                            @if($product->inventories->isNotEmpty())
-                            @php
-                                $totalPurchaseLineCount = $product->inventories->sum(function ($inventory) {
-                                    return $inventory->purchase_line_count;
-                                });
+<div id="bulk-save-errors"></div>
 
-                                if ($totalPurchaseLineCount > 0) {
-                                    $mapped = '<span class="badge bg-primary ms-1">' . $totalPurchaseLineCount . '</span>';
-                                } else {
-                                    $mapped = '';
-                                }
-                            @endphp
+<table id="example-2" class="table align-middle mb-0 table-hover table-centered">
+    <thead class="bg-light-subtle">
+        <tr>
+            <th style="width: 20%;">Product</th>
+            <th>MRP</th>
+            <th>Purchase Rate</th>
+            <th>Offer Rate</th>
+            <th>Shipping</th>
+            <th>Offer + Shipping</th>
+            <th>Stock Qty</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($data['product_list'] as $product)
+        @php
+        $rows = $product->inventories->isEmpty() ? collect([null]) : $product->inventories->values();
+        $rowCount = $rows->count();
+        $gstPercent = (float) ($product->gst_in_per ?? 0);
+        @endphp
+        @foreach($rows as $i => $inventory)
+        @php
+        $preGst = ($inventory && $inventory->purchase_rate > 0)
+        ? $inventory->purchase_rate / (1 + $gstPercent / 100)
+        : null;
+        $gstAmount = $preGst !== null ? $inventory->purchase_rate - $preGst : null;
+        $netGain = $inventory ? ($inventory->offer_rate - $inventory->purchase_rate) : null;
+        $netGainPerc = ($netGain !== null && $inventory->purchase_rate > 0)
+        ? ($netGain / $inventory->purchase_rate) * 100
+        : null;
+        $isLast = $i === $rowCount - 1;
+        @endphp
+        <tr class="inv-row" data-product-id="{{ $product->id }}" data-gst="{{ $gstPercent }}" data-inventory-id="{{ $inventory->id ?? '' }}">
+            @if($i === 0)
+            <td class="product-cell" rowspan="{{ $rowCount * 2 }}" style="vertical-align: middle;">
+                <a href="https://www.google.com/search?q={{ urlencode($product->title) }}&udm=2" target="_blank" class="text-primary font-normal">
+                    {{ ucwords(strtolower($product->title)) }}
+                </a>
+                @if($product->length && $product->breadth && $product->height && $product->weight)
+                <div class="mt-1 d-flex flex-wrap gap-1">
+                    <span class="badge bg-light text-dark">L: {{ number_format($product->length, 1) }}cm</span>
+                    <span class="badge bg-light text-dark">B: {{ number_format($product->breadth, 1) }}cm</span>
+                    <span class="badge bg-light text-dark">H: {{ number_format($product->height, 1) }}cm</span>
+                    <span class="badge bg-light text-dark">W: {{ number_format($product->weight, 1) }}kg</span>
+                    <span class="badge bg-purple text-white">VW: {{ number_format($product->volumetric_weight_kg, 2) }}kg</span>
+                </div>
+                @endif
+                <div class="small text-muted mt-1">GST: {{ number_format($gstPercent, 1) }}%</div>
+                <div class="mt-2 d-flex flex-wrap gap-1">
+                    <button type="button" class="btn btn-sm btn-success add-inv-row-btn" data-product-id="{{ $product->id }}">
+                        <i class="ti ti-plus"></i> Add Rate
+                    </button>
+                    @if($product->length && $product->breadth && $product->height)
+                    <button type="button" class="btn btn-sm btn-outline-primary auto-calc-shipping-btn"
+                        data-product-id="{{ $product->id }}"
+                        data-route="{{ route('manage-inventory.shipment-rate', $product->id) }}">
+                        <i class="ti ti-truck"></i> Auto-calc
+                    </button>
+                    @endif
+                </div>
+            </td>
+            @endif
+            <td>
+                <input type="number" step="1" class="form-control form-control-sm row-mrp"
+                    value="{{ $inventory ? round($inventory->mrp) : '' }}" placeholder="MRP">
+            </td>
+            <td>
+                <input type="number" step="1" class="form-control form-control-sm row-purchase-rate"
+                    value="{{ $inventory ? round($inventory->purchase_rate) : '' }}" placeholder="Purchase">
+            </td>
+            <td>
+                <input type="number" step="1" class="form-control form-control-sm row-offer-rate"
+                    value="{{ $inventory ? round($inventory->offer_rate) : '' }}" placeholder="Offer">
+            </td>
+            <td>
+                <input type="number" step="0.01" class="form-control form-control-sm row-shipment-rate"
+                    value="{{ $inventory ? $inventory->shipment_rate : '' }}" placeholder="Shipping">
+            </td>
+            <td>
+                <input type="number" step="0.01" class="form-control form-control-sm row-offer-shipment-rate"
+                    value="{{ $inventory ? $inventory->offer_shipment_rate : '' }}" readonly>
+                <span class="badge bg-info-subtle text-info row-savings-badge mt-1"
+                    style="{{ ($inventory && $inventory->offer_shipment_rate) ? '' : 'display:none;' }}">
+                    Bachat: &#8377;{{ $inventory ? number_format($inventory->mrp - $inventory->offer_shipment_rate, 2) : '0.00' }}
+                </span>
+            </td>
+            <td>
+                <input type="number" class="form-control form-control-sm row-stock-qty"
+                    value="{{ $inventory->stock_quantity ?? '' }}" placeholder="Qty">
+            </td>
+            <td>
+                <button type="button" class="btn btn-sm btn-danger remove-inv-row" data-name="{{ $inventory->sku ?? '' }}"
+                    data-bs-original-title="Delete this rate" data-bs-toggle="tooltip">
+                    <i class="ti ti-trash"></i>
+                </button>
+            </td>
+        </tr>
+        <tr class="calculated-row-inventory bg-light-subtle {{ $isLast ? 'group-end' : '' }}" data-product-id="{{ $product->id }}">
+            <td class="text-muted small">Calculated Values:</td>
+            <td>
+                <label class="small text-muted mb-0 d-block">Pre GST Amount</label>
+                <input type="text" class="form-control form-control-sm row-pre-gst"
+                    value="{{ $preGst !== null ? number_format($preGst, 2) : '' }}" placeholder="Pre GST Amount" readonly>
+                <label class="small text-muted mb-0 d-block mt-1">GST Amount</label>
+                <input type="text" class="form-control form-control-sm row-gst-amount"
+                    value="{{ $gstAmount !== null ? number_format($gstAmount, 2) : '' }}" placeholder="GST Amount" readonly>
+            </td>
+            <td>
+                <label class="small text-muted mb-0 d-block">Net Gain</label>
+                <input type="text" class="form-control form-control-sm row-net-gain {{ $netGain !== null ? ($netGain < 0 ? 'text-danger' : 'text-success') : '' }}"
+                    value="{{ $netGain !== null ? number_format($netGain, 2) : '' }}" placeholder="Net Gain" readonly>
+                <label class="small text-muted mb-0 d-block mt-1">Net Gain %</label>
+                <input type="text" class="form-control form-control-sm row-net-gain-perc"
+                    value="{{ $netGainPerc !== null ? number_format($netGainPerc, 2) : '' }}" placeholder="Net Gain %" readonly>
+            </td>
+            <td colspan="4"></td>
+        </tr>
+        @endforeach
+        @endforeach
+    </tbody>
+</table>
 
-                            <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#inventory-{{$product->id}}" aria-expanded="false" aria-controls="inventory-{{$product->id}}">
-                                View Inventory {!! $mapped !!}
-                            </button>
-                                
-                            @endif
-                            <!--@if($product->length && $product->breadth && $product->height && $product->weight)
-                                <button class="btn btn-pink btn-sm update-shipment-rate" type="button" 
-                                data-route="{{ route('inventory.shipment.rate', $product->id)}}"
-                                >Update Shipment Rate</button>
-                            @endif-->
-                        </div>
-                    </td>
-                </tr>
-                <tr id="inventory-{{$product->id}}" class="collapse">
-                    <td colspan="7">
-                        <div class="table-responsive">
-                            <table class="table table-borderless table-centered">
-                                <thead>
-                                    <tr>
-                                        <th>Sr. No.</th>
-                                        <th>MRP</th>
-                                        <th>Purchase Rate</th>
-                                        <th>Offer Rate</th>
-                                        <th>Shipping Charge</th>
-                                        <th>Stock Quantity</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if($product->inventories->isNotEmpty())
-                                    @php 
-                                        $sr_no_inventory = 1;
-                                    @endphp
-                                        @foreach($product->inventories as $inventory)
-                                        <tr data-id="{{ $inventory->id }}">
-                                            <td>{{$sr_no_inventory}}</td>
-                                            <td class="editable-field" data-field="mrp" data-id="{{ $inventory->id }}">
-                                                <span class="current-value"><strong>Rs. </strong> {{ $inventory->mrp }}</span>
-                                                <input type="number" class="edit-input form-control" value="{{ $inventory->mrp }}" data-field="mrp" style="display:none;">
-                                            </td>
-                                            <td class="editable-field" data-field="purchase_rate" data-id="{{ $inventory->id }}">
-                                                <span class="current-value"><strong>Rs. </strong> {{ $inventory->purchase_rate }}</span>
-                                                <input type="number" class="edit-input form-control" data-field="purchase_rate" value="{{ $inventory->purchase_rate }}" style="display:none;">
-                                            </td>
-                                            <td class="editable-field" data-field="offer_rate" data-id="{{ $inventory->id }}">
-                                                <span class="current-value"><strong>Rs. </strong> {{ $inventory->offer_rate }}</span>
-                                                <input type="number" class="edit-input form-control" data-field="offer_rate" value="{{ $inventory->offer_rate }}" style="display:none;">
-                                            </td>
-                                            <td class="editable-field" data-field="shipment_rate" data-id="{{ $inventory->id }}">
-                                                <span class="current-value"><strong>Rs. </strong> {{ $inventory->shipment_rate }}</span>
-                                                <input type="number" class="edit-input form-control" data-field="shipment_rate" value="{{ $inventory->shipment_rate }}" style="display:none;">
-                                            </td>
-                                            <td class="editable-field" data-field="stock_quantity" data-id="{{ $inventory->id }}">
-                                                @if($inventory->purchase_line_count > 0)
-                                                    <a href="javascript:void(0)"
-                                                        data-pid="{{$product->id}}"
-                                                        data-title="See inventory with vendor purchase lines"
-                                                        data-size="lg"
-                                                        data-bs-toggle="tooltip"
-                                                        data-bs-original-title="This product inventory is mapped to {{ $inventory->purchase_line_count }} purchase line's."
-                                                     >
-                                                        <span class="current-value">
-                                                            {{  $inventory->stock_quantity }}
-                                                            <span class="badge bg-warning">
-                                                            {{ $inventory->purchase_line_count }}
-                                                            </span>
-                                                        </span>
-                                                    </a>
-                                                @else
-                                                    <span class="current-value">{{ $inventory->stock_quantity }}</span>
-                                                @endif
-                                                
-                                                <input type="number" class="edit-input form-control" value="{{ $inventory->stock_quantity }}" data-field="stock_quantity" style="display:none;">
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-sm btn-warning edit-inventory-btn" data-inventoryid="{{ $inventory->id }}"  data-bs-original-title="Edit Inventory" data-bs-toggle="tooltip">
-                                                    <i class="ti ti-pencil"></i>
-                                                </button>
-                                                
-                                                <button class="btn btn-sm btn-primary save-inventory-btn" data-inventoryid="{{ $inventory->id }}" data-productid="{{ $product->id }}" style="display:none;">Update</button>
-                                                <button class="btn btn-sm btn-secondary cancel-inventory-btn" data-inventoryid="{{ $inventory->id }}" style="display:none;">Cancel</button>
-                                                <button class="btn btn-sm btn-danger delete-inventory-btn" data-inventoryid="{{ $inventory->id }}"  data-bs-original-title="Delete Inventory" data-bs-toggle="tooltip" data-name="{{ $inventory->sku }}">
-                                                    <i class="ti ti-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                            @php 
-                                                $sr_no_inventory++;
-                                            @endphp
-                                        @endforeach
-                                    @else
-                                        <tr>
-                                            <td colspan="5">No inventory found for this product.</td>
-                                        </tr>
-                                    @endif
-                                </tbody>
-                            </table>
-                        </div>
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+<div class="d-flex justify-content-end my-3 pe-2">
+    <button type="button" id="save-all-inventory-btn" class="btn btn-primary">
+        <i class="ti ti-device-floppy"></i> Save All
+    </button>
+</div>
 @else
-    <p>No products found in this category.</p>
+<p>No products found in this category.</p>
 @endif
 
 <div class="my-pagination" id="pagination-links">

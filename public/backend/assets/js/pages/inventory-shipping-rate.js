@@ -1,8 +1,9 @@
 $(document).ready(function () {
     var ROUTES = window.INVENTORY_ROUTES || {};
     var INDEX_URL = ROUTES.index || "/manage-inventory";
-    var UPDATE_URL = ROUTES.update || "/manage-inventory/update/";
     var DELETE_URL = ROUTES.delete || "/manage-inventory/delete/";
+    var SAVE_ALL_URL = ROUTES.bulkUpdate || "/manage-inventory/bulk-update";
+
     function csrf() {
         return $('meta[name="csrf-token"]').attr("content");
     }
@@ -17,235 +18,299 @@ $(document).ready(function () {
             onClick: function () {},
         }).showToast();
     }
-    function generateUniqueSKU() {
-        return "SKU-" + Math.random().toString(36).substr(2, 13).toUpperCase();
-    }
-
-    /** The product-level shipment rate, stored on the table by create() */
-    function currentShipmentRate() {
-        return (
-            parseFloat($("#dynamic-fields-table").data("shipment-rate")) || 0
-        );
-    }
-
     function num(selector, row) {
         return parseFloat(row.find(selector).val()) || 0;
     }
 
-    /* Open inventory modal                                            */
+    /* ---------------------------------------------------------------
+       Every rate is one flat row: product name + all its fields
+       together, no popup and no separate section to open. Everything
+       gets saved together via the single "Save All" button below.
+    ------------------------------------------------------------------ */
 
-    $(document).on("click", 'a[data-ajax-popup-modal="true"]', function () {
-        var link = $(this);
-        var size = link.data("size") == "" ? "md" : link.data("size");
-        var url = link.data("url");
+    function allInvRows() {
+        return $("tr.inv-row");
+    }
 
-        $("#commanModel .modal-title").html(link.data("title"));
-        $("#commanModel .modal-dialog").addClass("modal-" + size);
+    function rowsForProduct(pid) {
+        return $("tr.inv-row[data-product-id='" + pid + "']");
+    }
 
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: {
-                _token: csrf(),
-                size: size,
-                url: url,
-                product_id: link.data("pid"),
-            },
-            success: function (data) {
-                $("#commanModel .render-data").html(data.form);
-                $("#commanModel").modal("show");
-            },
-            error: function () {
-                toast("Could not load the inventory form.", "bg-danger");
-            },
-        });
-    });
-
-    /* Offer rate auto-fill = ceil((MRP + Purchase Rate) / 2)          */
-
-    $(document).on(
-        "input",
-        '#dynamic-fields-table input[name="mrp[]"], #dynamic-fields-table input[name="purchase_rate[]"]',
-        function () {
-            var row = $(this).closest("tr");
-            var offerRate = Math.ceil(
-                (num('input[name="mrp[]"]', row) +
-                    num('input[name="purchase_rate[]"]', row)) /
-                    2,
-            );
-
-            row.find('input[name="offer_rate[]"]').val(offerRate);
-            recalcShipping(row);
-        },
-    );
-
-    function recalcShipping(row) {
-        var mrp = num('input[name="mrp[]"]', row);
-        var offer = num('input[name="offer_rate[]"]', row);
-        var ship = num('input[name="shipment_rate[]"]', row);
-        var badge = row.find(".savings-badge");
-        var field = row.find('input[name="offer_shipment_rate[]"]');
+    function recalcRow(row) {
+        var mrp = num(".row-mrp", row);
+        var offer = num(".row-offer-rate", row);
+        var ship = num(".row-shipment-rate", row);
+        var totalField = row.find(".row-offer-shipment-rate");
+        var badge = row.find(".row-savings-badge");
 
         if (offer <= 0) {
-            field.val("");
+            totalField.val("");
             badge.hide();
-            clearRateWarning(row);
+            clearRowWarning(row);
             return;
         }
 
         var total = offer + ship;
-        field.val(total.toFixed(2));
+        totalField.val(total.toFixed(2));
 
         /* Shipping + Offer Rate MRP se jyada nahi ho sakta */
         if (mrp > 0 && total > mrp) {
             badge.hide();
-            showRateWarning(row, mrp, total, ship);
+            showRowWarning(row, mrp, total);
             return;
         }
 
-        clearRateWarning(row);
+        clearRowWarning(row);
 
         if (mrp > 0) {
-            badge.text("Bachat: ₹" + (mrp - total).toFixed(2)).show();
+            badge.text("Bachat: \u20B9" + (mrp - total).toFixed(2)).show();
         } else {
             badge.hide();
         }
     }
 
-    /* MRP limit warning — turant dikhta hai jab admin offer rate badhata hai */
-
-    function showRateWarning(row, mrp, total, ship) {
-        var over = total - mrp;
-        var maxOffer = mrp - ship;
-        var field = row.find('input[name="offer_shipment_rate[]"]');
-        var cell = field.closest("td");
-
-        field.addClass("is-invalid");
-        row.find('input[name="offer_rate[]"]').addClass("is-invalid");
+    function showRowWarning(row, mrp, total) {
         row.addClass("rate-over-mrp");
+        row.find(".row-offer-shipment-rate, .row-offer-rate").addClass("is-invalid");
 
-        var warning = cell.find(".rate-warning");
-
+        var cell = row.find(".row-offer-shipment-rate").closest("td");
+        var warning = cell.find(".row-rate-warning");
         if (warning.length === 0) {
-            warning = $(
-                '<div class="rate-warning text-danger small mt-1" style="font-weight:600;"></div>',
-            );
+            warning = $('<div class="row-rate-warning text-danger small mt-1" style="font-weight:600;"></div>');
             cell.append(warning);
         }
-
         warning
-            .html(
-            "Shipping + Offer Rate is ₹" +
-                total.toFixed(2) +
-                ", which is ₹" +
-                over.toFixed(2) +
-                " more than the MRP of ₹" +
-                mrp.toFixed(2) +
-                ".<br>" +
-                "Please set the Offer Rate to ₹" +
-                (maxOffer > 0 ? maxOffer.toFixed(2) : "0.00") +
-                " or less.",
-        )
-        .show();
+            .text(
+                "Over MRP by \u20B9" + (total - mrp).toFixed(2) + " \u2014 lower Offer Rate or Shipping.",
+            )
+            .show();
+    }
 
-        /* Toast sirf pehli baar — har keystroke par nahi */
-        if (!row.data("warned")) {
-            row.data("warned", true);
-            toast(
-                "Shipping + Offer Rate MRP se jyada hai — save nahi hoga.",
-                "bg-danger",
-            );
+    function clearRowWarning(row) {
+        row.removeClass("rate-over-mrp");
+        row.find(".row-offer-shipment-rate, .row-offer-rate").removeClass("is-invalid");
+        row.find(".row-rate-warning").remove();
+    }
+
+    function recalcGstAndGain(row) {
+        var gstPercent = parseFloat(row.data("gst")) || 0;
+        var purchase = num(".row-purchase-rate", row);
+        var offer = num(".row-offer-rate", row);
+        var calcRow = row.next(".calculated-row-inventory");
+
+        if (calcRow.length === 0) {
+            return;
+        }
+
+        var preGstEl = calcRow.find(".row-pre-gst");
+        var gstEl = calcRow.find(".row-gst-amount");
+        var gainEl = calcRow.find(".row-net-gain");
+        var gainPercEl = calcRow.find(".row-net-gain-perc");
+
+        if (purchase > 0) {
+            var preGst = purchase / (1 + gstPercent / 100);
+            var gstAmount = purchase - preGst;
+            preGstEl.val(preGst.toFixed(2));
+            gstEl.val(gstAmount.toFixed(2));
+        } else {
+            preGstEl.val("");
+            gstEl.val("");
+        }
+
+        if (purchase > 0) {
+            var netGain = offer - purchase;
+            var netGainPerc = (netGain / purchase) * 100;
+            gainEl.val(netGain.toFixed(2));
+            gainPercEl.val(netGainPerc.toFixed(2));
+            gainEl.toggleClass("text-success", netGain >= 0).toggleClass("text-danger", netGain < 0);
+        } else {
+            gainEl.val("").removeClass("text-success text-danger");
+            gainPercEl.val("");
         }
     }
 
-    function clearRateWarning(row) {
-        row.removeClass("rate-over-mrp").removeData("warned");
-        row.find(
-            'input[name="offer_shipment_rate[]"], input[name="offer_rate[]"]',
-        ).removeClass("is-invalid");
-        row.find(".rate-warning").hide().empty();
+    function resetRowToBlank(row) {
+        row.attr("data-inventory-id", "");
+        row.find(".row-mrp").val("");
+        row.find(".row-purchase-rate").val("");
+        row.find(".row-offer-rate").val("");
+        row.find(".row-shipment-rate").val("");
+        row.find(".row-offer-shipment-rate").val("");
+        row.find(".row-stock-qty").val("");
+        row.find(".row-savings-badge").hide();
+        row.find(".remove-inv-row").removeAttr("data-name");
+        clearRowWarning(row);
+
+        var calcRow = row.next(".calculated-row-inventory");
+        calcRow.find(".row-pre-gst, .row-gst-amount, .row-net-gain-perc").val("");
+        calcRow.find(".row-net-gain").val("").removeClass("text-success text-danger");
     }
 
-    /** true jab koi bhi row MRP se upar ho */
-    function hasRateErrors() {
-        return $("#dynamic-fields-table tbody tr.rate-over-mrp").length > 0;
+    /* The product-name cell (with the Add Rate / Auto-calc buttons) is
+       shared across all of a product's rate rows via rowspan, so it
+       only appears once. Whenever rows are added or removed, this puts
+       that cell back on the first row of the group with the right
+       rowspan, and marks the last row so the border under it lines up. */
+    function renumberProductGroup(pid) {
+        var rows = rowsForProduct(pid);
+        if (rows.length === 0) {
+            return;
+        }
+
+        var nameCell = rows.find("td.product-cell").first();
+        if (nameCell.length === 0) {
+            return;
+        }
+
+        nameCell.detach();
+        nameCell.attr("rowspan", rows.length * 2);
+
+        rows.each(function () {
+            $(this).next(".calculated-row-inventory").removeClass("group-end");
+        });
+
+        rows.first().prepend(nameCell);
+        rows.last().next(".calculated-row-inventory").addClass("group-end");
     }
 
-    $(document).on(
-        "input",
-        '#dynamic-fields-table input[name="offer_rate[]"], #dynamic-fields-table input[name="shipment_rate[]"], #dynamic-fields-table input[name="offer_shipment_rate[]"]',
-        function () {
-            recalcShipping($(this).closest("tr"));
-        },
-    );
+    function buildBlankRateRow(pid, gstPercent) {
+        return $(
+            '<tr class="inv-row" data-product-id="' + pid + '" data-gst="' + gstPercent + '" data-inventory-id="">' +
+                '<td><input type="number" step="1" class="form-control form-control-sm row-mrp" placeholder="MRP"></td>' +
+                '<td><input type="number" step="1" class="form-control form-control-sm row-purchase-rate" placeholder="Purchase"></td>' +
+                '<td><input type="number" step="1" class="form-control form-control-sm row-offer-rate" placeholder="Offer"></td>' +
+                '<td><input type="number" step="0.01" class="form-control form-control-sm row-shipment-rate" placeholder="Shipping"></td>' +
+                '<td><input type="number" step="0.01" class="form-control form-control-sm row-offer-shipment-rate" readonly></td>' +
+                '<td><input type="number" class="form-control form-control-sm row-stock-qty" placeholder="Qty"></td>' +
+                '<td><button type="button" class="btn btn-sm btn-danger remove-inv-row"><i class="ti ti-trash"></i></button></td>' +
+                "</tr>",
+        );
+    }
 
-    /* GST / Net gain calculated row  */
+    function buildBlankCalcRow(pid) {
+        return $(
+            '<tr class="calculated-row-inventory bg-light-subtle" data-product-id="' + pid + '">' +
+                '<td class="text-muted small">Calculated Values:</td>' +
+                "<td>" +
+                '<label class="small text-muted mb-0 d-block">Pre GST Amount</label>' +
+                '<input type="text" class="form-control form-control-sm row-pre-gst" placeholder="Pre GST Amount" readonly>' +
+                '<label class="small text-muted mb-0 d-block mt-1">GST Amount</label>' +
+                '<input type="text" class="form-control form-control-sm row-gst-amount" placeholder="GST Amount" readonly>' +
+                "</td>" +
+                "<td>" +
+                '<label class="small text-muted mb-0 d-block">Net Gain</label>' +
+                '<input type="text" class="form-control form-control-sm row-net-gain" placeholder="Net Gain" readonly>' +
+                '<label class="small text-muted mb-0 d-block mt-1">Net Gain %</label>' +
+                '<input type="text" class="form-control form-control-sm row-net-gain-perc" placeholder="Net Gain %" readonly>' +
+                "</td>" +
+                '<td colspan="4"></td>' +
+                "</tr>",
+        );
+    }
 
-    $(document).on(
-        "input",
-        '#inventoryAddForm input[name="purchase_rate[]"], #inventoryAddForm input[name="offer_rate[]"], #inventoryAddForm input[name="gst_in_per"]',
-        function () {
-            // Changing the GST % must refresh every row, not only one
-            var rows =
-                $(this).attr("name") === "gst_in_per"
-                    ? $("#dynamic-fields-table tbody tr.field-group")
-                    : $(this).closest("tr");
+    /* Offer rate auto-fill = ceil((MRP + Purchase Rate) / 2) */
+    $(document).on("input", ".row-mrp, .row-purchase-rate", function () {
+        var row = $(this).closest("tr.inv-row");
+        var mrp = num(".row-mrp", row);
+        var purchase = num(".row-purchase-rate", row);
+        if (mrp > 0 || purchase > 0) {
+            row.find(".row-offer-rate").val(Math.ceil((mrp + purchase) / 2));
+        }
+        recalcRow(row);
+        recalcGstAndGain(row);
+    });
 
-            rows.each(function () {
-                var row = $(this);
-                var purc = num('input[name="purchase_rate[]"]', row);
-                var offer = num('input[name="offer_rate[]"]', row);
-                var gst = parseFloat($('input[name="gst_in_per"]').val()) || 0;
+    $(document).on("input", ".row-offer-rate, .row-shipment-rate", function () {
+        var row = $(this).closest("tr.inv-row");
+        recalcRow(row);
+        recalcGstAndGain(row);
+    });
 
-                var preGstAmount = (purc / ((100 + gst) / 100)).toFixed(2);
-                var gstAmount = (purc - preGstAmount).toFixed(2);
-                var netGain = (offer - purc).toFixed(2);
-                var netGainPerc =
-                    purc > 0 ? ((netGain / purc) * 100).toFixed(2) : "0.00";
+    /* + Add Rate — appends one more blank rate row (plus its own
+       Calculated Values row) under the SAME product name (the name
+       cell spans all of that product's rows, so it is never repeated). */
+    $(document).on("click", ".add-inv-row-btn", function () {
+        var pid = $(this).data("product-id");
+        var gstPercent = rowsForProduct(pid).first().data("gst") || 0;
+        var newRateRow = buildBlankRateRow(pid, gstPercent);
+        var newCalcRow = buildBlankCalcRow(pid);
+        var lastRateRow = rowsForProduct(pid).last();
+        var lastCalcRow = lastRateRow.next(".calculated-row-inventory");
 
-                var calculatedRow = row.next(".calculated-row-inventory");
+        (lastCalcRow.length ? lastCalcRow : lastRateRow).after(newRateRow);
+        newRateRow.after(newCalcRow);
+        renumberProductGroup(pid);
+    });
 
-                if (calculatedRow.length === 0) {
-                    calculatedRow = $(
-                        '<tr class="calculated-row-inventory">' +
-                            '<td class="text-muted">Calculated Values:</td>' +
-                            "<td>" +
-                            "<label>Pre GST Amount</label>" +
-                            '<input type="text" name="pre_gst[]" class="form-control" placeholder="Pre GST Amount" readonly>' +
-                            "<label>GST Amount</label>" +
-                            '<input type="text" name="gst_amount[]" class="form-control" placeholder="GST Amount" readonly>' +
-                            "</td>" +
-                            "<td>" +
-                            "<label>Net Gain</label>" +
-                            '<input type="text" name="net_gain[]" class="form-control" placeholder="Net Gain" readonly>' +
-                            "<label>Net Gain %</label>" +
-                            '<input type="text" name="net_gain_perc[]" class="form-control" placeholder="Net Gain %" readonly>' +
-                            "</td>" +
-                            '<td colspan="5"></td>' +
-                            "</tr>",
+    /* Remove a rate row. Unsaved rows just disappear; saved ones are
+       deleted from the server after confirmation. If it was the only
+       row left for that product, reset it to blank instead of
+       removing it entirely, so there's always somewhere to add a new
+       rate without reloading the page. */
+    $(document).on("click", ".remove-inv-row", function () {
+        var row = $(this).closest("tr.inv-row");
+        var calcRow = row.next(".calculated-row-inventory");
+        var pid = row.data("product-id");
+        var inventoryId = row.data("inventory-id");
+
+        if (!inventoryId) {
+            if (rowsForProduct(pid).length <= 1) {
+                resetRowToBlank(row);
+            } else {
+                row.remove();
+                calcRow.remove();
+                renumberProductGroup(pid);
+            }
+            return;
+        }
+
+        Swal.fire({
+            title: "Delete this rate?",
+            text: "If you delete this, it will be gone forever.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel",
+        }).then(function (result) {
+            if (!result.isConfirmed) {
+                return;
+            }
+            $.ajax({
+                url: DELETE_URL + inventoryId,
+                type: "DELETE",
+                data: { id: inventoryId, _token: csrf() },
+                success: function (response) {
+                    if (rowsForProduct(pid).length <= 1) {
+                        resetRowToBlank(row);
+                    } else {
+                        row.remove();
+                        calcRow.remove();
+                        renumberProductGroup(pid);
+                    }
+                    toast(response.message || "Deleted successfully!", "bg-success");
+                },
+                error: function (xhr) {
+                    toast(
+                        (xhr.responseJSON && xhr.responseJSON.error) ||
+                            "Could not delete this row.",
+                        "bg-danger",
                     );
-                    row.after(calculatedRow);
-                }
-
-                calculatedRow.find('input[name="pre_gst[]"]').val(preGstAmount);
-                calculatedRow.find('input[name="gst_amount[]"]').val(gstAmount);
-                calculatedRow.find('input[name="net_gain[]"]').val(netGain);
-                calculatedRow
-                    .find('input[name="net_gain_perc[]"]')
-                    .val(netGainPerc);
+                },
             });
-        },
-    );
+        });
+    });
 
-    /* "Update Shipment Rate" button*/
-
-    $(document).on("click", ".update-shipment-rate", function () {
+    /* Auto-calc Shipping — fills every rate row of one product from the
+       volumetric-weight estimate, same calculation as before. */
+    $(document).on("click", ".auto-calc-shipping-btn", function () {
         var button = $(this);
+        var pid = button.data("product-id");
+        var originalHtml = button.html();
+
         button
             .prop("disabled", true)
-            .html(
-                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...',
-            );
+            .html('<span class="spinner-border spinner-border-sm"></span> Calculating...');
+
         $.ajax({
             url: button.data("route"),
             type: "POST",
@@ -256,131 +321,108 @@ $(document).ready(function () {
                     return;
                 }
                 var rate = parseFloat(response.shipment_rate);
-                $("#dynamic-fields-table").data("shipment-rate", rate);
-                $("#vw-badge").text(
-                    "VW: " +
-                        parseFloat(response.volumetric_weight_kg).toFixed(2) +
-                        " kg",
-                );
-                $("#sr-badge").text("Shipping: ₹" + rate.toFixed(2));
-
-                $("#dynamic-fields-table tbody tr.field-group").each(
-                    function () {
-                        var row = $(this);
-                        row.find('input[name="shipment_rate[]"]').val(
-                            rate.toFixed(2),
-                        );
-                        recalcShipping(row);
-                    },
-                );
+                rowsForProduct(pid).each(function () {
+                    var row = $(this);
+                    row.find(".row-shipment-rate").val(rate.toFixed(2));
+                    recalcRow(row);
+                });
                 toast(response.message, "bg-success");
-                /* Naya shipping rate kuch rows ko MRP se upar le ja sakta hai */
-                if (hasRateErrors()) {
-                    toast(
-                        "Dhyan dein: naye shipping rate ke baad kuch rows MRP se jyada ho gaye hain.",
-                        "bg-danger",
-                    );
-                }
             },
             error: function (xhr) {
                 toast(
-                    (xhr.responseJSON && xhr.responseJSON.message) ||
-                        "Something went wrong.",
+                    (xhr.responseJSON && xhr.responseJSON.message) || "Something went wrong.",
                     "bg-danger",
                 );
             },
             complete: function () {
-                button.prop("disabled", false).html("Update Shipment Rate");
+                button.prop("disabled", false).html(originalHtml);
             },
         });
     });
 
-    /*  Add More / Remove row  */
+    /* Save All — gathers every row on the page that has an MRP entered
+       and saves them together in one request. Blank template rows that
+       were never touched are skipped automatically. */
+    $(document).on("click", "#save-all-inventory-btn", function () {
+        var button = $(this);
+        var rows = [];
+        var blockingErrors = 0;
 
-    $(document).on("click", "#add-more-fields", function () {
-        var ship = currentShipmentRate();
-        $("#dynamic-fields-table tbody").append(
-            '<tr class="field-group">' +
-                "<td>" +
-                '<input type="hidden" name="inventory_id[]" value="">' +
-                '<input type="number" step="0.01" name="mrp[]" class="form-control" required>' +
-                "</td>" +
-                '<td><input type="number" step="0.01" name="purchase_rate[]" class="form-control" required></td>' +
-                '<td><input type="number" step="0.01" name="offer_rate[]" class="form-control" required></td>' +
-                '<td><input type="number" step="0.01" name="shipment_rate[]" class="form-control" value="' +
-                (ship > 0 ? ship.toFixed(2) : "") +
-                '"></td>' +
-                "<td>" +
-                '<input type="number" step="0.01" name="offer_shipment_rate[]" class="form-control">' +
-                '<span class="badge bg-info-subtle text-info savings-badge" style="display:none;"></span>' +
-                "</td>" +
-                '<td><input type="number" name="stock_quantity[]" class="form-control" required></td>' +
-                '<td style="display: none;"><input type="text" name="sku[]" class="form-control" value="' +
-                generateUniqueSKU() +
-                '" readonly required></td>' +
-                '<td><button type="button" class="btn btn-danger btn-sm remove-field"><i class="ti ti-trash"></i></button></td>' +
-                "</tr>",
-        );
-    });
-
-    $(document).on("click", ".remove-field", function () {
-        var row = $(this).closest("tr");
-        row.next(".calculated-row-inventory").remove();
-        row.remove();
-    });
-
-    /* Save inventory (modal form) */
-
-    $(document).on("submit", "#inventoryAddForm", function (e) {
-        e.preventDefault();
-        var form = $(this);
-
-        /* Har row dobara check — paste kiye gaye values bhi pakde jayein */
-        $("#dynamic-fields-table tbody tr.field-group").each(function () {
-            recalcShipping($(this));
+        allInvRows().each(function () {
+            recalcRow($(this));
         });
 
-        if (hasRateErrors()) {
-            var badRows = [];
+        allInvRows().each(function () {
+            if ($(this).hasClass("rate-over-mrp")) {
+                blockingErrors++;
+            }
+        });
 
-            $("#dynamic-fields-table tbody tr.rate-over-mrp").each(function () {
-                badRows.push(
-                    $(this).index(
-                        "#dynamic-fields-table tbody tr.field-group",
-                    ) + 1,
-                );
-            });
-
-            $("#error-container").html(
-                '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
-                    '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                    "<strong>Save rok diya gaya.</strong> Row " +
-                    badRows.join(", ") +
-                    " me Shipping + Offer Rate MRP se jyada hai. Offer Rate kam karein ya MRP badhaein." +
-                    "</div>",
+        if (blockingErrors > 0) {
+            toast(
+                blockingErrors +
+                    " row(s) have Shipping + Offer Rate above MRP \u2014 fix those before saving.",
+                "bg-danger",
             );
-
-            toast("MRP se jyada rate save nahi ho sakta.", "bg-danger");
-            $("#dynamic-fields-table tbody tr.rate-over-mrp")
-                .first()
-                .find('input[name="offer_rate[]"]')
-                .trigger("focus");
             return;
         }
 
-        var submitButton = form.find('button[type="submit"]');
-        var originalButtonText = submitButton.html();
+        allInvRows().each(function () {
+            var row = $(this);
+            var mrp = row.find(".row-mrp").val();
+            if (mrp === "" || mrp === null) {
+                return; // untouched blank row, nothing to save
+            }
+            rows.push({
+                product_id: row.data("product-id"),
+                inventory_id: row.data("inventory-id") || "",
+                mrp: mrp,
+                purchase_rate: row.find(".row-purchase-rate").val(),
+                offer_rate: row.find(".row-offer-rate").val(),
+                shipment_rate: row.find(".row-shipment-rate").val(),
+                stock_quantity: row.find(".row-stock-qty").val(),
+            });
+        });
 
-        submitButton
+        if (rows.length === 0) {
+            toast("Nothing to save.", "bg-info");
+            return;
+        }
+
+        var originalText = button.html();
+        button
             .prop("disabled", true)
-            .html('<i class="fa fa-spinner fa-spin"></i> Saving...');
+            .html('<span class="spinner-border spinner-border-sm"></span> Saving...');
+
         $.ajax({
-            url: form.attr("action"),
-            method: form.attr("method"),
-            data: form.serialize(),
+            url: SAVE_ALL_URL,
+            type: "POST",
+            data: {
+                _token: csrf(),
+                rows: rows,
+            },
             success: function (response) {
-                $("#error-container").html("");
-                toast(response.message, "bg-success");
+                toast(response.message, response.failed > 0 ? "bg-warning" : "bg-success");
+
+                if (response.failed > 0 && response.results) {
+                    var messages = response.results
+                        .filter(function (r) {
+                            return !r.success;
+                        })
+                        .map(function (r) {
+                            return "<li>" + r.message + "</li>";
+                        })
+                        .join("");
+                    $("#bulk-save-errors").html(
+                        '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+                            '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                            "<strong>Some rows were not saved:</strong><ul class='mb-0'>" +
+                            messages +
+                            "</ul></div>",
+                    );
+                } else {
+                    $("#bulk-save-errors").html("");
+                }
 
                 var page =
                     $("#pagination-links .active").find("a").data("page") ||
@@ -393,46 +435,20 @@ $(document).ready(function () {
                     parseInt(page),
                     $("#product-status").val(),
                 );
-
-                $("#dynamic-fields-table tbody").empty();
-                $(".modal").modal("hide");
             },
-            error: function (error) {
-                var errorMessage =
-                    (error.responseJSON && error.responseJSON.message) ||
-                    "An unexpected error occurred.";
-
-                if (error.responseJSON && error.responseJSON.errors) {
-                    var details = "<ul>";
-                    $.each(
-                        error.responseJSON.errors,
-                        function (field, messages) {
-                            details +=
-                                "<li><strong>" +
-                                field +
-                                ":</strong> " +
-                                messages.join(", ") +
-                                "</li>";
-                        },
-                    );
-                    errorMessage = details + "</ul>";
-                }
-
-                $("#error-container").html(
-                    '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
-                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                        errorMessage +
-                        "</div>",
+            error: function (xhr) {
+                toast(
+                    (xhr.responseJSON && xhr.responseJSON.message) || "Could not save changes.",
+                    "bg-danger",
                 );
-                toast(errorMessage, "bg-danger");
             },
             complete: function () {
-                submitButton.prop("disabled", false).html(originalButtonText);
+                button.prop("disabled", false).html(originalText);
             },
         });
     });
 
-    /* Listing: pagination, filters, inline edit, delete*/
+    /* Listing: pagination, filters */
 
     $(document).on("click", "#pagination-links a", function (e) {
         e.preventDefault();
@@ -444,11 +460,7 @@ $(document).ready(function () {
         );
     });
 
-    $(document).on(
-        "change",
-        "#category-filter, #product-status",
-        updateFilters,
-    );
+    $(document).on("change", "#category-filter, #product-status", updateFilters);
     $(document).on("keyup", "#product-search", updateFilters);
 
     $(document).on("click", "#reset-button", function () {
@@ -470,130 +482,8 @@ $(document).ready(function () {
 
         fetchProductsWithInventory(categoryId, search, 1, productStatus);
     }
-    $(document).on("click", ".edit-inventory-btn", function () {
-        var id = $(this).data("inventoryid");
-        $('td[data-id="' + id + '"] .current-value').hide();
-        $('td[data-id="' + id + '"] .edit-input').show();
-        $(this).hide();
-        $('button.save-inventory-btn[data-inventoryid="' + id + '"]').show();
-        $('button.cancel-inventory-btn[data-inventoryid="' + id + '"]').show();
-    });
 
-    $(document).on("click", ".cancel-inventory-btn", function () {
-        var id = $(this).data("inventoryid");
-        $('td[data-id="' + id + '"] .edit-input').hide();
-        $('td[data-id="' + id + '"] .current-value').show();
-        $('button.save-inventory-btn[data-inventoryid="' + id + '"]').hide();
-        $('button.cancel-inventory-btn[data-inventoryid="' + id + '"]').hide();
-        $('button.edit-inventory-btn[data-inventoryid="' + id + '"]').show();
-    });
-
-    $(document).on("click", ".save-inventory-btn", function () {
-        var inventoryId = $(this).data("inventoryid");
-
-        function field(name) {
-            return $(
-                'td[data-id="' +
-                    inventoryId +
-                    '"] .edit-input[data-field="' +
-                    name +
-                    '"]',
-            ).val();
-        }
-
-        /* Inline edit par bhi MRP limit check */
-        var mrpVal = parseFloat(field("mrp")) || 0;
-        var offerVal = parseFloat(field("offer_rate")) || 0;
-        var shipVal = parseFloat(field("shipment_rate")) || 0;
-
-        if (mrpVal > 0 && offerVal + shipVal > mrpVal) {
-            toast(
-                "Shipping + Offer Rate ₹" +
-                    (offerVal + shipVal).toFixed(2) +
-                    " MRP ₹" +
-                    mrpVal.toFixed(2) +
-                    " se jyada hai — save nahi hoga.",
-                "bg-danger",
-            );
-            return;
-        }
-
-        $.ajax({
-            url: UPDATE_URL + inventoryId,
-            method: "POST",
-            data: {
-                id: inventoryId,
-                product_id: $(this).data("productid"),
-                mrp: field("mrp"),
-                purchase_rate: field("purchase_rate"),
-                offer_rate: field("offer_rate"),
-                stock_quantity: field("stock_quantity"),
-                _token: csrf(),
-            },
-            success: function (response) {
-                if (response.success) {
-                    fetchProductsWithInventory();
-                    toast(response.message, "bg-success");
-                }
-            },
-            error: function (xhr) {
-                toast(
-                    (xhr.responseJSON && xhr.responseJSON.error) ||
-                        "An error occurred. Please try again.",
-                    "bg-danger",
-                );
-            },
-        });
-    });
-
-    $(document).on("click", ".delete-inventory-btn", function (event) {
-        event.preventDefault();
-
-        var inventoryId = $(this).data("inventoryid");
-
-        Swal.fire({
-            title:
-                "Are you sure you want to delete this " +
-                $(this).data("name") +
-                "?",
-            text: "If you delete this, it will be gone forever.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes, delete it!",
-            cancelButtonText: "Cancel",
-        }).then(function (result) {
-            if (!result.isConfirmed) {
-                return;
-            }
-
-            $.ajax({
-                url: DELETE_URL + inventoryId,
-                type: "DELETE",
-                data: { id: inventoryId, _token: csrf() },
-                success: function (response) {
-                    fetchProductsWithInventory();
-                    toast(
-                        response.message || "Inventory deleted successfully!",
-                        "bg-success",
-                    );
-                },
-                error: function (xhr) {
-                    toast(
-                        (xhr.responseJSON && xhr.responseJSON.error) ||
-                            "An error occurred while deleting the inventory.",
-                        "bg-danger",
-                    );
-                },
-            });
-        });
-    });
-
-    function fetchProductsWithInventory(
-        categoryId,
-        search,
-        page,
-        productStatus,
-    ) {
+    function fetchProductsWithInventory(categoryId, search, page, productStatus) {
         $("#loader").show();
 
         $.ajax({
@@ -610,10 +500,7 @@ $(document).ready(function () {
                 $("#loader").hide();
             },
             error: function () {
-                toast(
-                    "An error occurred while filtering products.",
-                    "bg-danger",
-                );
+                toast("An error occurred while filtering products.", "bg-danger");
                 $("#loader").hide();
             },
         });

@@ -80,11 +80,12 @@
                     value="{{ $inventory ? $inventory->shipment_rate : '' }}" placeholder="Shipping">
             </td>
             <td>
-                <input type="number" step="0.01" class="form-control form-control-sm row-offer-shipment-rate"
-                    value="{{ $inventory ? $inventory->offer_shipment_rate : '' }}" readonly>
-                <span class="badge bg-info-subtle text-info row-savings-badge mt-1"
-                    style="{{ ($inventory && $inventory->offer_shipment_rate) ? '' : 'display:none;' }}">
-                    Bachat: &#8377;{{ $inventory ? number_format($inventory->mrp - $inventory->offer_shipment_rate, 2) : '0.00' }}
+                <input type="number" step="0.01" class="form-control form-control-sm row-offer-shipment-rate" value="{{ $inventory ? $inventory->offer_shipment_rate : '' }}" readonly>
+                <span class="badge bg-warning-subtle text-info row-savings-badge mt-1"
+                style="{{ ($inventory && $inventory->offer_shipment_rate && $inventory->mrp > 0) ? '' : 'display:none;' }}">
+                {{ ($inventory && $inventory->offer_shipment_rate && $inventory->mrp > 0)
+                    ? number_format(($inventory->offer_shipment_rate / $inventory->mrp) * 100, 2)
+                    : '0.00' }}%
                 </span>
             </td>
             <td>

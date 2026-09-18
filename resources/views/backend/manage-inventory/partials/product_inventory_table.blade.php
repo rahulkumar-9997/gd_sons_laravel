@@ -89,8 +89,7 @@
                 </span>
             </td>
             <td>
-                <input type="number" class="form-control form-control-sm row-stock-qty"
-                    value="{{ $inventory->stock_quantity ?? '' }}" placeholder="Qty">
+                <input type="number" class="form-control form-control-sm row-stock-qty" value="{{ $inventory->stock_quantity ?? '' }}" placeholder="Qty">
             </td>
             <td>
                 <button type="button" class="btn btn-sm btn-danger remove-inv-row" data-name="{{ $inventory->sku ?? '' }}"

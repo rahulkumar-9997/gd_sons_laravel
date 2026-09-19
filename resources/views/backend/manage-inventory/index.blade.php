@@ -6,6 +6,21 @@
     tr.group-end td {
         border-bottom: 2px solid #dee2e6;
     }
+
+    #product-list-container-with-inventory {
+        max-height: 75vh;
+        overflow-y: auto;
+        overflow-x: auto;
+    }
+
+    #example-2 thead th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: #e5e4e5;
+        box-shadow: rgba(0, 0, 0, 0.12) 0px 2px 6px;
+        padding: 8px;
+    }
 </style>
 @endpush
 <div class="container-fluid">
@@ -87,4 +102,5 @@
         bulkUpdate: "{{ route('manage-inventory.bulk-update') }}"
     };
 </script>
+
 @endpush

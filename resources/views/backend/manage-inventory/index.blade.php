@@ -6,21 +6,6 @@
     tr.group-end td {
         border-bottom: 2px solid #dee2e6;
     }
-
-    #product-list-container-with-inventory {
-        max-height: 75vh;
-        overflow-y: auto;
-        overflow-x: auto;
-    }
-
-    #example-2 thead th {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background-color: #e5e4e5;
-        box-shadow: rgba(0, 0, 0, 0.12) 0px 2px 6px;
-        padding: 8px;
-    }
 </style>
 @endpush
 <div class="container-fluid">
@@ -101,6 +86,61 @@
         delete: "/manage-inventory/delete/",
         bulkUpdate: "{{ route('manage-inventory.bulk-update') }}"
     };
+
+    $(document).ready(function() {
+        var $topbar = $('header.topbar');
+        var $tableWrapper = $('#product-list-container-with-inventory');
+        var $table = $('#example-2');
+        var $thead = $table.find('thead');
+        var isFloating = false;
+        var $floatingWrapper = $('<table class="table align-middle mb-0 table-hover table-centered" id="example-2-floating-wrapper"></table>')
+            .append($thead.clone())
+            .appendTo('body')
+            .hide();
+        function syncColumnWidths() {
+            $thead.find('th').each(function(i) {
+                $floatingWrapper.find('th').eq(i).css('width', $(this).outerWidth() + 'px');
+            });
+        }
+        function positionFloatingHead() {
+            var offset = $table.offset();
+            var headerHeight = $topbar.outerHeight() || 0;
+            $floatingWrapper.css({
+                position: 'fixed',
+                top: '128px',
+                left: (offset.left - $tableWrapper.scrollLeft()) + 'px',
+                width: $table.outerWidth() + 'px',
+                zIndex: 1000,
+                margin: 0,
+                tableLayout: 'fixed',
+                boxShadow: 'rgba(0, 0, 0, 0.12) 0px 2px 6px',
+                backgroundColor: '#f8f9fa',
+                padding: '8px',
+            });
+        }
+        function toggleFloatingHead() {
+            var headerHeight = $topbar.outerHeight() || 0;
+            var shouldFloat = $(window).scrollTop() > ($thead.offset().top - headerHeight);
+
+            if (shouldFloat) {
+                syncColumnWidths();
+                positionFloatingHead();
+                if (!isFloating) $floatingWrapper.show();
+                isFloating = true;
+            } else if (isFloating) {
+                $floatingWrapper.hide();
+                isFloating = false;
+            }
+        }
+
+        if ($table.length && $thead.length) {
+            $(window).on('scroll resize', toggleFloatingHead);
+            $tableWrapper.on('scroll', function() {
+                if (isFloating) positionFloatingHead();
+            });
+        }
+    });
+    
 </script>
 
 @endpush

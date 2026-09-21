@@ -10,33 +10,12 @@ $attributes_value = $product->ProductAttributesValues->first()->attributeValue->
 }
 @endphp
 @php
-$purchase_rate = $product->purchase_rate;
 $offer_rate = $product->offer_rate;
+$display_price = $product->display_price ?? null;
 $mrp = $product->mrp;
 
-$group_offer_rate = null;
-$special_offer_rate = null;
-
-if ($groupCategory && $offer_rate !== null) {
-$group_percentage = (float) ($groupCategory->groupCategory->group_category_percentage ?? 0);
-if ($group_percentage > 0) {
-$group_offer_rate = $purchase_rate + ($offer_rate - $purchase_rate) * (100 / $group_percentage) / 100;
-$group_offer_rate = floor($group_offer_rate);
-}
-}
-
-if (isset($specialOffers[$product->id])) {
-$special_offer_rate = (float) $specialOffers[$product->id];
-}
-
-$final_offer_rate = collect([
-$offer_rate,
-$group_offer_rate,
-$special_offer_rate
-])->filter()->min();
-
-$discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
-? round((($mrp - $final_offer_rate) / $mrp) * 100, 2)
+$discountPercentage = ($mrp > 0 && $display_price > 0)
+? round((($mrp - $display_price) / $mrp) * 100, 2)
 : 0;
 @endphp
 
@@ -71,40 +50,6 @@ $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
                         loading="lazy">
                     @endif
                 </a>
-
-                <!--<ul class="product-option">
-                    <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                        <a href="javascript:void(0)" data-url="{{route('quick.view')}}" data-product-id="{{$product->id}}" class="quick-view">
-                        <i data-feather="eye"></i>
-                        </a>
-                    </li>
-                    @if (auth()->guard('customer')->check())
-                    @php
-                    $customerId = auth('customer')->id();
-                    $isInWishlist = \App\Models\Wishlist::where('customer_id', $customerId)->where('product_id', $product->id)->exists();
-                    @endphp
-                    <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                        <a href="javascript:void(0)"
-                            class="addwishlist {{ $isInWishlist ? 'added-to-wishlist' : '' }}"
-                            data-pid="{{ $product->id }}"
-                            data-url="{{ route('wishlist.add') }}"
-                            data-cuid="{{ $customerId }}">
-                            @if ($isInWishlist)
-                            <i class="feather-icon heart-icon filled" data-feather="heart"></i>
-                            @else
-                            <i class="feather-icon heart-icon" data-feather="heart"></i>
-                            @endif
-                        </a>
-                    </li>
-                    @else
-                    <li data-bs-toggle="tooltip" data-bs-placement="top" title="Wishlist">
-                        <a href="{{ route('logincustomer') }}?redirect={{ url()->current() }}" class="addwishlist-le" data-pid="{{ $product->id }}">
-                            <i data-feather="heart"></i>
-                        </a>
-                    </li>
-
-                    @endif
-                </ul>-->
             </div>
         </div>
         <div class="product-footer">
@@ -114,17 +59,17 @@ $discountPercentage = ($mrp > 0 && $final_offer_rate > 0)
                     <h5 class="name">{{ ucwords(strtolower($product->title)) }}</h5>
                 </a>
                 <h5 class="price">
-                    @if ($final_offer_rate === null)
+                    @if ($display_price === null)
                     <span class="theme-color">Price not available</span>
                     @else
-                    <span class="theme-color">Rs. {{ $final_offer_rate }}</span>
+                    <span class="theme-color">Rs. {{ number_format($display_price, 2) }}</span>
                     @if($discountPercentage > 0)
                     <span class="offer theme-color">({{ $discountPercentage }}% OFF)</span>
                     @endif
                     @endif
 
                     @if ($mrp)
-                    <br><del>Rs. {{ $mrp }}</del>
+                    <br><del>Rs. {{ number_format($mrp, 2) }}</del>
                     @endif
                 </h5>
                 <div class="add-to-cart-box bg-white">

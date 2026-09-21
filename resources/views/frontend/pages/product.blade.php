@@ -162,38 +162,47 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                                         @php
                                             $product = $data['product_details'];
                                             $offer_rate = $product->offer_rate;
-                                            $display_price = $product->display_price ?? $offer_rate;
+                                            $display_price = $product->display_price;
+
                                             $discountPercentage = 0;
-                                            if ($product->mrp && $display_price) {
+
+                                            if (!empty($product->mrp) && !empty($display_price) && $product->mrp > 0) {
                                                 $discountPercentage = round(
                                                     (($product->mrp - $display_price) / $product->mrp) * 100,
                                                     2
                                                 );
                                             }
                                         @endphp
-                                        @if($display_price)
+
+                                        @if(!empty($display_price))
                                             <div>
                                                 <span class="text-[24px] lg:text-[26px]">
                                                     Rs. {{ number_format($display_price, 2) }}
                                                 </span>
-                                                @if($product->mrp)
+
+                                                @if(!empty($product->mrp))
                                                     <del class="text-content ml-2">
                                                         Rs. {{ number_format($product->mrp, 2) }}
                                                     </del>
                                                 @endif
+
                                                 @if($discountPercentage > 0)
                                                     <br>
                                                     <span class="mt-2 text-[18px] theme-color">
                                                         ({{ $discountPercentage }}% off)
                                                     </span>
                                                 @endif
-                                                {{-- Shipping Charges Message --}}
-                                                @if($display_price > $product->mrp)
+
+                                                @if(!empty($product->mrp) && $display_price > $product->mrp)
                                                     <div class="mt-2 text-[14px] text-primary-navy">
                                                         (Offer value includes Shipping Charges)
                                                     </div>
                                                 @endif
                                             </div>
+                                        @else
+                                            <span class="text-[20px]">
+                                                Price not available
+                                            </span>
                                         @endif
                                     </h3>
                                 </div>

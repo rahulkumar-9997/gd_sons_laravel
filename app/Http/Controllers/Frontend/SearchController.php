@@ -47,7 +47,7 @@ class SearchController extends Controller
             if ($product->ProductAttributesValues->isNotEmpty()) {
                 $attributes_value = $product->ProductAttributesValues->first()->attributeValue->slug;
             }
-            $offer_rate = $product->offer_rate ? 'Rs. ' . $product->offer_rate : 'Price not available';
+           $offer_rate = !empty($product->display_price) ? $product->display_price : 'Price not available';
 
             return [
                 'type' => 'product',
@@ -86,10 +86,19 @@ class SearchController extends Controller
                 $join->on('products.id', '=', 'inventories.product_id')
                     ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
             })
-            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+            ->select(
+                'products.*',
+                'inventories.mrp',
+                'inventories.offer_rate',
+                DB::raw('inventories.offer_shipment_rate as display_price'),
+                'inventories.purchase_rate',
+                'inventories.sku',
+                'inventories.stock_quantity'
+            )
             ->limit(5)
             ->get(['id', 'title', 'slug']);
     }
+
 
     private function searchCategories(array $searchTerms)
     {
@@ -298,7 +307,15 @@ class SearchController extends Controller
                 $join->on('products.id', '=', 'inventories.product_id')
                     ->whereRaw('inventories.mrp = (SELECT MIN(mrp) FROM inventories WHERE product_id = products.id)');
             })
-            ->select('products.*', 'inventories.mrp', 'inventories.offer_rate', 'inventories.purchase_rate', 'inventories.sku')
+            ->select(
+                'products.*',
+                'inventories.mrp',
+                'inventories.offer_rate',
+                DB::raw('inventories.offer_shipment_rate as display_price'),
+                'inventories.purchase_rate',
+                'inventories.sku',
+                'inventories.stock_quantity'
+            )
             ->with([
                 'images' => fn($q) => $q->orderBy('sort_order'),
                 'category',

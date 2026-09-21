@@ -172,10 +172,12 @@ class OrderControllerBackend extends Controller
             'billingAddress',
             'orderLines.product',
             'orderLines.product.images',
+            'orderLines.product.lowestMrpInventory',
             'shiprocketCourier'
         ])
-            ->where('id', $id)
-            ->first();
+        ->where('id', $id)
+        ->first();
+
         //return response()->json($orders);
         return view('backend.manage-order.order-details', compact('order'));
     }

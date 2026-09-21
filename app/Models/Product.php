@@ -45,6 +45,14 @@ class Product extends Model
         'created_at',
     ];
 
+    /**
+     * Lowest MRP inventory
+     */
+    public function lowestMrpInventory()
+    {
+        return $this->hasOne(Inventory::class, 'product_id', 'id')
+            ->orderBy('mrp', 'asc');
+    }
 
     public function images()
     {

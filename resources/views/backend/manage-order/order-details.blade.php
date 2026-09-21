@@ -67,6 +67,13 @@
                                         $attributes_value = $line->product->ProductAttributesValues->first()->attributeValue->slug;
                                         }
                                         @endphp
+                                        @php
+                                            $inventory = $line->product->lowestMrpInventory;
+
+                                            $mrp = $inventory->mrp ?? null;
+                                            $offerRate = $inventory->offer_rate ?? null;
+                                            $shipment_rate = $inventory->shipment_rate ?? null;
+                                        @endphp
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center gap-2">
@@ -99,6 +106,41 @@
                                                                 Copied!
                                                             </span>
                                                         </div>
+                                                        @if($inventory)
+                                                            <div class="d-flex flex-wrap align-items-center gap-2 mt-1 mb-1">
+
+                                                                @if($mrp !== null)
+                                                                    <span class="px-2 py-1 rounded bg-light text-secondary"
+                                                                        style="font-size: 12px;">
+                                                                        MRP:
+                                                                        <strong class="fw-medium">
+                                                                            Rs. {{ number_format($mrp, 2) }}
+                                                                        </strong>
+                                                                    </span>
+                                                                @endif
+
+                                                                @if($offerRate !== null)
+                                                                    <span class="px-2 py-1 rounded bg-success-subtle text-success"
+                                                                        style="font-size: 12px;">
+                                                                        Offer:
+                                                                        <strong>
+                                                                            Rs. {{ number_format($offerRate, 2) }}
+                                                                        </strong>
+                                                                    </span>
+                                                                @endif
+
+                                                                @if($shipment_rate !== null)
+                                                                    <span class="px-2 py-1 rounded bg-primary-subtle text-primary"
+                                                                        style="font-size: 12px;">
+                                                                        Shipping:
+                                                                        <strong>
+                                                                            Rs. {{ number_format($shipment_rate, 2) }}
+                                                                        </strong>
+                                                                    </span>
+                                                                @endif
+
+                                                            </div>
+                                                        @endif
 
                                                         @if($line->product->length && $line->product->breadth && $line->product->height && $line->product->weight)
                                                         <ul class="list-unstyled small mb-0">
@@ -342,6 +384,7 @@
                             {{ strtoupper(substr($name, 0, 1)) }}
                         </div>
                         @endif
+
                         <div>
                             <p class="mb-1">{{ $order->customer->name }}</p>
                             <a href="#!" class="link-primary fw-medium">

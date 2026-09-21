@@ -4,6 +4,78 @@ $(document).ready(function () {
     var DELETE_URL = ROUTES.delete || "/manage-inventory/delete/";
     var SAVE_ALL_URL = ROUTES.bulkUpdate || "/manage-inventory/bulk-update";
 
+
+    /**Scroll th header fix */
+    var $topbar = $('header.topbar');
+    var $tableWrapper = $('#product-list-container-with-inventory');
+    var $floatingWrapper = $('<table class="table align-middle mb-0 table-hover table-centered" id="example-2-floating-wrapper"></table>')
+        .appendTo('body')
+        .hide();
+    var isFloating = false;
+
+    function getTable() {
+        return $('#example-2');
+    }
+    function getThead() {
+        return getTable().find('thead');
+    }
+
+    function rebuildFloatingHead() {
+        $floatingWrapper.empty().append(getThead().clone());
+    }
+
+    function syncColumnWidths() {
+        getThead().find('th').each(function (i) {
+            $floatingWrapper.find('th').eq(i).css('width', $(this).outerWidth() + 'px');
+        });
+    }
+
+    function positionFloatingHead() {
+        var $table = getTable();
+        var offset = $table.offset();
+        if (!offset) return;
+        var headerHeight = $topbar.outerHeight() || 0;
+        $floatingWrapper.css({
+            position: 'fixed',
+            top: '128px',
+            left: (offset.left - $tableWrapper.scrollLeft()) + 'px',
+            width: $table.outerWidth() + 'px',
+            zIndex: 1000,
+            margin: 0,
+            tableLayout: 'fixed',
+            boxShadow: 'rgba(0, 0, 0, 0.12) 0px 2px 6px',
+            backgroundColor: '#f8f9fa',
+            padding: '8px',
+        });
+    }
+
+    function toggleFloatingHead() {
+        var $thead = getThead();
+        if ($thead.length === 0) {
+            if (isFloating) { $floatingWrapper.hide(); isFloating = false; }
+            return;
+        }
+        var headerHeight = $topbar.outerHeight() || 0;
+        var shouldFloat = $(window).scrollTop() > ($thead.offset().top - headerHeight);
+
+        if (shouldFloat) {
+            rebuildFloatingHead();
+            syncColumnWidths();
+            positionFloatingHead();
+            if (!isFloating) $floatingWrapper.show();
+            isFloating = true;
+        } else if (isFloating) {
+            $floatingWrapper.hide();
+            isFloating = false;
+        }
+    }
+
+    $(window).on('scroll resize', toggleFloatingHead);
+    $tableWrapper.on('scroll', function () {
+        if (isFloating) positionFloatingHead();
+    });
+    /**Scroll th header fix */
+
     function csrf() {
         return $('meta[name="csrf-token"]').attr("content");
     }
@@ -502,6 +574,7 @@ $(document).ready(function () {
             error: function () {
                 toast("An error occurred while filtering products.", "bg-danger");
                 $("#loader").hide();
+                toggleFloatingHead();
             },
         });
     }

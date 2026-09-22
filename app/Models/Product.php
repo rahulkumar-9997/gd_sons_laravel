@@ -80,6 +80,14 @@ class Product extends Model
         return $this->hasMany(ProductImages::class, 'product_id', 'id') ->orderBy('sort_order', 'asc')
         ->limit(2);
     }
+
+    public function supplies()
+    {
+        return $this->belongsToMany(Supply::class, 'supply_products', 'product_id', 'supply_id')
+            ->withPivot('qty', 'unit', 'sort_order')
+            ->withTimestamps();
+    }
+
     /**display product with product image relationship in front page  */
     /**FIND PRODUCT LIST WHERE PRODUCT ATTRIBUTES VALUE RELATIONSHIP FOR BACKEND*/
     public function productAttributesValuesForBackend(){

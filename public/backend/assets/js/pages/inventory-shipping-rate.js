@@ -29,7 +29,6 @@ $(document).ready(function () {
             $floatingWrapper.find('th').eq(i).css('width', $(this).outerWidth() + 'px');
         });
     }
-
     function positionFloatingHead() {
         var $table = getTable();
         var offset = $table.offset();
@@ -113,11 +112,13 @@ $(document).ready(function () {
         var offer = num(".row-offer-rate", row);
         var ship = num(".row-shipment-rate", row);
         var totalField = row.find(".row-offer-shipment-rate");
-        var badge = row.find(".row-savings-badge");
+        var bachatBadge = row.find(".row-bachat-badge");
+        var percentBadge = row.find(".row-savings-percent-badge");
 
         if (offer <= 0) {
             totalField.val("");
-            badge.hide();
+            bachatBadge.text("Bachat: \u20B90.00");
+            percentBadge.text("0.00%");
             clearRowWarning(row);
             return;
         }
@@ -127,7 +128,8 @@ $(document).ready(function () {
 
         /* Shipping + Offer Rate MRP se jyada nahi ho sakta */
         if (mrp > 0 && total > mrp) {
-            badge.hide();
+            bachatBadge.text("Bachat: \u20B90.00");
+            percentBadge.text("0.00%");
             showRowWarning(row, mrp, total);
             return;
         }
@@ -135,9 +137,13 @@ $(document).ready(function () {
         clearRowWarning(row);
 
         if (mrp > 0) {
-            badge.text("Bachat: \u20B9" + (mrp - total).toFixed(2)).show();
+            var bachat = mrp - total;
+            var percent = (bachat / mrp) * 100;
+            bachatBadge.text("Bachat: \u20B9" + bachat.toFixed(2));
+            percentBadge.text(percent.toFixed(2) + "%");
         } else {
-            badge.hide();
+            bachatBadge.text("Bachat: \u20B90.00");
+            percentBadge.text("0.00%");
         }
     }
 
@@ -252,7 +258,11 @@ $(document).ready(function () {
                 '<td><input type="number" step="1" class="form-control form-control-sm row-purchase-rate" placeholder="Purchase"></td>' +
                 '<td><input type="number" step="1" class="form-control form-control-sm row-offer-rate" placeholder="Offer"></td>' +
                 '<td><input type="number" step="0.01" class="form-control form-control-sm row-shipment-rate" placeholder="Shipping"></td>' +
-                '<td><input type="number" step="0.01" class="form-control form-control-sm row-offer-shipment-rate" readonly></td>' +
+                '<td>' +
+                    '<input type="number" step="0.01" class="form-control form-control-sm row-offer-shipment-rate" readonly>' +
+                    '<span class="badge bg-info-subtle text-info mt-1 row-bachat-badge">Bachat: \u20B90.00</span>' +
+                    '<span class="badge bg-warning-subtle text-info mt-1 row-savings-percent-badge">0.00%</span>' +
+                '</td>' +
                 '<td><input type="number" class="form-control form-control-sm row-stock-qty" placeholder="Qty"></td>' +
                 '<td><button type="button" class="btn btn-sm btn-danger remove-inv-row"><i class="ti ti-trash"></i></button></td>' +
                 "</tr>",

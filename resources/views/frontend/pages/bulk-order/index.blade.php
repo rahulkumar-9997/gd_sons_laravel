@@ -639,7 +639,7 @@
             </div>
         </div>
     </section>
-
+    
     <section class="w-full relative bg-background-card">
         <div class="absolute inset-0 pointer-events-none opacity-10 bg-[radial-gradient(circle,#0F8B8D_1px,transparent_1px)] bg-[length:22px_22px]"></div>
         <div class="container-fluid-lg">

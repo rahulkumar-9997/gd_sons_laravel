@@ -108,7 +108,6 @@
                                                         </div>
                                                         @if($inventory)
                                                             <div class="d-flex flex-wrap align-items-center gap-2 mt-1 mb-1">
-
                                                                 @if($mrp !== null)
                                                                     <span class="px-2 py-1 rounded bg-light text-secondary"
                                                                         style="font-size: 12px;">

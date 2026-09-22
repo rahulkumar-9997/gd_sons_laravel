@@ -54,6 +54,7 @@ use App\Http\Controllers\Backend\ProductReviewAutoAiGenerateController;
 use App\Http\Controllers\Backend\CkeditorController;
 use App\Http\Controllers\Backend\AdditionalFilterController;
 use App\Http\Controllers\Backend\SalesReportController;
+use App\Http\Controllers\Backend\SupplyController;
 
 
 Route::group(['prefix' => 'account'], function() {
@@ -460,7 +461,8 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('additional-filter/{id}/edit', [AdditionalFilterController::class, 'additionalFilterEdit'])->name('additional-filter.edit');
     Route::put('additional-filter/{id}/update', [AdditionalFilterController::class, 'additionalFilterUpdate'])->name('additional-filter.update');
     Route::delete('additional-filter/{id}/delete', [AdditionalFilterController::class, 'additionalFilterDelete'])->name('additional-filter.delete');
-
     Route::get('sale-report', [SalesReportController::class, 'saleReportIndex'])->name('sale-report');
+    Route::resource('supplies', SupplyController::class);
+    Route::get('supplies-product-autocomplete', [SupplyController::class, 'productAutocomplete'])->name('supplies.product-autocomplete');
 
 });

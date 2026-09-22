@@ -129,12 +129,15 @@
             </a>
             <div class="collapse" id="sidebarProducts_orders">
                <ul class="nav sub-navbar-nav">
-                     <li class="sub-nav-item">
-                        <a class="sub-nav-link" href="{{ route('order-list') }}">Order</a>
-                     </li>                     
-                     <li class="sub-nav-item">
-                        <a class="sub-nav-link" href="{{ route('sale-report') }}">Sales Report</a>
-                     </li>                     
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="{{ route('order-list') }}">Order</a>
+                  </li>                     
+                  <!-- <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="{{ route('sale-report') }}">Sales Report</a>
+                  </li>-->
+                  <li class="sub-nav-item">
+                     <a class="sub-nav-link" href="{{ route('supplies.index') }}">Manage Bulk Order</a>
+                  </li>
                </ul>
             </div>
          </li>

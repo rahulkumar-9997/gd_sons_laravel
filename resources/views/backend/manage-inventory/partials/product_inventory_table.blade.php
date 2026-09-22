@@ -81,11 +81,11 @@
             </td>
             <td>
                 <input type="number" step="0.01" class="form-control form-control-sm row-offer-shipment-rate" value="{{ $inventory ? $inventory->offer_shipment_rate : '' }}" readonly>
-                <span class="badge bg-info-subtle text-info mt-1">
+                <span class="badge bg-info-subtle text-info mt-1 row-bachat-badge">
                     Bachat: ₹{{ $inventory ? number_format($inventory->mrp - $inventory->offer_shipment_rate, 2) : '0.00' }}
                 </span>
 
-                <span class="badge bg-warning-subtle text-info  mt-1">
+                <span class="badge bg-warning-subtle text-info mt-1 row-savings-percent-badge">
                     {{ ($inventory && $inventory->offer_shipment_rate && $inventory->mrp > 0)
                         ? number_format(
                             (($inventory->mrp - $inventory->offer_shipment_rate) / $inventory->mrp) * 100,

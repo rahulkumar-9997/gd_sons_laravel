@@ -120,24 +120,36 @@
                </ul>
             </div>
          </li>
+         @php
+            $ordersMenuActive = request()->routeIs('order-list', 'order.*', 'supplies.*');
+         @endphp
          <li class="nav-item">
-            <a class="nav-link menu-arrow" href="#sidebarProducts_orders" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarProducts_orders">
+            <a class="nav-link menu-arrow {{ $ordersMenuActive ? 'active' : '' }}"
+               href="#sidebarProducts_orders"
+               data-bs-toggle="collapse"
+               role="button"
+               aria-expanded="{{ $ordersMenuActive ? 'true' : 'false' }}"
+               aria-controls="sidebarProducts_orders">
                <span class="nav-icon">
-                  <iconify-icon icon="solar:bag-smile-bold-duotone"></iconify-icon>
+                     <iconify-icon icon="solar:bag-smile-bold-duotone"></iconify-icon>
                </span>
-               <span class="nav-text">Manage Orders </span>
+               <span class="nav-text">Manage Orders</span>
             </a>
-            <div class="collapse" id="sidebarProducts_orders">
+            <div class="collapse {{ $ordersMenuActive ? 'show' : '' }}" id="sidebarProducts_orders">
                <ul class="nav sub-navbar-nav">
-                  <li class="sub-nav-item">
-                     <a class="sub-nav-link" href="{{ route('order-list') }}">Order</a>
-                  </li>                     
-                  <!-- <li class="sub-nav-item">
-                     <a class="sub-nav-link" href="{{ route('sale-report') }}">Sales Report</a>
-                  </li>-->
-                  <li class="sub-nav-item">
-                     <a class="sub-nav-link" href="{{ route('supplies.index') }}">Manage Bulk Order</a>
-                  </li>
+                     <li class="sub-nav-item">
+                        <a class="sub-nav-link {{ request()->routeIs('order-list', 'order.*') ? 'active' : '' }}"
+                           href="{{ route('order-list') }}">All Orders</a>
+                     </li>
+                     {{-- Sales Report — hidden for now
+                     <li class="sub-nav-item">
+                        <a class="sub-nav-link {{ request()->routeIs('sale-report') ? 'active' : '' }}"
+                           href="{{ route('sale-report') }}">Sales Report</a>
+                     </li>--}}
+                     <li class="sub-nav-item">
+                        <a class="sub-nav-link {{ request()->routeIs('supplies.*') ? 'active' : '' }}"
+                           href="{{ route('supplies.index') }}">Bulk Orders Pages</a>
+                     </li>
                </ul>
             </div>
          </li>

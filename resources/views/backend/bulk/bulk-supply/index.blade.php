@@ -10,6 +10,13 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center gap-1">
                     <h4 class="card-title flex-grow-1">Manage Bulk Order Page</h4>
+                    <a href="{{ route('bulk-featured-products.index') }}"
+                        data-title="Manage Bulk Featured Products"
+                        data-bs-toggle="tooltip"
+                        title="Manage Bulk Featured Products"
+                        class="btn btn-sm btn-outline-primary">
+                        Manage Bulk Featured Products
+                    </a>
                     <a href="{{ route('supplies.create') }}"
                         data-title="Add Supply"
                         data-bs-toggle="tooltip"
@@ -74,11 +81,9 @@
                             </tbody>
                         </table>
                     </div>
-
-                    <div class="mt-3">
-                        {{ $supplies->links() }}
+                    <div class="my-pagination mt-2 mb-2">
+                        {{ $supplies->links('vendor.pagination.bootstrap-4') }}
                     </div>
-
                 </div>
             </div>
         </div>

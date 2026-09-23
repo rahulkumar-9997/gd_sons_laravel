@@ -10,16 +10,15 @@ class SupplyController extends Controller
 {
     public function index(){
         $supplies = Supply::withCount('products')->orderBy('sort_order')->latest()->paginate(15); 
-        return view('backend.bulk-order.index', compact('supplies')); 
+        return view('backend.bulk.bulk-supply.index', compact('supplies')); 
     }
 
     public function create()
     {
-        return view('backend.bulk-order.create');
+        return view('backend.bulk.bulk-supply.create');
     }
 
-
-     public function store(Request $request)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'title'        => 'required|string|max:255',
@@ -44,16 +43,12 @@ class SupplyController extends Controller
         return redirect()->route('supplies.index')->with('success', 'Supply created successfully.');
     } 
     
-     public function edit(Supply $supply)
+    public function edit(Supply $supply)
     {
-        $supply->load('products');
- 
-        return view('backend.bulk-order.edit', compact('supply'));
+        $supply->load('products'); 
+        return view('backend.bulk.bulk-supply.edit', compact('supply'));
     }
- 
-    /**
-     * Update the specified resource in storage.
-     */
+
     public function update(Request $request, Supply $supply)
     {
         $validated = $request->validate([
@@ -67,26 +62,18 @@ class SupplyController extends Controller
             'qty.*'        => 'nullable|integer|min:1',
             'unit'         => 'nullable|array',
             'unit.*'       => 'nullable|string|max:50',
-        ]);
- 
+        ]); 
         $supply->update([
             'title'      => $validated['title'],
             'buyer'      => $validated['buyer'] ?? null,
             'place'      => $validated['place'] ?? null,
             'sort_order' => $validated['sort_order'] ?? 0,
             'status'     => $request->boolean('status', true),
-        ]);
- 
-        $this->syncProducts($supply, $request);
- 
-        return redirect()
-            ->route('supplies.index')
-            ->with('success', 'Supply updated successfully.');
+        ]); 
+        $this->syncProducts($supply, $request); 
+        return redirect()->route('supplies.index')->with('success', 'Supply updated successfully.');
     }
- 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(Supply $supply)
     {
         $supply->products()->detach();
@@ -95,15 +82,11 @@ class SupplyController extends Controller
         return redirect()
             ->route('supplies.index')
             ->with('success', 'Supply deleted successfully.');
-    }
- 
-    /**
-     * Ajax: search products for the autocomplete field (like manage-item's product-autocomplete).
-     */
+    } 
+   
     public function productAutocomplete(Request $request)
     {
-        $term = $request->get('term');
- 
+        $term = $request->get('term'); 
         $products = Product::select('id', 'title')
             ->where('title', 'like', '%' . $term . '%')
             ->orderBy('title')
@@ -120,23 +103,16 @@ class SupplyController extends Controller
         return response()->json($products);
     }
  
-    /**
-     * Build the pivot sync payload (product_id => [qty, unit, sort_order])
-     * from the parallel product_id / qty / unit arrays submitted by the form.
-     */
     private function syncProducts(Supply $supply, Request $request): void
     {
         $productIds = $request->input('product_id', []);
         $qtys       = $request->input('qty', []);
-        $units      = $request->input('unit', []);
- 
-        $syncData = [];
- 
+        $units      = $request->input('unit', []); 
+        $syncData = []; 
         foreach ($productIds as $index => $productId) {
             if (empty($productId)) {
                 continue;
-            }
- 
+            } 
             $syncData[$productId] = [
                 'qty'        => $qtys[$index] ?? 1,
                 'unit'       => $units[$index] ?? null,

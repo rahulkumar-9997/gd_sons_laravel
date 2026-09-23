@@ -98,6 +98,21 @@
         @include('frontend.pages.partials.offer-popup')
 		@stack('schema')
 		@include('frontend.layouts.footerjs')
-		@stack('scripts')	        
+		@stack('scripts')
+        @if (request()->routeIs('bulk-order*') || request()->is('bulk-order*'))
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+        <style>
+            .flatpickr-calendar { border-radius: 14px; box-shadow: 0 20px 40px -12px rgba(11,37,69,.25); border: 1px solid #dbeeee; font-family: inherit; }
+            .flatpickr-months .flatpickr-month, .flatpickr-weekdays, span.flatpickr-weekday,
+            .flatpickr-current-month .flatpickr-monthDropdown-months { background: #0b2545; color: #fff; fill: #fff; }
+            .flatpickr-months .flatpickr-prev-month svg, .flatpickr-months .flatpickr-next-month svg { fill: #fff; }
+            .flatpickr-months .flatpickr-prev-month, .flatpickr-months .flatpickr-next-month { color: #fff; fill: #fff; }
+            .flatpickr-day.selected, .flatpickr-day.selected:hover { background: #0f766e; border-color: #0f766e; color: #fff; }
+            .flatpickr-day.today { border-color: #0f766e; }
+            .flatpickr-day:hover { background: #e6f4f3; }
+        </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+        <script src="{{asset('frontend/assets/js/pages/bulk-order.js')}}?v={{ filemtime(public_path('frontend/assets/js/pages/bulk-order.js')) }}"></script>
+    @endif	        
 	</body>
 </html>

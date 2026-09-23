@@ -55,6 +55,7 @@ use App\Http\Controllers\Backend\CkeditorController;
 use App\Http\Controllers\Backend\AdditionalFilterController;
 use App\Http\Controllers\Backend\SalesReportController;
 use App\Http\Controllers\Backend\SupplyController;
+use App\Http\Controllers\Backend\BulkFeaturedProductController;
 
 
 Route::group(['prefix' => 'account'], function() {
@@ -175,7 +176,7 @@ Route::get('/wp-otp-form', [FrontendController::class, 'WhatAppClickShowOtpForm'
 Route::post('/wp-verify-otp', [FrontendController::class, 'WhatappVerifyOtp'])->name('wp.verify.otp');
 
 Route::post('click-tracker', [FrontendController::class, 'clickTracker'])->name('click.tracker');
-
+Route::post('bulk-order/enquiry', [FrontendController::class, 'bulkOrderEnquiry'])->name('bulk-order.enquiry');
 /**backend rout */
 Route::prefix('admin')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm']);
@@ -465,4 +466,5 @@ Route::group(['middleware' => ['admin']], function () {
     Route::resource('supplies', SupplyController::class);
     Route::get('supplies-product-autocomplete', [SupplyController::class, 'productAutocomplete'])->name('supplies.product-autocomplete');
 
+    Route::resource('bulk-featured-products', BulkFeaturedProductController::class);
 });

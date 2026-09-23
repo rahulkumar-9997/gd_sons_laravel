@@ -164,54 +164,63 @@
                         </div>
                     </div>
                     <div class="lg:col-span-5 relative">
-                        <div class="relative mx-auto max-w-sm lg:max-w-none">
+                        @if (!empty($bulkProducts) && $bulkProducts->isNotEmpty())
+                        <div class="relative mx-auto max-w-sm lg:max-w-none pt-4">
                             <div class="rounded-2xl bg-background-card shadow-2xl overflow-hidden">
-                                <div class="px-6 py-3 bg-background-light border-b border-primary-mint">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <p class="text-[12px] font-bold uppercase tracking-[0.16em] text-textcolor-light">Sample item · Hawkins 5L Cooker</p>
-                                            <p class="font-serif text-[19px] font-bold text-primary-navy leading-tight mt-1">Your price drops as you order more</p>
-                                        </div>
-                                    </div>
+                                <div class="p-3">
+                                    <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-textcolor-light">Popular in bulk</p>
+                                    <p class="font-serif text-[20px] font-bold text-primary-navy leading-tight mt-1">Top picks, wholesale rates</p>
                                 </div>
-                                @php
-                                $tiers = [
-                                ['qty' => '1 – 9 pcs', 'label' => 'Retail', 'price' => '₹1,899', 'save' => null, 'active' => false],
-                                ['qty' => '10 – 24 pcs', 'label' => 'Bulk-I', 'price' => '₹1,720', 'save' => 'Save 9%', 'active' => false],
-                                ['qty' => '25 – 49 pcs', 'label' => 'Bulk-II', 'price' => '₹1,610', 'save' => 'Save 15%', 'active' => true],
-                                ['qty' => '50+ pcs', 'label' => 'Wholesale', 'price' => '₹1,485', 'save' => 'Save 22%', 'active' => false],
-                                ];
-                                @endphp
-                                <div class="divide-y divide-primary-mint">
-                                    @foreach ($tiers as $t)
-                                    <div class="flex items-center justify-between gap-3 px-6 py-4 {{ $t['active'] ? 'bg-primary-teal/[0.06]' : '' }}">
-                                        <div class="flex items-center gap-3 min-w-0">
-                                            <span class="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-[11px] font-bold {{ $t['active'] ? 'bg-primary-teal text-white' : 'bg-background-light text-textcolor-light' }}">
-                                                {{ $loop->iteration }}
-                                            </span>
-                                            <div class="min-w-0">
-                                                <p class="text-[14px] font-semibold text-textcolor-primary leading-tight">{{ $t['qty'] }}</p>
-                                                <p class="text-[12px] text-textcolor-light mt-0.5">{{ $t['label'] }} pricing{{ $t['active'] ? ' · most ordered' : '' }}</p>
-                                            </div>
+                                <div class="px-6 pb-5 space-y-2.5">
+                                    @foreach ($bulkProducts as $p)
+                                    <a href="{{ $p['url'] }}"
+                                    class="group flex items-center gap-3 rounded-xl border border-primary-mint p-2.5 transition-all duration-300 hover:border-primary-teal hover:bg-primary-teal/[0.04] hover:-translate-y-0.5">
+                                        <div class="shrink-0 w-14 h-14 rounded-lg bg-background-light flex items-center justify-center overflow-hidden">
+                                            <img src="{{ $p['image'] }}"
+                                                alt="{{ trim($p['brand'] . ' ' . $p['name']) }}"
+                                                loading="lazy" width="56" height="56"
+                                                onerror="this.onerror=null;this.src='{{ asset('images/placeholder-product.webp') }}';"
+                                                class="max-w-[85%] max-h-[85%] object-contain transition-transform duration-300 group-hover:scale-110">
+                                        </div>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-[13.5px] font-semibold text-textcolor-primary leading-tight truncate" title="{{ $p['name'] }}">{{ $p['name'] }}</p>
+                                            <p class="text-[11px] text-textcolor-light mt-0.5">
+                                                Min. {{ $p['min'] }} pcs
+                                                @if ($p['save'] > 0)
+                                                · <span class="text-emerald-600 font-semibold">Save {{ $p['save'] }}%</span>
+                                                @endif
+                                            </p>
                                         </div>
                                         <div class="text-right shrink-0">
-                                            <p class="font-serif text-[17px] font-bold {{ $t['active'] ? 'text-primary-teal' : 'text-primary-navy' }} leading-none">{{ $t['price'] }}</p>
-                                            @if ($t['save'])
-                                            <p class="text-[11px] font-semibold text-emerald-600 mt-1">{{ $t['save'] }}</p>
-                                            @else
-                                            <p class="text-[11px] text-textcolor-light mt-1">per piece</p>
+                                            @if ($p['save'] > 0)
+                                            <del class="text-[11px] text-textcolor-light line-through">
+                                                ₹{{ number_format($p['mrp']) }}
+                                            </del>
                                             @endif
+                                            <p class="font-serif text-[16px] font-bold text-primary-navy leading-none mt-0.5">₹{{ number_format($p['rate']) }}</p>
+                                            <p class="text-[10px] text-textcolor-light mt-1">per pc</p>
                                         </div>
-                                    </div>
+                                    </a>
                                     @endforeach
                                 </div>
                                 <div class="px-6 py-4 bg-background-light border-t border-primary-mint">
-                                    <p class="text-[12.5px] text-textcolor-secondary leading-relaxed">
-                                        <span class="font-semibold text-primary-navy">Same tier structure applies</span> across cookware, chimneys, hobs and gifting items — mix products, quantities combine.
-                                    </p>
+                                    <a href="https://wa.me/919935070000?text=Hello%2C%20I%20want%20bulk%20rates%20for%20these%20products."
+                                    target="_blank" rel="noopener"
+                                    class="group flex items-center justify-between gap-3 rounded-xl bg-[#25D366] px-4 py-3 text-white transition-all duration-300 hover:brightness-95 hover:-translate-y-0.5">
+                                        <span class="flex items-center gap-2.5">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"></path>
+                                            </svg>
+                                            <span class="text-[13px] font-bold">Get rates for 2000+ more products</span>
+                                        </span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:translate-x-1">
+                                            <path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path>
+                                        </svg>
+                                    </a>
                                 </div>
-                            </div>
+                            </div>                            
                         </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -337,103 +346,92 @@
                                 Tell us what you need — our team gets in touch with rates within one working day.
                             </p>
 
-                            @if (session('bulk_success'))
-                            <div class="mb-5 rounded-lg bg-primary-mint px-4 py-3 text-[13.5px] text-primary-navy">
-                                {{ session('bulk_success') }}
-                            </div>
-                            @endif
-
-                            <form id="bulkForm" novalidate>
+                            <form id="bulkForm" action="{{ route('bulk-order.enquiry') }}" method="POST" novalidate class="mt-3">
                                 @csrf
                                 <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden" value="">
-                                <p class="mb-2.5 text-[12.5px] font-semibold uppercase tracking-wider text-textcolor-secondary">Order details</p>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <input id="f-budget" name="budget" type="text" inputmode="numeric" value="{{ old('budget') }}"
-                                            placeholder="Budget (₹) *"
-                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
+                                    <div data-field>
+                                        <input id="f-budget" name="budget" type="text" inputmode="numeric" placeholder="Budget (₹) *"
+                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-zinc-300 transition-all">
                                         <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
-                                        @error('budget')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
                                     </div>
-                                    <div>
-                                        <input id="f-qty" name="quantity" type="text" value="{{ old('quantity') }}"
-                                            placeholder="Quantity *"
-                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
+                                    <div data-field>
+                                        <input id="f-qty" name="quantity" type="text" placeholder="Quantity *"
+                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-zinc-300 transition-all">
                                         <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
-                                        @error('quantity')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                                    <div>
+                                    <div data-field>
                                         <label for="f-date" class="block text-[11.5px] font-medium text-textcolor-light mb-1.5">Expected date of delivery</label>
-                                        <input id="f-date" name="delivery_date" type="date" value="{{ old('delivery_date') }}"
-                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] text-textcolor-primary focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
-                                        @error('delivery_date')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
+                                        <div class="relative">
+                                            <input id="f-date" name="delivery_date" type="text" placeholder="Select date" readonly
+                                                class="w-full cursor-pointer rounded-lg border border-primary-mint bg-white pl-4 pr-11 py-3.5 text-[13.5px] text-textcolor-primary placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-zinc-300 transition-all">
+                                            <svg class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-textcolor-light" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path>
+                                            </svg>
+                                        </div>
+                                        <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
                                     </div>
-                                    <div>
+                                    <div data-field>
                                         <label class="block text-[11.5px] font-medium text-textcolor-light mb-1.5">Gift wrapped</label>
                                         <div class="flex gap-2">
                                             @foreach (['Yes', 'No'] as $opt)
                                             <label class="chip flex-1 text-center">
-                                                <input type="radio" name="gift_wrapped" value="{{ $opt }}" class="sr-only" @checked(old('gift_wrapped')===$opt)>
+                                                <input type="radio" name="gift_wrapped" value="{{ $opt }}" class="sr-only">
                                                 <span>{{ $opt }}</span>
                                             </label>
                                             @endforeach
                                         </div>
-                                        @error('gift_wrapped')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
+                                        <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
                                     </div>
                                 </div>
 
-                                <div class="mt-4">
-                                    <textarea id="f-req" name="requirement" rows="4"
-                                        placeholder="Describe in detail — items, sizes, brands, quantities — e.g. 40 x Hawkins 5L steel, 6 x Sunflame 90cm chimney"
-                                        class="w-full resize-y rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">{{ old('requirement') }}</textarea>
+                                <div class="mt-4" data-field>
+                                    <textarea id="f-req" name="requirement" rows="3"
+                                        placeholder="Describe in detail — items, sizes, brands, quantities — e.g. 40 x Hawkins 5L steel, 6 x Sunflame 90cm chimney *"
+                                        class="w-full resize-y rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-zinc-300 transition-all"></textarea>
                                     <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
-                                    @error('requirement')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
                                 </div>
 
-                                <!-- Contact details -->
                                 <p class="mt-6 mb-2.5 text-[12.5px] font-semibold uppercase tracking-wider text-textcolor-secondary">Contact details</p>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <input id="f-name" name="name" type="text" value="{{ old('name') }}" placeholder="Contact person *"
-                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
+                                    <div data-field>
+                                        <input id="f-name" name="name" type="text" placeholder="Contact person *" autocomplete="name"
+                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-zinc-300 transition-all">
                                         <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
-                                        @error('name')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
                                     </div>
-                                    <div>
-                                        <input id="f-phone" name="phone" type="tel" inputmode="numeric" maxlength="10"
-                                            value="{{ old('phone') }}" placeholder="Phone number *"
-                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
+                                    <div data-field>
+                                        <input id="f-phone" name="phone" type="tel" inputmode="numeric" maxlength="10" placeholder="Phone number *" autocomplete="tel"
+                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-zinc-300 transition-all">
                                         <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
-                                        @error('phone')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                                    <div>
-                                        <input id="f-email" name="email" type="email" value="{{ old('email') }}" placeholder="Email *"
-                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
+                                    <div data-field>
+                                        <input id="f-email" name="email" type="email" placeholder="Email *" autocomplete="email"
+                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-zinc-300 transition-all">
                                         <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
-                                        @error('email')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
                                     </div>
-                                    <div>
-                                        <input id="f-location" name="location" type="text" value="{{ old('location') }}" placeholder="Location *"
-                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-none transition-all">
+                                    <div data-field>
+                                        <input id="f-location" name="location" type="text" placeholder="Location *"
+                                            class="w-full rounded-lg border border-primary-mint bg-white px-4 py-3.5 text-[13.5px] placeholder:text-textcolor-light focus:border-primary-teal focus:ring-2 focus:ring-primary-teal/10 focus:outline-zinc-300 transition-all">
                                         <p class="err hidden mt-1.5 text-[12px] text-red-600"></p>
-                                        @error('location')<p class="mt-1.5 text-[12px] text-red-600">{{ $message }}</p>@enderror
                                     </div>
                                 </div>
 
                                 <div class="flex flex-wrap items-center gap-3 mt-6">
-                                    <button type="submit"
-                                        class="inline-flex items-center gap-2 rounded-lg bg-primary-teal text-white text-[12px] font-bold uppercase tracking-[0.12em] px-6 py-3.5 hover:bg-primary-navy hover:-translate-y-0.5 transition-all duration-200">
-                                        Send Enquiry
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M5 12h14"></path>
-                                            <path d="m12 5 7 7-7 7"></path>
+                                    <button type="submit" id="bulkSubmit"
+                                        class="inline-flex items-center gap-2 rounded-lg bg-primary-teal text-white text-[12px] font-bold uppercase tracking-[0.12em] px-6 py-3.5 hover:bg-primary-navy hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0">
+                                        <span class="btn-text">Send Enquiry</span>
+                                        <svg class="btn-arrow" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path>
+                                        </svg>
+                                        <svg class="btn-spin hidden animate-spin" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                            <path d="M21 12a9 9 0 1 1-6.2-8.56" stroke-linecap="round"></path>
                                         </svg>
                                     </button>
                                     <a id="waSend" href="https://wa.me/919935070000" target="_blank" rel="noopener"
@@ -485,156 +483,126 @@
                     </a>
                 </div>
                 @php
-                $supplies = [
-                [
-                'category' => 'Pressure Cookers',
-                'buyer' => 'Hotel kitchen',
-                'place' => 'Lanka, Varanasi',
-                'month' => 'Aug 2026',
-                'accent' => 'teal',
-                'badge' => 'bg-primary-teal/10 text-primary-teal',
-                'bar' => 'from-primary-teal to-primary-teal/30',
-                'dot' => 'bg-primary-teal',
-                'items' => [
-                ['qty' => 40, 'unit' => 'pcs', 'name' => 'Hawkins Contura 5 L Steel'],
-                ],
-                ],
-                [
-                'category' => 'Full Kitchen Fit-out',
-                'buyer' => 'Banquet hall',
-                'place' => 'Sarnath',
-                'month' => 'Jul 2026',
-                'accent' => 'blue',
-                'badge' => 'bg-blue-50 text-blue-700',
-                'bar' => 'from-blue-500 to-blue-400/30',
-                'dot' => 'bg-blue-500',
-                'items' => [
-                ['qty' => 6, 'unit' => 'units', 'name' => 'Sunflame Chimney 90 cm BLDC'],
-                ['qty' => 12, 'unit' => 'pcs', 'name' => 'Futura Big Boy Handi 8 L'],
-                ['qty' => 200, 'unit' => 'pcs', 'name' => 'Steel Tumblers 300 ml'],
-                ],
-                ],
-                [
-                'category' => 'Corporate Gifting',
-                'buyer' => 'Diwali employee gifting',
-                'place' => 'Bhelupur, Varanasi',
-                'month' => 'Oct 2025',
-                'accent' => 'amber',
-                'badge' => 'bg-amber-50 text-amber-700',
-                'bar' => 'from-amber-500 to-amber-400/30',
-                'dot' => 'bg-amber-500',
-                'items' => [
-                ['qty' => 150, 'unit' => 'pcs', 'name' => 'Milton Vacuum Flask 750 ml'],
-                ],
-                ],
-                [
-                'category' => 'Institutional',
-                'buyer' => 'Hostel mess kitchen',
-                'place' => 'Ramnagar',
-                'month' => 'Jun 2026',
-                'accent' => 'emerald',
-                'badge' => 'bg-emerald-50 text-emerald-700',
-                'bar' => 'from-emerald-500 to-emerald-400/30',
-                'dot' => 'bg-emerald-500',
-                'items' => [
-                ['qty' => 400, 'unit' => 'pcs', 'name' => 'Steel Tumblers 300 ml'],
-                ['qty' => 180, 'unit' => 'pcs', 'name' => 'Steel Thali 12 inch'],
-                ['qty' => 8, 'unit' => 'pcs', 'name' => 'Big Boy Handi 12 L'],
-                ],
-                ],
-                [
-                'category' => 'Mixers & Juicers',
-                'buyer' => 'Sweet shop chain',
-                'place' => 'Chowk, Varanasi',
-                'month' => 'May 2026',
-                'accent' => 'violet',
-                'badge' => 'bg-violet-50 text-violet-700',
-                'bar' => 'from-violet-500 to-violet-400/30',
-                'dot' => 'bg-violet-500',
-                'items' => [
-                ['qty' => 18, 'unit' => 'units', 'name' => 'Sujata Dynamix 900 W Mixer'],
-                ],
-                ],
-                [
-                'category' => 'Wedding',
-                'buyer' => 'Family function',
-                'place' => 'Sigra, Varanasi',
-                'month' => 'Apr 2026',
-                'accent' => 'rose',
-                'badge' => 'bg-rose-50 text-rose-700',
-                'bar' => 'from-rose-500 to-rose-400/30',
-                'dot' => 'bg-rose-500',
-                'items' => [
-                ['qty' => 3, 'unit' => 'sets', 'name' => 'Neelam 111 Pc Kandaal Set'],
-                ['qty' => 60, 'unit' => 'pcs', 'name' => 'Cello Casserole 2.5 L'],
-                ],
-                ],
-                ];
+                    $accentStyles = [
+                        ['badge' => 'bg-primary-teal/10 text-primary-teal', 'bar' => 'from-primary-teal to-primary-teal/30', 'dot' => 'bg-primary-teal'],
+                        ['badge' => 'bg-blue-50 text-blue-700', 'bar' => 'from-blue-500 to-blue-400/30', 'dot' => 'bg-blue-500'],
+                        ['badge' => 'bg-amber-50 text-amber-700', 'bar' => 'from-amber-500 to-amber-400/30', 'dot' => 'bg-amber-500'],
+                        ['badge' => 'bg-emerald-50 text-emerald-700', 'bar' => 'from-emerald-500 to-emerald-400/30', 'dot' => 'bg-emerald-500'],
+                        ['badge' => 'bg-violet-50 text-violet-700', 'bar' => 'from-violet-500 to-violet-400/30', 'dot' => 'bg-violet-500'],
+                        ['badge' => 'bg-rose-50 text-rose-700', 'bar' => 'from-rose-500 to-rose-400/30', 'dot' => 'bg-rose-500'],
+                    ];
+                    $noImage = asset('frontend/assets/gd-img/product/no-image.png');
                 @endphp
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    @foreach ($supplies as $s)
-                    @php
-                    $items = $s['items'];
-                    $count = count($items);
-                    $single = $count === 1;
-                    $total = array_sum(array_column($items, 'qty'));
-                    @endphp
+                    @forelse ($supplies as $index => $supply)
+                        @php
+                            $accent = $accentStyles[$index % count($accentStyles)];
+                            $items  = $supply->products;
+                            $count  = $items->count();
+                            $single = $count === 1;
+                            $first  = $items->first();
+                            $total  = $items->sum(fn ($p) => $p->pivot->qty);
+                        @endphp
 
-                    <article class="group relative flex flex-col rounded-2xl bg-white border border-slate-200/70 p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:shadow-[0_16px_36px_-12px_rgba(15,139,141,0.22)] hover:border-primary-teal/25 hover:-translate-y-1 transition-all duration-400 ease-out overflow-hidden">
-                        <div class="absolute top-4 bottom-4 left-0 w-[3px] rounded-r-full bg-gradient-to-b {{ $s['bar'] }} opacity-0 group-hover:opacity-100 transition-opacity duration-400"></div>
-                        <div class="flex items-center justify-between gap-2 mb-3 pl-1.5">
-                            <span class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] {{ $s['badge'] }}">
-                                <span class="w-1.5 h-1.5 rounded-full {{ $s['dot'] }}"></span>
-                                {!! $s['category'] !!}
-                            </span>
-                            <span class="text-[10.5px] font-semibold text-slate-400 tabular-nums">{{ $s['month'] }}</span>
-                        </div>
-                        <div class="flex items-end gap-2 pl-1.5 mb-3">
-                            <span class="font-serif text-[34px] font-bold text-primary-navy leading-[0.9] tabular-nums tracking-[-0.02em]">{{ number_format($single ? $items[0]['qty'] : $total) }}</span>
-                            <div class="flex flex-col pb-0.5">
-                                <span class="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400 leading-tight">{{ $single ? $items[0]['unit'] : 'pieces' }}</span>
-                                @if (!$single)
-                                <span class="text-[10px] font-semibold text-primary-teal leading-tight">{{ $count }} SKUs</span>
-                                @endif
+                        <article class="group relative flex flex-col rounded-2xl bg-white border border-slate-200/70 p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:shadow-[0_16px_36px_-12px_rgba(15,139,141,0.22)] hover:border-primary-teal/25 hover:-translate-y-1 transition-all duration-400 ease-out overflow-hidden">
+                            <div class="absolute top-4 bottom-4 left-0 w-[3px] rounded-r-full bg-gradient-to-b {{ $accent['bar'] }} opacity-0 group-hover:opacity-100 transition-opacity duration-400"></div>
+                            <div class="flex items-center justify-between gap-2 mb-3 pl-1.5">
+                                <span class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] {{ $accent['badge'] }}">
+                                    <span class="w-1.5 h-1.5 rounded-full {{ $accent['dot'] }}"></span>
+                                    {{ $supply->title }}
+                                </span>
+                                <span class="text-[10.5px] font-semibold text-slate-400 tabular-nums">{{ $supply->created_at->format('M Y') }}</span>
                             </div>
-                        </div>
-                        <div class="flex-1 pl-1.5">
-                            @if ($single)
-                            <p class="text-[13px] font-semibold text-slate-700 leading-snug line-clamp-2">
-                                {{ $items[0]['name'] }}
-                            </p>
-                            @else
-                            <ul class="space-y-1.5">
-                                @foreach (array_slice($items, 0, 2) as $item)
-                                <li class="flex items-center gap-2">
-                                    <span class="shrink-0 text-[10.5px] font-bold text-primary-navy tabular-nums bg-slate-50 rounded px-1.5 py-0.5 ring-1 ring-slate-200/70">
-                                        {{ $item['qty'] }} {{ $item['unit'] }}
+                            <div class="flex items-end justify-between gap-3 pl-1.5 mb-3">
+                                <div class="flex items-end gap-2">
+                                    <span class="font-serif text-[34px] font-bold text-primary-navy leading-[0.9] tabular-nums tracking-[-0.02em]">
+                                        {{ number_format($single ? ($first->pivot->qty ?? 0) : $total) }}
                                     </span>
-                                    <span class="text-[12px] text-slate-500 leading-snug truncate">{{ $item['name'] }}</span>
-                                </li>
-                                @endforeach
-                                @if ($count > 2)
-                                <li class="text-[11px] font-semibold text-primary-teal pl-1 pt-0.5">
-                                    + {{ $count - 2 }} more item{{ $count - 2 > 1 ? 's' : '' }}
-                                </li>
+                                    <div class="flex flex-col pb-0.5">
+                                        <span class="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400 leading-tight">
+                                            {{ $single ? ($first->pivot->unit ?? 'pieces') : 'pieces' }}
+                                        </span>
+                                        @if (!$single && $count)
+                                        <span class="text-[10px] font-semibold text-primary-teal leading-tight">{{ $count }} SKUs</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                @if (!$single && $count)
+                                <div class="flex -space-x-2.5 pb-0.5">
+                                    @foreach ($items->take(4) as $thumb)
+                                    <a href="{{ $thumb->product_url }}" title="{{ $thumb->title }}"
+                                    class="relative w-9 h-9 rounded-full bg-white ring-2 ring-white shadow-sm overflow-hidden flex items-center justify-center hover:z-10 hover:scale-110 transition-transform">
+                                        <img src="{{ $thumb->image_url }}" alt="{{ $thumb->title }}" loading="lazy" width="36" height="36"
+                                        onerror="this.onerror=null;this.src='{{ $noImage }}';"
+                                        class="w-full h-full object-contain p-0.5">
+                                    </a>
+                                    @endforeach
+                                    @if ($count > 4)
+                                    <span class="relative w-9 h-9 rounded-full bg-slate-100 ring-2 ring-white flex items-center justify-center text-[10px] font-bold text-slate-500">
+                                        +{{ $count - 4 }}
+                                    </span>
+                                    @endif
+                                </div>
                                 @endif
-                            </ul>
-                            @endif
-                        </div>
-
-                        <!-- ── Footer: Buyer + Place ── -->
-                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2 pl-1.5">
-                            <div class="flex items-center gap-1.5 min-w-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-teal shrink-0">
-                                    <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
-                                    <circle cx="12" cy="10" r="3"></circle>
-                                </svg>
-                                <span class="text-[12px] font-semibold text-slate-700 truncate">{{ $s['place'] }}</span>
                             </div>
-                            <span class="text-[11px] text-slate-400 truncate shrink-0 max-w-[40%] text-right">{{ $s['buyer'] }}</span>
-                        </div>
-                    </article>
-                    @endforeach
+                            <div class="flex-1 pl-1.5">
+                                @if ($single && $first)
+                                    <a href="{{ $first->product_url }}" class="flex items-center gap-3 rounded-xl bg-slate-50 p-2 ring-1 ring-slate-200/70 hover:ring-primary-teal/40 hover:bg-primary-teal/[0.04] transition-all">
+                                        <span class="shrink-0 w-16 h-16 rounded-lg bg-white flex items-center justify-center overflow-hidden">
+                                            <img src="{{ $first->image_url }}" alt="{{ $first->title }}" loading="lazy" width="64" height="64"
+                                                onerror="this.onerror=null;this.src='{{ $noImage }}';"
+                                                class="max-w-[90%] max-h-[90%] object-contain group-hover:scale-105 transition-transform duration-300">
+                                        </span>
+                                        <span class="min-w-0">
+                                            <span class="block text-[13px] font-semibold text-slate-700 leading-snug line-clamp-2 hover:text-primary-teal">{{ $first->title }}</span>
+                                            <span class="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-primary-teal">
+                                                View product
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                                            </span>
+                                        </span>
+                                    </a>
+                                @else
+                                    <ul class="space-y-1.5">
+                                        @foreach ($items->take(2) as $item)
+                                            <li>
+                                                <a href="{{ $item->product_url }}" class="flex items-center gap-2 rounded-lg -mx-1 px-1 py-0.5 hover:bg-slate-50 transition-colors">
+                                                    <span class="shrink-0 w-8 h-8 rounded-md bg-slate-50 ring-1 ring-slate-200/70 flex items-center justify-center overflow-hidden">
+                                                        <img src="{{ $item->image_url }}" alt="{{ $item->title }}" loading="lazy" width="32" height="32"
+                                                            onerror="this.onerror=null;this.src='{{ $noImage }}';"
+                                                            class="max-w-[90%] max-h-[90%] object-contain">
+                                                    </span>
+                                                    <span class="shrink-0 text-[10.5px] font-bold text-primary-navy tabular-nums bg-slate-50 rounded px-1.5 py-0.5 ring-1 ring-slate-200/70">
+                                                        {{ $item->pivot->qty }} {{ $item->pivot->unit }}
+                                                    </span>
+                                                    <span class="text-[13px] text-slate-500 leading-snug truncate hover:text-primary-teal">{{ $item->title }}</span>
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                        @if ($count > 2)
+                                            <li class="text-[11px] font-semibold text-primary-teal pl-1 pt-0.5">
+                                                + {{ $count - 2 }} more item{{ $count - 2 > 1 ? 's' : '' }}
+                                            </li>
+                                        @endif
+                                    </ul>
+                                @endif
+                            </div>
+
+                            {{-- Footer: place + buyer --}}
+                            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2 pl-1.5">
+                                <div class="flex items-center gap-1.5 min-w-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary-teal shrink-0">
+                                        <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
+                                        <circle cx="12" cy="10" r="3"></circle>
+                                    </svg>
+                                    <span class="text-[12px] font-semibold text-slate-700 truncate">{{ $supply->place }}</span>
+                                </div>
+                                <span class="text-[11px] text-slate-400 truncate shrink-0 max-w-[40%] text-right">{{ $supply->buyer }}</span>
+                            </div>
+                        </article>
+                    @empty
+                        <p class="text-slate-500 col-span-full text-center py-10">No bulk supplies to show yet.</p>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -680,6 +648,7 @@
             </div>
         </div>
     </section>
+
     <section class="w-full relative bg-background-main pb-5">
         <div class="absolute inset-0 pointer-events-none"
             style="background-image:radial-gradient(circle,#0F8B8D 1px,transparent 1px);background-size:22px 22px;opacity:.07;"></div>       
@@ -871,5 +840,4 @@
 </div>
 @endsection
 @push('scripts')
-
 @endpush

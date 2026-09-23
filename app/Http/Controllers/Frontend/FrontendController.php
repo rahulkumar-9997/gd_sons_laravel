@@ -19,25 +19,24 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
 use Jenssegers\Agent\Agent;
-use App\Models\Inventory;
 use App\Models\Blog;
 use App\Models\BlogCategory;
-use App\Models\Banner;
 use App\Models\Label;
-use App\Models\Video;
 use App\Models\PrimaryCategory;
 use App\Mail\ContactUsMail;
-use App\Models\WhatsappConversation;
 use App\Models\Counter;
 use App\Models\Customer;
 use App\Models\SpecialOffer;
 use App\Models\ProductEnquiry;
 use App\Models\ClickTrackers;
 use App\Models\RelatedProduct;
-use App\Models\AdditionalFilter;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\ProductEnquiryMailForCustomer;
 use App\Mail\ProductEnquiryMailForAdmin;
+use App\Models\Supply;
+use App\Models\BulkFeaturedProduct;
+use App\Models\BulkEnquiry;
+use App\Mail\BulkEnquiryMail;
 
 class FrontendController extends Controller
 {
@@ -2170,6 +2169,165 @@ class FrontendController extends Controller
 
     public function bulkOrderPage(Request $request)
     {
-        return view('frontend.pages.bulk-order.index');        
+        $placeholder = asset('frontend/assets/gd-img/product/no-image.png');
+        $imageUrl = function ($product) use ($placeholder) {
+            $path = optional($product->firstSortedImage)->image_path;
+            return ($path && file_exists(public_path('images/product/small/' . $path)))
+                ? asset('images/product/small/' . $path)
+                : $placeholder;
+        };
+        $productUrl = function ($product) {
+            $attr = null;
+            if ($product->productAttributesValues->isNotEmpty()) {
+                $attr = optional($product->productAttributesValues->first()->attributeValue)->slug;
+            }
+            return $attr
+                ? url('products/' . $product->slug . '/' . $attr)
+                : url('products/' . $product->slug);
+        };
+
+        $attrValuesQuery = function ($q) {
+            $q->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
+            ->with(['attributeValue:id,slug']);
+        };
+        /* ---------------- Supplies (with product image + link) ---------------- */
+        $supplies = Supply::with([
+                'products' => function ($q) {
+                    $q->select('products.id', 'products.title', 'products.slug')
+                    ->orderBy('supply_products.sort_order');
+                },
+                'products.firstSortedImage:id,product_id,image_path',
+                'products.productAttributesValues' => $attrValuesQuery,
+            ])
+            ->where('status', 1)
+            ->orderBy('sort_order')
+            ->latest()
+            ->take(6)
+            ->get();
+        $supplies->each(function ($supply) use ($imageUrl, $productUrl) {
+            $supply->products->each(function ($product) use ($imageUrl, $productUrl) {
+                $product->image_url   = $imageUrl($product);
+                $product->product_url = $productUrl($product);
+            });
+        });
+        /* ---------------- Popular in bulk ---------------- */
+        $bulkProducts = BulkFeaturedProduct::where('status', 1)
+            ->whereHas('product', function ($q) {
+                $q->where('product_status', 1)
+                ->whereHas('inventories');
+            })
+            ->with([
+                'product:id,title,slug,brand_id',
+                'product.brand',
+                'product.lowestMrpInventory',
+                'product.firstSortedImage:id,product_id,image_path',
+                'product.productAttributesValues' => $attrValuesQuery,
+            ])
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->take(4)
+            ->get()
+            ->map(function ($item) use ($imageUrl, $productUrl) {
+                $product = $item->product;
+                $mrp  = (float) optional($product->lowestMrpInventory)->mrp;
+                $rate = (float) $item->bulk_rate;
+                return [
+                    'name'  => $product->title,
+                    'brand' => $product->brand->name ?? $product->brand->title ?? '',
+                    'mrp'   => $mrp,
+                    'rate'  => $rate,
+                    'min'   => $item->min_qty ?: 10,
+                    'save'  => ($mrp > $rate && $mrp > 0)
+                                ? (int) round((($mrp - $rate) / $mrp) * 100)
+                                : 0,
+                    'image' => $imageUrl($product),
+                    'url'   => $productUrl($product),
+                ];
+            });
+        return view('frontend.pages.bulk-order.index', compact('supplies', 'bulkProducts'));
+    }
+
+    public function bulkOrderEnquiry(Request $request)
+    {
+        if ($request->filled('website')) {
+            return response()->json(['success' => true, 'message' => 'Thank you! We will get back to you soon.']);
+        }
+        $request->merge([
+            'budget'      => preg_replace('/\D/', '', (string) $request->input('budget')),
+            'phone'       => substr(preg_replace('/\D/', '', (string) $request->input('phone')), -10),
+            'name'        => trim(strip_tags((string) $request->input('name'))),
+            'email'       => strtolower(trim((string) $request->input('email'))),
+            'location'    => trim(strip_tags((string) $request->input('location'))),
+            'quantity'    => trim(strip_tags((string) $request->input('quantity'))),
+            'requirement' => trim(strip_tags((string) $request->input('requirement'))),
+        ]);
+        $validator = Validator::make($request->all(), [
+            'budget'        => ['required', 'integer', 'min:100', 'max:100000000'],
+            'quantity'      => ['required', 'string', 'max:100'],
+            'delivery_date' => ['nullable', 'date_format:Y-m-d', 'after:today', 'before:' . now()->addYear()->toDateString()],
+            'gift_wrapped'  => ['nullable', 'in:Yes,No'],
+            'requirement'   => ['required', 'string', 'min:10', 'max:3000'],
+            'name'          => ['required', 'string', 'min:2', 'max:100', 'regex:/^[\pL\s.\'-]+$/u'],
+            'phone'         => ['required', 'regex:/^[6-9]\d{9}$/'],
+            'email'         => ['required', 'email', 'max:150'],
+            'location'      => ['required', 'string', 'min:2', 'max:150'],
+        ], [
+            'budget.required'           => 'Please enter your budget.',
+            'budget.integer'            => 'Budget must be a number.',
+            'budget.min'                => 'Budget must be at least ₹100.',
+            'budget.max'                => 'Please enter a realistic budget.',
+            'quantity.required'         => 'Please enter the quantity.',
+            'quantity.max'              => 'Quantity is too long.',
+            'delivery_date.date_format' => 'Please select a valid date.',
+            'delivery_date.after'       => 'Delivery date must be a future date.',
+            'delivery_date.before'      => 'Delivery date must be within one year.',
+            'gift_wrapped.in'           => 'Please choose Yes or No.',
+            'requirement.required'      => 'Please describe your requirement.',
+            'requirement.min'           => 'Please add a little more detail.',
+            'requirement.max'           => 'Requirement is too long (max 3000 characters).',
+            'name.required'             => 'Please enter the contact person name.',
+            'name.min'                  => 'Name is too short.',
+            'name.regex'                => 'Name can contain only letters and spaces.',
+            'phone.required'            => 'Please enter your phone number.',
+            'phone.regex'               => 'Enter a valid 10-digit mobile number.',
+            'email.required'            => 'Please enter your email.',
+            'email.email'               => 'Enter a valid email address.',
+            'location.required'         => 'Please enter your location.',
+            'location.min'              => 'Location is too short.',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please correct the highlighted fields.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+        $data = $validator->validated();
+        $data['ip_address']   = $request->ip();
+        $data['submitted_at'] = now()->format('d M Y, h:i A');
+        $data['delivery_date_text'] = !empty($data['delivery_date'])
+            ? Carbon::parse($data['delivery_date'])->format('d M Y')
+            : null;
+        try {           
+            $recipientEmails = [
+                'akshat.gd@gmail.com'
+            ];
+            foreach (array_unique($recipientEmails) as $email) {
+                Mail::to($email)->queue(
+                    new BulkEnquiryMail($data)
+                );
+            }
+        } catch (\Throwable $e) {
+            Log::error('Bulk enquiry mail failed: ' . $e->getMessage(), $data);
+            return response()->json([
+                'success' => false,
+                'message' => 'Sorry, we could not send your enquiry right now. Please use "Send on WhatsApp" or call 99350 70000.',
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Thank you, ' . $data['name'] . '! Our team will send your quote within one working day.',
+        ]);
     }
 }

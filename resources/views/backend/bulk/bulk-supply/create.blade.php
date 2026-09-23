@@ -26,7 +26,9 @@
                         @csrf
                         <div class="row g-3 mb-2">
                             <div class="col-md-4">
-                                <label class="form-label">Title / Category <span class="text-danger">*</span></label>
+                                <label class="form-label">Title / Category
+                                    <span class="text-danger">*</span>
+                                </label>
                                 <input type="text" name="title" class="form-control" value="{{ old('title') }}" required>
                             </div>
                             <div class="col-md-4">

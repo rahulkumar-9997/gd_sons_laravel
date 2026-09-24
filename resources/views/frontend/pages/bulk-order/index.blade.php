@@ -204,17 +204,25 @@
                                     @endforeach
                                 </div>
                                 <div class="px-6 py-4 bg-background-light border-t border-primary-mint">
-                                    <a href="https://wa.me/919935070000?text=Hello%2C%20I%20want%20bulk%20rates%20for%20these%20products."
-                                    target="_blank" rel="noopener"
-                                    class="group flex items-center justify-between gap-3 rounded-xl bg-[#25D366] px-4 py-3 text-white transition-all duration-300 hover:brightness-95 hover:-translate-y-0.5">
+                                    <a href="{{ route('wholesale.rate') }}"
+                                    class="group flex items-center justify-between gap-3 rounded-xl bg-primary-teal px-4 py-3 text-white transition-all duration-300 hover:brightness-95 hover:-translate-y-0.5">
                                         <span class="flex items-center gap-2.5">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"></path>
-                                            </svg>
-                                            <span class="text-[13px] font-bold">Get rates for 2000+ more products</span>
+                                            <span class="text-[13px] font-bold">
+                                                View All Products
+                                            </span>
                                         </span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:translate-x-1">
-                                            <path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path>
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2.5"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            class="transition-transform group-hover:translate-x-1">
+                                            <path d="M5 12h14"></path>
+                                            <path d="m12 5 7 7-7 7"></path>
                                         </svg>
                                     </a>
                                 </div>

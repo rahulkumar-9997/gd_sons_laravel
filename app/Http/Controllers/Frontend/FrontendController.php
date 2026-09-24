@@ -2330,4 +2330,62 @@ class FrontendController extends Controller
             'message' => 'Thank you, ' . $data['name'] . '! Our team will send your quote within one working day.',
         ]);
     }
+
+    public function wholeSaleRateList(Request $request){
+        $placeholder = asset('frontend/assets/gd-img/product/no-image.png');
+        $imageUrl = function ($product) use ($placeholder) {
+            $path = optional($product->firstSortedImage)->image_path;
+            return ($path && file_exists(public_path('images/product/small/' . $path)))
+                ? asset('images/product/small/' . $path)
+                : $placeholder;
+        };
+        $productUrl = function ($product) {
+            $attr = null;
+            if ($product->productAttributesValues->isNotEmpty()) {
+                $attr = optional($product->productAttributesValues->first()->attributeValue)->slug;
+            }
+            return $attr
+                ? url('products/' . $product->slug . '/' . $attr)
+                : url('products/' . $product->slug);
+        };
+
+        $attrValuesQuery = function ($q) {
+            $q->select('id', 'product_id', 'product_attribute_id', 'attributes_value_id')
+            ->with(['attributeValue:id,slug']);
+        };
+        $bulkProducts = BulkFeaturedProduct::where('status', 1)
+        ->whereHas('product', function ($q) {
+            $q->where('product_status', 1)
+            ->whereHas('inventories');
+        })
+        ->with([
+            'product:id,title,slug,brand_id',
+            'product.brand',
+            'product.lowestMrpInventory',
+            'product.firstSortedImage:id,product_id,image_path',
+            'product.productAttributesValues' => $attrValuesQuery,
+        ])
+        ->orderBy('sort_order')
+        ->orderBy('id')
+        ->take(30)
+        ->get()
+        ->map(function ($item) use ($imageUrl, $productUrl) {
+            $product = $item->product;
+            $mrp  = (float) optional($product->lowestMrpInventory)->mrp;
+            $rate = (float) $item->bulk_rate;
+            return [
+                'name'  => $product->title,
+                'brand' => $product->brand->name ?? $product->brand->title ?? '',
+                'mrp'   => $mrp,
+                'rate'  => $rate,
+                'min'   => $item->min_qty ?: 10,
+                'save'  => ($mrp > $rate && $mrp > 0)
+                            ? (int) round((($mrp - $rate) / $mrp) * 100)
+                            : 0,
+                'image' => $imageUrl($product),
+                'url'   => $productUrl($product),
+            ];
+        });
+        return view('frontend.pages.bulk-order.wholesale-rates-list', compact('bulkProducts'));
+    }
 }

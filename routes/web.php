@@ -177,6 +177,7 @@ Route::post('/wp-verify-otp', [FrontendController::class, 'WhatappVerifyOtp'])->
 
 Route::post('click-tracker', [FrontendController::class, 'clickTracker'])->name('click.tracker');
 Route::post('bulk-order/enquiry', [FrontendController::class, 'bulkOrderEnquiry'])->name('bulk-order.enquiry');
+Route::get('wholesale-rate', [FrontendController::class, 'wholeSaleRateList'])->name('wholesale.rate');
 /**backend rout */
 Route::prefix('admin')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm']);

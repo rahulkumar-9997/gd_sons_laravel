@@ -121,19 +121,19 @@
                     $discountPercentage = ($mrp > 0 && $display_price > 0 && $display_price < $mrp)
                         ? round((($mrp - $display_price) / $mrp) * 100, 2)
                         : 0;
-                    @endphp
+                        @endphp
 
-                    <div class="w-full h-full shadow-[0_1px_2px_rgba(0,0,0,0.04)] rounded-xl bg-white group/product transition-all duration-300 ease-in-out hover:border-primary-300 hover:shadow-lg">
+                        <div class="w-full h-full shadow-[0_1px_2px_rgba(0,0,0,0.04)] rounded-xl bg-white group/product transition-all duration-300 ease-in-out hover:border-primary-300 hover:shadow-lg">
                         <div class="relative w-full h-full">
                             <a href="{{ url('products/'.$product['slug'].'/'.$product['attributes_value_slug']) }}" class="block">
                                 <div class="overflow-hidden rounded-t-xl">
                                     <div class="relative overflow-hidden image-shine product-img aspect-square">
                                         @php
-                                            $defaultImage = 'https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png';
-                                            $originalImage = $product['image'] ?? $defaultImage;
-                                            $isCritical = ($loop->index ?? 0) < 4;
-                                        @endphp
-                                        <picture>
+                                        $defaultImage = 'https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png';
+                                        $originalImage = $product['image'] ?? $defaultImage;
+                                        $isCritical = ($loop->index ?? 0) < 4;
+                                            @endphp
+                                            <picture>
                                             <source media="(max-width: 767px)" srcset="{{ $originalImage }} 600w">
                                             <img class="absolute top-0 left-0 w-full h-full object-contain {{ $isCritical ? '' : 'blur-up lazyloaded' }} transition-transform duration-600 group-hover/product:scale-105 blur-up lazyloaded"
                                                 data-src="{{ $originalImage }}"
@@ -147,14 +147,14 @@
                                                 height="300"
                                                 onload="this.style.opacity=1"
                                                 style="opacity: 1;">
-                                        </picture>
-                                        @if($discountPercentage > 0)
-                                        <div class="discount absolute top-2 left-2 z-1">
-                                            <span class="group/badge relative inline-flex items-center gap-1 bg-green-700 text-white text-[10px] font-bold tracking-wide px-2 py-[3px] rounded-full cursor-default shadow-badge hover:shadow-badge-hover hover:scale-105 transition-all duration-200">
-                                                {{ $discountPercentage }}% OFF
-                                            </span>
-                                        </div>
-                                        @endif
+                                            </picture>
+                                            @if($discountPercentage > 0)
+                                            <div class="discount absolute top-2 left-2 z-1">
+                                                <span class="group/badge relative inline-flex items-center gap-1 bg-green-700 text-white text-[10px] font-bold tracking-wide px-2 py-[3px] rounded-full cursor-default shadow-badge hover:shadow-badge-hover hover:scale-105 transition-all duration-200">
+                                                    {{ $discountPercentage }}% OFF
+                                                </span>
+                                            </div>
+                                            @endif
                                     </div>
                                 </div>
                                 <div class="w-full px-2 py-2 space-y-2">
@@ -175,32 +175,32 @@
                                             @endif
                                         </div>
                                         @if($product['stock_quantity'] !== null)
-                                            @if($product['stock_quantity'] <= 0)
-                                                <span class="text-xs text-red-600 block mt-1">
-                                                    Out of Stock
-                                                </span>
+                                        @if($product['stock_quantity'] <= 0)
+                                            <span class="text-xs text-red-600 block mt-1">
+                                            Out of Stock
+                                            </span>
                                             @endif
-                                        @endif
+                                            @endif
                                     </div>
                                 </div>
                             </a>
                         </div>
-                    </div>
-                    @endforeach
                 </div>
-
-                <div class="px-2 pb-1 pt-3 text-center mt-auto">
-                    <a href="{{ $primary_category_row['link'] ?? '#' }}" class="inline-flex items-center gap-1 text-[16px] text-primary-600 hover:text-primary-teal font-medium transition-colors">
-                        View Details & More Products
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </a>
-                </div>
-
+                @endforeach
             </div>
-            @endforeach
+
+            <div class="px-2 pb-1 pt-3 text-center mt-auto">
+                <a href="{{ $primary_category_row['link'] ?? '#' }}" class="inline-flex items-center gap-1 text-[16px] text-primary-600 hover:text-primary-teal font-medium transition-colors">
+                    View Details & More Products
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+
         </div>
+        @endforeach
+    </div>
     </div>
 </section>
 @endif
@@ -313,9 +313,9 @@
                                             </div>
                                             @if(($popular_product_row->mrp > 0 && $popular_product_row->stock_quantity <= 0) || !$hasDimensions)
                                                 <span class="text-xs text-red-600 block mt-1">
-                                                    Out of Stock
+                                                Out of Stock
                                                 </span>
-                                            @endif
+                                                @endif
                                         </div>
                                     </div>
                                 </div>
@@ -334,104 +334,6 @@
 </section>
 @endif
 
-<section class="why-choose-section pb-5 w-full overflow-hidden relative bg-gradient-to-br from-white via-[#FFFDF8] to-[#F7E9C7]">
-    <div class="absolute inset-0 pointer-events-none opacity-20" 
-         style="background-image: radial-gradient(circle, #8b0b13 1px, transparent 1px); background-size: 22px 22px;">
-    </div>
-    <div class="container-fluid-lg">
-        <div class="flex flex-col lg:flex-row gap-8 items-center">
-            <div class="choose-card relative bg-[#0f1e36] p-10 lg:w-[480px] flex flex-col justify-between overflow-hidden shadow-2xl rounded-[16px]">
-                <div class="relative text-center">
-                    <p class="text-primary-teal text-[22px] font-semibold mb-1">Why Choose</p>
-                    <h2 class="font-display text-white text-3xl leading-tight mb-4">
-                        Girdhar Das & Sons?
-                    </h2>
-                    <p class="text-white leading-relaxed text-[16px]">
-                        More than a store. A Kitchen Companion since 1970. For over five decades, Girdhar Das & Sons has been the kitchen the heart of kitchenware retail in Varanasi — trusted by home cooks, hotels, and professional chefs alike.
-
-
-                    </p>
-                </div>
-                <div class="text-center mt-10">
-                    <a href="{{ route('about-us') }}"
-                        class="inline-block relative bg-primary-teal text-white hover:!text-black hover:bg-background-light text-sm font-semibold px-6 py-3 rounded-full transition-all duration-300">
-                        Learn more about GD Sons
-                    </a>
-                </div>
-            </div>
-            <div class="flex-1 flex flex-col gap-4">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <div class="icon-circle w-14 h-14 bg-primary-teal rounded-full flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">55+ Years of Trust</p>
-                        <p class="text-[15px] text-slate-600 leading-relaxed">Serving Varanasi since 1970</p>
-                    </div>
-                    <!-- Feature 2: Wide Range -->
-                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <div class="icon-circle w-14 h-14 bg-primary-teal rounded-full flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                            </svg>
-                        </div>
-                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">Wide Range of Products</p>
-                        <p class="text-[15px] text-slate-600 leading-relaxed">Everything for your kitchen</p>
-                    </div>
-                    <!-- Feature 3: Best Quality -->
-                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <div class="icon-circle w-14 h-14 bg-primary-teal rounded-full flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                            </svg>
-                        </div>
-                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">Best Quality Guarantee</p>
-                        <p class="text-[15px] text-slate-600 leading-relaxed">100% original &amp; durable</p>
-                    </div>
-                    <!-- Feature 4: Fast Delivery -->
-                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <div class="icon-circle w-14 h-14 bg-primary-teal rounded-full flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-                            </svg>
-                        </div>
-                        <p class="font-semibold text-slate-800 text-[17px] leading-tight mb-1">Fast &amp; Safe Delivery</p>
-                        <p class="text-[15px] text-slate-600 leading-relaxed">Quick delivery across Varanasi</p>
-                    </div>
-                </div>
-
-                <!-- second grid: 4 stat cards (metrics) -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- Stat 1: Happy Customers -->
-                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <span class="font-display text-2xl font-bold text-primary-teal stat-num">55+</span>
-                        <span class="text-[15px] text-slate-600 leading-relaxed mt-1.5">Years in Business</span>
-                    </div>
-                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <span class="font-display text-2xl font-bold text-primary-teal stat-num">25+</span>
-                        <span class="text-[15px] text-slate-600 leading-relaxed mt-1.5">Top Brands</span>
-                    </div>
-                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <span class="font-display text-2xl font-bold text-primary-teal stat-num">5K+</span>
-                        <span class="text-[15px] text-slate-600 leading-relaxed mt-1.5">Products</span>
-                    </div>
-                    <div class="feat-card bg-white rounded-xl p-2 flex flex-col items-center text-center shadow-[0_0px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_0_25px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-200 cursor-default">
-                        <div class="flex items-center gap-1.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary-teal" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" />
-                            </svg>
-                            <span class="font-display text-2xl font-bold text-primary-teal stat-num">4.8</span>
-                        </div>
-                        <span class="text-[15px] text-slate-600 leading-relaxed mt-1.5">Rated by Google</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 @if ($data['trending_products_weekly'] && $data['trending_products_weekly']->isNotEmpty())
 <section class="current-week-product pb-12 bg-[#f5f5f0]">
     <div class="container-fluid-lg">
@@ -443,47 +345,46 @@
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             @foreach ($data['trending_products_weekly'] as $index =>$product)
-                @php
-                    $offer_rate = $product['offer_rate'];
-                    $display_price = $product['display_price'] ?? null;
-                    $mrp = $product['mrp'];
+            @php
+            $offer_rate = $product['offer_rate'];
+            $display_price = $product['display_price'] ?? null;
+            $mrp = $product['mrp'];
 
-                    /* Calculate discount */
-                    $discountPercentage = ($mrp > 0 && $display_price > 0 && $display_price < $mrp)
-                    ? round((($mrp - $display_price) / $mrp) * 100, 2)
-                    : 0;
+            /* Calculate discount */
+            $discountPercentage = ($mrp > 0 && $display_price > 0 && $display_price < $mrp)
+                ? round((($mrp - $display_price) / $mrp) * 100, 2)
+                : 0;
 
                 @endphp
                 @php
-                    $hasDimensions =
-                    !empty($product['length']) &&
-                    !empty($product['breadth']) &&
-                    !empty($product['height']) &&
-                    !empty($product['weight']);
-                @endphp 
+                $hasDimensions=!empty($product['length']) &&
+                !empty($product['breadth']) &&
+                !empty($product['height']) &&
+                !empty($product['weight']);
+                @endphp
                 <div class="product-card bg-white rounded-xl p-2">
-                    <a href="{{ url('products/'.$product['slug'].'/'.$product['attributes_value_slug']) }}">
-                        <div class="flex items-center gap-2">
-                            @php
-                                $defaultImage = 'https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png';
-                                $originalImage = $product['image'] ?? $defaultImage;
-                                $isCritical = ($loop->index ?? 0) < 4;
+                <a href="{{ url('products/'.$product['slug'].'/'.$product['attributes_value_slug']) }}">
+                    <div class="flex items-center gap-2">
+                        @php
+                        $defaultImage = 'https://www.gdsons.co.in/public/frontend/assets/gd-img/product/no-image.png';
+                        $originalImage = $product['image'] ?? $defaultImage;
+                        $isCritical = ($loop->index ?? 0) < 4;
                             @endphp
                             <picture>
-                                <source media="(max-width: 767px)" srcset="{{ $originalImage }} 600w">
-                                <img class="w-20 h-20 rounded-xl object-contain flex-shrink-0 bg-white p-1 blur-up lazyloaded"
-                                    data-src="{{ $originalImage }}" 
-                                    src="{{ $originalImage }}" 
-                                    srcset="{{ $originalImage }} 600w, {{ $originalImage }} 1200w" 
-                                    sizes="(max-width: 600px) 600px, 1200px" 
-                                    alt="{{ $product['title'] }}" 
-                                    title="{{ $product['title'] }}" 
-                                    {{ $isCritical ? 'fetchpriority="high"' : 'loading="lazy"' }}
-                                    width="300" 
-                                    height="300" 
-                                    onload="this.style.opacity=1" 
-                                    style="opacity: 1;">
-                            </picture>                            
+                            <source media="(max-width: 767px)" srcset="{{ $originalImage }} 600w">
+                            <img class="w-20 h-20 rounded-xl object-contain flex-shrink-0 bg-white p-1 blur-up lazyloaded"
+                                data-src="{{ $originalImage }}"
+                                src="{{ $originalImage }}"
+                                srcset="{{ $originalImage }} 600w, {{ $originalImage }} 1200w"
+                                sizes="(max-width: 600px) 600px, 1200px"
+                                alt="{{ $product['title'] }}"
+                                title="{{ $product['title'] }}"
+                                {{ $isCritical ? 'fetchpriority="high"' : 'loading="lazy"' }}
+                                width="300"
+                                height="300"
+                                onload="this.style.opacity=1"
+                                style="opacity: 1;">
+                            </picture>
                             <div class="flex-1 min-w-0">
                                 <div class="text-[13px] font-semibold text-primary-navy mb-1">
                                     {{ $product['category_title'] }}
@@ -495,41 +396,41 @@
                                 </div>
                                 <div class="flex items-center gap-2 mt-2 flex-wrap">
                                     @if ($display_price === null || $display_price == 0)
-                                        <h5 class="text-base font-bold text-primary-600">
-                                            Price not available
-                                        </h5>
+                                    <h5 class="text-base font-bold text-primary-600">
+                                        Price not available
+                                    </h5>
                                     @else
-                                        <h5 class="text-base font-bold text-primary-600">
-                                            Rs. {{ number_format($display_price) }}
-                                        </h5>
+                                    <h5 class="text-base font-bold text-primary-600">
+                                        Rs. {{ number_format($display_price) }}
+                                    </h5>
                                     @endif
                                     @if($display_price)
-                                        @if ($mrp !== null && $mrp > $display_price)
-                                            <del class="text-[14px] text-gray-600">Rs. {{ number_format($mrp) }}</del>
-                                        @endif
+                                    @if ($mrp !== null && $mrp > $display_price)
+                                    <del class="text-[14px] text-gray-600">Rs. {{ number_format($mrp) }}</del>
+                                    @endif
                                     @endif
                                     @if($discountPercentage>0)
-                                        <span class="group/badge relative inline-flex items-center gap-1 bg-green-700 text-white text-[10px] font-bold tracking-wide px-2 py-[3px] rounded-full cursor-default shadow-badge hover:shadow-badge-hover hover:scale-105 transition-all duration-200">
-                                            {{ $discountPercentage }}% OFF
-                                        </span>
+                                    <span class="group/badge relative inline-flex items-center gap-1 bg-green-700 text-white text-[10px] font-bold tracking-wide px-2 py-[3px] rounded-full cursor-default shadow-badge hover:shadow-badge-hover hover:scale-105 transition-all duration-200">
+                                        {{ $discountPercentage }}% OFF
+                                    </span>
                                     @endif
                                 </div>
                                 @if(($product['mrp'] > 0 && $product['stock_quantity'] <= 0) || !$hasDimensions)
                                     <span class="text-xs text-red-600 block mt-1">
-                                        Out of Stock
+                                    Out of Stock
                                     </span>
-                                @endif                                
+                                    @endif
                             </div>
                             <button class="arrow-btn w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center flex-shrink-0" aria-label="{{ ucwords(strtolower($product['title'])) }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
                                 </svg>
                             </button>
-                        </div>
-                    </a>
-                </div>
-            @endforeach
+                    </div>
+                </a>
         </div>
+        @endforeach
+    </div>
     </div>
 </section>
 @endif
@@ -648,7 +549,7 @@
     </div>
 </section>
 @endif
-
+@include('frontend.pages.partials.recent-shopper-train-fix')
 @endsection
 @push('schema')
 <!-- Organization Schema -->
@@ -737,5 +638,5 @@
 </script>
 @endpush
 @push('scripts')
-
+<script src="{{ asset('frontend/assets/js/pages/recent-train.js') }}?v=1" defer></script>
 @endpush

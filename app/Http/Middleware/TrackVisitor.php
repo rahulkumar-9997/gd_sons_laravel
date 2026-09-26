@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Jenssegers\Agent\Agent;
 use Torann\GeoIP\Facades\GeoIP;
 use App\Models\VisitorTracking;
+use App\Models\TrackVisitorProduct;
+use App\Models\Product;
 use App\Models\SocialMediaTracking;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
@@ -54,13 +56,9 @@ class TrackVisitor
         'node-fetch', 'okhttp', 'axios'
     ];
 
-    /**
-     * Handle an incoming request.
-     */
     public function handle(Request $request, Closure $next)
     {
-        $this->SocialMediaTracking($request);
-        
+        $this->SocialMediaTracking($request);        
         if (!$request->isMethod('get') || $request->expectsJson() || $request->wantsJson()) {
             return $next($request);
         }
@@ -75,14 +73,9 @@ class TrackVisitor
         }
         
         if ($this->isBlockedIP($request->ip())) {
-            //Log::info("Blocked IP: " . $request->ip());
             return $next($request);
         }
-
-        // Get the response first
         $response = $next($request);
-        
-        // Track visitor with response content
         $this->trackVisitor($request, $response->getContent());
         
         return $response;
@@ -108,7 +101,7 @@ class TrackVisitor
         $customerName = auth()->guard('customer')->check()
             ? auth()->guard('customer')->user()->name
             : null;
-        $lock = Cache::lock("lock_" . md5($rawKey), 10); // 10 seconds lock
+        $lock = Cache::lock("lock_" . md5($rawKey), 10);
         if ($lock->get()) {
             try {
                 if (!Cache::has($cacheKey)) {
@@ -129,7 +122,8 @@ class TrackVisitor
                         'session_id' => $sessionId,
                         'device_category' => $deviceInfo['device_category'],
                     ]);
-                     Cache::put($cacheKey, true, $cacheDuration);
+                    Cache::put($cacheKey, true, $cacheDuration);
+                    $this->trackProduct($request);
                 }
 
             } catch (\Exception $e) {
@@ -140,6 +134,24 @@ class TrackVisitor
             }
         }
     }
+
+
+    private function trackProduct(Request $request): void
+    {
+        $parts = explode('/', trim($request->path(), '/'));
+        if (($parts[0] ?? '') !== 'products' || empty($parts[1])) {
+            return;
+        }
+        $slug = urldecode($parts[1]);
+        $productId = Cache::remember('product_slug_id:' . $slug, 86400, function () use ($slug) {
+            return (int) Product::where('slug', $slug)->value('id');
+        });
+
+        if ($productId) {
+            TrackVisitorProduct::record($productId);
+        }
+    }
+
 
     /**
      * Enhanced bot detection

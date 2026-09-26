@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\TrackVisitor;
 use App\Http\Controllers\Frontend\FrontendController;
+use App\Http\Controllers\Frontend\RecentTrainController;
 use App\Http\Controllers\Frontend\CustomerLoginController;
 use App\Http\Controllers\Frontend\CustomerController;
 use App\Http\Controllers\Frontend\OrderController;
@@ -178,6 +179,7 @@ Route::post('/wp-verify-otp', [FrontendController::class, 'WhatappVerifyOtp'])->
 Route::post('click-tracker', [FrontendController::class, 'clickTracker'])->name('click.tracker');
 Route::post('bulk-order/enquiry', [FrontendController::class, 'bulkOrderEnquiry'])->name('bulk-order.enquiry');
 Route::get('wholesale-rate', [FrontendController::class, 'wholeSaleRateList'])->name('wholesale.rate');
+Route::get('recent-train/feed', [RecentTrainController::class, 'feed'])->middleware('throttle:120,1')->name('recent-train.feed');
 /**backend rout */
 Route::prefix('admin')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm']);

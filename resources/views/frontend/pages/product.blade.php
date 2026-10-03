@@ -78,10 +78,10 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                     <div class="text-[18px] text-primary-teal px-1 py-2">
                         FREE Shipping — No Extra Delivery Charges
                     </div>
-                </div>
-            </div>
-        </div> 
-    </div>
+				</div>
+        </div>
+    </div> 
+
 </div>
 <section class="product-section">
     <div class="container-fluid-lg">
@@ -742,18 +742,18 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 
                         <div class="content">
                             <h5>{{ ucwords(strtolower($data['product_details']->title)) }}</h5>
-                            <h6>
-                                @if($data['product_details']->offer_rate)
-                                Rs. {{ number_format($data['product_details']->offer_rate, 2) }}
+                                                        <h6>
+                                @if(!empty($display_price))
+                                Rs. {{ number_format($display_price, 2) }}
                                 @endif
                                 @if($data['product_details']->mrp)
                                 <del class="text-danger">Rs. {{ number_format($data['product_details']->mrp, 2) }}</del>
                                 @endif
-                                @if($data['product_details']->mrp && $data['product_details']->offer_rate)
+                                @if($data['product_details']->mrp && !empty($display_price) && $display_price < $data['product_details']->mrp)
                                 @php
-                                $discountPercentage = round(((($data['product_details']->mrp - $data['product_details']->offer_rate) / $data['product_details']->mrp) * 100), 2);
+                                $stickyDiscount = round(((($data['product_details']->mrp - $display_price) / $data['product_details']->mrp) * 100), 2);
                                 @endphp
-                                <span>({{ $discountPercentage }}% off)</span>
+                                <span>({{ $stickyDiscount }}% off)</span>
                                 @endif
                             </h6>
                         </div>
@@ -826,6 +826,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 <script type="application/ld+json">
     {
         @php
+		$schema_offer = !empty($display_price) ? (float) $display_price : (float) ($product->offer_rate ?? 0);
         $imageschema = '';
         if (!empty($data['product_details']->images->first()->image_path)) {
             $imageschema = asset('images/product/large/'.$data['product_details']->images->first()->image_path);
@@ -856,12 +857,50 @@ $firstImage = $data['product_details']->images->isNotEmpty()
                 "url": "{{ url()->current() }}",
                 
                 "availability": "{{ intval($inStock) == 1 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}",
+				
 				"itemCondition": "https://schema.org/NewCondition",
-				"priceValidUntil": "{{ \Carbon\Carbon::now()->addYear()->format('Y-m-d') }}",
+				"priceValidUntil": "{{ \Carbon\Carbon::now()->addMonth()->format('Y-m-d') }}",
 				"seller": {
 					"@type": "Organization",
 					"name": "Girdhar Das & Sons",
 					"url": "https://www.gdsons.co.in"
+				},
+				"shippingDetails": {
+					"@type": "OfferShippingDetails",
+					"shippingRate": {
+						"@type": "MonetaryAmount",
+						"value": "0",
+						"currency": "INR"
+					},
+					"shippingDestination": {
+						"@type": "DefinedRegion",
+						"addressCountry": "IN"
+					},
+					"deliveryTime": {
+						"@type": "ShippingDeliveryTime",
+						"handlingTime": {
+							"@type": "QuantitativeValue",
+							"minValue": 1,
+							"maxValue": 2,
+							"unitCode": "DAY"
+						},
+						"transitTime": {
+							"@type": "QuantitativeValue",
+							"minValue": 2,
+							"maxValue": 10,
+							"unitCode": "DAY"
+						}
+					}
+				},
+				"hasMerchantReturnPolicy": {
+					"@type": "MerchantReturnPolicy",
+					"applicableCountry": "IN",
+					"returnPolicyCountry": "IN",
+					"returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+					"merchantReturnDays": 3,
+					"returnMethod": "https://schema.org/ReturnByMail",
+					"returnFees": "https://schema.org/FreeReturn",
+					"merchantReturnLink": "https://www.gdsons.co.in/terms-of-use"
 				}
 
             },
@@ -874,7 +913,7 @@ $firstImage = $data['product_details']->images->isNotEmpty()
 			  {
 				"@type": "PropertyValue",
 				"name": "Discount",
-				"value": "{{ $product->mrp - $schema_offer }}"
+				"value": "{{ max(0, $product->mrp - $schema_offer) }}"
 			  },
 			  {
 				"@type": "PropertyValue",

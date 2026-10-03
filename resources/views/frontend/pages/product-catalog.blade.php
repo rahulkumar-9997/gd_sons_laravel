@@ -113,132 +113,98 @@ if ($firstCatalogProduct && $firstCatalogProduct->images->isNotEmpty()) {
 @endsection
 
 @push('schema')
+@php
+    $lastSegment = collect(explode('/', Request::path()))->last();
+    $crumbName   = $primary_category ? $primary_category->title : $attributeValue->name;
+
+    $listItems = [];
+    foreach ($products as $index => $product) {
+        $firstImage = $product->images->get(0);
+        $mrp        = (float) $product->mrp;
+        $price      = (float) ($product->display_price ?? $product->offer_rate);
+        $productUrl = url('products/' . $product['slug'] . '/' . $lastSegment);
+
+        $brand = '';
+        foreach ($product->ProductAttributesValues as $oneProductAV) {
+            if ($oneProductAV->productAttribute->attributes_id == 18) {
+                $brand = $oneProductAV->attributeValue->name ?: $oneProductAV->attributeValue->slug;
+            }
+        }
+
+        $offer = [
+            '@type'           => 'Offer',
+            'url'             => $productUrl,
+            'priceCurrency'   => 'INR',
+            'price'           => number_format($price, 2, '.', ''),
+            'priceValidUntil' => \Carbon\Carbon::now()->addYear()->format('Y-m-d'),
+            'itemCondition'   => 'https://schema.org/NewCondition',
+            'availability'    => 'https://schema.org/' . ($product->stock_quantity > 0 ? 'InStock' : 'OutOfStock'),
+        ];
+        if ($mrp > $price) {
+            $offer['priceSpecification'] = [
+                '@type'         => 'UnitPriceSpecification',
+                'price'         => number_format($mrp, 2, '.', ''),
+                'priceCurrency' => 'INR',
+                'priceType'     => 'https://schema.org/ListPrice',
+            ];
+        }
+
+        $item = [
+            '@type'       => 'Product',
+            'name'        => $product->title,
+            'description' => $product->title . ' - ' . $attributeValue->name . ' ' . $category->title . ' available at Girdhar Das & Sons, Varanasi.',
+            'category'    => optional($product->category)->title,
+            'sku'         => $product->sku,
+            'url'         => $productUrl,
+            'offers'      => $offer,
+        ];
+        if ($brand !== '') {
+            $item['brand'] = ['@type' => 'Brand', 'name' => $brand];
+        }
+        if ($firstImage) {
+            $item['image'] = asset('images/product/thumb/' . $firstImage->image_path);
+        }
+        $rStat = $reviewStats[$product->id] ?? null;
+        if ($rStat && $rStat->review_count > 0) {
+            $item['aggregateRating'] = [
+                '@type'       => 'AggregateRating',
+                'ratingValue' => (string) $rStat->avg_rating,
+                'reviewCount' => (string) $rStat->review_count,
+                'bestRating'  => '5',
+                'worstRating' => '1',
+            ];
+        }
+
+        $listItems[] = [
+            '@type'    => 'ListItem',
+            'position' => $index + 1,
+            'item'     => $item,
+        ];
+    }
+
+    $schema = [
+        '@context'    => 'https://schema.org',
+        '@type'       => 'WebPage',
+        'name'        => $seo_title,
+        'description' => $seo_desc,
+        'url'         => url()->current(),
+        'breadcrumb'  => [
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => [
+                ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+                ['@type' => 'ListItem', 'position' => 2, 'name' => $category->title, 'item' => url('categories/' . $category->slug)],
+                ['@type' => 'ListItem', 'position' => 3, 'name' => $crumbName, 'item' => strtok(url()->current(), '?')],
+            ],
+        ],
+        'mainEntity'  => [
+            '@type'           => 'ItemList',
+            'numberOfItems'   => count($listItems),
+            'itemListElement' => $listItems,
+        ],
+    ];
+@endphp
 <script type="application/ld+json">
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "name": "{{ $seo_title }}",
-    "description": "{{ $seo_desc }}",
-        "url": "{{ url()->current() }}",
-    "breadcrumb": {
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-            {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Home",
-                "item": "{{ url('/') }}"
-            },
-            {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "{{ $category->title }}",
-                "item": "{{ url('categories/' . $category->slug) }}"
-            },
-            {
-                "@type": "ListItem",
-                "position": 3,
-                "name": "@if($primary_category){{ $primary_category->title }}@else{{ $attributeValue->name }}@endif",
-                "item": "{{ strtok(url()->current(), '?') }}"
-            }
-        ]
-    },
-    "mainEntity": {
-        "@type": "ItemList",
-        "itemListElement": [
-            @foreach($products as $index => $product)
-            @php
-                $firstImage = $product->images->get(0);
-                $urlPath = Request::path();
-                $segments = explode('/', $urlPath);
-                $lastSegment = end($segments);
-
-                $offer_rate = $product->offer_rate;
-                $display_price = $product->display_price ?? $offer_rate;
-                $mrp = $product->mrp;
-                $discountPercentage = ($mrp > 0 && $display_price > 0)
-                    ? round((($mrp - $display_price) / $mrp) * 100, 2)
-                    : 0;
-					
-				$attributes_value = $product->ProductAttributesValues->isNotEmpty() ? $product->ProductAttributesValues->first()->attributeValue->slug : 'na';
-					$brand = '';
-					foreach($product->ProductAttributesValues as $oneProductAV)
-					{
-						if($oneProductAV->productAttribute->attributes_id == 18)
-						{
-							$brand = $oneProductAV->attributeValue->slug;
-						}
-						// $brand = $product->ProductAttributesValues->attributeValue->slug;
-					}
-            @endphp
-            {
-                "@type": "ListItem",
-                "position": {{ $index + 1 }},
-                "item": {
-                    "@type": "Product",
-                    "name": "{{ addslashes($product->title) }}",
-                    "description": "{{ 'GD Sons - ' . $category->title . ' : ' . $attributeValue->name }}",                
-                    "brand": {
-                        "@type": "Brand",
-                        "name": "{{ $brand }}"
-                    },
-                    "category": "{{ $product->category->title }}",
-                    "sku": "{{ $product->sku }}",
-                    "url": "{{ url('products/'.$product['slug'].'/'.$lastSegment) }}",
-                    @if($firstImage)
-                    "image": "{{ asset('images/product/thumb/' . $firstImage->image_path) }}",
-                    @endif
-
-                    "offers": {
-                        "@type": "Offer",
-                        "url": "{{ url('products/'.$product['slug'].'/'.$lastSegment) }}",
-                        "priceCurrency": "INR",
-                        "price": "{{ $display_price }}",
-                        "priceValidUntil": "{{ \Carbon\Carbon::now()->addYear()->format('Y-m-d') }}",
-                        "itemCondition": "https://schema.org/NewCondition",
-                        "availability": "https://schema.org/{{ $product->stock_quantity > 0 ? 'InStock' : 'OutOfStock' }}",
-                        @if($mrp > $display_price)
-                        "priceSpecification": {
-							"@type": "PriceSpecification",
-							"price": "{{ $mrp }}",
-							"priceCurrency": "INR",
-							"valueAddedTaxIncluded": true,
-							"priceType": "ListPrice"
-						  },
-                        "listPrice": {
-                            "@type": "UnitPriceSpecification",
-                            "price": "{{ $mrp }}",
-                            "priceCurrency": "INR"
-                        }
-                        @endif
-                    },
-                "additionalProperty": [
-                    {
-                        "@type": "PropertyValue",
-                        "name": "MRP",
-                        "value": "{{ $mrp }}"
-                    },
-                    {
-                        "@type": "PropertyValue",
-                        "name": "Discount",
-                        "value": "{{ $mrp - $display_price }}"
-                    }
-                ]
-        @php $rStat = $reviewStats[$product->id] ?? null; @endphp
-        @if($rStat && $rStat->review_count > 0)
-        ,"aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "{{ $rStat->avg_rating }}",
-            "reviewCount": "{{ $rStat->review_count }}",
-            "bestRating": "5",
-            "worstRating": "1"
-        }
-        @endif
-        }@if(!$loop->last),@endif
-                    @endforeach
-                ]
-            }
-            
-        }
+{!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_PRETTY_PRINT) !!}
 </script>
 @endpush
 @push('scripts')

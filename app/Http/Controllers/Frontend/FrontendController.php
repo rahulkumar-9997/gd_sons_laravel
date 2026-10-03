@@ -2093,6 +2093,7 @@ class FrontendController extends Controller
             'cod'               => 0,/*0=online payement, 1=cash on delivery*/
             'declared_value'    => $productData['declared_value'] ?? null,
         ]);
+        //Log::info('Serviceability response: ' . json_encode($response, JSON_PRETTY_PRINT));
 
         if (!$response || !$response['success']) {
             return response()->json([

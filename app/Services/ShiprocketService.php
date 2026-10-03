@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
@@ -143,6 +142,7 @@ class ShiprocketService
                 'message' => 'Shiprocket token unavailable.',
             ];
         }
+
         $payload = array_filter([
             'pickup_postcode'   => $params['pickup_postcode'] ?? null,
             'delivery_postcode' => $params['delivery_postcode'] ?? null,
@@ -159,28 +159,54 @@ class ShiprocketService
             'only_local'        => $params['only_local'] ?? null,
             'qc_check'          => $params['qc_check'] ?? null,
         ], fn ($value) => $value !== null && $value !== '');
-        // Log::info('Shiprocket Serviceability Request', [
-        //     'payload' => $payload
-        // ]);
+
+        $url = "{$this->base}/courier/serviceability/";
         $response = Http::withToken($token)
+            ->acceptJson()
             ->timeout(30)
-            ->get("{$this->base}/courier/serviceability/", $payload);
-        
-        // Log::info(
-        //     "Shiprocket Serviceability Response\n" .
-        //     json_encode(
-        //         $response->json(),
-        //         JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-        //     )
-        // );
+            ->get($url, $payload);
+
+        /*
+        * Token invalid/expired
+        * Generate fresh token and retry once.
+        */
+        if ($response->status() === 401) {
+            Log::warning('Shiprocket token rejected. Refreshing token.');
+            $token = $this->refreshToken();
+            if (!$token) {
+                return [
+                    'success' => false,
+                    'message' => 'Unable to refresh Shiprocket token.',
+                ];
+            }
+            $response = Http::withToken($token)
+                ->acceptJson()
+                ->timeout(30)
+                ->get($url, $payload);
+        }
+        Log::info('Shiprocket Serviceability Response', [
+            'status' => $response->status(),
+            'body'   => $response->body(),
+            'json'   => $response->json(),
+        ]);
         if (!$response->successful()) {
             return [
                 'success' => false,
                 'message' => 'Shiprocket API Error',
-                'response' => $response->json(),
+                'status'  => $response->status(),
+                'response' => $response->json() ?? $response->body(),
             ];
         }
+
         $data = $response->json();
+        if (!is_array($data)) {
+            return [
+                'success' => false,
+                'message' => 'Invalid response from Shiprocket.',
+                'response' => $response->body(),
+            ];
+        }
+
         return [
             'success' => (
                 ($data['status'] ?? null) == 200 &&

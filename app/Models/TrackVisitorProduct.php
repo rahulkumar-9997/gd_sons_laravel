@@ -34,7 +34,9 @@ class TrackVisitorProduct extends Model
             if (static::where('product_id', $productId)->exists()) {
                 return;
             }
+
             $extra = static::count() - (static::LIMIT - 1);
+
             if ($extra > 0) {
                 $oldIds = static::orderBy('visited_at')->orderBy('id')->limit($extra)->pluck('id');
                 static::whereIn('id', $oldIds)->delete();

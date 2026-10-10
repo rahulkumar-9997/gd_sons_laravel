@@ -428,40 +428,38 @@ $(document).ready(function () {
     /**Attributes */
 
     /**Attributes Value*/
-        $(document).on('click', '.editAttValue', function () {
-            var attributes_value_id = $(this).data('attrivid');
-            
-            var title = $(this).data('title');
-            var size = ($(this).data('size') == '') ? 'md' : $(this).data('size');
-            var url = $(this).data('url');
-            
-            var data = {
-                _token: $('meta[name="csrf-token"]').attr('content'),
-                size: size,
-                url: url,
-                attributes_value_id: attributes_value_id,
-            };
-            $("#commanModel .modal-title").html(title);
-            $("#commanModel .modal-dialog").addClass('modal-' + size);
-            
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: data,
-                success: function (data) {
-                    $('#commanModel .render-data').html(data.form);
-                    $("#commanModel").modal('show');
-                    $('#mapped_attributes_value_to_category').select2({
-                        dropdownParent: $("#commanModel")
-                    });
-                },
-                error: function (data) {
-                    data = data.responseJSON;
-                }
-            });
+    $(document).on('click', '.editAttValue', function () {
+        var attributes_value_id = $(this).data('attrivid');
+        var attributes_id = $(this).data('attributeid');
+        var title = $(this).data('title');
+        var size = ($(this).data('size') == '') ? 'md' : $(this).data('size');
+        var url = $(this).data('url');        
+        var data = {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+            size: size,
+            url: url,
+            attributes_value_id: attributes_value_id,
+            attributes_id: attributes_id
+        };
+        $("#commanModel .modal-title").html(title);
+        $("#commanModel .modal-dialog").addClass('modal-' + size);        
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: data,
+            success: function (data) {
+                $('#commanModel .render-data').html(data.form);
+                $("#commanModel").modal('show');
+                $('#mapped_attributes_value_to_category').select2({
+                    dropdownParent: $("#commanModel")
+                });
+            },
+            error: function (data) {
+                data = data.responseJSON;
+            }
         });
-    /**Attributes Value*/
-    
+    });
+    /**Attributes Value*/    
 });
 
 function initializeSelect2Modal() {

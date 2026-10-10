@@ -135,14 +135,18 @@ class AttributeController extends Controller
         return view('backend.attributes-option.product-list-with-attributes-value', compact('data', 'attributes_value'));
     }
 
-    public function attributesOption(Request $request, $id){    
-        $category_list  = Category::orderBy('id','DESC')->get();
-        //$attributes = Attribute::with('AttributesValues')->where('id', $id)->first();
-        $attributes = Attribute::with(['AttributesValues' => function($query) {
-            $query->with('map_attributes_value_to_categories'); 
-        }])->where('id', $id)->first();
-        //return response()->json($attributes);
-        return view('backend.attributes-option.index', compact('attributes', 'category_list'));
+    public function attributesOption(Request $request, $id)
+    {
+        $category_list = Category::orderBy('id', 'DESC')->get();
+        $attributes    = Attribute::findOrFail($id);
+        $values = Attribute_values::where('attributes_id', $id)
+            ->with('map_attributes_value_to_categories')
+            ->orderBy('sort_order', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->paginate(100)
+            ->withQueryString();
+
+        return view('backend.attributes-option.index', compact('attributes', 'values', 'category_list'));
     }
 
     public function attributesValueStore(Request $request){
@@ -375,12 +379,24 @@ class AttributeController extends Controller
         }
     }
 
-    public function sort(Request $request){
-        $sortedIDs = $request->input('sortedIDs');
-        foreach ($sortedIDs as $index => $id) {
-            Attribute_values::where('id', $id)->update(['sort_order' => $index + 1]);
-        }
-        return response()->json(['success' => true, 'message'=>'Sort order updated successfully!']);
+    public function sort(Request $request)
+    {
+        $request->validate([
+            'sortedIDs'   => 'required|array',
+            'sortedIDs.*' => 'integer',
+            'offset'      => 'nullable|integer|min:0',
+        ]);
+        $offset = (int) $request->input('offset', 0);
+        DB::transaction(function () use ($request, $offset) {
+            foreach ($request->input('sortedIDs') as $index => $id) {
+                Attribute_values::where('id', $id)
+                    ->update(['sort_order' => $offset + $index + 1]);
+            }
+        });
+        return response()->json([
+            'success' => true,
+            'message' => 'Sort order updated successfully!'
+        ]);
     }
 
     public function updateHsnGstWithAttributesValue($attributes_id, $category_id){

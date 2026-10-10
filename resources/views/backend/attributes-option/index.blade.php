@@ -34,8 +34,8 @@
             </div>
             <div class="card-body">
                 <div class="tab-pane fade show   active " role="tabpanel">
-                    <ul class="list-unstyled list-group sortable stage ui-sortable" id="sortable">
-                        @foreach($attributes->AttributesValues as $value)
+                    <ul class="list-unstyled list-group sortable stage ui-sortable" id="sortable"  data-offset="{{ ($values->firstItem() ?? 1) - 1 }}">
+                        @foreach($values as $value)
                         <li class="d-flex align-items-center justify-content-between list-group-item ui-sortable-handle" data-id="{{ $value->id }}" style="position: relative; left: 0px; top: 0px;">
                             <h6 class="mb-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-move me-3 ti ti-arrows-maximize ">
@@ -91,6 +91,14 @@
                         </li>
                         @endforeach
                     </ul>
+                    @if ($values->total() > 0)
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <small>Showing {{ $values->firstItem() }} to {{ $values->lastItem() }} of {{ $values->total() }}</small>
+                        {{ $values->links('pagination::bootstrap-4') }}
+                    </div>
+                    @else
+                        <p class="text-muted text-center mt-3">No attribute values found.</p>
+                    @endif
                 </div>
             </div>
          </div>
@@ -153,12 +161,14 @@ $(function() {
         placeholder: "ui-sortable-placeholder",
         update: function(event, ui) {
             var sortedIDs = $(this).sortable('toArray', {attribute: 'data-id'});
+            var offset = parseInt($(this).data('offset')) || 0;
             $.ajax({
                 url: '{{ route("attribute-values.sort") }}',
                 method: 'POST',
                 data: {
                     _token: '{{ csrf_token() }}',
-                    sortedIDs: sortedIDs
+                    sortedIDs: sortedIDs,
+                    offset: offset  
                 },
                 success: function(response) {
                     if (response.success) {
